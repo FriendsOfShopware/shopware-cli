@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	termColor "github.com/fatih/color"
 	"os"
+	accountApi "shopware-cli/account-api"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -9,7 +11,6 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "shopware-cli",
 	Short: "A cli for common Shopware tasks",
@@ -49,4 +50,18 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 	}
+}
+
+func getAccountApiByConfig() *accountApi.Client {
+	email := viper.GetString("account_email")
+	password := viper.GetString("account_password")
+
+	client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
+
+	if err != nil {
+		termColor.Red("Login failed with error: %s", err.Error())
+		os.Exit(1)
+	}
+
+	return client
 }

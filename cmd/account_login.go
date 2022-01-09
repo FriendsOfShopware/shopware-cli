@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
-	shopware_account_api "shopware-cli/account-api"
+	accountApi "shopware-cli/account-api"
 )
 
 var loginCmd = &cobra.Command{
@@ -31,7 +31,7 @@ var loginCmd = &cobra.Command{
 			termColor.Blue("Using existing credentials. Use account:logout to logout")
 		}
 
-		client, err := shopware_account_api.NewApi(shopware_account_api.LoginRequest{Email: email, Password: password})
+		client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
 
 		if err != nil {
 			termColor.Red("Login failed with error: %s", err.Error())
@@ -39,7 +39,7 @@ var loginCmd = &cobra.Command{
 		}
 
 		if newCredentials {
-
+			viper.Set("account_membership", client.GetActiveCompanyId())
 			err := viper.WriteConfig()
 
 			if err != nil {
@@ -53,14 +53,12 @@ var loginCmd = &cobra.Command{
 			log.Fatalln(err)
 		}
 
-		companies, err := client.Companies().MyCompanies()
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		fmt.Println(companies)
-
-		termColor.Green("Hey %s %s. You are now authenticated and can use all account commands", profile.PersonalData.FirstName, profile.PersonalData.LastName)
+		termColor.Green(
+			"Hey %s %s. You are now authenticated on company %s and can use all account commands",
+			profile.PersonalData.FirstName,
+			profile.PersonalData.LastName,
+			client.GetActiveMembership().Company.Name,
+		)
 	},
 }
 

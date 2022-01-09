@@ -7,7 +7,6 @@ import (
 	"log"
 )
 
-// logoutCmd represents the logout command
 var logoutCmd = &cobra.Command{
 	Use:   "account:logout",
 	Short: "Logout from Shopware Account",
