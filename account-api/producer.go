@@ -49,7 +49,6 @@ type companyAllocation struct {
 }
 
 func (e producerEndpoint) Profile() (*producer, error) {
-	// Fetch the producer
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyId()), nil)
 	if err != nil {
 		return nil, err
@@ -108,4 +107,175 @@ type producer struct {
 	} `json:"supportedLanguages"`
 	IconUrl           string      `json:"iconUrl"`
 	CancelledContract interface{} `json:"cancelledContract"`
+}
+
+func (e producerEndpoint) Extensions() ([]listingExtension, error) {
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?producerId=%d&limit=100&orderBy=name&orderSequence=asc", ApiUrl, e.GetId()), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var extensions []listingExtension
+	if err := json.Unmarshal(body, &extensions); err != nil {
+		return nil, fmt.Errorf("list_extensions: %v", err)
+	}
+
+	return extensions, nil
+}
+
+type listingExtension struct {
+	Id   int `json:"id"`
+	Type struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"type"`
+	Name            string `json:"name"`
+	Code            string `json:"code"`
+	LifecycleStatus struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"lifecycleStatus"`
+	Generation struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"generation"`
+	ActivationStatus struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"activationStatus"`
+	ApprovalStatus struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"approvalStatus"`
+	Infos []struct {
+		Id     int `json:"id"`
+		Locale struct {
+			Id   int    `json:"id"`
+			Name string `json:"name"`
+		} `json:"locale"`
+		Name               string `json:"name"`
+		Description        string `json:"description"`
+		InstallationManual string `json:"installationManual"`
+		ShortDescription   string `json:"shortDescription"`
+		Highlights         string `json:"highlights"`
+		Features           string `json:"features"`
+		Tags               []struct {
+			Id     int `json:"id"`
+			Locale struct {
+				Id   int    `json:"id"`
+				Name string `json:"name"`
+			} `json:"locale"`
+			Name     string `json:"name"`
+			Internal bool   `json:"internal"`
+		} `json:"tags"`
+		Videos []interface{} `json:"videos"`
+		Faqs   []interface{} `json:"faqs"`
+	} `json:"infos"`
+	Variants []struct {
+		Id         int `json:"id"`
+		PriceModel struct {
+			Id          int    `json:"id"`
+			Type        string `json:"type"`
+			BookingKey  string `json:"bookingKey"`
+			BookingText string `json:"bookingText"`
+		} `json:"priceModel"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"variants"`
+	StoreAvailabilities []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"storeAvailabilities"`
+	Addons        []interface{} `json:"addons"`
+	CreationDate  string        `json:"creationDate"`
+	Certification struct {
+		PluginId     int    `json:"pluginId"`
+		CreationDate string `json:"creationDate"`
+		BronzeResult struct {
+			Items []struct {
+				Name      string      `json:"name"`
+				Label     string      `json:"label"`
+				Actual    interface{} `json:"actual"`
+				Expected  interface{} `json:"expected"`
+				Fulfilled bool        `json:"fulfilled"`
+			} `json:"items"`
+			Fulfilled bool `json:"fulfilled"`
+		} `json:"bronzeResult"`
+		SilverResult struct {
+			Items []struct {
+				Name      string      `json:"name"`
+				Label     string      `json:"label"`
+				Actual    interface{} `json:"actual"`
+				Expected  interface{} `json:"expected"`
+				Fulfilled bool        `json:"fulfilled"`
+			} `json:"items"`
+			Fulfilled bool `json:"fulfilled"`
+		} `json:"silverResult"`
+		GoldResult struct {
+			Items []struct {
+				Name      string      `json:"name"`
+				Label     string      `json:"label"`
+				Actual    interface{} `json:"actual"`
+				Expected  interface{} `json:"expected"`
+				Fulfilled bool        `json:"fulfilled"`
+			} `json:"items"`
+			Fulfilled bool `json:"fulfilled"`
+		} `json:"goldResult"`
+		Type struct {
+			Name        string `json:"name"`
+			Description string `json:"description"`
+		} `json:"type"`
+	} `json:"certification"`
+	ProductType struct {
+		Id           int    `json:"id"`
+		Name         string `json:"name"`
+		Description  string `json:"description"`
+		MainCategory struct {
+			Id          int    `json:"id"`
+			Name        string `json:"name"`
+			Description string `json:"description"`
+			Parent      bool   `json:"parent"`
+			Position    int    `json:"position"`
+			Public      bool   `json:"public"`
+			Visible     bool   `json:"visible"`
+			Suggested   bool   `json:"suggested"`
+			Applicable  bool   `json:"applicable"`
+			Details     []struct {
+				Id          int    `json:"id"`
+				Name        string `json:"name"`
+				Description string `json:"description"`
+				Locale      struct {
+					Id   int    `json:"id"`
+					Name string `json:"name"`
+				} `json:"locale"`
+			} `json:"details"`
+			Active bool `json:"active"`
+		} `json:"mainCategory"`
+	} `json:"productType"`
+	Status struct {
+		Name string `json:"name"`
+	} `json:"status"`
+	PlannedReleaseDate                    interface{} `json:"plannedReleaseDate"`
+	Successor                             interface{} `json:"successor"`
+	IsSW5Compatible                       bool        `json:"isSW5Compatible"`
+	IsCompatibleWithLatestShopwareVersion bool        `json:"isCompatibleWithLatestShopwareVersion"`
+	AutomaticBugfixVersionCompatibility   bool        `json:"automaticBugfixVersionCompatibility"`
+	ReleaseDate                           *struct {
+		Date         string `json:"date"`
+		TimezoneType int    `json:"timezone_type"`
+		Timezone     string `json:"timezone"`
+	} `json:"releaseDate"`
+	PluginTestingInstanceCreated bool `json:"pluginTestingInstanceCreated"`
 }
