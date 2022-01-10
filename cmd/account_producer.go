@@ -5,7 +5,7 @@ import (
 )
 
 var accountCompanyProducerCmd = &cobra.Command{
-	Use:   "company",
+	Use:   "producer",
 	Short: "Manage your Shopware manufacturer",
 }
 
