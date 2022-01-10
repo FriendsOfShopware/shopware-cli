@@ -355,3 +355,37 @@ func (e producerEndpoint) DeleteExtension(id int) error {
 
 	return err
 }
+
+func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVersion, error) {
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"}]", ApiUrl, generation), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var versions []softwareVersion
+
+	err = json.Unmarshal(body, &versions)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &versions, nil
+}
+
+type softwareVersion struct {
+	Id          int         `json:"id"`
+	Name        string      `json:"name"`
+	Parent      interface{} `json:"parent"`
+	Selectable  bool        `json:"selectable"`
+	Major       *string     `json:"major"`
+	ReleaseDate *string     `json:"releaseDate"`
+	Public      bool        `json:"public"`
+}

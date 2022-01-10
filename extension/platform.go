@@ -13,6 +13,7 @@ type PlatformPlugin struct {
 	path                      string
 	name                      string
 	shopwareVersionConstraint version.Constraints
+	version                   string
 }
 
 func newPlatformPlugin(path string) (*PlatformPlugin, error) {
@@ -49,6 +50,7 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 
 	extension := PlatformPlugin{
 		path:                      path,
+		version:                   composerJson.Version,
 		name:                      parts[len(parts)-1],
 		shopwareVersionConstraint: shopwareConstraint,
 	}
@@ -90,4 +92,42 @@ func (p PlatformPlugin) GetShopwareVersionConstraint() version.Constraints {
 
 func (p PlatformPlugin) GetType() string {
 	return "platform"
+}
+
+func (p PlatformPlugin) GetVersion() string {
+	return p.version
+}
+
+func (p PlatformPlugin) GetChangelog() (*Changelog, error) {
+	changelogs, err := parseMarkdownChangelogInPath(p.path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	changelogDe, ok := changelogs["de-DE"]
+
+	if !ok {
+		return nil, fmt.Errorf("german changelog is missing")
+	}
+
+	changelogDeVersion, ok := changelogDe[p.GetVersion()]
+
+	if !ok {
+		return nil, fmt.Errorf("german changelog in version %s is missing", p.GetVersion())
+	}
+
+	changelogEn, ok := changelogs["en-GB"]
+
+	changelogEnVersion, ok := changelogEn[p.GetVersion()]
+
+	if !ok {
+		return nil, fmt.Errorf("english changelog in version %s is missing", p.GetVersion())
+	}
+
+	if !ok {
+		return nil, fmt.Errorf("english changelog is missing")
+	}
+
+	return &Changelog{German: changelogDeVersion, English: changelogEnVersion}, nil
 }

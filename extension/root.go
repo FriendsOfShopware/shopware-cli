@@ -22,8 +22,15 @@ func GetExtensionByFolder(path string) (Extension, error) {
 	return nil, fmt.Errorf("cannot detect extension type")
 }
 
+type Changelog struct {
+	German  string `json:"german"`
+	English string `json:"english"`
+}
+
 type Extension interface {
 	GetName() string
+	GetVersion() string
 	GetShopwareVersionConstraint() version.Constraints
 	GetType() string
+	GetChangelog() (*Changelog, error)
 }
