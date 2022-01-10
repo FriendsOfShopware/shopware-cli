@@ -4,8 +4,10 @@ go 1.17
 
 require (
 	github.com/fatih/color v1.13.0
+	github.com/hashicorp/go-version v1.4.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/otiai10/copy v1.7.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 )
@@ -31,3 +33,5 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/hashicorp/go-version => ./version
