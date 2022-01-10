@@ -41,7 +41,7 @@ func (c Client) doRequest(request *http.Request) ([]byte, error) {
 		return nil, fmt.Errorf("doRequest: %v", err)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		return nil, fmt.Errorf(string(data))
 	}
 
