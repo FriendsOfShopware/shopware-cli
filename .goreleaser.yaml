@@ -1,0 +1,58 @@
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
+release:
+  github:
+    owner: FriendsOfShopware
+    name: shopware-cli
+
+dockers:
+  - image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/friendsofshopware/shopware-cli:latest"
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+nfpms:
+  -
+    package_name: shopware-cli
+    vendor: Shyim
+    homepage: https://github.com/FriendsOfShopware/shopware-cli/
+    maintainer: Shyim <github@shyim.de>
+    description: A Shopware CLI
+    license: MIT
+    formats:
+      - apk
+      - deb
+      - rpm
