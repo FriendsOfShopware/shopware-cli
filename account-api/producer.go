@@ -343,3 +343,15 @@ func (e producerEndpoint) UpdateExtension(extension *extension) error {
 
 	return err
 }
+
+func (e producerEndpoint) DeleteExtension(id int) error {
+	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = e.c.doRequest(r)
+
+	return err
+}
