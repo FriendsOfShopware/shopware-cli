@@ -153,3 +153,39 @@ type membership struct {
 		} `json:"permissions"`
 	} `json:"roles"`
 }
+
+type changeMembershipRequest struct {
+	SelectedMembership struct {
+		Id int `json:"id"`
+	} `json:"membership"`
+}
+
+func (c Client) ChangeActiveMembership(selected *membership) error {
+	s, err := json.Marshal(changeMembershipRequest{SelectedMembership: struct {
+		Id int `json:"id"`
+	}(struct{ Id int }{Id: selected.Id})})
+
+	if err != nil {
+		return fmt.Errorf("ChangeActiveMembership: %v", err)
+	}
+
+	r, err := c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/account/%d/memberships/change", ApiUrl, c.GetUserId()), bytes.NewBuffer(s))
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.DefaultClient.Do(r)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode == 200 {
+		c.activeMembership = selected
+
+		return nil
+	}
+
+	return fmt.Errorf("could not change active membership due http error %d", resp.StatusCode)
+}

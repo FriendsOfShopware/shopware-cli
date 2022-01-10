@@ -1,12 +1,19 @@
 package cmd
 
 import (
+	"fmt"
 	termColor "github.com/fatih/color"
 	"os"
 	accountApi "shopware-cli/account-api"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+)
+
+const (
+	ConfigAccountUser     = "account.email"
+	ConfigAccountPassword = "account.password"
+	ConfigAccountCompany  = "account.company"
 )
 
 var cfgFile string
@@ -53,8 +60,8 @@ func initConfig() {
 }
 
 func getAccountApiByConfig() *accountApi.Client {
-	email := viper.GetString("account_email")
-	password := viper.GetString("account_password")
+	email := viper.GetString(ConfigAccountUser)
+	password := viper.GetString(ConfigAccountPassword)
 
 	client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
 
@@ -63,5 +70,28 @@ func getAccountApiByConfig() *accountApi.Client {
 		os.Exit(1)
 	}
 
+	companyId := viper.GetInt(ConfigAccountCompany)
+
+	err = changeApiMembership(client, companyId)
+
+	if err != nil {
+		termColor.Red(err.Error())
+		os.Exit(1)
+	}
+
 	return client
+}
+
+func changeApiMembership(client *accountApi.Client, companyId int) error {
+	if companyId == 0 || client.GetActiveCompanyId() == companyId {
+		return nil
+	}
+
+	for _, membership := range *client.GetMemberships() {
+		if membership.Company.Id == companyId {
+			return client.ChangeActiveMembership(&membership)
+		}
+	}
+
+	return fmt.Errorf("could not find configured company with id %d", companyId)
 }

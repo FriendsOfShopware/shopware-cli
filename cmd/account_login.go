@@ -17,16 +17,16 @@ var loginCmd = &cobra.Command{
 	Short: "Login into your Shopware Account",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		email := viper.GetString("account_email")
-		password := viper.GetString("account_password")
+		email := viper.GetString(ConfigAccountUser)
+		password := viper.GetString(ConfigAccountPassword)
 		newCredentials := false
 
 		if len(email) == 0 || len(password) == 0 {
 			email, password = askUserForEmailAndPassword()
 			newCredentials = true
 
-			viper.Set("account_email", email)
-			viper.Set("account_password", password)
+			viper.Set(ConfigAccountUser, email)
+			viper.Set(ConfigAccountPassword, password)
 		} else {
 			termColor.Blue("Using existing credentials. Use account:logout to logout")
 		}
@@ -38,8 +38,17 @@ var loginCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		if viper.GetInt(ConfigAccountCompany) > 0 {
+			err = changeApiMembership(client, viper.GetInt(ConfigAccountCompany))
+
+			if err != nil {
+				termColor.Red(err.Error())
+				os.Exit(1)
+			}
+		}
+
 		if newCredentials {
-			viper.Set("account_membership", client.GetActiveCompanyId())
+			viper.Set(ConfigAccountCompany, client.GetActiveCompanyId())
 			err := viper.WriteConfig()
 
 			if err != nil {

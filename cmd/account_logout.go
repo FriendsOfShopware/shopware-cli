@@ -12,8 +12,9 @@ var logoutCmd = &cobra.Command{
 	Short: "Logout from Shopware Account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("account_email", "")
-		viper.Set("account_password", "")
+		viper.Set(ConfigAccountUser, "")
+		viper.Set(ConfigAccountPassword, "")
+		viper.Set(ConfigAccountCompany, "")
 
 		err := viper.WriteConfig()
 
