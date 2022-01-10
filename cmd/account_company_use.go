@@ -9,7 +9,7 @@ import (
 )
 
 var accountCompanyUseCmd = &cobra.Command{
-	Use:   "account:company:use [companyId]",
+	Use:   "use [companyId]",
 	Short: "Use another company for your Account",
 	Args:  cobra.MinimumNArgs(1),
 	Long:  ``,
@@ -41,5 +41,5 @@ var accountCompanyUseCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(accountCompanyUseCmd)
+	accountCompanyRootCmd.AddCommand(accountCompanyUseCmd)
 }

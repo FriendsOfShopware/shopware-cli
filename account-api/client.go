@@ -1,7 +1,9 @@
 package account_api
 
 import (
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -23,7 +25,27 @@ func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*h
 	r.Header.Set("x-shopware-token", c.token.Token)
 
 	return r, nil
+}
 
+func (c Client) doRequest(request *http.Request) ([]byte, error) {
+	resp, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("doRequest: %v", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf(string(data))
+	}
+
+	return data, nil
 }
 
 func (c Client) GetActiveCompanyId() int {

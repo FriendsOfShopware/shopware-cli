@@ -8,7 +8,7 @@ import (
 )
 
 var accountCompanyListCmd = &cobra.Command{
-	Use:   "account:company:list",
+	Use:   "list",
 	Short: "Lists all available company for your Account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -26,5 +26,5 @@ var accountCompanyListCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(accountCompanyListCmd)
+	accountCompanyRootCmd.AddCommand(accountCompanyListCmd)
 }

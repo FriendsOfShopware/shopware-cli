@@ -13,7 +13,7 @@ import (
 )
 
 var loginCmd = &cobra.Command{
-	Use:   "account:login",
+	Use:   "login",
 	Short: "Login into your Shopware Account",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -72,7 +72,7 @@ var loginCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(loginCmd)
+	accountRootCmd.AddCommand(loginCmd)
 }
 
 func askUserForEmailAndPassword() (string, string) {

@@ -8,7 +8,7 @@ import (
 )
 
 var logoutCmd = &cobra.Command{
-	Use:   "account:logout",
+	Use:   "logout",
 	Short: "Logout from Shopware Account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -27,5 +27,5 @@ var logoutCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(logoutCmd)
+	accountRootCmd.AddCommand(logoutCmd)
 }
