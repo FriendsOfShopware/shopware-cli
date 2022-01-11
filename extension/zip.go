@@ -17,6 +17,38 @@ import (
 	"strings"
 )
 
+var (
+	defaultNotAllowedPaths = []string{
+		".travis.yml",
+		".gitlab-ci.yml",
+		"build.sh",
+		".editorconfig",
+		".php_cs.dist",
+		".php_cs.cache",
+		"ISSUE_TEMPLATE.md",
+		".sw-zip-blacklist",
+		"tests",
+		"Resources/store",
+		"src/Resources/store",
+		".github",
+		".git",
+	}
+
+	defaultNotAllowedFiles = []string{
+		".DS_Store",
+		"Thumbs.db",
+		"__MACOSX",
+	}
+
+	defaultNotAllowedExtensions = []string{
+		".zip",
+		".tar",
+		".gz",
+		".phar",
+		".rar",
+	}
+)
+
 func Unzip(r *zip.Reader, dest string) error {
 	for _, f := range r.File {
 
@@ -121,36 +153,6 @@ func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
 }
 
 func CleanupExtensionFolder(path string) error {
-	defaultPaths := []string{
-		".travis.yml",
-		".gitlab-ci.yml",
-		"build.sh",
-		".editorconfig",
-		".php_cs.dist",
-		".php_cs.cache",
-		"ISSUE_TEMPLATE.md",
-		".sw-zip-blacklist",
-		"tests",
-		"Resources/store",
-		"src/Resources/store",
-		".github",
-		".git",
-	}
-
-	defaultFiles := []string{
-		".DS_Store",
-		"Thumbs.db",
-		"__MACOSX",
-	}
-
-	defaultExtensions := []string{
-		".zip",
-		".tar",
-		".gz",
-		".phar",
-		".rar",
-	}
-
 	if _, err := os.Stat(path + ".sw-zip-blacklist"); !os.IsNotExist(err) {
 		blacklistFile, err := ioutil.ReadFile(path + ".sw-zip-blacklist")
 
@@ -165,11 +167,11 @@ func CleanupExtensionFolder(path string) error {
 				continue
 			}
 
-			defaultPaths = append(defaultPaths, s)
+			defaultNotAllowedPaths = append(defaultNotAllowedPaths, s)
 		}
 	}
 
-	for _, folder := range defaultPaths {
+	for _, folder := range defaultNotAllowedPaths {
 		if _, err := os.Stat(path + folder); !os.IsNotExist(err) {
 			err := os.RemoveAll(path + folder)
 			if err != nil {
@@ -190,13 +192,13 @@ func CleanupExtensionFolder(path string) error {
 
 		base := filepath.Base(path)
 
-		for _, file := range defaultFiles {
+		for _, file := range defaultNotAllowedFiles {
 			if file == base {
 				return os.RemoveAll(path)
 			}
 		}
 
-		for _, ext := range defaultExtensions {
+		for _, ext := range defaultNotAllowedExtensions {
 			if strings.HasSuffix(base, ext) {
 				return os.RemoveAll(path)
 			}
@@ -337,7 +339,13 @@ func addComposerReplacements(composer map[string]interface{}, ext Extension) map
 		log.Fatalln(err)
 	}
 
-	minVersion := getMinMatchingVersion(ext.GetShopwareVersionConstraint(), versions)
+	versionConstraint, err := ext.GetShopwareVersionConstraint()
+
+	if err != nil {
+		log.Fatalln(fmt.Errorf("addComposerReplacements: %v", err))
+	}
+
+	minVersion := getMinMatchingVersion(versionConstraint, versions)
 
 	components := []string{"core", "administration", "storefront", "administration"}
 
@@ -379,7 +387,7 @@ func addComposerReplacements(composer map[string]interface{}, ext Extension) map
 	return composer
 }
 
-func getMinMatchingVersion(constraint version.Constraints, versions []string) string {
+func getMinMatchingVersion(constraint *version.Constraints, versions []string) string {
 	vs := make([]*version.Version, 0)
 
 	for _, r := range versions {

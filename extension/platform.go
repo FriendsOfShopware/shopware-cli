@@ -10,10 +10,8 @@ import (
 )
 
 type PlatformPlugin struct {
-	path                      string
-	name                      string
-	shopwareVersionConstraint version.Constraints
-	version                   string
+	path     string
+	composer platformComposerJson
 }
 
 func newPlatformPlugin(path string) (*PlatformPlugin, error) {
@@ -49,10 +47,8 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 	}
 
 	extension := PlatformPlugin{
-		path:                      path,
-		version:                   composerJson.Version,
-		name:                      parts[len(parts)-1],
-		shopwareVersionConstraint: shopwareConstraint,
+		composer: composerJson,
+		path:     path,
 	}
 
 	return &extension, nil
@@ -82,23 +78,53 @@ type platformComposerJson struct {
 	} `json:"autoload"`
 }
 
-func (p PlatformPlugin) GetName() string {
-	return p.name
+func (p PlatformPlugin) GetName() (string, error) {
+	if p.composer.Extra.ShopwarePluginClass == "" {
+		return "", fmt.Errorf("extension name is empty")
+	}
+
+	parts := strings.Split(p.composer.Extra.ShopwarePluginClass, "\\")
+
+	return parts[len(parts)-1], nil
 }
 
-func (p PlatformPlugin) GetShopwareVersionConstraint() version.Constraints {
-	return p.shopwareVersionConstraint
+func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, error) {
+	shopwareConstraintString, ok := p.composer.Require["shopware/core"]
+
+	if !ok {
+		return nil, fmt.Errorf("require.shopware/core is required")
+	}
+
+	shopwareConstraint, err := version.NewConstraint(shopwareConstraintString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &shopwareConstraint, err
 }
 
 func (p PlatformPlugin) GetType() string {
 	return "platform"
 }
 
-func (p PlatformPlugin) GetVersion() string {
-	return p.version
+func (p PlatformPlugin) GetVersion() (*version.Version, error) {
+	v, err := version.NewVersion(p.composer.Version)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return v, nil
 }
 
-func (p PlatformPlugin) GetChangelog() (*Changelog, error) {
+func (p PlatformPlugin) GetChangelog() (*extensionTranslated, error) {
+	v, err := p.GetVersion()
+
+	if err != nil {
+		return nil, err
+	}
+
 	changelogs, err := parseMarkdownChangelogInPath(p.path)
 
 	if err != nil {
@@ -111,23 +137,35 @@ func (p PlatformPlugin) GetChangelog() (*Changelog, error) {
 		return nil, fmt.Errorf("german changelog is missing")
 	}
 
-	changelogDeVersion, ok := changelogDe[p.GetVersion()]
+	changelogDeVersion, ok := changelogDe[v.String()]
 
 	if !ok {
-		return nil, fmt.Errorf("german changelog in version %s is missing", p.GetVersion())
+		return nil, fmt.Errorf("german changelog in version %s is missing", v.String())
 	}
 
 	changelogEn, ok := changelogs["en-GB"]
 
-	changelogEnVersion, ok := changelogEn[p.GetVersion()]
+	changelogEnVersion, ok := changelogEn[v.String()]
 
 	if !ok {
-		return nil, fmt.Errorf("english changelog in version %s is missing", p.GetVersion())
+		return nil, fmt.Errorf("english changelog in version %s is missing", v.String())
 	}
 
 	if !ok {
 		return nil, fmt.Errorf("english changelog is missing")
 	}
 
-	return &Changelog{German: changelogDeVersion, English: changelogEnVersion}, nil
+	return &extensionTranslated{German: changelogDeVersion, English: changelogEnVersion}, nil
+}
+
+func (p PlatformPlugin) GetLicense() (string, error) {
+	return p.composer.License, nil
+}
+
+func (p PlatformPlugin) GetPath() string {
+	return p.path
+}
+
+func (p PlatformPlugin) GetMetaData() (*extensionMetadata, error) {
+	return nil, fmt.Errorf("not implemented")
 }

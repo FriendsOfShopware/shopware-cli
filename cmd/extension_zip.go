@@ -36,8 +36,14 @@ var extensionZipCmd = &cobra.Command{
 			log.Fatalln(err)
 		}
 
+		name, err := ext.GetName()
+
+		if err != nil {
+			log.Fatalln(fmt.Errorf("zip: %v", err))
+		}
+
 		// Clear previous zips
-		existingFiles, err := filepath.Glob(fmt.Sprintf("%s-*.zip", ext.GetName()))
+		existingFiles, err := filepath.Glob(fmt.Sprintf("%s-*.zip", name))
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -88,10 +94,10 @@ var extensionZipCmd = &cobra.Command{
 			log.Fatalln(err)
 		}
 
-		fileName := fmt.Sprintf("%s-%s.zip", ext.GetName(), tag)
+		fileName := fmt.Sprintf("%s-%s.zip", name, tag)
 
 		if len(tag) == 0 {
-			fileName = fmt.Sprintf("%s.zip", ext.GetName())
+			fileName = fmt.Sprintf("%s.zip", name)
 		}
 
 		extension.CreateZip(tempDir, fileName)
