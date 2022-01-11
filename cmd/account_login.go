@@ -48,12 +48,9 @@ var loginCmd = &cobra.Command{
 		}
 
 		if newCredentials {
-			viper.Set(ConfigAccountCompany, client.GetActiveCompanyId())
-			err := viper.WriteConfig()
+			err := saveConfig()
 
-			if err != nil {
-				log.Fatalln(err)
-			}
+			log.Fatalln(err)
 		}
 
 		profile, err := client.GetMyProfile()

@@ -25,7 +25,7 @@ var accountCompanyUseCmd = &cobra.Command{
 		for _, membership := range *client.GetMemberships() {
 			if membership.Company.Id == companyId {
 				viper.Set(ConfigAccountCompany, companyId)
-				err := viper.WriteConfig()
+				err := saveConfig()
 
 				if err != nil {
 					log.Fatalln(err)

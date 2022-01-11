@@ -95,3 +95,13 @@ func changeApiMembership(client *accountApi.Client, companyId int) error {
 
 	return fmt.Errorf("could not find configured company with id %d", companyId)
 }
+
+func saveConfig() error {
+	err := viper.SafeWriteConfig()
+
+	if err != nil {
+		err = viper.WriteConfig()
+	}
+
+	return err
+}
