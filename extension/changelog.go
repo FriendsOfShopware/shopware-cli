@@ -22,7 +22,7 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 		content, err := ioutil.ReadFile(file)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parseMarkdownChangelogInPath: %v", err)
 		}
 
 		changelogs[language] = parseMarkdownChangelog(string(content))

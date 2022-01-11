@@ -25,7 +25,7 @@ func Unzip(r *zip.Reader, dest string) error {
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("%s: illegal file path", fpath)
+			return fmt.Errorf("Unzip: %s: illegal file path", fpath)
 		}
 
 		if f.FileInfo().IsDir() {
@@ -41,12 +41,12 @@ func Unzip(r *zip.Reader, dest string) error {
 
 		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return err
+			return fmt.Errorf("Unzip: %v", err)
 		}
 
 		rc, err := f.Open()
 		if err != nil {
-			return err
+			return fmt.Errorf("Unzip: %v", err)
 		}
 
 		_, err = io.Copy(outFile, rc)
@@ -56,7 +56,7 @@ func Unzip(r *zip.Reader, dest string) error {
 		_ = rc.Close()
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Unzip: %v", err)
 		}
 	}
 
@@ -216,14 +216,14 @@ func PrepareFolderForZipping(path string, ext Extension) error {
 	content, err := ioutil.ReadFile(composerJsonPath)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	var composer map[string]interface{}
 	err = json.Unmarshal(content, &composer)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	// Add replacements
@@ -239,21 +239,21 @@ func PrepareFolderForZipping(path string, ext Extension) error {
 	if _, err := os.Stat(path + "composer.lock"); !os.IsNotExist(err) {
 		err := os.Remove(path + "composer.lock")
 		if err != nil {
-			return err
+			return fmt.Errorf("PrepareFolderForZipping: %v", err)
 		}
 	}
 
 	newContent, err := json.Marshal(&composer)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	err = ioutil.WriteFile(composerJsonPath, newContent, 0644)
 	if err != nil {
 		// Revert on failure
 		_ = ioutil.WriteFile(composerJsonPath, content, 0644)
-		return err
+		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	// Execute composer in this directory
@@ -265,7 +265,7 @@ func PrepareFolderForZipping(path string, ext Extension) error {
 	if err != nil {
 		// Revert on failure
 		_ = ioutil.WriteFile(composerJsonPath, content, 0644)
-		return err
+		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	_ = ioutil.WriteFile(composerJsonPath, content, 0644)
@@ -327,7 +327,7 @@ func addComposerReplacements(composer map[string]interface{}, ext Extension) map
 	versionString, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln(fmt.Errorf("PrepareFolderForZipping: %v", err))
 	}
 
 	var versions []string

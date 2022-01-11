@@ -30,7 +30,7 @@ func (c Client) Producer() (*producerEndpoint, error) {
 
 	var allocation companyAllocation
 	if err := json.Unmarshal(body, &allocation); err != nil {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf("producer.profile: %v", err)
 	}
 
 	if !allocation.IsProducer {
@@ -360,13 +360,13 @@ func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVer
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"}]", ApiUrl, generation), nil)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("shopware_versions: %v", err)
 	}
 
 	body, err := e.c.doRequest(r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("shopware_versions: %v", err)
 	}
 
 	var versions []softwareVersion
@@ -374,7 +374,7 @@ func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVer
 	err = json.Unmarshal(body, &versions)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("shopware_versions: %v", err)
 	}
 
 	return &versions, nil

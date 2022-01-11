@@ -25,27 +25,27 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 	jsonFile, err := ioutil.ReadFile(composerJsonFile)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
 
 	var composerJson platformComposerJson
 	err = json.Unmarshal(jsonFile, &composerJson)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
 
 	parts := strings.Split(composerJson.Extra.ShopwarePluginClass, "\\")
 	shopwareConstraintString, ok := composerJson.Require["shopware/core"]
 
 	if !ok {
-		return nil, fmt.Errorf("require.shopware/core is required")
+		return nil, fmt.Errorf("newPlatformPlugin: require.shopware/core is required")
 	}
 
 	shopwareConstraint, err := version.NewConstraint(shopwareConstraintString)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
 
 	extension := PlatformPlugin{

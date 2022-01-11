@@ -11,24 +11,24 @@ func (c Client) GetMyProfile() (*myProfile, error) {
 	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.token.UserAccountID), nil)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("my_profile: %v", err)
 	}
 
 	resp, err := http.DefaultClient.Do(request)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("my_profile: %v", err)
 	}
 
 	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("login: %v", err)
+		return nil, fmt.Errorf("my_profile: %v", err)
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf(string(data))
+		return nil, fmt.Errorf("my_profile: %v", err)
 	}
 
 	var profile myProfile
