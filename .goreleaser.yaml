@@ -6,6 +6,10 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    binary: shopware
+    ldflags: -s -w -X 'shopware-cli/cmd.version={{ .Version }}'
+    flags:
+      - -trimpath
     goos:
       - linux
       - windows
@@ -18,6 +22,9 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
 
 release:
   github:
@@ -56,3 +63,23 @@ nfpms:
       - apk
       - deb
       - rpm
+
+brews:
+  - tap:
+      owner: FriendsOfShopware
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: Soner Sayakci
+      email: s.sayakci@shopware.com
+    folder: Formula
+    goarm: "7"
+    homepage: https://friendsofshopware.com
+    description: Shopware CLI helps Shopware developers manage extensions
+    license: MIT
+    test: |
+      system "#{bin}/shopware --version"
+    dependencies:
+    - name: git
+    install: |-
+      bin.install "shopware"
