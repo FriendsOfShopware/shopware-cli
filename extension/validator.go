@@ -3,6 +3,7 @@ package extension
 import (
 	"fmt"
 	"io/fs"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -33,27 +34,18 @@ func (c validationContext) Errors() []string {
 	return *c.errors
 }
 
-type Validator interface {
-	Validate(context *validationContext)
-}
-
 func RunValidation(ext Extension) *validationContext {
 	context := newValidationContext(ext)
 
-	validators := []Validator{generalChecker{}}
-
-	for _, validator := range validators {
-		validator.Validate(context)
-	}
+	runDefaultValidate(context)
+	ext.Validate(context)
 
 	return context
 }
 
-type generalChecker struct{}
-
-func (c generalChecker) Validate(context *validationContext) {
+func runDefaultValidate(context *validationContext) {
 	_, versionErr := context.Extension.GetVersion()
-	_, nameErr := context.Extension.GetName()
+	name, nameErr := context.Extension.GetName()
 	_, shopwareVersionErr := context.Extension.GetShopwareVersionConstraint()
 
 	if versionErr != nil {
@@ -66,6 +58,10 @@ func (c generalChecker) Validate(context *validationContext) {
 
 	if shopwareVersionErr != nil {
 		context.AddError(shopwareVersionErr.Error())
+	}
+
+	if len(name) == 0 {
+		context.AddError("Extension name cannot be empty")
 	}
 
 	_ = filepath.Walk(context.Extension.GetPath(), func(path string, info fs.FileInfo, err error) error {
@@ -93,6 +89,41 @@ func (c generalChecker) Validate(context *validationContext) {
 			}
 		}
 
+		if strings.HasSuffix(name, ".php") {
+			phpCheck := exec.Command("php", "-l", path)
+			text, err := phpCheck.Output()
+
+			if err != nil {
+				context.AddError(string(text))
+			}
+		}
+
 		return nil
 	})
+
+	metaData := context.Extension.GetMetaData()
+
+	if len(metaData.Label.German) == 0 {
+		context.AddError("label is not translated in german")
+	}
+
+	if len(metaData.Label.English) == 0 {
+		context.AddError("label is not translated in english")
+	}
+
+	if len(metaData.Description.German) == 0 {
+		context.AddError("description is not translated in german")
+	}
+
+	if len(metaData.Description.English) == 0 {
+		context.AddError("description is not translated in english")
+	}
+
+	if len(metaData.Description.German) < 150 || len(metaData.Description.German) > 185 {
+		context.AddError(fmt.Sprintf("the %s description with length of %d should have a length from 150 up to 185 characters.", "german", len(metaData.Description.German)))
+	}
+
+	if len(metaData.Description.English) < 150 || len(metaData.Description.English) > 185 {
+		context.AddError(fmt.Sprintf("the %s description with length of %d should have a length from 150 up to 185 characters.", "english", len(metaData.Description.English)))
+	}
 }

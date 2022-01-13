@@ -53,3 +53,43 @@ func parseMarkdownChangelog(content string) map[string]string {
 
 	return versions
 }
+
+func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error) {
+	v, err := ext.GetVersion()
+
+	if err != nil {
+		return nil, err
+	}
+
+	changelogs, err := parseMarkdownChangelogInPath(ext.GetPath())
+
+	if err != nil {
+		return nil, err
+	}
+
+	changelogDe, ok := changelogs["de-DE"]
+
+	if !ok {
+		return nil, fmt.Errorf("german changelog is missing")
+	}
+
+	changelogDeVersion, ok := changelogDe[v.String()]
+
+	if !ok {
+		return nil, fmt.Errorf("german changelog in version %s is missing", v.String())
+	}
+
+	changelogEn, ok := changelogs["en-GB"]
+
+	changelogEnVersion, ok := changelogEn[v.String()]
+
+	if !ok {
+		return nil, fmt.Errorf("english changelog in version %s is missing", v.String())
+	}
+
+	if !ok {
+		return nil, fmt.Errorf("english changelog is missing")
+	}
+
+	return &extensionTranslated{German: changelogDeVersion, English: changelogEnVersion}, nil
+}

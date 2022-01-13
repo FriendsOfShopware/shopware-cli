@@ -19,8 +19,8 @@ func gitTagOrBranchOfFolder(source string) (string, error) {
 
 	versions := strings.Split(string(stdout), "\n")
 
-	if len(versions) > 0 {
-		return versions[0], fmt.Errorf("gitTagOrBranchOfFolder: %v", nil)
+	if len(versions) > 0 && len(versions[0]) > 0 {
+		return versions[0], nil
 	}
 
 	branchCmd := exec.Command("git", "-C", source, "branch")
@@ -31,7 +31,7 @@ func gitTagOrBranchOfFolder(source string) (string, error) {
 		return "", fmt.Errorf("gitTagOrBranchOfFolder: %v", err)
 	}
 
-	return strings.TrimLeft(string(stdout), "* "), nil
+	return strings.Trim(strings.TrimLeft(string(stdout), "* "), "\n"), nil
 }
 
 func GitCopyFolder(source, target string) (string, error) {

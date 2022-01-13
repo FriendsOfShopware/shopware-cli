@@ -50,6 +50,7 @@ var extensionValidateCmd = &cobra.Command{
 		termColor.Red("Validation failed")
 
 		table := tablewriter.NewWriter(os.Stdout)
+		table.SetColWidth(100)
 		table.SetHeader([]string{"Message"})
 
 		for _, msg := range context.Errors() {

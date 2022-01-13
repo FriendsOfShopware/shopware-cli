@@ -15,7 +15,7 @@ func GetExtensionByFolder(path string) (Extension, error) {
 	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s/manifest.xml", path)); err == nil {
-		return nil, fmt.Errorf("apps are currently not supported")
+		return newApp(path)
 	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s/composer.json", path)); err == nil {
@@ -58,10 +58,8 @@ type extensionTranslated struct {
 }
 
 type extensionMetadata struct {
-	Label            extensionTranslated
-	Description      extensionTranslated
-	ManufacturerLink extensionTranslated
-	SupportLink      extensionTranslated
+	Label       extensionTranslated
+	Description extensionTranslated
 }
 
 type Extension interface {
@@ -72,5 +70,6 @@ type Extension interface {
 	GetType() string
 	GetPath() string
 	GetChangelog() (*extensionTranslated, error)
-	GetMetaData() (*extensionMetadata, error)
+	GetMetaData() *extensionMetadata
+	Validate(context *validationContext)
 }
