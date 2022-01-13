@@ -28,8 +28,9 @@ shopware extension zip [folder]
 There are many options to install shopware-cli. The binary file itself can be found in the latest GitHub release. 
 The releases contain also packages for Debian, Red Hat and Alpine.
 
-For Homebrew use `brew install FriendsOfShopware/tap/shopware-cli`
-## Run Locally
+For Homebrew use `brew install FriendsOfShopware/tap/shopware-cli`.
+
+## Develop Locally
 
 Clone the project
 
