@@ -12,7 +12,7 @@ import (
 	"shopware-cli/extension"
 )
 
-var disableZip = false
+var disableGit = false
 
 var extensionZipCmd = &cobra.Command{
 	Use:   "zip [path] [branch]",
@@ -67,7 +67,7 @@ var extensionZipCmd = &cobra.Command{
 		tag := ""
 
 		// Extract files using strategy
-		if disableZip {
+		if disableGit {
 			err = cp.Copy(path, tempDir)
 		} else {
 			tag, err = extension.GitCopyFolder(path, tempDir)
@@ -108,5 +108,5 @@ var extensionZipCmd = &cobra.Command{
 
 func init() {
 	extensionRootCmd.AddCommand(extensionZipCmd)
-	extensionZipCmd.Flags().BoolVar(&disableZip, "disable-git", false, "Use the source folder as it is")
+	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
 }
