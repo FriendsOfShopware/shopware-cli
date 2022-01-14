@@ -50,7 +50,9 @@ var loginCmd = &cobra.Command{
 		if newCredentials {
 			err := saveConfig()
 
-			log.Fatalln(err)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 
 		profile, err := client.GetMyProfile()
