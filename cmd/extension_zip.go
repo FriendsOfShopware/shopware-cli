@@ -54,6 +54,14 @@ var extensionZipCmd = &cobra.Command{
 
 		// Create temp dir
 		tempDir, err := ioutil.TempDir("", "extension")
+		extName, err := ext.GetName()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		extDir := fmt.Sprintf("%s/%s/", tempDir, extName)
+
+		err = os.Mkdir(extDir, os.ModePerm)
 		tempDir = tempDir + "/"
 
 		if err != nil {
@@ -68,9 +76,9 @@ var extensionZipCmd = &cobra.Command{
 
 		// Extract files using strategy
 		if disableGit {
-			err = cp.Copy(path, tempDir)
+			err = cp.Copy(path, extDir)
 		} else {
-			tag, err = extension.GitCopyFolder(path, tempDir)
+			tag, err = extension.GitCopyFolder(path, extDir)
 		}
 
 		// User input wins
@@ -82,14 +90,14 @@ var extensionZipCmd = &cobra.Command{
 			log.Fatalln(err)
 		}
 
-		err = extension.PrepareFolderForZipping(tempDir, ext)
+		err = extension.PrepareFolderForZipping(extDir, ext)
 
 		if err != nil {
 			log.Fatalln(err)
 		}
 
 		// Cleanup not wanted files
-		err = extension.CleanupExtensionFolder(tempDir)
+		err = extension.CleanupExtensionFolder(extDir)
 		if err != nil {
 			log.Fatalln(err)
 		}

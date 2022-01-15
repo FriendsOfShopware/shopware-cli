@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func GetExtensionByFolder(path string) (Extension, error) {
@@ -49,7 +50,8 @@ func GetExtensionByZip(filePath string) (Extension, error) {
 		return nil, err
 	}
 
-	return GetExtensionByFolder(dir)
+	extName := strings.Split(file.File[0].Name, "/")[0]
+	return GetExtensionByFolder(fmt.Sprintf("%s/%s", dir, extName))
 }
 
 type extensionTranslated struct {
