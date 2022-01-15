@@ -1,3 +1,3 @@
 FROM scratch
-ENTRYPOINT ["/shopware"]
-COPY shopware /
+ENTRYPOINT ["/shopware-cli"]
+COPY shopware-cli /
