@@ -268,7 +268,7 @@ type extension struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"license"`
-	Infos []struct {
+	Infos []*struct {
 		Id     int `json:"id"`
 		Locale struct {
 			Id   int    `json:"id"`
