@@ -6,7 +6,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    binary: shopware
+    binary: shopware-cli
     ldflags: -s -w -X 'shopware-cli/cmd.version={{ .Version }}'
     flags:
       - -trimpath
@@ -78,8 +78,8 @@ brews:
     description: Shopware CLI helps Shopware developers manage extensions
     license: MIT
     test: |
-      system "#{bin}/shopware --version"
+      system "#{bin}/shopware-cli --version"
     dependencies:
     - name: git
     install: |-
-      bin.install "shopware"
+      bin.install "shopware-cli"

@@ -10,18 +10,18 @@ A cli which contains handy helpful commands for daily Shopware tasks
 ## All commands
 
 ```
-shopware account login
-shopware account logout
-shopware account company list
-shopware account company use [companyId]
-shopware account producer
-shopware account producer info
-shopware account producer extension create [name] [generation]
-shopware account producer extension delete [name]
-shopware account producer extension list
-shopware extension validate [folder or zip path]
-shopware extension prepare [folder]
-shopware extension zip [folder]
+shopware-cli account login
+shopware-cli account logout
+shopware-cli account company list
+shopware-cli account company use [companyId]
+shopware-cli account producer
+shopware-cli account producer info
+shopware-cli account producer extension create [name] [generation]
+shopware-cli account producer extension delete [name]
+shopware-cli account producer extension list
+shopware-cli extension validate [folder or zip path]
+shopware-cli-cli extension prepare [folder]
+shopware-cli extension zip [folder]
 ```
 ## Installation
 

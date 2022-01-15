@@ -20,7 +20,7 @@ var cfgFile string
 var version = "dev"
 
 var rootCmd = &cobra.Command{
-	Use:     "shopware",
+	Use:     "shopware-cli",
 	Short:   "A cli for common Shopware tasks",
 	Long:    `This application contains some utilities like extension management`,
 	Version: version,
