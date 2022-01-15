@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	account_api "shopware-cli/account-api"
 	"strconv"
 )
 
@@ -22,7 +23,17 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		extensions, err := p.Extensions()
+		criteria := account_api.ListExtensionCriteria{
+			Limit: 100,
+		}
+
+		if len(listExtensionSearch) > 0 {
+			criteria.Search = listExtensionSearch
+			criteria.OrderBy = "name"
+			criteria.OrderSequence = "asc"
+		}
+
+		extensions, err := p.Extensions(&criteria)
 
 		if err != nil {
 			log.Fatalln(err)
@@ -55,6 +66,9 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	},
 }
 
+var listExtensionSearch string
+
 func init() {
 	accountCompanyProducerExtensionCmd.AddCommand(accountCompanyProducerExtensionListCmd)
+	accountCompanyProducerExtensionListCmd.Flags().StringVar(&listExtensionSearch, "search", "", "Filter for name")
 }

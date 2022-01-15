@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/schema"
+	"net/url"
+	"strconv"
+	"strings"
 )
 
 type producerEndpoint struct {
@@ -110,8 +114,25 @@ type producer struct {
 	CancelledContract interface{} `json:"cancelledContract"`
 }
 
-func (e producerEndpoint) Extensions() ([]extension, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?producerId=%d&limit=100&orderBy=name&orderSequence=asc", ApiUrl, e.GetId()), nil)
+type ListExtensionCriteria struct {
+	Limit         int    `schema:"limit,omitempty"`
+	Offset        int    `schema:"offset,omitempty"`
+	OrderBy       string `schema:"orderBy,omitempty"`
+	OrderSequence string `schema:"orderSequence,omitempty"`
+	Search        string `schema:"search,omitempty"`
+}
+
+func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]extension, error) {
+	encoder := schema.NewEncoder()
+	form := url.Values{}
+	form.Set("producerId", strconv.FormatInt(int64(e.GetId()), 10))
+	err := encoder.Encode(criteria, form)
+
+	if err != nil {
+		return nil, fmt.Errorf("list_extensions: %v", err)
+	}
+
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?%s", ApiUrl, form.Encode()), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +149,48 @@ func (e producerEndpoint) Extensions() ([]extension, error) {
 	}
 
 	return extensions, nil
+}
+
+func (e producerEndpoint) GetExtensionByName(name string) (*extension, error) {
+	criteria := ListExtensionCriteria{
+		Search: name,
+	}
+
+	extensions, err := e.Extensions(&criteria)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ext := range extensions {
+		if strings.ToLower(ext.Name) == strings.ToLower(name) {
+			return e.GetExtensionById(ext.Id)
+		}
+	}
+
+	return nil, fmt.Errorf("cannot find extension by name %s", name)
+}
+
+func (e producerEndpoint) GetExtensionById(id int) (*extension, error) {
+	// Create it
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionById: %v", err)
+	}
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionById: %v", err)
+	}
+
+	var extension extension
+	if err := json.Unmarshal(body, &extension); err != nil {
+		return nil, fmt.Errorf("GetExtensionById: %v", err)
+	}
+
+	return &extension, nil
 }
 
 type extension struct {
@@ -266,7 +329,7 @@ type extension struct {
 	IsEnterpriseAccelerator               bool        `json:"isEnterpriseAccelerator"`
 	IsSW6EnterpriseFeature                bool        `json:"isSW6EnterpriseFeature"`
 	IsSW6ProfessionalEditionFeature       bool        `json:"isSW6ProfessionalEditionFeature"`
-	Binaries                              string      `json:"binaries"`
+	Binaries                              interface{} `json:"binaries"`
 	Predecessor                           interface{} `json:"predecessor"`
 	Successor                             interface{} `json:"successor"`
 	IsCompatibleWithLatestShopwareVersion bool        `json:"isCompatibleWithLatestShopwareVersion"`
