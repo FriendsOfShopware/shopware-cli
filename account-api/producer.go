@@ -419,7 +419,7 @@ func (e producerEndpoint) DeleteExtension(id int) error {
 	return err
 }
 
-func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVersion, error) {
+func (e producerEndpoint) GetSoftwareVersions(generation string) (*SoftwareVersionList, error) {
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"}]", ApiUrl, generation), nil)
 
 	if err != nil {
@@ -432,7 +432,7 @@ func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVer
 		return nil, fmt.Errorf("shopware_versions: %v", err)
 	}
 
-	var versions []softwareVersion
+	var versions SoftwareVersionList
 
 	err = json.Unmarshal(body, &versions)
 
@@ -443,7 +443,7 @@ func (e producerEndpoint) GetSoftwareVersions(generation string) (*[]softwareVer
 	return &versions, nil
 }
 
-type softwareVersion struct {
+type SoftwareVersion struct {
 	Id          int         `json:"id"`
 	Name        string      `json:"name"`
 	Parent      interface{} `json:"parent"`
