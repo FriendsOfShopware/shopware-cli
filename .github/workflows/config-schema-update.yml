@@ -3,7 +3,7 @@ name: Update docs content
 on:
   push:
     paths:
-      - 'extension/config.schema.json'
+      - 'extension/shopware-extension-schema.json'
 
 jobs:
   config-schema-update:
