@@ -28,7 +28,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "GitHub Actions Bot"
-          git config user.email "<actions@github.com>"
+          git config user.email "<>"
           echo -e "---\n title: 'Schema of .shopware-extensions.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
           rm -f content/docs/shopware-extensions.yml-schema/index.md
           mv schema.new.md content/docs/shopware-extensions.yml-schema/index.md
