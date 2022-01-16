@@ -1,0 +1,119 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$ref": "#/definitions/Config",
+    "description": "shopware cli extension configuration definition file",
+    "definitions": {
+        "Config": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "store": {
+                    "$ref": "#/definitions/Store"
+                }
+            }
+        },
+        "Store": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": ["German", "International"]
+                    }
+                },
+                "localizations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": ["de_DE", "en_GB", "es_ES", "fi_FI", "fr_FR", "it_IT", "nb_NO", "nl_NL", "pl_PL", "sv_SE", "bg_BG", "cs_CZ", "pt_PT", "hy", "de_CH", "tr", "da_DK", "ru_RU"]
+                    }
+                },
+                "categories": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "maxItems": 2,
+                    "items": {
+                        "type": "string",
+                        "enum": ["Administration","BackendBearbeitung","System","SEOOptimierung","Bonitaetsprüfung","Rechtssicherheit","MobileAdministration","Auswertung","KommentarFeedback","Tracking","MobileAuswertung","Integration","Shopsystem","PreissuchmaschinenPortale","Warenwirtschaft","Versand","Bezahlung","StorefrontDetailanpassungen","Sprache","Suche","HeaderFooter","Produktdarstellung","UebergreifendeDarstellung","Detailseite","MenueKategorien","Bestellprozess","KundenkontoPersonalisierung","IconsButons","Schriftarten","WidgetsSnippets","Sonderfunktionen","Themes","Branche","Home+Furnishings","FashionBekleidung","GartenNatur","KosmetikGesundheit","EssenTrinken","KinderPartyGeschenke","SportLifestyleReisen","TechnikIT","IndustrieGroßhandel","MigrationTools","Einkaufswelten","ConversionOptimierung","Extensions","MarketingTools","B2BExtensions","Blog"]
+                    }
+                },
+                "default_locale": {
+                    "type": "string",
+                    "enum": ["en_GB", "de_DE"]
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["extension", "theme"]
+                },
+                "automatic_bugfix_version_compatibility": {
+                    "type": "boolean"
+                },
+                "info": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "en": {
+                            "$ref": "#/definitions/StoreInfoTranslated"
+                        },
+                        "de": {
+                            "$ref": "#/definitions/StoreInfoTranslated"
+                        }
+                    }
+                }
+            }
+        },
+        "StoreInfoTranslated": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "videos": {
+                    "type": "array",
+                    "maxItems": 2,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "maxItems": 5
+                },
+                "hightlights": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "maxItems": 5,
+                    "uniqueItems": true
+                },
+                "features": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "maxItems": 15,
+                    "uniqueItems": true
+                },
+                "faq": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StoreInfoFaqQuestion"
+                    }
+                }
+            }
+        },
+        "StoreInfoFaqQuestion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question", "answer"],
+            "properties": {
+                "question": {
+                    "type": "string"
+                },
+                "answer": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

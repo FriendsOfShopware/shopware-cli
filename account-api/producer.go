@@ -122,7 +122,7 @@ type ListExtensionCriteria struct {
 	Search        string `schema:"search,omitempty"`
 }
 
-func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]extension, error) {
+func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]Extension, error) {
 	encoder := schema.NewEncoder()
 	form := url.Values{}
 	form.Set("producerId", strconv.FormatInt(int64(e.GetId()), 10))
@@ -143,7 +143,7 @@ func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]extensi
 		return nil, err
 	}
 
-	var extensions []extension
+	var extensions []Extension
 	if err := json.Unmarshal(body, &extensions); err != nil {
 		return nil, fmt.Errorf("list_extensions: %v", err)
 	}
@@ -151,7 +151,7 @@ func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]extensi
 	return extensions, nil
 }
 
-func (e producerEndpoint) GetExtensionByName(name string) (*extension, error) {
+func (e producerEndpoint) GetExtensionByName(name string) (*Extension, error) {
 	criteria := ListExtensionCriteria{
 		Search: name,
 	}
@@ -168,10 +168,10 @@ func (e producerEndpoint) GetExtensionByName(name string) (*extension, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find extension by name %s", name)
+	return nil, fmt.Errorf("cannot find Extension by name %s", name)
 }
 
-func (e producerEndpoint) GetExtensionById(id int) (*extension, error) {
+func (e producerEndpoint) GetExtensionById(id int) (*Extension, error) {
 	// Create it
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
 
@@ -185,7 +185,7 @@ func (e producerEndpoint) GetExtensionById(id int) (*extension, error) {
 		return nil, fmt.Errorf("GetExtensionById: %v", err)
 	}
 
-	var extension extension
+	var extension Extension
 	if err := json.Unmarshal(body, &extension); err != nil {
 		return nil, fmt.Errorf("GetExtensionById: %v", err)
 	}
@@ -193,7 +193,7 @@ func (e producerEndpoint) GetExtensionById(id int) (*extension, error) {
 	return &extension, nil
 }
 
-type extension struct {
+type Extension struct {
 	Id       int `json:"id"`
 	Producer struct {
 		Id       int    `json:"id"`
@@ -259,55 +259,45 @@ type extension struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"approvalStatus"`
-	StandardLocale struct {
-		Id   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"standardLocale"`
-	License struct {
+	StandardLocale Locale `json:"standardLocale"`
+	License        struct {
 		Id          int    `json:"id"`
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"license"`
 	Infos []*struct {
-		Id     int `json:"id"`
-		Locale struct {
-			Id   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"locale"`
-		Name               string        `json:"name"`
-		Description        string        `json:"description"`
-		InstallationManual string        `json:"installationManual"`
-		ShortDescription   string        `json:"shortDescription"`
-		Highlights         string        `json:"highlights"`
-		Features           string        `json:"features"`
-		Tags               []interface{} `json:"tags"`
-		Videos             []interface{} `json:"videos"`
-		Faqs               []interface{} `json:"faqs"`
+		Id                 int          `json:"id"`
+		Locale             Locale       `json:"locale"`
+		Name               string       `json:"name"`
+		Description        string       `json:"description"`
+		InstallationManual string       `json:"installationManual"`
+		ShortDescription   string       `json:"shortDescription"`
+		Highlights         string       `json:"highlights"`
+		Features           string       `json:"features"`
+		Tags               []StoreTag   `json:"tags"`
+		Videos             []StoreVideo `json:"videos"`
+		Faqs               []StoreFaq   `json:"faqs"`
 	} `json:"infos"`
-	PriceModels         []interface{} `json:"priceModels"`
-	Variants            []interface{} `json:"variants"`
-	StoreAvailabilities []struct {
-		Id          int    `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	} `json:"storeAvailabilities"`
-	Categories                          []interface{} `json:"categories"`
-	Addons                              []interface{} `json:"addons"`
-	LastChange                          string        `json:"lastChange"`
-	CreationDate                        string        `json:"creationDate"`
-	Support                             bool          `json:"support"`
-	SupportOnlyCommercial               bool          `json:"supportOnlyCommercial"`
-	IconPath                            string        `json:"iconPath"`
-	IconIsSet                           bool          `json:"iconIsSet"`
-	ExamplePageUrl                      string        `json:"examplePageUrl"`
-	Demos                               []interface{} `json:"demos"`
-	Localizations                       []interface{} `json:"localizations"`
-	LatestBinary                        interface{}   `json:"latestBinary"`
-	MigrationSupport                    bool          `json:"migrationSupport"`
-	AutomaticBugfixVersionCompatibility bool          `json:"automaticBugfixVersionCompatibility"`
-	HiddenInStore                       bool          `json:"hiddenInStore"`
-	Certification                       interface{}   `json:"certification"`
-	ProductType                         interface{}   `json:"productType"`
+	PriceModels                         []interface{}      `json:"priceModels"`
+	Variants                            []interface{}      `json:"variants"`
+	StoreAvailabilities                 []StoreAvailablity `json:"storeAvailabilities"`
+	Categories                          []StoreCategory    `json:"categories"`
+	Addons                              []interface{}      `json:"addons"`
+	LastChange                          string             `json:"lastChange"`
+	CreationDate                        string             `json:"creationDate"`
+	Support                             bool               `json:"support"`
+	SupportOnlyCommercial               bool               `json:"supportOnlyCommercial"`
+	IconPath                            string             `json:"iconPath"`
+	IconIsSet                           bool               `json:"iconIsSet"`
+	ExamplePageUrl                      string             `json:"examplePageUrl"`
+	Demos                               []interface{}      `json:"demos"`
+	Localizations                       []Locale           `json:"localizations"`
+	LatestBinary                        interface{}        `json:"latestBinary"`
+	MigrationSupport                    bool               `json:"migrationSupport"`
+	AutomaticBugfixVersionCompatibility bool               `json:"automaticBugfixVersionCompatibility"`
+	HiddenInStore                       bool               `json:"hiddenInStore"`
+	Certification                       interface{}        `json:"certification"`
+	ProductType                         StoreProductType   `json:"productType"`
 	Status                              struct {
 		Name string `json:"name"`
 	} `json:"status"`
@@ -351,7 +341,7 @@ const (
 	GenerationPlatform = "platform"
 )
 
-func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (*extension, error) {
+func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (*Extension, error) {
 	requestBody, err := json.Marshal(newExtension)
 
 	if err != nil {
@@ -371,7 +361,7 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 		return nil, err
 	}
 
-	var extension extension
+	var extension Extension
 	if err := json.Unmarshal(body, &extension); err != nil {
 		return nil, fmt.Errorf("create_extension: %v", err)
 	}
@@ -388,7 +378,7 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 	return &extension, nil
 }
 
-func (e producerEndpoint) UpdateExtension(extension *extension) error {
+func (e producerEndpoint) UpdateExtension(extension *Extension) error {
 	requestBody, err := json.Marshal(extension)
 
 	if err != nil {
@@ -451,4 +441,147 @@ type SoftwareVersion struct {
 	Major       *string     `json:"major"`
 	ReleaseDate *string     `json:"releaseDate"`
 	Public      bool        `json:"public"`
+}
+
+type Locale struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type StoreAvailablity struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type StoreCategory struct {
+	Id          int         `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Parent      interface{} `json:"parent"`
+	Position    int         `json:"position"`
+	Public      bool        `json:"public"`
+	Visible     bool        `json:"visible"`
+	Suggested   bool        `json:"suggested"`
+	Applicable  bool        `json:"applicable"`
+	Details     []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Locale      struct {
+			Id   int    `json:"id"`
+			Name string `json:"name"`
+		} `json:"locale"`
+	} `json:"details"`
+	Active bool `json:"active"`
+}
+
+type StoreTag struct {
+	Name string `json:"name"`
+}
+
+type StoreVideo struct {
+	URL string `json:"url"`
+}
+
+type StoreProductType struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type StoreFaq struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+}
+
+type ExtensionGeneralInformation struct {
+	Categories []StoreCategory `json:"categories"`
+	Addons     []struct {
+		Id             int    `json:"id"`
+		Name           string `json:"name"`
+		Description    string `json:"description"`
+		AddedProvision int    `json:"addedProvision"`
+		Public         bool   `json:"public"`
+	} `json:"addons"`
+	Generations []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"generations"`
+	ActivationStatus []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"activationStatus"`
+	ApprovalStatus []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"approvalStatus"`
+	LifecycleStatus []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"lifecycleStatus"`
+	BinaryStatus []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"binaryStatus"`
+	Locales  []Locale `json:"locales"`
+	Licenses []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"licenses"`
+	StoreAvailabilities []StoreAvailablity `json:"storeAvailabilities"`
+	PriceModels         []struct {
+		Id                       interface{} `json:"id"`
+		Price                    int         `json:"price,omitempty"`
+		Subscription             bool        `json:"subscription,omitempty"`
+		Type                     string      `json:"type"`
+		Discount                 int         `json:"discount,omitempty"`
+		BookingKey               string      `json:"bookingKey"`
+		BookingText              string      `json:"bookingText"`
+		DiscountAppliesForMonths interface{} `json:"discountAppliesForMonths"`
+		Duration                 string      `json:"duration,omitempty"`
+		TrialPhaseIncluded       bool        `json:"trialPhaseIncluded,omitempty"`
+	} `json:"priceModels"`
+	SoftwareVersions SoftwareVersionList `json:"softwareVersions"`
+	DemoTypes        []struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"demoTypes"`
+	Localizations        []Locale           `json:"localizations"`
+	ProductTypes         []StoreProductType `json:"productTypes"`
+	ReleaseRequestStatus []struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"releaseRequestStatus"`
+}
+
+func (e producerEndpoint) GetExtensionGeneralInfo() (*ExtensionGeneralInformation, error) {
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)
+	}
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)
+	}
+
+	var info *ExtensionGeneralInformation
+
+	err = json.Unmarshal(body, &info)
+
+	if err != nil {
+		return nil, fmt.Errorf("shopware_versions: %v", err)
+	}
+
+	return info, nil
 }
