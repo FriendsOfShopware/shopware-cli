@@ -20,9 +20,12 @@ jobs:
           npm install wetzel -g
           wetzel extension/config.schema.json >> config.schema.new.md
 
+      - uses: actions/checkout@v2
+        with:
+          ref: docs
+
       - name: Commit
         run: |
-          git checkout origin docs
           git config user.name "GitHub Actions Bot"
           git config user.email "<actions@github.com>"
           rm -f config.schema.md
