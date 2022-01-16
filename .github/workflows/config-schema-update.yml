@@ -18,7 +18,7 @@ jobs:
       - name: Create config.schema.md
         run: |
           npm install wetzel -g
-          wetzel extension/config.schema.json >> config.schema.new.md
+          wetzel extension/config.schema.json >> shopware-extension.yml-schema.new.md
 
       - uses: actions/checkout@v2
         with:
@@ -29,8 +29,8 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<actions@github.com>"
-          rm -f config.schema.md
-          mv config.schema.new.md config.schema.md
-          git add -f config.schema.md
-          git commit -m "chore: Update config.schema.md"
+          rm -f shopware-extension.yml-schema.md
+          mv shopware-extension.yml-schema.new.md shopware-extension.yml-schema.md
+          git add -f shopware-extension.yml-schema.md
+          git commit -m "chore: Update shopware-extension.yml-schema.md"
           git push
