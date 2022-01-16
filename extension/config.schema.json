@@ -16,12 +16,18 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "icon": {
+                    "type": "string"
+                },
                 "availabilities": {
                     "type": "array",
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
-                        "enum": ["German", "International"]
+                        "enum": [
+                            "German",
+                            "International"
+                        ]
                     }
                 },
                 "localizations": {
@@ -29,7 +35,26 @@
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
-                        "enum": ["de_DE", "en_GB", "es_ES", "fi_FI", "fr_FR", "it_IT", "nb_NO", "nl_NL", "pl_PL", "sv_SE", "bg_BG", "cs_CZ", "pt_PT", "hy", "de_CH", "tr", "da_DK", "ru_RU"]
+                        "enum": [
+                            "de_DE",
+                            "en_GB",
+                            "es_ES",
+                            "fi_FI",
+                            "fr_FR",
+                            "it_IT",
+                            "nb_NO",
+                            "nl_NL",
+                            "pl_PL",
+                            "sv_SE",
+                            "bg_BG",
+                            "cs_CZ",
+                            "pt_PT",
+                            "hy",
+                            "de_CH",
+                            "tr",
+                            "da_DK",
+                            "ru_RU"
+                        ]
                     }
                 },
                 "categories": {
@@ -38,66 +63,245 @@
                     "maxItems": 2,
                     "items": {
                         "type": "string",
-                        "enum": ["Administration","BackendBearbeitung","System","SEOOptimierung","Bonitaetsprüfung","Rechtssicherheit","MobileAdministration","Auswertung","KommentarFeedback","Tracking","MobileAuswertung","Integration","Shopsystem","PreissuchmaschinenPortale","Warenwirtschaft","Versand","Bezahlung","StorefrontDetailanpassungen","Sprache","Suche","HeaderFooter","Produktdarstellung","UebergreifendeDarstellung","Detailseite","MenueKategorien","Bestellprozess","KundenkontoPersonalisierung","IconsButons","Schriftarten","WidgetsSnippets","Sonderfunktionen","Themes","Branche","Home+Furnishings","FashionBekleidung","GartenNatur","KosmetikGesundheit","EssenTrinken","KinderPartyGeschenke","SportLifestyleReisen","TechnikIT","IndustrieGroßhandel","MigrationTools","Einkaufswelten","ConversionOptimierung","Extensions","MarketingTools","B2BExtensions","Blog"]
+                        "enum": [
+                            "Administration",
+                            "BackendBearbeitung",
+                            "System",
+                            "SEOOptimierung",
+                            "Bonitaetsprüfung",
+                            "Rechtssicherheit",
+                            "MobileAdministration",
+                            "Auswertung",
+                            "KommentarFeedback",
+                            "Tracking",
+                            "MobileAuswertung",
+                            "Integration",
+                            "Shopsystem",
+                            "PreissuchmaschinenPortale",
+                            "Warenwirtschaft",
+                            "Versand",
+                            "Bezahlung",
+                            "StorefrontDetailanpassungen",
+                            "Sprache",
+                            "Suche",
+                            "HeaderFooter",
+                            "Produktdarstellung",
+                            "UebergreifendeDarstellung",
+                            "Detailseite",
+                            "MenueKategorien",
+                            "Bestellprozess",
+                            "KundenkontoPersonalisierung",
+                            "IconsButons",
+                            "Schriftarten",
+                            "WidgetsSnippets",
+                            "Sonderfunktionen",
+                            "Themes",
+                            "Branche",
+                            "Home+Furnishings",
+                            "FashionBekleidung",
+                            "GartenNatur",
+                            "KosmetikGesundheit",
+                            "EssenTrinken",
+                            "KinderPartyGeschenke",
+                            "SportLifestyleReisen",
+                            "TechnikIT",
+                            "IndustrieGroßhandel",
+                            "MigrationTools",
+                            "Einkaufswelten",
+                            "ConversionOptimierung",
+                            "Extensions",
+                            "MarketingTools",
+                            "B2BExtensions",
+                            "Blog"
+                        ]
                     }
                 },
                 "default_locale": {
                     "type": "string",
-                    "enum": ["en_GB", "de_DE"]
+                    "enum": [
+                        "en_GB",
+                        "de_DE"
+                    ]
                 },
                 "type": {
                     "type": "string",
-                    "enum": ["extension", "theme"]
+                    "enum": [
+                        "extension",
+                        "theme"
+                    ]
                 },
                 "automatic_bugfix_version_compatibility": {
                     "type": "boolean"
                 },
-                "info": {
+                "videos": {
                     "type": "object",
                     "additionalProperties": false,
+                    "minProperties": 1,
                     "properties": {
-                        "en": {
-                            "$ref": "#/definitions/StoreInfoTranslated"
-                        },
                         "de": {
-                            "$ref": "#/definitions/StoreInfoTranslated"
+                            "type": "array",
+                            "maxItems": 2,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "en": {
+                            "type": "array",
+                            "maxItems": 2,
+                            "items": {
+                                "type": "string"
+                            }
                         }
-                    }
-                }
-            }
-        },
-        "StoreInfoTranslated": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "videos": {
-                    "type": "array",
-                    "maxItems": 2,
-                    "items": {
-                        "type": "string"
                     }
                 },
                 "tags": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "maxItems": 5
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                        "de": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 5
+                        },
+                        "en": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 5
+                        }
+                    }
                 },
-                "hightlights": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "maxItems": 5,
-                    "uniqueItems": true
+                "highlights": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                        "de": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 5
+                        },
+                        "en": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 5
+                        }
+                    }
                 },
                 "features": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "maxItems": 15,
-                    "uniqueItems": true
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                        "de": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 15
+                        },
+                        "en": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "maxItems": 15
+                        }
+                    }
                 },
                 "faq": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                        "de": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/StoreInfoFaqQuestion"
+                            }
+                        },
+                        "en": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/StoreInfoFaqQuestion"
+                            }
+                        }
+                    }
+                },
+                "description": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                        "de": {
+                            "type": "string"
+                        },
+                        "en": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "installation_manual": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "de": {
+                            "type": "string"
+                        },
+                        "en": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "images": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/StoreInfoFaqQuestion"
+                        "type": "object",
+                        "required": ["file", "priority"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "file": {
+                                "type": "string",
+                                "description": "File path to image relative from root of the extension"
+                            },
+                            "activate": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "en": {
+                                        "type": "boolean"
+                                    },
+                                    "de": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "preview": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "en": {
+                                        "type": "boolean"
+                                    },
+                                    "de": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "priority": {
+                                "type": "integer",
+                                "minimum": 0
+                            }
+                        }
                     }
                 }
             }
@@ -105,7 +309,10 @@
         "StoreInfoFaqQuestion": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["question", "answer"],
+            "required": [
+                "question",
+                "answer"
+            ],
             "properties": {
                 "question": {
                     "type": "string"
