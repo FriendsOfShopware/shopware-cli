@@ -22,7 +22,7 @@ jobs:
 
       - name: Commit
         run: |
-          git checkout docs
+          git checkout origin docs
           git config user.name "GitHub Actions Bot"
           git config user.email "<actions@github.com>"
           rm -f config.schema.md
