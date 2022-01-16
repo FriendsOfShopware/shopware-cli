@@ -20,8 +20,10 @@ shopware-cli account producer extension create [name] [generation]
 shopware-cli account producer extension delete [name]
 shopware-cli account producer extension list
 shopware-cli extension validate [folder or zip path]
-shopware-cli extension prepare [folder]
+shopware-cli extension prepare [folder path]
 shopware-cli extension zip [folder]
+shopware-cli extension info pull [folder path]
+shopware-cli extension info push [older or zip path]
 ```
 ## Installation
 

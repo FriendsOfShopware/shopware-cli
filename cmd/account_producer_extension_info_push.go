@@ -18,8 +18,8 @@ import (
 	"strings"
 )
 
-var accountCompanyProducerExtensionUpdateCmd = &cobra.Command{
-	Use:   "update [zip or path]",
+var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
+	Use:   "push [zip or path]",
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -312,7 +312,7 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 }
 
 func init() {
-	accountCompanyProducerExtensionCmd.AddCommand(accountCompanyProducerExtensionUpdateCmd)
+	accountCompanyProducerExtensionInfoCmd.AddCommand(accountCompanyProducerExtensionInfoPushCmd)
 }
 
 func parseInlineablePath(path, extensionDir string) string {

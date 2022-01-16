@@ -7,63 +7,63 @@ import (
 	"os"
 )
 
-type storeFaq struct {
+type ConfigStore struct {
+	Availabilities                      *[]string                  `yaml:"availabilities"`
+	DefaultLocale                       *string                    `yaml:"default_locale"`
+	Localizations                       *[]string                  `yaml:"localizations"`
+	Categories                          *[]string                  `yaml:"categories"`
+	Type                                *string                    `yaml:"type"`
+	Icon                                *string                    `yaml:"icon"`
+	AutomaticBugfixVersionCompatibility *bool                      `yaml:"automatic_bugfix_version_compatibility"`
+	Description                         ConfigTranslatedString     `yaml:"description"`
+	InstallationManual                  ConfigTranslatedString     `yaml:"installation_manual"`
+	Tags                                ConfigTranslatedStringList `yaml:"tags"`
+	Videos                              ConfigTranslatedStringList `yaml:"videos"`
+	Highlights                          ConfigTranslatedStringList `yaml:"highlights"`
+	Features                            ConfigTranslatedStringList `yaml:"features"`
+	Faq                                 ConfigStoreTranslatedFaq   `yaml:"faq"`
+	Images                              *[]ConfigStoreImage        `yaml:"images"`
+}
+
+type ConfigTranslatedString struct {
+	German  *string `yaml:"de"`
+	English *string `yaml:"en"`
+}
+
+type ConfigTranslatedStringList struct {
+	German  *[]string `yaml:"de"`
+	English *[]string `yaml:"en"`
+}
+
+type ConfigStoreTranslatedFaq struct {
+	German  *[]ConfigStoreFaq `yaml:"de"`
+	English *[]ConfigStoreFaq `yaml:"en"`
+}
+
+type ConfigStoreFaq struct {
 	Question string `yaml:"question"`
 	Answer   string `yaml:"answer"`
 }
 
-type storeImage struct {
-	File     string `yaml:"file"`
-	Activate struct {
-		German  bool `yaml:"de"`
-		English bool `yaml:"en"`
-	}
-	Preview struct {
-		German  bool `yaml:"de"`
-		English bool `yaml:"en"`
-	}
-	Priority int `yaml:"priority"`
+type ConfigStoreImage struct {
+	File     string                   `yaml:"file"`
+	Activate ConfigStoreImageActivate `yaml:"activate"`
+	Preview  ConfigStoreImagePreview  `yaml:"preview"`
+	Priority int                      `yaml:"priority"`
+}
+
+type ConfigStoreImageActivate struct {
+	German  bool `yaml:"de"`
+	English bool `yaml:"en"`
+}
+
+type ConfigStoreImagePreview struct {
+	German  bool `yaml:"de"`
+	English bool `yaml:"en"`
 }
 
 type Config struct {
-	Store struct {
-		Availabilities                      *[]string `yaml:"availabilities"`
-		DefaultLocale                       *string   `yaml:"default_locale"`
-		Localizations                       *[]string `yaml:"localizations"`
-		Categories                          *[]string `yaml:"categories"`
-		Type                                *string   `yaml:"type"`
-		Icon                                *string   `yaml:"icon"`
-		AutomaticBugfixVersionCompatibility *bool     `yaml:"automatic_bugfix_version_compatibility"`
-		Description                         struct {
-			German  *string `yaml:"de"`
-			English *string `yaml:"en"`
-		} `yaml:"description"`
-		InstallationManual struct {
-			German  *string `yaml:"de"`
-			English *string `yaml:"en"`
-		} `yaml:"installation_manual"`
-		Tags struct {
-			German  *[]string `yaml:"de"`
-			English *[]string `yaml:"en"`
-		} `yaml:"tags"`
-		Videos struct {
-			German  *[]string `yaml:"de"`
-			English *[]string `yaml:"en"`
-		} `yaml:"videos"`
-		Highlights struct {
-			German  *[]string `yaml:"de"`
-			English *[]string `yaml:"en"`
-		} `yaml:"highlights"`
-		Features struct {
-			German  *[]string `yaml:"de"`
-			English *[]string `yaml:"en"`
-		} `yaml:"features"`
-		Faq struct {
-			German  *[]storeFaq `yaml:"de"`
-			English *[]storeFaq `yaml:"en"`
-		} `yaml:"faq"`
-		Images *[]storeImage `yaml:"images"`
-	} `yaml:"store"`
+	Store ConfigStore `yaml:"store"`
 }
 
 func ReadExtensionConfig(dir string) (*Config, error) {
