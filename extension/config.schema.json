@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "",
+    "title": "shopware-cli",
     "$ref": "#/definitions/Config",
-    "description": "shopware cli extension configuration definition file",
+    "description": "Shopware cli extension configuration definition file",
     "definitions": {
         "Config": {
             "type": "object",
