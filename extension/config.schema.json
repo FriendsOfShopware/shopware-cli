@@ -1,10 +1,12 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "",
     "$ref": "#/definitions/Config",
     "description": "shopware cli extension configuration definition file",
     "definitions": {
         "Config": {
             "type": "object",
+            "title": ".shopware-extension.yml",
             "additionalProperties": false,
             "properties": {
                 "store": {
@@ -14,13 +16,16 @@
         },
         "Store": {
             "type": "object",
+            "title": "store",
             "additionalProperties": false,
             "properties": {
                 "icon": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Specifies the Path to the icon (128x128 px) for store."
                 },
                 "availabilities": {
                     "type": "array",
+                    "description": "Specifies the visibility in stores.",
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
@@ -32,6 +37,7 @@
                 },
                 "localizations": {
                     "type": "array",
+                    "description": "Specifies the languages the extension is translated.",
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
@@ -59,6 +65,7 @@
                 },
                 "categories": {
                     "type": "array",
+                    "description": "Specifies the categories in which the extension can be found.",
                     "uniqueItems": true,
                     "maxItems": 2,
                     "items": {
@@ -125,16 +132,19 @@
                 },
                 "type": {
                     "type": "string",
+                    "description": "Specifies the type of this extension.",
                     "enum": [
                         "extension",
                         "theme"
                     ]
                 },
                 "automatic_bugfix_version_compatibility": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Specifies whether the extension should automatically be set compatible with Shopware bugfix versions."
                 },
                 "videos": {
                     "type": "object",
+                    "description": "Specifies the links of YouTube-Videos to show or describe the extension.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
@@ -156,6 +166,7 @@
                 },
                 "tags": {
                     "type": "object",
+                    "description": "Specifies the tags of the extension.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
@@ -177,6 +188,7 @@
                 },
                 "highlights": {
                     "type": "object",
+                    "description": "Specifies the highlights of the extension.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
@@ -198,6 +210,7 @@
                 },
                 "features": {
                     "type": "object",
+                    "description": "Specifies the features of the extension.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
@@ -219,6 +232,7 @@
                 },
                 "faq": {
                     "type": "object",
+                    "description": "Specifies Frequently Asked Questions for the extension.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
@@ -238,31 +252,38 @@
                 },
                 "description": {
                     "type": "object",
+                    "description": "Specifies the description of the extension in store.",
                     "additionalProperties": false,
                     "minProperties": 1,
                     "properties": {
                         "de": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
                         },
                         "en": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
                         }
                     }
                 },
                 "installation_manual": {
                     "type": "object",
+                    "description": "Installation manual of the extension in store.",
                     "additionalProperties": false,
                     "properties": {
                         "de": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
                         },
                         "en": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
                         }
                     }
                 },
                 "images": {
                     "type": "array",
+                    "description": "Specifies images for the extension in the store.",
                     "minItems": 1,
                     "items": {
                         "type": "object",
@@ -275,6 +296,7 @@
                             },
                             "activate": {
                                 "type": "object",
+                                "description": "Specifies whether the image is active in the language.",
                                 "additionalProperties": false,
                                 "properties": {
                                     "en": {
@@ -287,6 +309,7 @@
                             },
                             "preview": {
                                 "type": "object",
+                                "description": "Specifies whether the image is a preview in the language.",
                                 "additionalProperties": false,
                                 "properties": {
                                     "en": {
@@ -298,6 +321,7 @@
                                 }
                             },
                             "priority": {
+                                "description": "Specifies the order of the image ascending the given priority.",
                                 "type": "integer",
                                 "minimum": 0
                             }
@@ -308,6 +332,7 @@
         },
         "StoreInfoFaqQuestion": {
             "type": "object",
+            "title": "StoreInfoFaqQuestion",
             "additionalProperties": false,
             "required": [
                 "question",

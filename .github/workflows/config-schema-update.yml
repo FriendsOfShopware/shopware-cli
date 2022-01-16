@@ -1,0 +1,29 @@
+name: Update docs content
+
+on:
+  push:
+    paths:
+      - 'extension/config.schema.json'
+
+jobs:
+  config-schema-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Create config.schema.md
+        run: |
+          npm install wetzel -g
+          wetzel extension/config.schema.json >> docs/config.schema.md
+
+      - name: Commit
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<actions@github.com>"
+          git add -f docs/config.schema.md
+          git commit -m "chore: Update config.schema.md"
+          git push origin
