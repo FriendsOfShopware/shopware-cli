@@ -22,11 +22,11 @@ jobs:
 
       - name: Commit
         run: |
-          git checkout origin docs
+          git checkout docs
           git config user.name "GitHub Actions Bot"
           git config user.email "<actions@github.com>"
           rm -f config.schema.md
           mv config.schema.new.md config.schema.md
           git add -f config.schema.md
           git commit -m "chore: Update config.schema.md"
-          git push origin docs
+          git push
