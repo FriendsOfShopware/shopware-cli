@@ -18,14 +18,15 @@ jobs:
       - name: Create config.schema.md
         run: |
           npm install wetzel -g
-          echo "CONFIGSCHEMADOCS=`wetzel extension/config.schema.json`" >> $GITHUB_ENV
+          wetzel extension/config.schema.json >> config.schema.new.md
 
       - name: Commit
         run: |
           git checkout origin docs
           git config user.name "GitHub Actions Bot"
           git config user.email "<actions@github.com>"
-          echo $CONFIGSCHEMADOCS >> config.schema.md
+          rm -f config.schema.md
+          mv config.schema.new.md config.schema.md
           git add -f config.schema.md
           git commit -m "chore: Update config.schema.md"
           git push origin
