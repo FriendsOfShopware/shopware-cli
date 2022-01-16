@@ -1,9 +1,15 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/yuin/goldmark"
+	goldmarkExtension "github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -87,7 +93,50 @@ var accountCompanyProducerExtensionUpdateCmd = &cobra.Command{
 		}
 
 		if extCfg != nil {
-			updateStoreInfo(storeExt, extCfg, info)
+			if extCfg.Store.Icon != nil {
+				err := p.UpdateExtensionIcon(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), *extCfg.Store.Icon))
+				if err != nil {
+					log.Fatalln(fmt.Errorf("cannot update extension icon due error: %v", err))
+				}
+			}
+
+			if extCfg.Store.Images != nil {
+				images, err := p.GetExtensionImages(storeExt.Id)
+				if err != nil {
+					log.Fatalln(fmt.Errorf("cannot get images from remote server: %v", err))
+				}
+
+				for _, image := range images {
+					err := p.DeleteExtensionImages(storeExt.Id, image.Id)
+
+					if err != nil {
+						log.Fatalln(fmt.Errorf("cannot extension image: %v", err))
+					}
+				}
+
+				for _, configImage := range *extCfg.Store.Images {
+					apiImage, err := p.AddExtensionImage(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
+
+					if err != nil {
+						log.Fatalln(fmt.Errorf("cannot upload image to extension: %v", err))
+					}
+
+					apiImage.Priority = configImage.Priority
+					apiImage.Details[0].Activated = configImage.Activate.German
+					apiImage.Details[0].Preview = configImage.Preview.German
+
+					apiImage.Details[1].Activated = configImage.Activate.English
+					apiImage.Details[1].Preview = configImage.Preview.English
+
+					err = p.UpdateExtensionImage(storeExt.Id, apiImage)
+
+					if err != nil {
+						log.Fatalln(fmt.Errorf("cannot update image information of extension: %v", err))
+					}
+				}
+			}
+
+			updateStoreInfo(storeExt, zipExt, extCfg, info)
 		}
 
 		err = p.UpdateExtension(storeExt)
@@ -100,7 +149,7 @@ var accountCompanyProducerExtensionUpdateCmd = &cobra.Command{
 	},
 }
 
-func updateStoreInfo(ext *accountApi.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) {
+func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) {
 	if cfg.Store.DefaultLocale != nil {
 		for _, locale := range info.Locales {
 			if locale.Name == *cfg.Store.DefaultLocale {
@@ -167,80 +216,96 @@ func updateStoreInfo(ext *accountApi.Extension, cfg *extension.Config, info *acc
 		language := info.Locale.Name[0:2]
 
 		if language == "de" {
-			if cfg.Store.Info.German.Tags != nil {
+			if cfg.Store.Tags.German != nil {
 				newTags := make([]accountApi.StoreTag, 0)
 
-				for _, tag := range *cfg.Store.Info.German.Tags {
+				for _, tag := range *cfg.Store.Tags.German {
 					newTags = append(newTags, accountApi.StoreTag{Name: tag})
 				}
 
 				info.Tags = newTags
 			}
 
-			if cfg.Store.Info.German.Videos != nil {
+			if cfg.Store.Videos.German != nil {
 				newVideos := make([]accountApi.StoreVideo, 0)
 
-				for _, video := range *cfg.Store.Info.German.Videos {
+				for _, video := range *cfg.Store.Videos.German {
 					newVideos = append(newVideos, accountApi.StoreVideo{URL: video})
 				}
 
 				info.Videos = newVideos
 			}
 
-			if cfg.Store.Info.German.Hightlight != nil {
-				info.Highlights = strings.Join(*cfg.Store.Info.German.Hightlight, "\n")
+			if cfg.Store.Highlights.German != nil {
+				info.Highlights = strings.Join(*cfg.Store.Highlights.German, "\n")
 			}
 
-			if cfg.Store.Info.German.Features != nil {
-				info.Features = strings.Join(*cfg.Store.Info.German.Features, "\n")
+			if cfg.Store.Features.German != nil {
+				info.Features = strings.Join(*cfg.Store.Features.German, "\n")
 			}
 
-			if cfg.Store.Info.German.Faq != nil {
+			if cfg.Store.Faq.German != nil {
 				newFaq := make([]accountApi.StoreFaq, 0)
 
-				for _, faq := range *cfg.Store.Info.German.Faq {
+				for _, faq := range *cfg.Store.Faq.German {
 					newFaq = append(newFaq, accountApi.StoreFaq{Question: faq.Question, Answer: faq.Answer})
 				}
 
 				info.Faqs = newFaq
+			}
+
+			if cfg.Store.Description.German != nil {
+				info.Description = parseInlineablePath(*cfg.Store.Description.German, zipExt.GetPath())
+			}
+
+			if cfg.Store.InstallationManual.German != nil {
+				info.InstallationManual = parseInlineablePath(*cfg.Store.InstallationManual.German, zipExt.GetPath())
 			}
 		} else {
-			if cfg.Store.Info.English.Tags != nil {
+			if cfg.Store.Tags.English != nil {
 				newTags := make([]accountApi.StoreTag, 0)
 
-				for _, tag := range *cfg.Store.Info.English.Tags {
+				for _, tag := range *cfg.Store.Tags.English {
 					newTags = append(newTags, accountApi.StoreTag{Name: tag})
 				}
 
 				info.Tags = newTags
 			}
 
-			if cfg.Store.Info.English.Videos != nil {
+			if cfg.Store.Videos.English != nil {
 				newVideos := make([]accountApi.StoreVideo, 0)
 
-				for _, video := range *cfg.Store.Info.English.Videos {
+				for _, video := range *cfg.Store.Videos.English {
 					newVideos = append(newVideos, accountApi.StoreVideo{URL: video})
 				}
 
 				info.Videos = newVideos
 			}
 
-			if cfg.Store.Info.English.Hightlight != nil {
-				info.Highlights = strings.Join(*cfg.Store.Info.English.Hightlight, "\n")
+			if cfg.Store.Highlights.English != nil {
+				info.Highlights = strings.Join(*cfg.Store.Highlights.English, "\n")
 			}
 
-			if cfg.Store.Info.English.Features != nil {
-				info.Features = strings.Join(*cfg.Store.Info.English.Features, "\n")
+			if cfg.Store.Features.English != nil {
+				info.Features = strings.Join(*cfg.Store.Features.English, "\n")
 			}
 
-			if cfg.Store.Info.English.Faq != nil {
+			if cfg.Store.Faq.English != nil {
 				newFaq := make([]accountApi.StoreFaq, 0)
 
-				for _, faq := range *cfg.Store.Info.English.Faq {
+				for _, faq := range *cfg.Store.Faq.English {
 					newFaq = append(newFaq, accountApi.StoreFaq{Question: faq.Question, Answer: faq.Answer})
 				}
 
 				info.Faqs = newFaq
+			}
+
+			if cfg.Store.Description.English != nil {
+				info.Description = parseInlineablePath(*cfg.Store.Description.English, zipExt.GetPath())
+			}
+
+			if cfg.Store.InstallationManual.English != nil {
+				info.InstallationManual = parseInlineablePath(*cfg.Store.InstallationManual.English, zipExt.GetPath())
 			}
 		}
 	}
@@ -248,4 +313,42 @@ func updateStoreInfo(ext *accountApi.Extension, cfg *extension.Config, info *acc
 
 func init() {
 	accountCompanyProducerExtensionCmd.AddCommand(accountCompanyProducerExtensionUpdateCmd)
+}
+
+func parseInlineablePath(path, extensionDir string) string {
+	if !strings.HasPrefix(path, "file:") {
+		return path
+	}
+
+	filePath := fmt.Sprintf("%s/%s", extensionDir, strings.TrimPrefix(path, "file:"))
+
+	content, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		log.Fatalln(fmt.Sprintf("Error reading file at path %s with error: %v", filePath, err))
+	}
+
+	if filepath.Ext(filePath) != ".md" {
+		return string(content)
+	}
+
+	md := goldmark.New(
+		goldmark.WithExtensions(goldmarkExtension.GFM),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithXHTML(),
+		),
+	)
+
+	var buf bytes.Buffer
+	err = md.Convert(content, &buf)
+
+	if err != nil {
+		log.Fatalln(fmt.Sprintf("Cannot convert file at path %s from markdown to html with error: %v", filePath, err))
+	}
+
+	return buf.String()
 }

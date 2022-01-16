@@ -12,12 +12,17 @@ type storeFaq struct {
 	Answer   string `yaml:"answer"`
 }
 
-type storeInfo struct {
-	Tags       *[]string   `yaml:"tags"`
-	Videos     *[]string   `yaml:"videos"`
-	Hightlight *[]string   `yaml:"hightlights"`
-	Features   *[]string   `yaml:"features"`
-	Faq        *[]storeFaq `yaml:"faq"`
+type storeImage struct {
+	File     string `yaml:"file"`
+	Activate struct {
+		German  bool `yaml:"de"`
+		English bool `yaml:"en"`
+	}
+	Preview struct {
+		German  bool `yaml:"de"`
+		English bool `yaml:"en"`
+	}
+	Priority int `yaml:"priority"`
 }
 
 type Config struct {
@@ -27,11 +32,37 @@ type Config struct {
 		Localizations                       *[]string `yaml:"localizations"`
 		Categories                          *[]string `yaml:"categories"`
 		Type                                *string   `yaml:"type"`
+		Icon                                *string   `yaml:"icon"`
 		AutomaticBugfixVersionCompatibility *bool     `yaml:"automatic_bugfix_version_compatibility"`
-		Info                                struct {
-			German  storeInfo `yaml:"de"`
-			English storeInfo `yaml:"en"`
-		} `yaml:"info"`
+		Description                         struct {
+			German  *string `yaml:"de"`
+			English *string `yaml:"en"`
+		} `yaml:"description"`
+		InstallationManual struct {
+			German  *string `yaml:"de"`
+			English *string `yaml:"en"`
+		} `yaml:"installation_manual"`
+		Tags struct {
+			German  *[]string `yaml:"de"`
+			English *[]string `yaml:"en"`
+		} `yaml:"tags"`
+		Videos struct {
+			German  *[]string `yaml:"de"`
+			English *[]string `yaml:"en"`
+		} `yaml:"videos"`
+		Highlights struct {
+			German  *[]string `yaml:"de"`
+			English *[]string `yaml:"en"`
+		} `yaml:"highlights"`
+		Features struct {
+			German  *[]string `yaml:"de"`
+			English *[]string `yaml:"en"`
+		} `yaml:"features"`
+		Faq struct {
+			German  *[]storeFaq `yaml:"de"`
+			English *[]storeFaq `yaml:"en"`
+		} `yaml:"faq"`
+		Images *[]storeImage `yaml:"images"`
 	} `yaml:"store"`
 }
 
@@ -66,20 +97,20 @@ func ReadExtensionConfig(dir string) (*Config, error) {
 }
 
 func validateExtensionConfig(config *Config) error {
-	if config.Store.Info.English.Tags != nil && len(*config.Store.Info.English.Tags) > 5 {
-		return fmt.Errorf("store.info.en.tags can contain maximal 5 items")
+	if config.Store.Tags.English != nil && len(*config.Store.Tags.English) > 5 {
+		return fmt.Errorf("store.info.tags.en can contain maximal 5 items")
 	}
 
-	if config.Store.Info.German.Tags != nil && len(*config.Store.Info.German.Tags) > 5 {
-		return fmt.Errorf("store.info.de.tags can contain maximal 5 items")
+	if config.Store.Tags.German != nil && len(*config.Store.Tags.German) > 5 {
+		return fmt.Errorf("store.info.tags.en can contain maximal 5 items")
 	}
 
-	if config.Store.Info.English.Videos != nil && len(*config.Store.Info.English.Videos) > 2 {
-		return fmt.Errorf("store.info.en.videos can contain maximal 2 items")
+	if config.Store.Videos.English != nil && len(*config.Store.Videos.English) > 2 {
+		return fmt.Errorf("store.info.videos.en can contain maximal 2 items")
 	}
 
-	if config.Store.Info.German.Videos != nil && len(*config.Store.Info.German.Videos) > 2 {
-		return fmt.Errorf("store.info.de.videos can contain maximal 2 items")
+	if config.Store.Videos.German != nil && len(*config.Store.Videos.German) > 2 {
+		return fmt.Errorf("store.info.videos.de can contain maximal 2 items")
 	}
 
 	return nil

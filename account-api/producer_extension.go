@@ -176,6 +176,162 @@ func (e producerEndpoint) UpdateExtensionBinaryFile(extensionId, binaryId int, z
 	return err
 }
 
+func (e producerEndpoint) UpdateExtensionIcon(extensionId int, iconFile string) error {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+
+	fileWritter, err := w.CreateFormFile("file", filepath.Base(iconFile))
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	}
+
+	zipFile, err := os.Open(iconFile)
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	}
+
+	_, err = io.Copy(fileWritter, zipFile)
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	}
+
+	err = w.Close()
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	}
+
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/icon", ApiUrl, extensionId), &b)
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	}
+
+	r.Header.Set("content-type", w.FormDataContentType())
+
+	_, err = e.c.doRequest(r)
+
+	return err
+}
+
+type ExtensionImage struct {
+	Id         int    `json:"id"`
+	RemoteLink string `json:"remoteLink"`
+	Details    []struct {
+		Id        int    `json:"id"`
+		Preview   bool   `json:"preview"`
+		Activated bool   `json:"activated"`
+		Caption   string `json:"caption"`
+		Locale    Locale `json:"locale"`
+	} `json:"details"`
+	Priority int `json:"priority"`
+}
+
+func (e producerEndpoint) GetExtensionImages(extensionId int) ([]*ExtensionImage, error) {
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+	}
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+	}
+
+	var images []*ExtensionImage
+	if err := json.Unmarshal(body, &images); err != nil {
+		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+	}
+
+	return images, nil
+}
+
+func (e producerEndpoint) DeleteExtensionImages(extensionId, imageId int) error {
+	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, imageId), nil)
+
+	if err != nil {
+		return fmt.Errorf("DeleteExtensionImages: %v", err)
+	}
+
+	_, err = e.c.doRequest(r)
+
+	return err
+}
+
+func (e producerEndpoint) UpdateExtensionImage(extensionId int, image *ExtensionImage) error {
+	content, err := json.Marshal(image)
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionImage: %v", err)
+	}
+
+	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, image.Id), bytes.NewReader(content))
+
+	if err != nil {
+		return fmt.Errorf("UpdateExtensionImage: %v", err)
+	}
+
+	_, err = e.c.doRequest(r)
+
+	return err
+}
+
+func (e producerEndpoint) AddExtensionImage(extensionId int, file string) (*ExtensionImage, error) {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+
+	fileWritter, err := w.CreateFormFile("file", filepath.Base(file))
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	zipFile, err := os.Open(file)
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	_, err = io.Copy(fileWritter, zipFile)
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	err = w.Close()
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), &b)
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	r.Header.Set("content-type", w.FormDataContentType())
+
+	body, err := e.c.doRequest(r)
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	var list []*ExtensionImage
+
+	err = json.Unmarshal(body, &list)
+
+	if err != nil {
+		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	}
+
+	return list[0], nil
+}
+
 func (e producerEndpoint) TriggerCodeReview(extensionId int) error {
 	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/reviews", ApiUrl, extensionId), nil)
 
