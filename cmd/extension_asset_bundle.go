@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"log"
 	"path/filepath"
 	"shopware-cli/extension"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var extensionAssetBundleCmd = &cobra.Command{

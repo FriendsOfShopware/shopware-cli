@@ -3,12 +3,13 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	termColor "github.com/fatih/color"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	termColor "github.com/fatih/color"
 )
 
 func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error {
@@ -47,34 +48,34 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		for _, entry := range cfgs {
 			// If extension has package.json install it
 			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/administration/src/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/administration/src/", entry.BasePath), "install")
+				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/administration/src/", entry.BasePath), "install") //nolint:gosec
 				npmInstallCmd.Stdout = os.Stdout
 				npmInstallCmd.Stderr = os.Stderr
 				err := npmInstallCmd.Run()
 
 				if err != nil {
-					log.Fatalln(err)
+					return err
 				}
 			}
 		}
 
-		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "install")
+		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "install") //nolint:gosec
 		npmInstallCmd.Stdout = os.Stdout
 		npmInstallCmd.Stderr = os.Stderr
 		err := npmInstallCmd.Run()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
-		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "run", "build")
+		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "run", "build") //nolint:gosec
 		npmBuildCmd.Env = []string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 		npmBuildCmd.Stdout = os.Stdout
 		npmBuildCmd.Stderr = os.Stderr
 		err = npmBuildCmd.Run()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 	}
 
@@ -82,34 +83,34 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		for _, entry := range cfgs {
 			// If extension has package.json install it
 			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/storefront/src/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/storefront/src/", entry.BasePath), "install")
+				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/storefront/src/", entry.BasePath), "install") //nolint:gosec
 				npmInstallCmd.Stdout = os.Stdout
 				npmInstallCmd.Stderr = os.Stderr
 				err := npmInstallCmd.Run()
 
 				if err != nil {
-					log.Fatalln(err)
+					return err
 				}
 			}
 		}
 
-		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "install")
+		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "install") //nolint:gosec
 		npmInstallCmd.Stdout = os.Stdout
 		npmInstallCmd.Stderr = os.Stderr
 		err := npmInstallCmd.Run()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
-		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "run", "production")
+		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "run", "production") //nolint:gosec
 		npmBuildCmd.Env = []string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 		npmBuildCmd.Stdout = os.Stdout
 		npmBuildCmd.Stderr = os.Stderr
 		err = npmBuildCmd.Run()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 	}
 
@@ -146,7 +147,7 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]extensionAsset
 }
 
 func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig {
-	list := make(extensionAssetConfig, 0)
+	list := make(extensionAssetConfig)
 
 	for _, extension := range extensions {
 		extName, err := extension.GetName()
