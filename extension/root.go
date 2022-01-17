@@ -18,7 +18,7 @@ const (
 
 func GetExtensionByFolder(path string) (Extension, error) {
 	if _, err := os.Stat(fmt.Sprintf("%s/plugin.xml", path)); err == nil {
-		return nil, fmt.Errorf("shopware 5 is currently not supported")
+		return nil, fmt.Errorf("Shopware 5 is not supported. Please use https://github.com/FriendsOfShopware/FroshPluginUploader instead")
 	}
 
 	if _, err := os.Stat(fmt.Sprintf("%s/manifest.xml", path)); err == nil {
