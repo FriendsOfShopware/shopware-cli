@@ -94,7 +94,7 @@ func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, er
 }
 
 func (p PlatformPlugin) GetType() string {
-	return "platform"
+	return TypePlatformPlugin
 }
 
 func (p PlatformPlugin) GetVersion() (*version.Version, error) {

@@ -11,6 +11,11 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
+const (
+	TypePlatformApp    = "app"
+	TypePlatformPlugin = "platform"
+)
+
 func GetExtensionByFolder(path string) (Extension, error) {
 	if _, err := os.Stat(fmt.Sprintf("%s/plugin.xml", path)); err == nil {
 		return nil, fmt.Errorf("shopware 5 is currently not supported")

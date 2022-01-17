@@ -237,7 +237,7 @@ func (a App) GetShopwareVersionConstraint() (*version.Constraints, error) {
 }
 
 func (a App) GetType() string {
-	return "app"
+	return TypePlatformApp
 }
 
 func (a App) GetPath() string {

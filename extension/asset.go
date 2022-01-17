@@ -15,13 +15,11 @@ import (
 func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error {
 	cfgs := buildAssetConfigFromExtensions(extensions)
 
-	if len(cfgs) == 0 {
-		termColor.Yellow("Skipping asset building as all extensions can't be processed")
-
+	if len(cfgs) == 1 {
 		return nil
 	}
 
-	if !cfgs.RequiresAdminBuild() && cfgs.RequiresStorefrontBuild() {
+	if !cfgs.RequiresAdminBuild() && !cfgs.RequiresStorefrontBuild() {
 		termColor.Yellow("Building assets has been skipped as not required")
 		return nil
 	}
@@ -82,8 +80,8 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	if cfgs.RequiresStorefrontBuild() {
 		for _, entry := range cfgs {
 			// If extension has package.json install it
-			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/storefront/src/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/storefront/src/", entry.BasePath), "install") //nolint:gosec
+			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/storefront/package.json", entry.BasePath)); err == nil {
+				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/storefront/", entry.BasePath), "install") //nolint:gosec
 				npmInstallCmd.Stdout = os.Stdout
 				npmInstallCmd.Stderr = os.Stderr
 				err := npmInstallCmd.Run()
@@ -157,9 +155,16 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 			continue
 		}
 
+		pathPrefix := "src/Resources"
+		extensionRoot := "src/"
+		if extension.GetType() == TypePlatformApp {
+			pathPrefix = "Resources"
+			extensionRoot = ""
+		}
+
 		extPath := extension.GetPath()
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app", extPath)); os.IsNotExist(err) {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app", extPath, pathPrefix)); os.IsNotExist(err) {
 			termColor.Yellow("Skipping extension %s as it doesnt contain assets", extName)
 			continue
 		}
@@ -167,42 +172,42 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 		var entryFilePathAdmin, entryFilePathStorefront, webpackFileAdmin, webpackFileStorefront *string
 		storefrontStyles := make([]string, 0)
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/administration/src/main.js", extPath)); err == nil {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/src/main.js", extPath, pathPrefix)); err == nil {
 			val := "Resources/app/administration/src/main.js"
 			entryFilePathAdmin = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/administration/src/main.ts", extPath)); err == nil {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/src/main.ts", extPath, pathPrefix)); err == nil {
 			val := "Resources/app/administration/src/main.ts"
 			entryFilePathAdmin = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/administration/src/build/webpack.config.js", extPath)); err == nil {
-			val := "Resources/app/administration/src/build/webpack.config.js"
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/build/webpack.config.js", extPath, pathPrefix)); err == nil {
+			val := "Resources/app/administration/build/webpack.config.js"
 			webpackFileAdmin = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/storefront/src/main.js", extPath)); err == nil {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/main.js", extPath, pathPrefix)); err == nil {
 			val := "Resources/app/storefront/src/main.js"
 			entryFilePathStorefront = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/storefront/src/main.ts", extPath)); err == nil {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/main.ts", extPath, pathPrefix)); err == nil {
 			val := "Resources/app/storefront/src/main.ts"
 			entryFilePathStorefront = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/src/Resources/app/storefront/src/build/webpack.config.js", extPath)); err == nil {
-			val := "Resources/app/storefront/src/build/webpack.config.js"
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/build/webpack.config.js", extPath, pathPrefix)); err == nil {
+			val := "Resources/app/storefront/build/webpack.config.js"
 			webpackFileStorefront = &val
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/storefront/src/scss/base.scss", extPath)); err == nil {
+		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/scss/base.scss", extPath, pathPrefix)); err == nil {
 			storefrontStyles = append(storefrontStyles, "Resources/app/storefront/src/scss/base.scss")
 		}
 
 		cfg := extensionAssetConfigEntry{
-			BasePath: fmt.Sprintf("%s/src/", extPath),
+			BasePath: fmt.Sprintf("%s/%s", extPath, extensionRoot),
 			Views: []string{
 				"Resources/views",
 			},
