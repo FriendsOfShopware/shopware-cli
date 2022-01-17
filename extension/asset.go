@@ -273,6 +273,10 @@ func (c extensionAssetConfig) RequiresAdminBuild() bool {
 
 func (c extensionAssetConfig) RequiresStorefrontBuild() bool {
 	for _, entry := range c {
+		if entry.TechnicalName == "storefront" {
+			continue
+		}
+
 		if entry.Storefront.EntryFilePath != nil {
 			return true
 		}
