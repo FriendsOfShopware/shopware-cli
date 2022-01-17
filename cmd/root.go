@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	accountApi "shopware-cli/account-api"
 
@@ -46,7 +47,9 @@ func initConfig() {
 	} else {
 		// Find home directory.
 		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
+		if err != nil {
+			log.Println(err)
+		}
 
 		// Search config in home directory with name ".shopware-cli" (without extension).
 		viper.AddConfigPath(home)
@@ -55,7 +58,7 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv()
-	cobra.CheckErr(viper.ReadInConfig())
+	_ = viper.ReadInConfig()
 }
 
 func getAccountAPIByConfig() *accountApi.Client {
