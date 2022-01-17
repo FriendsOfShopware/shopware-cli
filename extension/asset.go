@@ -32,6 +32,13 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		if err != nil {
 			return err
 		}
+
+		defer func(path string) {
+			err := os.RemoveAll(path)
+			if err != nil {
+				log.Println(err)
+			}
+		}(shopwareRoot)
 	}
 
 	prepareShopwareForAsset(shopwareRoot, cfgs)
