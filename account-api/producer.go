@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/schema"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/schema"
 )
 
 type producerEndpoint struct {
@@ -20,14 +21,12 @@ func (e producerEndpoint) GetId() int {
 }
 
 func (c Client) Producer() (*producerEndpoint, error) {
-	r, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/companies/%d/allocations", ApiUrl, c.GetActiveCompanyId()), nil)
-
+	r, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/companies/%d/allocations", ApiUrl, c.GetActiveCompanyID()), nil) //nolint:noctx
 	if err != nil {
 		return nil, err
 	}
 
 	body, err := c.doRequest(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +40,7 @@ func (c Client) Producer() (*producerEndpoint, error) {
 		return nil, fmt.Errorf("this company is not unlocked as producer")
 	}
 
-	return &producerEndpoint{producerId: allocation.ProducerId, c: c}, nil
+	return &producerEndpoint{producerId: allocation.ProducerID, c: c}, nil
 }
 
 type companyAllocation struct {
@@ -50,11 +49,11 @@ type companyAllocation struct {
 	IsEducationMember bool `json:"isEducationMember"`
 	IsPartner         bool `json:"isPartner"`
 	IsProducer        bool `json:"isProducer"`
-	ProducerId        int  `json:"producerId"`
+	ProducerID        int  `json:"producerId"`
 }
 
 func (e producerEndpoint) Profile() (*producer, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyId()), nil)
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyID()), nil) //nolint:noctx
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +97,7 @@ type producer struct {
 	HasCancelledContract bool   `json:"hasCancelledContract"`
 	IconPath             string `json:"iconPath"`
 	IconIsSet            bool   `json:"iconIsSet"`
-	ShopwareId           string `json:"shopwareId"`
+	ShopwareID           string `json:"shopwareId"`
 	UserId               int    `json:"userId"`
 	CompanyId            int    `json:"companyId"`
 	CompanyName          string `json:"companyName"`
@@ -110,7 +109,7 @@ type producer struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"supportedLanguages"`
-	IconUrl           string      `json:"iconUrl"`
+	IconURL           string      `json:"iconUrl"`
 	CancelledContract interface{} `json:"cancelledContract"`
 }
 
@@ -132,7 +131,7 @@ func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]Extensi
 		return nil, fmt.Errorf("list_extensions: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?%s", ApiUrl, form.Encode()), nil)
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?%s", ApiUrl, form.Encode()), nil) //nolint:noctx
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +162,7 @@ func (e producerEndpoint) GetExtensionByName(name string) (*Extension, error) {
 	}
 
 	for _, ext := range extensions {
-		if strings.ToLower(ext.Name) == strings.ToLower(name) {
+		if strings.EqualFold(ext.Name, name) {
 			return e.GetExtensionById(ext.Id)
 		}
 	}
@@ -216,7 +215,7 @@ type Extension struct {
 		HasCancelledContract bool   `json:"hasCancelledContract"`
 		IconPath             string `json:"iconPath"`
 		IconIsSet            bool   `json:"iconIsSet"`
-		ShopwareId           string `json:"shopwareId"`
+		ShopwareID           string `json:"shopwareId"`
 		UserId               int    `json:"userId"`
 		CompanyId            int    `json:"companyId"`
 		CompanyName          string `json:"companyName"`
@@ -228,7 +227,7 @@ type Extension struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 		} `json:"supportedLanguages"`
-		IconUrl           string      `json:"iconUrl"`
+		IconURL           string      `json:"iconUrl"`
 		CancelledContract interface{} `json:"cancelledContract"`
 	} `json:"producer"`
 	Type struct {
@@ -309,7 +308,7 @@ type Extension struct {
 	IsSW5Compatible                       bool        `json:"isSW5Compatible"`
 	Subprocessors                         interface{} `json:"subprocessors"`
 	PluginTestingInstanceDisabled         bool        `json:"pluginTestingInstanceDisabled"`
-	IconUrl                               string      `json:"iconUrl"`
+	IconURL                               string      `json:"iconUrl"`
 	Pictures                              string      `json:"pictures"`
 	HasPictures                           bool        `json:"hasPictures"`
 	Comments                              string      `json:"comments"`
@@ -331,7 +330,7 @@ type CreateExtensionRequest struct {
 	Generation struct {
 		Name string `json:"name"`
 	} `json:"generation"`
-	ProducerId int `json:"producerId"`
+	ProducerID int `json:"producerId"`
 }
 
 const (
@@ -349,14 +348,12 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 	}
 
 	// Create it
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins", ApiUrl), bytes.NewBuffer(requestBody))
-
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins", ApiUrl), bytes.NewBuffer(requestBody)) //nolint:noctx
 	if err != nil {
 		return nil, err
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +383,7 @@ func (e producerEndpoint) UpdateExtension(extension *Extension) error {
 	}
 
 	// Patch the name
-	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody))
+	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody)) //nolint:noctx
 
 	if err != nil {
 		return err
@@ -398,7 +395,7 @@ func (e producerEndpoint) UpdateExtension(extension *Extension) error {
 }
 
 func (e producerEndpoint) DeleteExtension(id int) error {
-	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
+	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil) //nolint:noctx
 
 	if err != nil {
 		return err
@@ -563,7 +560,7 @@ type ExtensionGeneralInformation struct {
 }
 
 func (e producerEndpoint) GetExtensionGeneralInfo() (*ExtensionGeneralInformation, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil)
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil) //nolint:noctx
 
 	if err != nil {
 		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)

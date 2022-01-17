@@ -3,10 +3,11 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 )
 
 type PlatformPlugin struct {
@@ -127,33 +128,33 @@ func (p PlatformPlugin) GetMetaData() *extensionMetadata {
 
 func (p PlatformPlugin) Validate(ctx *validationContext) {
 	if len(p.composer.Name) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `name` is required"))
+		ctx.AddError("Key `name` is required")
 	}
 
 	if len(p.composer.Type) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `type` is required"))
+		ctx.AddError("Key `type` is required")
 	} else if p.composer.Type != "shopware-platform-plugin" {
-		ctx.AddError(fmt.Sprintf("The composer type must be shopware-platform-plugin"))
+		ctx.AddError("The composer type must be shopware-platform-plugin")
 	}
 
 	if len(p.composer.Description) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `description` is required"))
+		ctx.AddError("Key `description` is required")
 	}
 
 	if len(p.composer.License) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `license` is required"))
+		ctx.AddError("Key `license` is required")
 	}
 
 	if len(p.composer.Version) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `version` is required"))
+		ctx.AddError("Key `version` is required")
 	}
 
 	if len(p.composer.Authors) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `authors` is required"))
+		ctx.AddError("Key `authors` is required")
 	}
 
 	if len(p.composer.Require) == 0 {
-		ctx.AddError(fmt.Sprintf("Key `require` is required"))
+		ctx.AddError("Key `require` is required")
 	} else {
 		_, exists := p.composer.Require["shopware/core"]
 

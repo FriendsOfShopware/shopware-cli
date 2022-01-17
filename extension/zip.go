@@ -2,9 +2,9 @@ package extension
 
 import (
 	"archive/zip"
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io"
 	"io/fs"
 	"io/ioutil"
@@ -15,6 +15,10 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/hashicorp/go-version"
 )
 
 var (
@@ -51,9 +55,8 @@ var (
 
 func Unzip(r *zip.Reader, dest string) error {
 	for _, f := range r.File {
-
 		// Store filename/path for returning and using later on
-		fpath := filepath.Join(dest, f.Name)
+		fpath := filepath.Join(dest, f.Name) //nolint:gosec
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
@@ -81,7 +84,7 @@ func Unzip(r *zip.Reader, dest string) error {
 			return fmt.Errorf("Unzip: %v", err)
 		}
 
-		_, err = io.Copy(outFile, rc)
+		_, err = io.Copy(outFile, rc) //nolint:gosec
 
 		// Close the file without defer to close before next iteration of loop
 		_ = outFile.Close()
@@ -95,29 +98,22 @@ func Unzip(r *zip.Reader, dest string) error {
 	return nil
 }
 
-func CreateZip(baseFolder, zipFile string) {
+func CreateZip(baseFolder, zipFile string) error {
 	// Get a Buffer to Write To
 	outFile, err := os.Create(zipFile)
 	if err != nil {
-		log.Fatalln(err)
+		return errors.Wrap(err, "create zipfile")
 	}
 	defer outFile.Close()
 
 	// Create a new zip archive.
 	w := zip.NewWriter(outFile)
+	defer w.Close()
 
 	// Add some files to the archive.
 	addZipFiles(w, baseFolder, "")
 
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	// Make sure to check the error on Close.
-	err = w.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	return nil
 }
 
 func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
@@ -208,14 +204,14 @@ func CleanupExtensionFolder(path string) error {
 	})
 }
 
-func PrepareFolderForZipping(path string, ext Extension) error {
-	composerJsonPath := path + "composer.json"
+func PrepareFolderForZipping(ctx context.Context, path string, ext Extension) error {
+	composerJSONPath := path + "composer.json"
 
-	if _, err := os.Stat(composerJsonPath); os.IsNotExist(err) {
+	if _, err := os.Stat(composerJSONPath); os.IsNotExist(err) {
 		return nil
 	}
 
-	content, err := ioutil.ReadFile(composerJsonPath)
+	content, err := ioutil.ReadFile(composerJSONPath)
 
 	if err != nil {
 		return fmt.Errorf("PrepareFolderForZipping: %v", err)
@@ -229,7 +225,10 @@ func PrepareFolderForZipping(path string, ext Extension) error {
 	}
 
 	// Add replacements
-	composer = addComposerReplacements(composer, ext)
+	composer, err = addComposerReplacements(ctx, composer, ext)
+	if err != nil {
+		return errors.Wrap(err, "add composer replacements")
+	}
 
 	filtered := filterShopwareRequires(composer)
 
@@ -251,43 +250,39 @@ func PrepareFolderForZipping(path string, ext Extension) error {
 		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
-	err = ioutil.WriteFile(composerJsonPath, newContent, 0644)
+	err = ioutil.WriteFile(composerJSONPath, newContent, 0644) //nolint:gosec
 	if err != nil {
 		// Revert on failure
-		_ = ioutil.WriteFile(composerJsonPath, content, 0644)
+		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
 	// Execute composer in this directory
-
 	composerInstallCmd := exec.Command("composer", "install", "-d", path, "--no-dev", "-n", "-o")
 	composerInstallCmd.Stdout = os.Stdout
 	composerInstallCmd.Stderr = os.Stderr
 	err = composerInstallCmd.Run()
 	if err != nil {
 		// Revert on failure
-		_ = ioutil.WriteFile(composerJsonPath, content, 0644)
+		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 		return fmt.Errorf("PrepareFolderForZipping: %v", err)
 	}
 
-	_ = ioutil.WriteFile(composerJsonPath, content, 0644)
+	_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 
 	return nil
 }
 
 func filterShopwareRequires(composer map[string]interface{}) map[string]interface{} {
-	provide, ok := composer["provide"]
-
-	if !ok {
-		composer["provide"] = make(map[string]interface{}, 0)
-		provide = composer["provide"]
+	if _, ok := composer["provide"]; !ok {
+		composer["provide"] = make(map[string]interface{})
+	}
+	if _, ok := composer["require"]; !ok {
+		composer["require"] = make(map[string]interface{})
 	}
 
-	require, ok := composer["require"]
-
-	if !ok {
-		return composer
-	}
+	provide := composer["provide"]
+	require := composer["require"]
 
 	keys := []string{"shopware/platform", "shopware/core", "shopware/shopware", "shopware/storefront", "shopware/administration", "composer/installers"}
 
@@ -301,90 +296,84 @@ func filterShopwareRequires(composer map[string]interface{}) map[string]interfac
 	return composer
 }
 
-func addComposerReplacements(composer map[string]interface{}, ext Extension) map[string]interface{} {
-	replace, ok := composer["replace"]
-
-	if !ok {
-		composer["replace"] = make(map[string]interface{}, 0)
-		replace = composer["replace"]
+func addComposerReplacements(ctx context.Context, composer map[string]interface{}, ext Extension) (map[string]interface{}, error) {
+	if _, ok := composer["replace"]; !ok {
+		composer["replace"] = make(map[string]interface{})
 	}
 
-	require, ok := composer["require"]
-
-	if !ok {
-		composer["require"] = make(map[string]interface{}, 0)
-		require = composer["require"]
+	if _, ok := composer["require"]; !ok {
+		composer["require"] = make(map[string]interface{})
 	}
 
-	resp, err := http.Get("https://swagger.docs.fos.gg/composer/versions.json")
+	replace := composer["replace"]
+	require := composer["require"]
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", nil)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, errors.Wrap(err, "create composer version request")
 	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "fetch composer versions")
+	}
+	defer resp.Body.Close()
 
 	versionString, err := ioutil.ReadAll(resp.Body)
-
 	if err != nil {
-		log.Fatalln(fmt.Errorf("PrepareFolderForZipping: %v", err))
+		return nil, errors.Wrap(err, "read version body")
 	}
 
 	var versions []string
 	err = json.Unmarshal(versionString, &versions)
-
 	if err != nil {
-		log.Fatalln(err)
+		return nil, errors.Wrap(err, "unmarshal composer versions")
 	}
 
 	versionConstraint, err := ext.GetShopwareVersionConstraint()
-
 	if err != nil {
-		log.Fatalln(fmt.Errorf("addComposerReplacements: %v", err))
+		return nil, errors.Wrap(err, "get shopware version constraint")
 	}
 
 	minVersion := getMinMatchingVersion(versionConstraint, versions)
-
 	components := []string{"core", "administration", "storefront", "administration"}
 
 	for _, component := range components {
 		packageName := fmt.Sprintf("shopware/%s", component)
 
 		if _, ok := require.(map[string]interface{})[packageName]; ok {
-			resp, err := http.Get(fmt.Sprintf("https://swagger.docs.fos.gg/composer/%s/%s.json", minVersion, component))
-
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("https://swagger.docs.fos.gg/composer/%s/%s.json", minVersion, component), nil)
 			if err != nil {
-				log.Fatalln(err)
+				return nil, errors.Wrap(err, "create component request")
 			}
 
-			defer resp.Body.Close()
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return nil, fmt.Errorf("get packte version %s: %w", component, err)
+			}
 
 			composerPartByte, err := ioutil.ReadAll(resp.Body)
-
 			if err != nil {
-				log.Fatalln(err)
+				return nil, errors.Wrap(err, "read component version body")
 			}
+
+			_ = resp.Body.Close()
 
 			var composerPart map[string]string
 			err = json.Unmarshal(composerPartByte, &composerPart)
-
 			if err != nil {
-				log.Fatalln(err)
+				return nil, errors.Wrap(err, "unmarshal component version")
 			}
 
 			for k, v := range composerPart {
 				replace.(map[string]interface{})[k] = v
 
-				if _, ok := require.(map[string]interface{})[k]; ok {
-					delete(require.(map[string]interface{}), k)
-				}
+				delete(require.(map[string]interface{}), k)
 			}
 		}
 	}
 
-	return composer
+	return composer, nil
 }
 
 func getMinMatchingVersion(constraint *version.Constraints, versions []string) string {

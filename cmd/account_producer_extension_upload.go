@@ -1,65 +1,60 @@
 package cmd
 
 import (
-	"fmt"
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"path/filepath"
 	account_api "shopware-cli/account-api"
 	"shopware-cli/extension"
 	"time"
+
+	"github.com/pkg/errors"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 	Use:   "upload [zip]",
 	Short: "Uploads a new extension upload",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
-
 		if err != nil {
-			log.Fatalln(fmt.Errorf("validate: %v", err))
+			return errors.Wrap(err, "validate")
 		}
 
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		p, err := client.Producer()
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		zipExt, err := extension.GetExtensionByZip(path)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		extName, err := zipExt.GetName()
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		ext, err := p.GetExtensionByName(extName)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		binaries, err := p.GetExtensionBinaries(ext.Id)
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		zipVersion, err := zipExt.GetVersion()
+		if err != nil {
+			return err
+		}
+
 		var foundBinary *account_api.ExtensionBinary
 
 		for _, binary := range binaries {
@@ -71,10 +66,8 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 
 		if foundBinary == nil {
 			foundBinary, err = p.CreateExtensionBinaryFile(ext.Id, path)
-
 			if err != nil {
-				termColor.Red(err.Error())
-				os.Exit(1)
+				return errors.Wrap(err, "create extension binary")
 			}
 		} else {
 			termColor.Magenta("Found a zip with version %s already. Updating it", zipVersion)
@@ -82,20 +75,17 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 
 		changelog, err := zipExt.GetChangelog()
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		avaiableVersions, err := p.GetSoftwareVersions(zipExt.GetType())
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		constraint, err := zipExt.GetShopwareVersionConstraint()
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		foundBinary.Version = zipVersion.String()
@@ -104,35 +94,27 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 		foundBinary.CompatibleSoftwareVersions = avaiableVersions.FilterOnVersion(constraint)
 
 		err = p.UpdateExtensionBinaryInfo(ext.Id, *foundBinary)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		termColor.Green("Updated changelog. Uploading now the zip to remote")
 
 		err = p.UpdateExtensionBinaryFile(ext.Id, foundBinary.Id, path)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		termColor.Green("Submitting code review request")
 
 		beforeReviews, err := p.GetBinaryReviewResults(ext.Id, foundBinary.Id)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		err = p.TriggerCodeReview(ext.Id)
-
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		if !skipWaitingForCodereviewResult {
@@ -144,10 +126,8 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			tried := 0
 			for {
 				reviews, err := p.GetBinaryReviewResults(ext.Id, foundBinary.Id)
-
 				if err != nil {
-					termColor.Red(err.Error())
-					os.Exit(1)
+					return err
 				}
 
 				// Review has been updated
@@ -174,13 +154,15 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 				}
 
 				time.Sleep(15 * time.Second)
-				tried = tried + 1
+				tried++
 
 				if maxTries == tried {
 					termColor.Green("Skipping waiting for code review result as it took too long")
 				}
 			}
 		}
+
+		return nil
 	},
 }
 

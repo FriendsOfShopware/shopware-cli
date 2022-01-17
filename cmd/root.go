@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	termColor "github.com/fatih/color"
 	"os"
 	accountApi "shopware-cli/account-api"
+
+	termColor "github.com/fatih/color"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,8 +28,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
@@ -55,13 +55,10 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv()
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-	}
+	cobra.CheckErr(viper.ReadInConfig())
 }
 
-func getAccountApiByConfig() *accountApi.Client {
+func getAccountAPIByConfig() *accountApi.Client {
 	email := viper.GetString(ConfigAccountUser)
 	password := viper.GetString(ConfigAccountPassword)
 
@@ -72,9 +69,9 @@ func getAccountApiByConfig() *accountApi.Client {
 		os.Exit(1)
 	}
 
-	companyId := viper.GetInt(ConfigAccountCompany)
+	companyID := viper.GetInt(ConfigAccountCompany)
 
-	err = changeApiMembership(client, companyId)
+	err = changeAPIMembership(client, companyID)
 
 	if err != nil {
 		termColor.Red(err.Error())
@@ -84,18 +81,18 @@ func getAccountApiByConfig() *accountApi.Client {
 	return client
 }
 
-func changeApiMembership(client *accountApi.Client, companyId int) error {
-	if companyId == 0 || client.GetActiveCompanyId() == companyId {
+func changeAPIMembership(client *accountApi.Client, companyID int) error {
+	if companyID == 0 || client.GetActiveCompanyID() == companyID {
 		return nil
 	}
 
-	for _, membership := range *client.GetMemberships() {
-		if membership.Company.Id == companyId {
-			return client.ChangeActiveMembership(&membership)
+	for _, membership := range client.GetMemberships() {
+		if membership.Company.Id == companyID {
+			return client.ChangeActiveMembership(membership)
 		}
 	}
 
-	return fmt.Errorf("could not find configured company with id %d", companyId)
+	return fmt.Errorf("could not find configured company with id %d", companyID)
 }
 
 func saveConfig() error {

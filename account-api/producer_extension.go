@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-version"
-	"github.com/microcosm-cc/bluemonday"
 	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+
+	"github.com/hashicorp/go-version"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type SoftwareVersionList []SoftwareVersion
@@ -75,7 +76,7 @@ func (e producerEndpoint) UpdateExtensionBinaryInfo(extensionId int, binary Exte
 		return fmt.Errorf("UpdateExtensionBinaryInfo: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/binaries/%d", ApiUrl, extensionId, binary.Id), bytes.NewReader(content))
+	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/binaries/%d", ApiUrl, extensionId, binary.Id), bytes.NewReader(content)) //nolint:noctx
 
 	if err != nil {
 		return fmt.Errorf("UpdateExtensionBinaryInfo: %v", err)
@@ -163,7 +164,7 @@ func (e producerEndpoint) UpdateExtensionBinaryFile(extensionId, binaryId int, z
 		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/binaries/%d/file", ApiUrl, extensionId, binaryId), &b)
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/binaries/%d/file", ApiUrl, extensionId, binaryId), &b) //nolint:noctx
 
 	if err != nil {
 		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
@@ -269,7 +270,7 @@ func (e producerEndpoint) UpdateExtensionImage(extensionId int, image *Extension
 		return fmt.Errorf("UpdateExtensionImage: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, image.Id), bytes.NewReader(content))
+	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, image.Id), bytes.NewReader(content)) //nolint:noctx
 
 	if err != nil {
 		return fmt.Errorf("UpdateExtensionImage: %v", err)
@@ -307,7 +308,7 @@ func (e producerEndpoint) AddExtensionImage(extensionId int, file string) (*Exte
 		return nil, fmt.Errorf("AddExtensionImage: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), &b)
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), &b) //nolint:noctx
 
 	if err != nil {
 		return nil, fmt.Errorf("AddExtensionImage: %v", err)
@@ -333,7 +334,7 @@ func (e producerEndpoint) AddExtensionImage(extensionId int, file string) (*Exte
 }
 
 func (e producerEndpoint) TriggerCodeReview(extensionId int) error {
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/reviews", ApiUrl, extensionId), nil)
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/reviews", ApiUrl, extensionId), nil) //nolint:noctx
 
 	if err != nil {
 		return fmt.Errorf("TriggerCodeReview: %v", err)
@@ -345,7 +346,7 @@ func (e producerEndpoint) TriggerCodeReview(extensionId int) error {
 }
 
 func (e producerEndpoint) GetBinaryReviewResults(extensionId, binaryId int) ([]BinaryReviewResult, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries/%d/checkresults", ApiUrl, extensionId, binaryId), nil)
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries/%d/checkresults", ApiUrl, extensionId, binaryId), nil) //nolint:noctx
 
 	if err != nil {
 		return nil, fmt.Errorf("GetBinaryReviewResults: %v", err)
@@ -412,8 +413,8 @@ func (review BinaryReviewResult) GetSummary() string {
 			continue
 		}
 
-		message = message + fmt.Sprintf("=== %s ===\n", result.SubCheck)
-		message = message + fmt.Sprintf("%s\n\n", p.Sanitize(result.Message))
+		message += fmt.Sprintf("=== %s ===\n", result.SubCheck)
+		message += fmt.Sprintf("%s\n\n", p.Sanitize(result.Message))
 	}
 
 	return message
@@ -423,7 +424,7 @@ func (list SoftwareVersionList) FilterOnVersion(constriant *version.Constraints)
 	newList := make(SoftwareVersionList, 0)
 
 	for _, swVersion := range list {
-		if swVersion.Selectable == false {
+		if !swVersion.Selectable {
 			continue
 		}
 

@@ -4,10 +4,11 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 )
 
 func GetExtensionByFolder(path string) (Extension, error) {
@@ -19,11 +20,11 @@ func GetExtensionByFolder(path string) (Extension, error) {
 		return newApp(path)
 	}
 
-	if _, err := os.Stat(fmt.Sprintf("%s/composer.json", path)); err == nil {
-		return newPlatformPlugin(path)
+	if _, err := os.Stat(fmt.Sprintf("%s/composer.json", path)); err != nil {
+		return nil, fmt.Errorf("unknown extension type")
 	}
 
-	return nil, fmt.Errorf("cannot detect extension type")
+	return newPlatformPlugin(path)
 }
 
 func GetExtensionByZip(filePath string) (Extension, error) {

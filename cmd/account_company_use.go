@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+	"strconv"
+
 	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
-	"strconv"
 )
 
 var accountCompanyUseCmd = &cobra.Command{
@@ -13,30 +14,29 @@ var accountCompanyUseCmd = &cobra.Command{
 	Short: "Use another company for your Account",
 	Args:  cobra.MinimumNArgs(1),
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		companyId, err := strconv.Atoi(args[0])
-
+	RunE: func(cmd *cobra.Command, args []string) error {
+		companyID, err := strconv.Atoi(args[0])
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
-		for _, membership := range *client.GetMemberships() {
-			if membership.Company.Id == companyId {
-				viper.Set(ConfigAccountCompany, companyId)
+		for _, membership := range client.GetMemberships() {
+			if membership.Company.Id == companyID {
+				viper.Set(ConfigAccountCompany, companyID)
+
 				err := saveConfig()
-
 				if err != nil {
-					log.Fatalln(err)
+					return err
 				}
 
 				termColor.Green("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
-				return
+				return nil
 			}
 		}
 
-		termColor.Red("Could noy find company by id %s", companyId)
+		return fmt.Errorf("company with ID \"%d\" not found", companyID)
 	},
 }
 

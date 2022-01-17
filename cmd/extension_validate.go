@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	termColor "github.com/fatih/color"
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"path/filepath"
 	"shopware-cli/extension"
+
+	termColor "github.com/fatih/color"
+	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
 )
 
 var extensionValidateCmd = &cobra.Command{

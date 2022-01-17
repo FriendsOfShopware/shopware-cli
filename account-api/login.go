@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 const ApiUrl = "https://api.shopware.com"
@@ -16,7 +19,14 @@ func NewApi(request LoginRequest) (*Client, error) {
 		return nil, fmt.Errorf("login: %v", err)
 	}
 
-	resp, err := http.Post(ApiUrl+"/accesstokens", "application/json", bytes.NewBuffer(s))
+	req, err := http.NewRequest(http.MethodPost, ApiUrl+"/accesstokens", bytes.NewBuffer(s)) //nolint:noctx
+	if err != nil {
+		return nil, errors.Wrap(err, "create access token request")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("login: %v", err)
 	}
@@ -38,14 +48,13 @@ func NewApi(request LoginRequest) (*Client, error) {
 	}
 
 	memberships, err := fetchMemberships(token)
-
 	if err != nil {
 		return nil, err
 	}
 
-	var activeMemberShip membership
+	var activeMemberShip Membership
 
-	for _, membership := range *memberships {
+	for _, membership := range memberships {
 		if membership.Company.Id == token.UserID {
 			activeMemberShip = membership
 		}
@@ -54,14 +63,14 @@ func NewApi(request LoginRequest) (*Client, error) {
 	client := Client{
 		token:            token,
 		memberships:      memberships,
-		activeMembership: &activeMemberShip,
+		activeMembership: activeMemberShip,
 	}
 
 	return &client, nil
 }
 
-func fetchMemberships(token token) (*[]membership, error) {
-	r, err := http.NewRequest("GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil)
+func fetchMemberships(token token) ([]Membership, error) {
+	r, err := http.NewRequest("GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil) //nolint:noctx
 	r.Header.Set("x-shopware-token", token.Token)
 
 	if err != nil {
@@ -85,12 +94,12 @@ func fetchMemberships(token token) (*[]membership, error) {
 		return nil, fmt.Errorf(string(data))
 	}
 
-	var companies []membership
+	var companies []Membership
 	if err := json.Unmarshal(data, &companies); err != nil {
 		return nil, fmt.Errorf("fetchMemberships: %v", err)
 	}
 
-	return &companies, nil
+	return companies, nil
 }
 
 type token struct {
@@ -112,7 +121,7 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-type membership struct {
+type Membership struct {
 	Id           int    `json:"id"`
 	CreationDate string `json:"creationDate"`
 	Active       bool   `json:"active"`
@@ -160,7 +169,7 @@ type changeMembershipRequest struct {
 	} `json:"membership"`
 }
 
-func (c Client) ChangeActiveMembership(selected *membership) error {
+func (c *Client) ChangeActiveMembership(selected Membership) error {
 	s, err := json.Marshal(changeMembershipRequest{SelectedMembership: struct {
 		Id int `json:"id"`
 	}(struct{ Id int }{Id: selected.Id})})
@@ -169,17 +178,18 @@ func (c Client) ChangeActiveMembership(selected *membership) error {
 		return fmt.Errorf("ChangeActiveMembership: %v", err)
 	}
 
-	r, err := c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/account/%d/memberships/change", ApiUrl, c.GetUserId()), bytes.NewBuffer(s))
-
+	r, err := c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/account/%d/memberships/change", ApiUrl, c.GetUserID()), bytes.NewBuffer(s)) //nolint:noctx
 	if err != nil {
 		return err
 	}
 
 	resp, err := http.DefaultClient.Do(r)
-
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode == 200 {
 		c.activeMembership = selected

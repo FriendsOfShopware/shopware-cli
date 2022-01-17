@@ -3,9 +3,10 @@ package extension
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"os"
+
+	"github.com/hashicorp/go-version"
 )
 
 type translatedXmlNode []struct {

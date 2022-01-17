@@ -14,7 +14,7 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 		return nil, err
 	}
 
-	changelogs := make(map[string]map[string]string, 0)
+	changelogs := make(map[string]map[string]string)
 
 	for _, file := range files {
 		language := strings.Trim(strings.ReplaceAll(strings.ReplaceAll(filepath.Base(file), "CHANGELOG", ""), ".md", ""), "_")
@@ -32,7 +32,7 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 }
 
 func parseMarkdownChangelog(content string) map[string]string {
-	versions := make(map[string]string, 0)
+	versions := make(map[string]string)
 	currentVersion := ""
 	versionText := ""
 
@@ -56,37 +56,31 @@ func parseMarkdownChangelog(content string) map[string]string {
 
 func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error) {
 	v, err := ext.GetVersion()
-
 	if err != nil {
 		return nil, err
 	}
 
 	changelogs, err := parseMarkdownChangelogInPath(ext.GetPath())
-
 	if err != nil {
 		return nil, err
 	}
 
 	changelogDe, ok := changelogs["de-DE"]
-
 	if !ok {
 		return nil, fmt.Errorf("german changelog is missing")
 	}
 
 	changelogDeVersion, ok := changelogDe[v.String()]
-
 	if !ok {
 		return nil, fmt.Errorf("german changelog in version %s is missing", v.String())
 	}
 
 	changelogEn, ok := changelogs["en-GB"]
-
-	changelogEnVersion, ok := changelogEn[v.String()]
-
 	if !ok {
 		return nil, fmt.Errorf("english changelog in version %s is missing", v.String())
 	}
 
+	changelogEnVersion, ok := changelogEn[v.String()]
 	if !ok {
 		return nil, fmt.Errorf("english changelog is missing")
 	}

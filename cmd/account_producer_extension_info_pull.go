@@ -2,10 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +9,12 @@ import (
 	"path/filepath"
 	"shopware-cli/extension"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
@@ -20,7 +22,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		path, err := filepath.Abs(args[0])
 
@@ -78,10 +80,13 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 
 		var iconConfigPath *string
 
-		if len(storeExt.IconUrl) > 0 {
+		if len(storeExt.IconURL) > 0 {
 			icon := "src/Resources/store/icon.png"
 			iconConfigPath = &icon
-			downloadFileTo(storeExt.IconUrl, fmt.Sprintf("%s/icon.png", resourcesFolder))
+			err := downloadFileTo(storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 
 		for _, category := range storeExt.Categories {
@@ -104,7 +109,10 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 
 		for i, image := range storeImages {
 			imagePath := fmt.Sprintf("src/Resources/store/img-%d.png", i)
-			downloadFileTo(image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
+			err := downloadFileTo(image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
+			if err != nil {
+				log.Fatalln(err)
+			}
 
 			images = append(images, extension.ConfigStoreImage{
 				File:     imagePath,
@@ -126,13 +134,8 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 					videosDE = append(videosDE, element.URL)
 				}
 
-				for _, element := range strings.Split(info.Highlights, "\n") {
-					highlightsDE = append(highlightsDE, element)
-				}
-
-				for _, element := range strings.Split(info.Features, "\n") {
-					featuresDE = append(featuresDE, element)
-				}
+				highlightsDE = append(highlightsDE, strings.Split(info.Highlights, "\n")...)
+				featuresDE = append(featuresDE, strings.Split(info.Features, "\n")...)
 
 				for _, element := range info.Faqs {
 					faqDE = append(faqDE, extension.ConfigStoreFaq{Question: element.Question, Answer: element.Answer})
@@ -146,13 +149,8 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 					videosEN = append(videosEN, element.URL)
 				}
 
-				for _, element := range strings.Split(info.Highlights, "\n") {
-					highlightsEN = append(highlightsEN, element)
-				}
-
-				for _, element := range strings.Split(info.Features, "\n") {
-					featuresEN = append(featuresEN, element)
-				}
+				highlightsEN = append(highlightsEN, strings.Split(info.Highlights, "\n")...)
+				featuresEN = append(featuresEN, strings.Split(info.Features, "\n")...)
 
 				for _, element := range info.Faqs {
 					faqEN = append(faqEN, extension.ConfigStoreFaq{Question: element.Question, Answer: element.Answer})
@@ -199,26 +197,27 @@ func init() {
 	accountCompanyProducerExtensionInfoCmd.AddCommand(accountCompanyProducerExtensionInfoPullCmd)
 }
 
-func downloadFileTo(url string, target string) {
-	resp, err := http.Get(url)
-
+func downloadFileTo(url string, target string) error {
+	req, err := http.NewRequest(http.MethodGet, url, nil) //nolint:noctx
 	if err != nil {
-		log.Println(fmt.Errorf("downloadFile: %v", err))
+		return errors.Wrap(err, "create request")
 	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return errors.Wrap(err, "download file")
+	}
+	defer resp.Body.Close()
 
 	content, err := ioutil.ReadAll(resp.Body)
-
 	if err != nil {
-		log.Println(fmt.Errorf("downloadFile: %v", err))
+		return errors.Wrap(err, "read file body")
 	}
 
 	err = ioutil.WriteFile(target, content, os.ModePerm)
-
 	if err != nil {
-		log.Println(fmt.Errorf("downloadFile: %v", err))
+		return errors.Wrap(err, "write to file")
 	}
+
+	return nil
 }
