@@ -149,24 +149,6 @@ func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
 }
 
 func CleanupExtensionFolder(path string) error {
-	if _, err := os.Stat(path + ".sw-zip-blacklist"); !os.IsNotExist(err) {
-		blacklistFile, err := ioutil.ReadFile(path + ".sw-zip-blacklist")
-
-		if err != nil {
-			return err
-		}
-
-		localList := strings.Split(string(blacklistFile), "\n")
-
-		for _, s := range localList {
-			if len(s) == 0 {
-				continue
-			}
-
-			defaultNotAllowedPaths = append(defaultNotAllowedPaths, s)
-		}
-	}
-
 	for _, folder := range defaultNotAllowedPaths {
 		if _, err := os.Stat(path + folder); !os.IsNotExist(err) {
 			err := os.RemoveAll(path + folder)
