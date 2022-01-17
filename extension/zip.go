@@ -148,7 +148,9 @@ func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
 	}
 }
 
-func CleanupExtensionFolder(path string) error {
+func CleanupExtensionFolder(path string, additionalPaths []string) error {
+	defaultNotAllowedPaths = append(defaultNotAllowedPaths, additionalPaths...)
+
 	for _, folder := range defaultNotAllowedPaths {
 		if _, err := os.Stat(path + folder); !os.IsNotExist(err) {
 			err := os.RemoveAll(path + folder)

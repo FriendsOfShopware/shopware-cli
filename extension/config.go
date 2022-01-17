@@ -1,13 +1,33 @@
 package extension
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v3"
 )
+
+type ConfigBuild struct {
+	Zip struct {
+		Composer struct {
+			Enabled     bool     `yaml:"enabled"`
+			BeforeHooks []string `yaml:"before_hooks"`
+			AfterHooks  []string `yaml:"after_hooks"`
+		} `yaml:"composer"`
+		Assets struct {
+			Enabled     bool     `yaml:"enabled"`
+			BeforeHooks []string `yaml:"before_hooks"`
+			AfterHooks  []string `yaml:"after_hooks"`
+		} `yaml:"assets"`
+		Pack struct {
+			Excludes struct {
+				Paths []string `yaml:"paths"`
+			} `yaml:"excludes"`
+			BeforeHooks []string `yaml:"before_hooks"`
+		} `yaml:"pack"`
+	} `yaml:"zip"`
+}
 
 type ConfigStore struct {
 	Availabilities                      *[]string                  `yaml:"availabilities"`
@@ -66,17 +86,23 @@ type ConfigStoreImagePreview struct {
 
 type Config struct {
 	Store ConfigStore `yaml:"store"`
+	Build ConfigBuild `yaml:"build"`
 }
 
-var ErrExtensionConfigNotFound = errors.New("extension config not found")
-
 func ReadExtensionConfig(dir string) (*Config, error) {
-	var config *Config
+	config := &Config{}
+	config.Build.Zip.Assets.Enabled = true
+	config.Build.Zip.Composer.Enabled = true
 
 	fileName := fmt.Sprintf("%s/.shopware-extension.yml", dir)
 	_, err := os.Stat(fileName)
+
+	if os.IsNotExist(err) {
+		return config, nil
+	}
+
 	if err != nil {
-		return nil, ErrExtensionConfigNotFound
+		return nil, err
 	}
 
 	fileHandle, err := ioutil.ReadFile(fileName)

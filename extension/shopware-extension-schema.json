@@ -9,8 +9,81 @@
             "title": ".shopware-extension.yml",
             "additionalProperties": false,
             "properties": {
+                "build": {
+                    "$ref": "#/definitions/Build"
+                },
                 "store": {
                     "$ref": "#/definitions/Store"
+                }
+            }
+        },
+        "Build": {
+            "type": "object",
+            "title": "build",
+            "additionalProperties": false,
+            "properties": {
+                "zip": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "composer": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "before_hooks": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                },
+                                "after_hooks": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                }
+                            }
+                        },
+                        "assets": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "before_hooks": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                },
+                                "after_hooks": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                }
+                            }
+                        },
+                        "pack": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "before_hooks": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                },
+                                "excludes": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "minProperties": 1,
+                                    "properties": {
+                                        "paths": {
+                                            "type": "array",
+                                            "items": {"type": "string"}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
