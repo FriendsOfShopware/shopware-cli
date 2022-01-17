@@ -2,6 +2,7 @@ before:
   hooks:
     - go mod tidy
     - go generate ./...
+    - ./scripts/completion.sh
 
 builds:
   - env:
@@ -25,6 +26,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+    files:
+      - completions/*
 
 release:
   github:
@@ -59,6 +62,13 @@ nfpms:
     maintainer: Shyim <github@shyim.de>
     description: A Shopware CLI
     license: MIT
+    contents:
+      - src: ./completions/shopware-cli.bash
+        dst: /etc/bash_completion.d/shopware-cli
+      - src: ./completions/shopware-cli.fish
+        dst: /usr/share/fish/completions/shopware-cli.fish
+      - src: ./completions/shopware-cli.zsh
+        dst: /usr/local/share/zsh/site-functions/_shopware-cli
     formats:
       - apk
       - deb
@@ -83,3 +93,6 @@ brews:
     - name: git
     install: |-
       bin.install "shopware-cli"
+      bash_completion.install "completions/shopware-cli.bash" => "_shopware-cli"
+      zsh_completion.install "completions/shopware-cli.zsh" => "_shopware-cli"
+      fish_completion.install "completions/shopware-cli.fish"
