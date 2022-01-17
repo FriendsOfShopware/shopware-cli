@@ -1,6 +1,7 @@
 name: Update docs content
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -32,8 +33,8 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           echo -e "---\n title: 'Schema of .shopware-extensions.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
-          rm -f content/docs/shopware-extensions.yml-schema/index.md
-          mv schema.new.md content/docs/shopware-extensions.yml-schema/index.md
+          rm -f content/en/docs/shopware-extensions.yml-schema/index.md
+          mv schema.new.md content/docs/en/shopware-extensions.yml-schema/index.md
           git add -f content/docs/shopware-extensions.yml-schema/index.md
           git commit -m "chore: Update shopware-extension.yml-schema.md"
           git push
