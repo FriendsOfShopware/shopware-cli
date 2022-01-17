@@ -9,7 +9,7 @@ import (
 )
 
 var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
-	Use:   "create [name] [generation]",
+	Use:   "create [name] [classic|platform|themes|apps]",
 	Short: "Creates a new extension",
 	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
