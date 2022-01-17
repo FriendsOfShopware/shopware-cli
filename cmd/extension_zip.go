@@ -102,6 +102,10 @@ var extensionZipCmd = &cobra.Command{
 			return errors.Wrap(err, "prepare package")
 		}
 
+		if err := extension.BuildAssetsForExtensions("", []extension.Extension{ext}); err != nil {
+			return errors.Wrap(err, "building assets")
+		}
+
 		// Cleanup not wanted files
 		if err := extension.CleanupExtensionFolder(extDir); err != nil {
 			return errors.Wrap(err, "cleanup package")

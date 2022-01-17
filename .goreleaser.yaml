@@ -91,6 +91,9 @@ brews:
       system "#{bin}/shopware-cli --version"
     dependencies:
     - name: git
+      type: optional
+    - name: node
+      type: optional
     install: |-
       bin.install "shopware-cli"
       bash_completion.install "completions/shopware-cli.bash" => "_shopware-cli"
