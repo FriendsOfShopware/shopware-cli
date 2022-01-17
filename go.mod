@@ -10,6 +10,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.17
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.7.0
+	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/yuin/goldmark v1.3.5

@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"log"
+
 	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 )
 
 var logoutCmd = &cobra.Command{

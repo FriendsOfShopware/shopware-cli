@@ -1,20 +1,21 @@
 package cmd
 
 import (
-	termColor "github.com/fatih/color"
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	account_api "shopware-cli/account-api"
 	"strconv"
+
+	termColor "github.com/fatih/color"
+	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
 )
 
 var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all your extensions",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		p, err := client.Producer()
 

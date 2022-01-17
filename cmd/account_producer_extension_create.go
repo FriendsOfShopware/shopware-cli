@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"os"
 	accountApi "shopware-cli/account-api"
 	"strings"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
@@ -13,7 +14,7 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 	Short: "Creates a new extension",
 	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		p, err := client.Producer()
 
@@ -43,7 +44,7 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 			Generation: struct {
 				Name string `json:"name"`
 			}{Name: args[1]},
-			ProducerId: p.GetId(),
+			ProducerID: p.GetId(),
 		})
 
 		if err != nil {

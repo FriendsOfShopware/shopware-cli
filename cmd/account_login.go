@@ -3,13 +3,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	accountApi "shopware-cli/account-api"
+
 	termColor "github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
-	"os"
-	accountApi "shopware-cli/account-api"
 )
 
 var loginCmd = &cobra.Command{
@@ -39,7 +40,7 @@ var loginCmd = &cobra.Command{
 		}
 
 		if viper.GetInt(ConfigAccountCompany) > 0 {
-			err = changeApiMembership(client, viper.GetInt(ConfigAccountCompany))
+			err = changeAPIMembership(client, viper.GetInt(ConfigAccountCompany))
 
 			if err != nil {
 				termColor.Red(err.Error())

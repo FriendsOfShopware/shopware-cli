@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"os"
 	"strconv"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
@@ -12,7 +13,7 @@ var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
 	Short: "Delete a extension",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		extensionId, err := strconv.Atoi(args[0])
 

@@ -10,28 +10,23 @@ import (
 
 type validationContext struct {
 	Extension Extension
-	errors    *[]string
+	errors    []string
 }
 
 func newValidationContext(ext Extension) *validationContext {
-	context := validationContext{Extension: ext}
-	str := make([]string, 0)
-
-	context.errors = &str
-
-	return &context
+	return &validationContext{Extension: ext}
 }
 
-func (c validationContext) AddError(message string) {
-	*c.errors = append(*c.errors, message)
+func (c *validationContext) AddError(message string) {
+	c.errors = append(c.errors, message)
 }
 
 func (c validationContext) HasErrors() bool {
-	return len(*c.errors) != 0
+	return len(c.errors) > 0
 }
 
 func (c validationContext) Errors() []string {
-	return *c.errors
+	return c.errors
 }
 
 func RunValidation(ext Extension) *validationContext {

@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"os"
+
 	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var accountProducerInfoCmd = &cobra.Command{
@@ -11,7 +12,7 @@ var accountProducerInfoCmd = &cobra.Command{
 	Short: "List information about your producer account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		p, err := client.Producer()
 

@@ -1,10 +1,12 @@
 package extension
 
 import (
+	"errors"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 type ConfigStore struct {
@@ -66,14 +68,15 @@ type Config struct {
 	Store ConfigStore `yaml:"store"`
 }
 
+var ErrExtensionConfigNotFound = errors.New("extension config not found")
+
 func ReadExtensionConfig(dir string) (*Config, error) {
 	var config *Config
 
 	fileName := fmt.Sprintf("%s/.shopware-extension.yml", dir)
 	_, err := os.Stat(fileName)
-
 	if err != nil {
-		return nil, nil
+		return nil, ErrExtensionConfigNotFound
 	}
 
 	fileHandle, err := ioutil.ReadFile(fileName)

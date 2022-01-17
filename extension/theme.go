@@ -9,16 +9,16 @@ import (
 )
 
 func validateTheme(ctx *validationContext) {
-	themeJsonPath := fmt.Sprintf("%s/src/Resources/theme.json", ctx.Extension.GetPath())
+	themeJSONPath := fmt.Sprintf("%s/src/Resources/theme.json", ctx.Extension.GetPath())
 
-	if _, err := os.Stat(themeJsonPath); !os.IsNotExist(err) {
-		content, err := ioutil.ReadFile(themeJsonPath)
+	if _, err := os.Stat(themeJSONPath); !os.IsNotExist(err) {
+		content, err := ioutil.ReadFile(themeJSONPath)
 
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		var theme themeJson
+		var theme themeJSON
 		err = json.Unmarshal(content, &theme)
 
 		if err != nil {
@@ -38,6 +38,6 @@ func validateTheme(ctx *validationContext) {
 	}
 }
 
-type themeJson struct {
+type themeJSON struct {
 	PreviewMedia string `json:"previewMedia"`
 }

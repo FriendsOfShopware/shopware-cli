@@ -3,12 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	termColor "github.com/fatih/color"
-	"github.com/spf13/cobra"
-	"github.com/yuin/goldmark"
-	goldmarkExtension "github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer/html"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +10,13 @@ import (
 	accountApi "shopware-cli/account-api"
 	"shopware-cli/extension"
 	"strings"
+
+	termColor "github.com/fatih/color"
+	"github.com/spf13/cobra"
+	"github.com/yuin/goldmark"
+	goldmarkExtension "github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
 )
 
 var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
@@ -23,7 +24,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountApiByConfig()
+		client := getAccountAPIByConfig()
 
 		path, err := filepath.Abs(args[0])
 
@@ -81,13 +82,12 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			}
 		}
 
-		extCfg, err := extension.ReadExtensionConfig(zipExt.GetPath())
+		info, err := p.GetExtensionGeneralInfo()
 		if err != nil {
 			log.Fatalln(fmt.Errorf("update: %v", err))
 		}
 
-		info, err := p.GetExtensionGeneralInfo()
-
+		extCfg, err := extension.ReadExtensionConfig(zipExt.GetPath())
 		if err != nil {
 			log.Fatalln(fmt.Errorf("update: %v", err))
 		}
@@ -149,7 +149,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	},
 }
 
-func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) {
+func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) { //nolint:gocyclo
 	if cfg.Store.DefaultLocale != nil {
 		for _, locale := range info.Locales {
 			if locale.Name == *cfg.Store.DefaultLocale {
@@ -175,10 +175,10 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 	if cfg.Store.Availabilities != nil {
 		newAvailabilities := make([]accountApi.StoreAvailablity, 0)
 
-		for _, availablity := range info.StoreAvailabilities {
+		for _, availability := range info.StoreAvailabilities {
 			for _, configLocale := range *cfg.Store.Availabilities {
-				if availablity.Name == configLocale {
-					newAvailabilities = append(newAvailabilities, availablity)
+				if availability.Name == configLocale {
+					newAvailabilities = append(newAvailabilities, availability)
 				}
 			}
 		}
