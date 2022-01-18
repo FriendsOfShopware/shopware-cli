@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
 )
 
 var accountCompanyMerchantShopListCmd = &cobra.Command{

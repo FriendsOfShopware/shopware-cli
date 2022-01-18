@@ -14,7 +14,7 @@ func (c Client) Merchant() *merchantEndpoint {
 }
 
 func (m merchantEndpoint) Shops() ([]*MerchantShop, error) {
-	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/shops?limit=100&userId=%d", ApiUrl, m.c.GetActiveCompanyID()), nil) //nolint:noctx
+	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/shops?limit=100&userId=%d", ApiUrl, m.c.GetActiveCompanyID()), nil)
 
 	if err != nil {
 		return nil, err
