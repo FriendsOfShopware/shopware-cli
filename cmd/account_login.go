@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"log"
 	"os"
 	accountApi "shopware-cli/account-api"
 
-	termColor "github.com/fatih/color"
 	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,7 +16,7 @@ var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login into your Shopware Account",
 	Long:  "",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		email := viper.GetString(ConfigAccountUser)
 		password := viper.GetString(ConfigAccountPassword)
 		newCredentials := false
@@ -29,22 +28,20 @@ var loginCmd = &cobra.Command{
 			viper.Set(ConfigAccountUser, email)
 			viper.Set(ConfigAccountPassword, password)
 		} else {
-			termColor.Blue("Using existing credentials. Use account:logout to logout")
+			log.Infof("Using existing credentials. Use account:logout to logout")
 		}
 
 		client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
 
 		if err != nil {
-			termColor.Red("Login failed with error: %s", err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "login failed with error")
 		}
 
 		if viper.GetInt(ConfigAccountCompany) > 0 {
 			err = changeAPIMembership(client, viper.GetInt(ConfigAccountCompany))
 
 			if err != nil {
-				termColor.Red(err.Error())
-				os.Exit(1)
+				return errors.Wrap(err, "cannot change company member ship")
 			}
 		}
 
@@ -52,22 +49,24 @@ var loginCmd = &cobra.Command{
 			err := saveConfig()
 
 			if err != nil {
-				log.Fatalln(err)
+				return errors.Wrap(err, "cannot save config")
 			}
 		}
 
 		profile, err := client.GetMyProfile()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
-		termColor.Green(
+		log.Infof(
 			"Hey %s %s. You are now authenticated on company %s and can use all account commands",
 			profile.PersonalData.FirstName,
 			profile.PersonalData.LastName,
 			client.GetActiveMembership().Company.Name,
 		)
+
+		return nil
 	},
 }
 

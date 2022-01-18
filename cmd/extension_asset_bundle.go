@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"log"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	"shopware-cli/extension"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -13,20 +13,20 @@ var extensionAssetBundleCmd = &cobra.Command{
 	Use:   "build [path]",
 	Short: "Builds assets for extensions",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		validatedExtensions := make([]extension.Extension, 0)
 
 		for _, arg := range args {
 			path, err := filepath.Abs(arg)
 
 			if err != nil {
-				log.Fatalln(err)
+				return errors.Wrap(err, "cannot open file")
 			}
 
 			ext, err := extension.GetExtensionByFolder(path)
 
 			if err != nil {
-				log.Fatalln(err)
+				return errors.Wrap(err, "cannot open extension")
 			}
 
 			validatedExtensions = append(validatedExtensions, ext)
@@ -35,10 +35,12 @@ var extensionAssetBundleCmd = &cobra.Command{
 		err := extension.BuildAssetsForExtensions("", validatedExtensions)
 
 		if err != nil {
-			log.Fatalln(err)
+			return errors.Wrap(err, "cannot build assets")
 		}
 
-		termColor.Green("Assets has been built")
+		log.Infof("Assets has been built")
+
+		return nil
 	},
 }
 

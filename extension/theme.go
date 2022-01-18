@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -15,14 +14,16 @@ func validateTheme(ctx *validationContext) {
 		content, err := ioutil.ReadFile(themeJSONPath)
 
 		if err != nil {
-			log.Fatalln(err)
+			ctx.AddError("Invalid theme.json")
+			return
 		}
 
 		var theme themeJSON
 		err = json.Unmarshal(content, &theme)
 
 		if err != nil {
-			log.Fatalln(err)
+			ctx.AddError("Cannot decode theme.json")
+			return
 		}
 
 		if len(theme.PreviewMedia) == 0 {

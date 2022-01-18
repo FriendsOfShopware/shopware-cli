@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"strconv"
 
@@ -12,7 +11,7 @@ import (
 var accountCompanyMerchantShopListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all shops",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		table := tablewriter.NewWriter(os.Stdout)
@@ -21,7 +20,7 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 		shops, err := client.Merchant().Shops()
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
 		for _, shop := range shops {
@@ -33,6 +32,8 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 		}
 
 		table.Render()
+
+		return nil
 	},
 }
 

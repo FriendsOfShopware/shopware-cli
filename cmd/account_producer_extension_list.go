@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"log"
+	"github.com/pkg/errors"
 	"os"
 	account_api "shopware-cli/account-api"
 	"strconv"
 
-	termColor "github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -14,14 +13,13 @@ import (
 var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all your extensions",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		criteria := account_api.ListExtensionCriteria{
@@ -37,7 +35,7 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 		extensions, err := p.Extensions(&criteria)
 
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
@@ -64,6 +62,8 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 		}
 
 		table.Render()
+
+		return nil
 	},
 }
 

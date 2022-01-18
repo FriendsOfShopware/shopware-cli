@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"os"
-
-	termColor "github.com/fatih/color"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -11,25 +10,25 @@ var accountProducerInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "List information about your producer account",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		profile, err := p.Profile()
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer profile")
 		}
 
-		termColor.Blue("Name: %s", profile.Name)
-		termColor.Blue("Prefix: %s", profile.Prefix)
-		termColor.Blue("Website: %s", profile.Website)
+		log.Infof("Name: %s", profile.Name)
+		log.Infof("Prefix: %s", profile.Prefix)
+		log.Infof("Website: %s", profile.Website)
+
+		return nil
 	},
 }
 

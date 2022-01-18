@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -31,7 +31,7 @@ var accountCompanyUseCmd = &cobra.Command{
 					return err
 				}
 
-				termColor.Green("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
+				log.Infof("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
 				return nil
 			}
 		}

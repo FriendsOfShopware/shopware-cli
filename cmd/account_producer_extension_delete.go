@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"os"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -12,31 +12,30 @@ var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
 	Use:   "delete [id]",
 	Short: "Delete a extension",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		extensionId, err := strconv.Atoi(args[0])
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot convert id to int")
 		}
 
 		p, err := client.Producer()
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		err = p.DeleteExtension(extensionId)
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot delete extension")
 		}
 
-		termColor.Green("Extension has been successfully deleted")
+		log.Infof("Extension has been successfully deleted")
+
+		return nil
 	},
 }
 

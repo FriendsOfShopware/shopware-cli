@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -12,7 +12,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -21,37 +20,37 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Use:   "pull [path]",
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot open file")
 		}
 
 		zipExt, err := extension.GetExtensionByFolder(path)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot open extension")
 		}
 
 		zipName, err := zipExt.GetName()
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot get extension name")
 		}
 
 		p, err := client.Producer()
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		storeExt, err := p.GetExtensionByName(zipName)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot get store extension")
 		}
 
 		resourcesFolder := fmt.Sprintf("%s/src/Resources/store/", zipExt.GetPath())
@@ -74,7 +73,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			err = os.MkdirAll(resourcesFolder, os.ModePerm)
 
 			if err != nil {
-				log.Fatalln(fmt.Errorf("pull: %v", err))
+				return errors.Wrap(err, "cannot create file")
 			}
 		}
 
@@ -85,7 +84,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			iconConfigPath = &icon
 			err := downloadFileTo(storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
 			if err != nil {
-				log.Fatalln(err)
+				return errors.Wrap(err, "cannot download file")
 			}
 		}
 
@@ -104,14 +103,14 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		storeImages, err := p.GetExtensionImages(storeExt.Id)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot get extension images")
 		}
 
 		for i, image := range storeImages {
 			imagePath := fmt.Sprintf("src/Resources/store/img-%d.png", i)
 			err := downloadFileTo(image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
 			if err != nil {
-				log.Fatalln(err)
+				return errors.Wrap(err, "cannot download file")
 			}
 
 			images = append(images, extension.ConfigStoreImage{
@@ -179,17 +178,19 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		content, err := yaml.Marshal(newCfg)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot encode yaml")
 		}
 
 		extCfgFile := fmt.Sprintf("%s/%s", zipExt.GetPath(), ".shopware-extension.yml")
 		err = ioutil.WriteFile(extCfgFile, content, os.ModePerm)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("pull: %v", err))
+			return errors.Wrap(err, "cannot save file")
 		}
 
-		termColor.Green("Files has been written to the given extension folder")
+		log.Infof("Files has been written to the given extension folder")
+
+		return nil
 	},
 }
 

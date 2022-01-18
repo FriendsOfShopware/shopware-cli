@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 	"shopware-cli/extension"
 
-	termColor "github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -16,17 +16,17 @@ var extensionValidateCmd = &cobra.Command{
 	Use:   "validate [path]",
 	Short: "Validate a Extension",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("validate: %v", err))
+			return errors.Wrap(err, "cannot find path")
 		}
 
 		stat, err := os.Stat(path)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("validate: %v", err))
+			return errors.Wrap(err, "cannot find path")
 		}
 
 		var ext extension.Extension
@@ -38,17 +38,15 @@ var extensionValidateCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("validate: %v", err))
+			return errors.Wrap(err, "cannot open extension")
 		}
 
 		context := extension.RunValidation(ext)
 
 		if !context.HasErrors() {
-			termColor.Green("Validation passed without errors")
-			os.Exit(0)
+			log.Infof("Validation passed without errors")
+			return nil
 		}
-
-		termColor.Red("Validation failed")
 
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetColWidth(100)
@@ -60,7 +58,7 @@ var extensionValidateCmd = &cobra.Command{
 
 		table.Render()
 
-		os.Exit(1)
+		return fmt.Errorf("validation failed")
 	},
 }
 

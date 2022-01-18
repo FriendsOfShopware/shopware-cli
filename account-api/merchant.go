@@ -13,7 +13,7 @@ func (c Client) Merchant() *merchantEndpoint {
 	return &merchantEndpoint{c: c}
 }
 
-func (m merchantEndpoint) Shops() ([]*MerchantShop, error) {
+func (m merchantEndpoint) Shops() (MerchantShopList, error) {
 	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/shops?limit=100&userId=%d", ApiUrl, m.c.GetActiveCompanyID()), nil)
 
 	if err != nil {
@@ -26,13 +26,15 @@ func (m merchantEndpoint) Shops() ([]*MerchantShop, error) {
 		return nil, err
 	}
 
-	var shops []*MerchantShop
+	var shops MerchantShopList
 	if err := json.Unmarshal(body, &shops); err != nil {
 		return nil, fmt.Errorf("shops: %v", err)
 	}
 
 	return shops, nil
 }
+
+type MerchantShopList []*MerchantShop
 
 type MerchantShop struct {
 	Id                  int         `json:"id"`
@@ -127,4 +129,14 @@ type MerchantShop struct {
 			Description string `json:"description"`
 		} `json:"shopDomainVerificationStatus"`
 	} `json:"latestVerificationStatusChange"`
+}
+
+func (m MerchantShopList) GetByDomain(domain string) *MerchantShop {
+	for _, shop := range m {
+		if shop.Domain == domain {
+			return shop
+		}
+	}
+
+	return nil
 }

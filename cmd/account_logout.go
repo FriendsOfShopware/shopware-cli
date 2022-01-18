@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"log"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	accountApi "shopware-cli/account-api"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -13,10 +13,10 @@ var logoutCmd = &cobra.Command{
 	Use:   "logout",
 	Short: "Logout from Shopware Account",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := accountApi.InvalidateTokenCache()
 		if err != nil {
-			log.Fatalln(err)
+			return errors.Wrap(err, "cannot invalidate token cache")
 		}
 
 		viper.Set(ConfigAccountUser, "")
@@ -26,10 +26,12 @@ var logoutCmd = &cobra.Command{
 		err = viper.WriteConfig()
 
 		if err != nil {
-			log.Fatalln(err)
+			return errors.Wrap(err, "cannot write config")
 		}
 
-		termColor.Green("You have been logged out")
+		log.Infof("You have been logged out")
+
+		return nil
 	},
 }
 

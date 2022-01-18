@@ -3,13 +3,12 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
-
-	termColor "github.com/fatih/color"
 )
 
 func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error {
@@ -20,7 +19,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	}
 
 	if !cfgs.RequiresAdminBuild() && !cfgs.RequiresStorefrontBuild() {
-		termColor.Yellow("Building assets has been skipped as not required")
+		log.Infof("Building assets has been skipped as not required")
 		return nil
 	}
 
@@ -40,7 +39,9 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		}(shopwareRoot)
 	}
 
-	prepareShopwareForAsset(shopwareRoot, cfgs)
+	if err := prepareShopwareForAsset(shopwareRoot, cfgs); err != nil {
+		return err
+	}
 
 	if cfgs.RequiresAdminBuild() {
 		for _, entry := range cfgs {
@@ -115,33 +116,35 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	return nil
 }
 
-func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]extensionAssetConfigEntry) {
+func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]extensionAssetConfigEntry) error {
 	varFolder := fmt.Sprintf("%s/var", shopwareRoot)
 	if _, err := os.Stat(varFolder); os.IsNotExist(err) {
 		err := os.Mkdir(varFolder, os.ModePerm)
 
 		if err != nil {
-			log.Fatalln(err)
+			return errors.Wrap(err, "prepareShopwareForAsset")
 		}
 	}
 
 	pluginJson, err := json.Marshal(cfgs)
 
 	if err != nil {
-		log.Fatalln(err)
+		return errors.Wrap(err, "prepareShopwareForAsset")
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/plugins.json", shopwareRoot), pluginJson, os.ModePerm)
 
 	if err != nil {
-		log.Fatalln(err)
+		return errors.Wrap(err, "prepareShopwareForAsset")
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/features.json", shopwareRoot), []byte("{}"), os.ModePerm)
 
 	if err != nil {
-		log.Fatalln(err)
+		return errors.Wrap(err, "prepareShopwareForAsset")
 	}
+
+	return nil
 }
 
 func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig {
@@ -151,7 +154,7 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 		extName, err := extension.GetName()
 
 		if err != nil {
-			termColor.Red("Skipping extension %s as it has a invalid name", extension.GetPath())
+			log.Errorf("Skipping extension %s as it has a invalid name", extension.GetPath())
 			continue
 		}
 
@@ -165,7 +168,7 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 		extPath := extension.GetPath()
 
 		if _, err := os.Stat(fmt.Sprintf("%s/%s/app", extPath, pathPrefix)); os.IsNotExist(err) {
-			termColor.Yellow("Skipping extension %s as it doesnt contain assets", extName)
+			log.Infof("Skipping extension %s as it doesnt contain assets", extName)
 			continue
 		}
 

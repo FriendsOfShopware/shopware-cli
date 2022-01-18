@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	accountApi "shopware-cli/account-api"
 
-	termColor "github.com/fatih/color"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -30,17 +28,28 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 }
 
 func init() {
+	rootCmd.SilenceErrors = true
+
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.shopware-cli.yaml)")
+	rootCmd.PersistentFlags().Bool("verbose", false, "show debug output")
 }
 
 func initConfig() {
+	if verbose, _ := rootCmd.PersistentFlags().GetBool("verbose"); verbose {
+		log.SetLevel(log.TraceLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+
+	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
+
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -88,8 +97,7 @@ func getAccountAPIByConfigOrFail() *accountApi.Client {
 	client, err := getAccountAPIByConfig()
 
 	if err != nil {
-		termColor.Red(err.Error())
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
 	return client

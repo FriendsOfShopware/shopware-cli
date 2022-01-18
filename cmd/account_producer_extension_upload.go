@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"os"
+	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	account_api "shopware-cli/account-api"
 	"shopware-cli/extension"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -70,7 +69,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 				return errors.Wrap(err, "create extension binary")
 			}
 		} else {
-			termColor.Magenta("Found a zip with version %s already. Updating it", zipVersion)
+			log.Infof("Found a zip with version %s already. Updating it", zipVersion)
 		}
 
 		changelog, err := zipExt.GetChangelog()
@@ -98,14 +97,14 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			return err
 		}
 
-		termColor.Green("Updated changelog. Uploading now the zip to remote")
+		log.Infof("Updated changelog. Uploading now the zip to remote")
 
 		err = p.UpdateExtensionBinaryFile(ext.Id, foundBinary.Id, path)
 		if err != nil {
 			return err
 		}
 
-		termColor.Green("Submitting code review request")
+		log.Infof("Submitting code review request")
 
 		beforeReviews, err := p.GetBinaryReviewResults(ext.Id, foundBinary.Id)
 		if err != nil {
@@ -118,7 +117,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 		}
 
 		if !skipWaitingForCodereviewResult {
-			termColor.Cyan("Waiting for code review result")
+			log.Infof("Waiting for code review result")
 
 			time.Sleep(10 * time.Second)
 
@@ -137,18 +136,15 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 					if !lastReview.IsPending() {
 						if lastReview.HasPassed() {
 							if lastReview.HasWarnings() {
-								termColor.Magenta("Code review has been passed but with warnings")
-								termColor.Blue(lastReview.GetSummary())
+								log.Infof("Code review has been passed but with warnings")
+								log.Infof(lastReview.GetSummary())
 							} else {
-								termColor.Green("Code review has been passed without warnings")
+								log.Infof("Code review has been passed without warnings")
 							}
 
 							break
 						} else {
-							termColor.Red("Code review has not passed")
-							termColor.Red(lastReview.GetSummary())
-
-							os.Exit(1)
+							log.Fatalln("Code review has not passed", lastReview.GetSummary())
 						}
 					}
 				}
@@ -157,7 +153,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 				tried++
 
 				if maxTries == tried {
-					termColor.Green("Skipping waiting for code review result as it took too long")
+					log.Infof("Skipping waiting for code review result as it took too long")
 				}
 			}
 		}

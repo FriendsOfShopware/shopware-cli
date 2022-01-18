@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,8 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	termColor "github.com/fatih/color"
 	cp "github.com/otiai10/copy"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -151,7 +150,7 @@ var extensionZipCmd = &cobra.Command{
 			return errors.Wrap(err, "create zip file")
 		}
 
-		termColor.Green("Created file %s", fileName)
+		log.Infof("Created file %s", fileName)
 
 		return nil
 	},

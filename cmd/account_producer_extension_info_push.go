@@ -3,15 +3,15 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	accountApi "shopware-cli/account-api"
 	"shopware-cli/extension"
 	"strings"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/yuin/goldmark"
 	goldmarkExtension "github.com/yuin/goldmark/extension"
@@ -23,19 +23,19 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Use:   "push [zip or path]",
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot open file")
 		}
 
 		stat, err := os.Stat(path)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot open file")
 		}
 
 		var zipExt extension.Extension
@@ -47,25 +47,25 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot open extension")
 		}
 
 		zipName, err := zipExt.GetName()
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot get name")
 		}
 
 		p, err := client.Producer()
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		storeExt, err := p.GetExtensionByName(zipName)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot get store extension")
 		}
 
 		metadata := zipExt.GetMetaData()
@@ -84,33 +84,33 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 
 		info, err := p.GetExtensionGeneralInfo()
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot get general info")
 		}
 
 		extCfg, err := extension.ReadExtensionConfig(zipExt.GetPath())
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return errors.Wrap(err, "cannot read extension config")
 		}
 
 		if extCfg != nil {
 			if extCfg.Store.Icon != nil {
 				err := p.UpdateExtensionIcon(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), *extCfg.Store.Icon))
 				if err != nil {
-					log.Fatalln(fmt.Errorf("cannot update extension icon due error: %v", err))
+					return errors.Wrap(err, "cannot update extension icon due error")
 				}
 			}
 
 			if extCfg.Store.Images != nil {
 				images, err := p.GetExtensionImages(storeExt.Id)
 				if err != nil {
-					log.Fatalln(fmt.Errorf("cannot get images from remote server: %v", err))
+					return errors.Wrap(err, "cannot get images from remote server")
 				}
 
 				for _, image := range images {
 					err := p.DeleteExtensionImages(storeExt.Id, image.Id)
 
 					if err != nil {
-						log.Fatalln(fmt.Errorf("cannot extension image: %v", err))
+						return errors.Wrap(err, "cannot extension image")
 					}
 				}
 
@@ -118,7 +118,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 					apiImage, err := p.AddExtensionImage(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
 
 					if err != nil {
-						log.Fatalln(fmt.Errorf("cannot upload image to extension: %v", err))
+						return errors.Wrap(err, "cannot upload image to extension")
 					}
 
 					apiImage.Priority = configImage.Priority
@@ -131,7 +131,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 					err = p.UpdateExtensionImage(storeExt.Id, apiImage)
 
 					if err != nil {
-						log.Fatalln(fmt.Errorf("cannot update image information of extension: %v", err))
+						return errors.Wrap(err, "cannot update image information of extension")
 					}
 				}
 			}
@@ -142,10 +142,12 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 		err = p.UpdateExtension(storeExt)
 
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			return err
 		}
 
-		termColor.Green("Store information has been updated")
+		log.Infof("Store information has been updated")
+
+		return nil
 	},
 }
 

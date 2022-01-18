@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"os"
+	"fmt"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	accountApi "shopware-cli/account-api"
 	"strings"
 
-	termColor "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -20,30 +21,26 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 
 		return []string{}, cobra.ShellCompDirectiveNoFileComp
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer endpoint")
 		}
 
 		profile, err := p.Profile()
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot get producer profile")
 		}
 
 		if args[1] != accountApi.GenerationApps && args[1] != accountApi.GenerationPlatform && args[1] != accountApi.GenerationThemes && args[1] != accountApi.GenerationClassic {
-			termColor.Red("Generation must be one of these options: %s %s %s %s", accountApi.GenerationPlatform, accountApi.GenerationThemes, accountApi.GenerationClassic, accountApi.GenerationApps)
-			os.Exit(1)
+			return fmt.Errorf("generation must be one of these options: %s %s %s %s", accountApi.GenerationPlatform, accountApi.GenerationThemes, accountApi.GenerationClassic, accountApi.GenerationApps)
 		}
 
 		if !strings.HasPrefix(args[0], profile.Prefix) {
-			termColor.Red("Extension name must start with the prefix %s", profile.Prefix)
-			os.Exit(1)
+			return fmt.Errorf("extension name must start with the prefix %s", profile.Prefix)
 		}
 
 		extension, err := p.CreateExtension(accountApi.CreateExtensionRequest{
@@ -55,11 +52,12 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			termColor.Red(err.Error())
-			os.Exit(1)
+			return errors.Wrap(err, "cannot create extension")
 		}
 
-		termColor.Green("Extension with name %s has been successfully created", extension.Name)
+		log.Infof("Extension with name %s has been successfully created", extension.Name)
+
+		return nil
 	},
 }
 
