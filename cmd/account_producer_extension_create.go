@@ -12,9 +12,16 @@ import (
 var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 	Use:   "create [name] [classic|platform|themes|apps]",
 	Short: "Creates a new extension",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.ExactArgs(2),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 1 {
+			return []string{accountApi.GenerationApps, accountApi.GenerationClassic, accountApi.GenerationThemes, accountApi.GenerationPlatform}, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return []string{}, cobra.ShellCompDirectiveNoFileComp
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 
