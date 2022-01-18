@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +19,7 @@ type Client struct {
 }
 
 func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*http.Request, error) {
+	log.Tracef("%s: %s", method, path)
 	r, err := http.NewRequestWithContext(context.TODO(), method, path, body) // TODO: pass real context
 	if err != nil {
 		return nil, err
