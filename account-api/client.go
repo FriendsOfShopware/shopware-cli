@@ -118,8 +118,6 @@ func createApiFromTokenCache() (*Client, error) {
 		return nil, err
 	}
 
-	fmt.Println(client.isTokenValid())
-
 	return client, nil
 }
 
