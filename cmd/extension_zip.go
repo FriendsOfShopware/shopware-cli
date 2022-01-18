@@ -171,10 +171,10 @@ func executeHooks(ext extension.Extension, hooks []string, extDir string) error 
 	}
 
 	for _, hook := range hooks {
-		hookCmd := exec.Command("sh", "-c", "cd \"${EXTENSION_DIR}\" && "+hook)
+		hookCmd := exec.Command("sh", "-c", hook)
 		hookCmd.Stdout = os.Stdout
 		hookCmd.Stderr = os.Stderr
-		hookCmd.Dir = ext.GetPath()
+		hookCmd.Dir = extDir
 		hookCmd.Env = env
 		err := hookCmd.Run()
 
