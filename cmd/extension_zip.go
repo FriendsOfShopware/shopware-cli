@@ -106,7 +106,7 @@ var extensionZipCmd = &cobra.Command{
 		}
 
 		if extCfg.Build.Zip.Composer.Enabled {
-			if err := executeHooks(ext, extCfg.Build.Zip.Composer.BeforeHooks); err != nil {
+			if err := executeHooks(ext, extCfg.Build.Zip.Composer.BeforeHooks, extDir); err != nil {
 				return errors.Wrap(err, "before hooks composer")
 			}
 
@@ -114,13 +114,13 @@ var extensionZipCmd = &cobra.Command{
 				return errors.Wrap(err, "prepare package")
 			}
 
-			if err := executeHooks(ext, extCfg.Build.Zip.Composer.AfterHooks); err != nil {
+			if err := executeHooks(ext, extCfg.Build.Zip.Composer.AfterHooks, extDir); err != nil {
 				return errors.Wrap(err, "after hooks composer")
 			}
 		}
 
 		if extCfg.Build.Zip.Assets.Enabled {
-			if err := executeHooks(ext, extCfg.Build.Zip.Assets.BeforeHooks); err != nil {
+			if err := executeHooks(ext, extCfg.Build.Zip.Assets.BeforeHooks, extDir); err != nil {
 				return errors.Wrap(err, "before hooks assets")
 			}
 
@@ -128,7 +128,7 @@ var extensionZipCmd = &cobra.Command{
 				return errors.Wrap(err, "building assets")
 			}
 
-			if err := executeHooks(ext, extCfg.Build.Zip.Assets.AfterHooks); err != nil {
+			if err := executeHooks(ext, extCfg.Build.Zip.Assets.AfterHooks, extDir); err != nil {
 				return errors.Wrap(err, "after hooks assets")
 			}
 		}
@@ -143,7 +143,7 @@ var extensionZipCmd = &cobra.Command{
 			fileName = fmt.Sprintf("%s.zip", name)
 		}
 
-		if err := executeHooks(ext, extCfg.Build.Zip.Pack.BeforeHooks); err != nil {
+		if err := executeHooks(ext, extCfg.Build.Zip.Pack.BeforeHooks, extDir); err != nil {
 			return errors.Wrap(err, "before hooks pack")
 		}
 
@@ -162,15 +162,16 @@ func init() {
 	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
 }
 
-func executeHooks(ext extension.Extension, hooks []string) error {
+func executeHooks(ext extension.Extension, hooks []string, extDir string) error {
 	env := []string{
 		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 		fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
-		fmt.Sprintf("EXTENSION_DIR=%s", ext.GetPath()),
+		fmt.Sprintf("EXTENSION_DIR=%s", extDir),
+		fmt.Sprintf("ORIGINAL_EXTENSION_DIR=%s", ext.GetPath()),
 	}
 
 	for _, hook := range hooks {
-		hookCmd := exec.Command("sh", "-c", hook)
+		hookCmd := exec.Command("sh", "-c", "cd \"${EXTENSION_DIR}\" && "+hook)
 		hookCmd.Stdout = os.Stdout
 		hookCmd.Stderr = os.Stderr
 		hookCmd.Env = env
