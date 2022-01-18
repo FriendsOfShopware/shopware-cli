@@ -4,16 +4,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 const ApiUrl = "https://api.shopware.com"
 
 func NewApi(request LoginRequest) (*Client, error) {
+	client, err := createApiFromTokenCache()
+
+	if err == nil {
+		return client, nil
+	}
+
 	s, err := json.Marshal(request)
 	if err != nil {
 		return nil, fmt.Errorf("login: %v", err)
@@ -60,13 +66,17 @@ func NewApi(request LoginRequest) (*Client, error) {
 		}
 	}
 
-	client := Client{
-		token:            token,
-		memberships:      memberships,
-		activeMembership: activeMemberShip,
+	client = &Client{
+		Token:            token,
+		Memberships:      memberships,
+		ActiveMembership: activeMemberShip,
 	}
 
-	return &client, nil
+	if err := saveApiTokenToTokenCache(client); err != nil {
+		log.Println(fmt.Sprintf("Cannot token cache: %v", err))
+	}
+
+	return client, nil
 }
 
 func fetchMemberships(token token) ([]Membership, error) {
@@ -192,7 +202,7 @@ func (c *Client) ChangeActiveMembership(selected Membership) error {
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode == 200 {
-		c.activeMembership = selected
+		c.ActiveMembership = selected
 
 		return nil
 	}

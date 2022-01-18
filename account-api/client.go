@@ -2,16 +2,19 @@ package account_api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 )
 
 type Client struct {
-	token            token
-	activeMembership Membership
-	memberships      []Membership
+	Token            token        `json:"token"`
+	ActiveMembership Membership   `json:"active_membership"`
+	Memberships      []Membership `json:"memberships"`
 }
 
 func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -22,7 +25,7 @@ func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*h
 
 	r.Header.Set("content-type", "application/json")
 	r.Header.Set("accept", "application/json")
-	r.Header.Set("x-shopware-token", c.token.Token)
+	r.Header.Set("x-shopware-token", c.Token.Token)
 
 	return r, nil
 }
@@ -49,17 +52,109 @@ func (c Client) doRequest(request *http.Request) ([]byte, error) {
 }
 
 func (c Client) GetActiveCompanyID() int {
-	return c.token.UserID
+	return c.Token.UserID
 }
 
 func (c Client) GetUserID() int {
-	return c.token.UserAccountID
+	return c.Token.UserAccountID
 }
 
 func (c Client) GetActiveMembership() Membership {
-	return c.activeMembership
+	return c.ActiveMembership
 }
 
 func (c Client) GetMemberships() []Membership {
-	return c.memberships
+	return c.Memberships
+}
+
+func (c Client) isTokenValid() bool {
+	loc, err := time.LoadLocation(c.Token.Expire.Timezone)
+	if err != nil {
+		return false
+	}
+
+	expire, err := time.ParseInLocation("2006-01-02 15:04:05.000000", c.Token.Expire.Date, loc)
+	if err != nil {
+		return false
+	}
+
+	// When it will be expire in the next minute. Respond with false
+	return expire.UTC().Sub(time.Now().UTC()).Seconds() > 60
+}
+
+const CacheFileName = "shopware-api-client-token.json"
+
+func getApiTokenCacheFilePath() (string, error) {
+	cacheDir, err := os.UserCacheDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/%s", cacheDir, CacheFileName), nil
+}
+
+func createApiFromTokenCache() (*Client, error) {
+	tokenFilePath, err := getApiTokenCacheFilePath()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := os.Stat(tokenFilePath); os.IsNotExist(err) {
+		return nil, err
+	}
+
+	content, err := ioutil.ReadFile(tokenFilePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var client *Client
+	err = json.Unmarshal(content, &client)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(client.isTokenValid())
+
+	return client, nil
+}
+
+func saveApiTokenToTokenCache(client *Client) error {
+	tokenFilePath, err := getApiTokenCacheFilePath()
+
+	if err != nil {
+		return err
+	}
+
+	content, err := json.Marshal(client)
+
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(tokenFilePath, content, os.ModePerm)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InvalidateTokenCache() error {
+	tokenFilePath, err := getApiTokenCacheFilePath()
+
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(tokenFilePath); os.IsNotExist(err) {
+		return nil
+	}
+
+	return os.Remove(tokenFilePath)
 }

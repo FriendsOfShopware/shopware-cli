@@ -8,7 +8,7 @@ import (
 )
 
 func (c Client) GetMyProfile() (*myProfile, error) {
-	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.token.UserAccountID), nil) //nolint:noctx
+	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil) //nolint:noctx
 
 	if err != nil {
 		return nil, fmt.Errorf("my_profile: %v", err)
