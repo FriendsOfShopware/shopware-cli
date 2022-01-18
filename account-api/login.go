@@ -207,5 +207,9 @@ func (c *Client) ChangeActiveMembership(selected Membership) error {
 		return nil
 	}
 
+	if err := saveApiTokenToTokenCache(c); err != nil {
+		return err
+	}
+
 	return fmt.Errorf("could not change active membership due http error %d", resp.StatusCode)
 }
