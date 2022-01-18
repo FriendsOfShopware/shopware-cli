@@ -140,3 +140,72 @@ func (m MerchantShopList) GetByDomain(domain string) *MerchantShop {
 
 	return nil
 }
+
+func (m merchantEndpoint) GetComposerToken(shopId int) (string, error) {
+	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	body, err := m.c.doRequest(r)
+
+	if err != nil {
+		return "", err
+	}
+
+	// We don't have generated a token
+	if string(body) == "" {
+		return "", nil
+	}
+
+	var token composerToken
+
+	err = json.Unmarshal(body, &token)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token.Token, nil
+}
+
+func (m merchantEndpoint) GenerateComposerToken(shopId int) (string, error) {
+	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	body, err := m.c.doRequest(r)
+
+	if err != nil {
+		return "", err
+	}
+
+	var token composerToken
+
+	err = json.Unmarshal(body, &token)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token.Token, nil
+}
+
+func (m merchantEndpoint) SaveComposerToken(shopId int, token string) error {
+	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken/%s", ApiUrl, m.c.GetActiveCompanyID(), shopId, token), nil)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = m.c.doRequest(r)
+
+	return err
+}
+
+type composerToken struct {
+	Token string `json:"token"`
+}
