@@ -36,6 +36,7 @@ var (
 		"src/Resources/store",
 		".github",
 		".git",
+		".shopware-extension.yml",
 	}
 
 	defaultNotAllowedFiles = []string{
