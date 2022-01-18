@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 const ApiUrl = "https://api.shopware.com"

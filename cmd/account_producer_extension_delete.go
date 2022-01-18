@@ -13,7 +13,7 @@ var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
 	Short: "Delete a extension",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		extensionId, err := strconv.Atoi(args[0])
 

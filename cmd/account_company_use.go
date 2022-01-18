@@ -20,7 +20,7 @@ var accountCompanyUseCmd = &cobra.Command{
 			return err
 		}
 
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		for _, membership := range client.GetMemberships() {
 			if membership.Company.Id == companyID {

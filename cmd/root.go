@@ -61,20 +61,31 @@ func initConfig() {
 	_ = viper.ReadInConfig()
 }
 
-func getAccountAPIByConfig() *accountApi.Client {
+func getAccountAPIByConfig() (*accountApi.Client, error) {
 	email := viper.GetString(ConfigAccountUser)
 	password := viper.GetString(ConfigAccountPassword)
 
 	client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
 
 	if err != nil {
-		termColor.Red("Login failed with error: %s", err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 
 	companyID := viper.GetInt(ConfigAccountCompany)
 
-	err = changeAPIMembership(client, companyID)
+	if companyID > 0 {
+		err = changeAPIMembership(client, companyID)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return client, nil
+}
+
+func getAccountAPIByConfigOrFail() *accountApi.Client {
+	client, err := getAccountAPIByConfig()
 
 	if err != nil {
 		termColor.Red(err.Error())

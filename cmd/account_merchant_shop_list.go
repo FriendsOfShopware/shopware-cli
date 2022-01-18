@@ -13,7 +13,7 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all shops",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"ID", "Domain", "Usage"})

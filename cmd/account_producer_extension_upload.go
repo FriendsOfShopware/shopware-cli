@@ -23,7 +23,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			return errors.Wrap(err, "validate")
 		}
 
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 		if err != nil {

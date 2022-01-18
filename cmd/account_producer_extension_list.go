@@ -15,7 +15,7 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all your extensions",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := getAccountAPIByConfig()
+		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()
 
