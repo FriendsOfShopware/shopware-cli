@@ -23,7 +23,7 @@ func gitTagOrBranchOfFolder(source string) (string, error) {
 		return versions[0], nil
 	}
 
-	branchCmd := exec.Command("git", "-C", source, "branch")
+	branchCmd := exec.Command("git", "-C", source, "rev-parse", "--abbrev-ref", "HEAD")
 
 	stdout, err = branchCmd.Output()
 
@@ -38,24 +38,24 @@ func GitCopyFolder(source, target string) (string, error) {
 	tag, err := gitTagOrBranchOfFolder(source)
 
 	if err != nil {
-		return "", fmt.Errorf("GitCopyFolder: %v", err)
+		return "", fmt.Errorf("GitCopyFolder: cannot find checkout tag or branch: %v", err)
 	}
 
 	archiveCmd := exec.Command("git", "-C", source, "archive", tag, "--format=zip")
 
 	stdout, err := archiveCmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("GitCopyFolder: %v", err)
+		return "", fmt.Errorf("GitCopyFolder: cannot archive %s:  %v", tag, err)
 	}
 
 	zipReader, err := zip.NewReader(bytes.NewReader(stdout), int64(len(stdout)))
 	if err != nil {
-		return "", fmt.Errorf("GitCopyFolder: %v", err)
+		return "", fmt.Errorf("GitCopyFolder: cannot open the zip file produced by git archive: %v", err)
 	}
 
 	err = Unzip(zipReader, target)
 	if err != nil {
-		return "", fmt.Errorf("GitCopyFolder: %v", err)
+		return "", fmt.Errorf("GitCopyFolder: cannot unzip the zip archive: %v", err)
 	}
 
 	return tag, err
