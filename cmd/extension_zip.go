@@ -123,7 +123,12 @@ var extensionZipCmd = &cobra.Command{
 				return errors.Wrap(err, "before hooks assets")
 			}
 
-			if err := extension.BuildAssetsForExtensions("", []extension.Extension{ext}); err != nil {
+			var tempExt extension.Extension
+			if tempExt, err = extension.GetExtensionByFolder(extDir); err != nil {
+				return err
+			}
+
+			if err := extension.BuildAssetsForExtensions("", []extension.Extension{tempExt}); err != nil {
 				return errors.Wrap(err, "building assets")
 			}
 
