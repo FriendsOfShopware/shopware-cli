@@ -171,7 +171,7 @@ func (m merchantEndpoint) GetComposerToken(shopId int) (string, error) {
 }
 
 func (m merchantEndpoint) GenerateComposerToken(shopId int) (string, error) {
-	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
+	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil) //nolint:noctx
 
 	if err != nil {
 		return "", err

@@ -9,7 +9,6 @@ linters:
     - exhaustive
     - goconst
     - gofmt
-    - goimports
     - goprintffuncname
     - gosec
     - gosimple
