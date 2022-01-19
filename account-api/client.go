@@ -120,6 +120,8 @@ func createApiFromTokenCache() (*Client, error) {
 		return nil, err
 	}
 
+	log.Debugf("Using token cache from %s", tokenFilePath)
+
 	if !client.isTokenValid() {
 		return nil, fmt.Errorf("token is expired")
 	}

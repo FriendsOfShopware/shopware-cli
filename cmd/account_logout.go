@@ -6,7 +6,6 @@ import (
 	accountApi "shopware-cli/account-api"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var logoutCmd = &cobra.Command{
@@ -19,11 +18,10 @@ var logoutCmd = &cobra.Command{
 			return errors.Wrap(err, "cannot invalidate token cache")
 		}
 
-		viper.Set(ConfigAccountUser, "")
-		viper.Set(ConfigAccountPassword, "")
-		viper.Set(ConfigAccountCompany, "")
-
-		err = viper.WriteConfig()
+		appConfig.Account.Company = 0
+		appConfig.Account.Email = ""
+		appConfig.Account.Password = ""
+		err = saveApplicationConfig()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot write config")

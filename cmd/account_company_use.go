@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var accountCompanyUseCmd = &cobra.Command{
@@ -24,9 +23,9 @@ var accountCompanyUseCmd = &cobra.Command{
 
 		for _, membership := range client.GetMemberships() {
 			if membership.Company.Id == companyID {
-				viper.Set(ConfigAccountCompany, companyID)
+				appConfig.Account.Company = companyID
 
-				err := saveConfig()
+				err := saveApplicationConfig()
 				if err != nil {
 					return err
 				}

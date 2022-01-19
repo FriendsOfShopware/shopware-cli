@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var loginCmd = &cobra.Command{
@@ -17,16 +16,16 @@ var loginCmd = &cobra.Command{
 	Short: "Login into your Shopware Account",
 	Long:  "",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		email := viper.GetString(ConfigAccountUser)
-		password := viper.GetString(ConfigAccountPassword)
+		email := appConfig.Account.Email
+		password := appConfig.Account.Password
 		newCredentials := false
 
 		if len(email) == 0 || len(password) == 0 {
 			email, password = askUserForEmailAndPassword()
 			newCredentials = true
 
-			viper.Set(ConfigAccountUser, email)
-			viper.Set(ConfigAccountPassword, password)
+			appConfig.Account.Email = email
+			appConfig.Account.Password = password
 		} else {
 			log.Infof("Using existing credentials. Use account:logout to logout")
 		}
@@ -37,8 +36,8 @@ var loginCmd = &cobra.Command{
 			return errors.Wrap(err, "login failed with error")
 		}
 
-		if viper.GetInt(ConfigAccountCompany) > 0 {
-			err = changeAPIMembership(client, viper.GetInt(ConfigAccountCompany))
+		if appConfig.Account.Company > 0 {
+			err = changeAPIMembership(client, appConfig.Account.Company)
 
 			if err != nil {
 				return errors.Wrap(err, "cannot change company member ship")
@@ -46,7 +45,7 @@ var loginCmd = &cobra.Command{
 		}
 
 		if newCredentials {
-			err := saveConfig()
+			err := saveApplicationConfig()
 
 			if err != nil {
 				return errors.Wrap(err, "cannot save config")

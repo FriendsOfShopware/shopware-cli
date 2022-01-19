@@ -2,18 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	accountApi "shopware-cli/account-api"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-)
-
-const (
-	ConfigAccountUser     = "account.email"
-	ConfigAccountPassword = "account.password"
-	ConfigAccountCompany  = "account.company"
 )
 
 var cfgFile string
@@ -50,40 +42,24 @@ func initConfig() {
 
 	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
 
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		if err != nil {
-			log.Println(err)
-		}
-
-		// Search config in home directory with name ".shopware-cli" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".shopware-cli")
+	if err := initApplicationConfig(); err != nil {
+		log.Fatalln(err)
 	}
-
-	viper.AutomaticEnv()
-	_ = viper.ReadInConfig()
 }
 
 func getAccountAPIByConfig() (*accountApi.Client, error) {
-	email := viper.GetString(ConfigAccountUser)
-	password := viper.GetString(ConfigAccountPassword)
+	if appConfig.Account.Email == "" {
+		return nil, fmt.Errorf("please login first using shopware-cli account login")
+	}
 
-	client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
+	client, err := accountApi.NewApi(accountApi.LoginRequest{Email: appConfig.Account.Email, Password: appConfig.Account.Password})
 
 	if err != nil {
 		return nil, err
 	}
 
-	companyID := viper.GetInt(ConfigAccountCompany)
-
-	if companyID > 0 {
-		err = changeAPIMembership(client, companyID)
+	if appConfig.Account.Company > 0 {
+		err = changeAPIMembership(client, appConfig.Account.Company)
 
 		if err != nil {
 			return nil, err
@@ -115,14 +91,4 @@ func changeAPIMembership(client *accountApi.Client, companyID int) error {
 	}
 
 	return fmt.Errorf("could not find configured company with id %d", companyID)
-}
-
-func saveConfig() error {
-	err := viper.SafeWriteConfig()
-
-	if err != nil {
-		err = viper.WriteConfig()
-	}
-
-	return err
 }
