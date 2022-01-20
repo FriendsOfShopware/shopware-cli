@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -46,7 +46,8 @@ func NewApi(request LoginRequest) (*Client, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf(string(data))
+		log.Tracef("Login failed with response: %s", string(data))
+		return nil, fmt.Errorf("login failed. Check your credentials")
 	}
 
 	var token token
