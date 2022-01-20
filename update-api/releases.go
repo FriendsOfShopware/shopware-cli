@@ -1,8 +1,8 @@
 package update_api
 
 import (
+	"context"
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -15,16 +15,14 @@ type ShopwareInstallRelease struct {
 	Sha256  string `json:"sha256"`
 }
 
-func GetLatestReleases() ([]ShopwareInstallRelease, error) {
-	resp, err := http.Get("https://update-api.shopware.com/v1/releases/install?major=6")
+func GetLatestReleases(ctx context.Context) ([]ShopwareInstallRelease, error) {
+	resp, err := http.NewRequestWithContext(ctx, "GET", "https://update-api.shopware.com/v1/releases/install?major=6", nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	defer resp.Body.Close()
 
 	content, err := ioutil.ReadAll(resp.Body)
 

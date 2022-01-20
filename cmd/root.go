@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	accountApi "shopware-cli/account-api"
 
@@ -10,6 +11,7 @@ import (
 
 var cfgFile string
 var version = "dev"
+var ctx context.Context
 
 var rootCmd = &cobra.Command{
 	Use:     "shopware-cli",
@@ -25,6 +27,7 @@ func Execute() {
 }
 
 func init() {
+	ctx = context.Background()
 	rootCmd.SilenceErrors = true
 
 	cobra.OnInitialize(initConfig)

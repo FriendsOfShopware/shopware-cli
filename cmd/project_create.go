@@ -29,7 +29,7 @@ var projectCreateCmd = &cobra.Command{
 			return err
 		}
 
-		releases, err := update_api.GetLatestReleases()
+		releases, err := update_api.GetLatestReleases(ctx)
 
 		if err != nil {
 			return err
@@ -46,7 +46,11 @@ var projectCreateCmd = &cobra.Command{
 			Items: chooseVersions,
 		}
 
-		_, result, err := prompt.Run()
+		var result string
+
+		if _, result, err = prompt.Run(); err != nil {
+			return err
+		}
 
 		var chooseVersion update_api.ShopwareInstallRelease
 
@@ -84,7 +88,9 @@ var projectCreateCmd = &cobra.Command{
 
 		log.Infof("Unpacking now the zip")
 
-		err = archiver.Unarchive(fileName, projectFolder)
+		if err := archiver.Unarchive(fileName, projectFolder); err != nil {
+			return err
+		}
 
 		log.Infof("Shopware %s is created in folder %s", chooseVersion.Version, projectFolder)
 
