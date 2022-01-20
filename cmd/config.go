@@ -48,6 +48,8 @@ func initApplicationConfig() error {
 		appConfig.loadedWithEnv = true
 
 		log.Tracef("Loaded config with environment variables")
+
+		return nil
 	}
 
 	cfg := getApplicationConfigPath()
