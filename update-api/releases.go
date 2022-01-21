@@ -16,7 +16,13 @@ type ShopwareInstallRelease struct {
 }
 
 func GetLatestReleases(ctx context.Context) ([]ShopwareInstallRelease, error) {
-	resp, err := http.NewRequestWithContext(ctx, "GET", "https://update-api.shopware.com/v1/releases/install?major=6", nil)
+	r, err := http.NewRequestWithContext(ctx, "GET", "https://update-api.shopware.com/v1/releases/install?major=6", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(r)
 
 	if err != nil {
 		return nil, err
