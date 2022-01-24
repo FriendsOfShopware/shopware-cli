@@ -12,7 +12,7 @@ import (
 func findClosestShopwareProject() (string, error) {
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	for {

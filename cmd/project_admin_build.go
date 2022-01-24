@@ -44,13 +44,17 @@ var projectAdminBuildCmd = &cobra.Command{
 			fmt.Sprintf("PROJECT_ROOT=%s", projectRoot),
 		}
 
-		npmRun := exec.Command("npm", "--prefix", adminRoot, "run", "build") //nolint:gosec
+		npmRun := exec.Command("npm", "--prefix", adminRoot, "run", "build")
 		npmRun.Env = envs
 		npmRun.Stdin = os.Stdin
 		npmRun.Stdout = os.Stdout
 		npmRun.Stderr = os.Stderr
 
-		return npmRun.Run()
+		if err := npmRun.Run(); err != nil {
+			return err
+		}
+
+		return runSimpleCommand(projectRoot, "php", "bin/console", "theme:compile")
 	},
 }
 
