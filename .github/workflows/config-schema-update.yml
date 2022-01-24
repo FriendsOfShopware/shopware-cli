@@ -23,18 +23,13 @@ jobs:
           npm install wetzel -g
           wetzel extension/shopware-extension-schema.json >> schema.new.md
 
-      - uses: actions/checkout@v2
-        with:
-          ref: docs
-          clean: false
-
       - name: Commit
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           echo -e "---\n title: 'Schema of .shopware-extensions.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
-          rm -f content/en/docs/shopware-extensions.yml-schema/index.md
-          mv schema.new.md content/en/docs/shopware-extensions.yml-schema/index.md
-          git add -f content/en/docs/shopware-extensions.yml-schema/index.md
+          rm -f wiki/docs/shopware-extensions.yml-schema/index.md
+          mv schema.new.md wiki/docs/shopware-extensions.yml-schema/index.md
+          git add -f wiki/docs/shopware-extensions.yml-schema/index.md
           git commit -m "chore: Update shopware-extension.yml-schema.md"
           git push

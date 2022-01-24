@@ -1,0 +1,13 @@
+site_name: Shopware CLI
+repo_url: https://github.com/FriendsOfShopware/shopware-cli
+repo_name: shopware-cli
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  palette:
+    primary: blue
+
+extra:
+  social:
+    - icon: fontawesome/brands/twitter 
+      link: https://twitter.com/ShopwareFriends
