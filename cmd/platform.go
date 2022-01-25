@@ -112,7 +112,6 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 }
 
 func buildAdministration(projectRoot string, forceNpmInstall bool) error {
-
 	adminRoot := getPlatformPath("Administration", "Resources/app/administration")
 
 	if err := runSimpleCommand(projectRoot, "php", "bin/console", "bundle:dump"); err != nil {

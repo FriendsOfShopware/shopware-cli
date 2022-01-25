@@ -76,3 +76,7 @@ issues:
     - path: cmd\/*
       linters:
         - forbidigo
+
+run:
+  skip-dirs:
+    - version
