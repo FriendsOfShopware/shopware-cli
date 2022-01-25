@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/caarlos0/env/v6 v6.9.1
 	github.com/gorilla/schema v1.2.0
-	github.com/hashicorp/go-version v1.4.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/microcosm-cc/bluemonday v1.0.17
 	github.com/olekukonko/tablewriter v0.0.5
@@ -47,5 +46,3 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
-
-replace github.com/hashicorp/go-version => ./version

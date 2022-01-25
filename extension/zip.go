@@ -18,7 +18,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/hashicorp/go-version"
+	"shopware-cli/version"
 )
 
 var (

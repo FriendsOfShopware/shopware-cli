@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashicorp/go-version"
+	"shopware-cli/version"
 )
 
 const (

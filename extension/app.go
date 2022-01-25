@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/hashicorp/go-version"
+	"shopware-cli/version"
 )
 
 type translatedXmlNode []struct {
