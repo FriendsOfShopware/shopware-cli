@@ -1,6 +1,8 @@
 name: ci 
 on:
   push:
+    paths:
+      - wiki/**
     branches:
       - main
 jobs:
