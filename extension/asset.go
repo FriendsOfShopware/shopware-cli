@@ -116,7 +116,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	return nil
 }
 
-func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]extensionAssetConfigEntry) error {
+func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAssetConfigEntry) error {
 	varFolder := fmt.Sprintf("%s/var", shopwareRoot)
 	if _, err := os.Stat(varFolder); os.IsNotExist(err) {
 		err := os.Mkdir(varFolder, os.ModePerm)
@@ -147,8 +147,8 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]extensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig {
-	list := make(extensionAssetConfig)
+func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig {
+	list := make(ExtensionAssetConfig)
 
 	for _, extension := range extensions {
 		extName, err := extension.GetName()
@@ -209,18 +209,18 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 			storefrontStyles = append(storefrontStyles, "Resources/app/storefront/src/scss/base.scss")
 		}
 
-		cfg := extensionAssetConfigEntry{
+		cfg := ExtensionAssetConfigEntry{
 			BasePath: fmt.Sprintf("%s/%s", extPath, extensionRoot),
 			Views: []string{
 				"Resources/views",
 			},
 			TechnicalName: strings.ReplaceAll(toSnakeCase(extName), "_", "-"),
-			Administration: extensionAssetConfigAdmin{
+			Administration: ExtensionAssetConfigAdmin{
 				Path:          "Resources/app/administration/src",
 				EntryFilePath: entryFilePathAdmin,
 				Webpack:       webpackFileAdmin,
 			},
-			Storefront: extensionAssetConfigStorefront{
+			Storefront: ExtensionAssetConfigStorefront{
 				Path:          "Resources/app/storefront/src",
 				EntryFilePath: entryFilePathStorefront,
 				Webpack:       webpackFileStorefront,
@@ -232,16 +232,16 @@ func buildAssetConfigFromExtensions(extensions []Extension) extensionAssetConfig
 	}
 
 	entryPath := "Resources/app/storefront/src/main.js"
-	list["Storefront"] = extensionAssetConfigEntry{
+	list["Storefront"] = ExtensionAssetConfigEntry{
 		BasePath:      "src/Storefront/",
 		Views:         []string{"Resources/views"},
 		TechnicalName: "storefront",
-		Storefront: extensionAssetConfigStorefront{
+		Storefront: ExtensionAssetConfigStorefront{
 			Path:          "Resources/app/storefront/src",
 			EntryFilePath: &entryPath,
 			StyleFiles:    []string{},
 		},
-		Administration: extensionAssetConfigAdmin{
+		Administration: ExtensionAssetConfigAdmin{
 			Path: "Resources/app/storefront/src",
 		},
 	}
@@ -267,9 +267,9 @@ func setupShopwareInTemp() (string, error) {
 	return dir, nil
 }
 
-type extensionAssetConfig map[string]extensionAssetConfigEntry
+type ExtensionAssetConfig map[string]ExtensionAssetConfigEntry
 
-func (c extensionAssetConfig) RequiresAdminBuild() bool {
+func (c ExtensionAssetConfig) RequiresAdminBuild() bool {
 	for _, entry := range c {
 		if entry.Administration.EntryFilePath != nil {
 			return true
@@ -279,7 +279,7 @@ func (c extensionAssetConfig) RequiresAdminBuild() bool {
 	return false
 }
 
-func (c extensionAssetConfig) RequiresStorefrontBuild() bool {
+func (c ExtensionAssetConfig) RequiresStorefrontBuild() bool {
 	for _, entry := range c {
 		if entry.TechnicalName == "storefront" {
 			continue
@@ -293,21 +293,21 @@ func (c extensionAssetConfig) RequiresStorefrontBuild() bool {
 	return false
 }
 
-type extensionAssetConfigEntry struct {
+type ExtensionAssetConfigEntry struct {
 	BasePath       string                         `json:"basePath"`
 	Views          []string                       `json:"views"`
 	TechnicalName  string                         `json:"technicalName"`
-	Administration extensionAssetConfigAdmin      `json:"administration"`
-	Storefront     extensionAssetConfigStorefront `json:"storefront"`
+	Administration ExtensionAssetConfigAdmin      `json:"administration"`
+	Storefront     ExtensionAssetConfigStorefront `json:"storefront"`
 }
 
-type extensionAssetConfigAdmin struct {
+type ExtensionAssetConfigAdmin struct {
 	Path          string  `json:"path"`
 	EntryFilePath *string `json:"entryFilePath"`
 	Webpack       *string `json:"webpack"`
 }
 
-type extensionAssetConfigStorefront struct {
+type ExtensionAssetConfigStorefront struct {
 	Path          string   `json:"path"`
 	EntryFilePath *string  `json:"entryFilePath"`
 	Webpack       *string  `json:"webpack"`
