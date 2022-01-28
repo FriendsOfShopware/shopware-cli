@@ -34,7 +34,9 @@ func findClosestShopwareProject() (string, error) {
 				contentString := string(content)
 
 				if strings.Contains(contentString, "shopware/core") {
-					return currentDir, nil
+					if _, err := os.Stat(fmt.Sprintf("%s/bin/console", currentDir)); err == nil {
+						return currentDir, nil
+					}
 				}
 			}
 		}
