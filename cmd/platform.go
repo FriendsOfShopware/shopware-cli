@@ -186,14 +186,14 @@ func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {
 		_, storefrontPathPackage := os.Stat(fmt.Sprintf("%s/%s/%s/package.json", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)))
 		_, storefrontPathNodeModules := os.Stat(fmt.Sprintf("%s/%s/%s/node_modules", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)))
 
-		if ext.Administration.EntryFilePath != nil && adminPathPackage == nil && os.IsNotExist(adminPathNodeModules) || forceNpmInstall {
-			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Administration.Path))); err != nil {
+		if ext.Administration.EntryFilePath != nil && adminPathPackage == nil && (os.IsNotExist(adminPathNodeModules) || forceNpmInstall) {
+			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Administration.Path)), "--no-save"); err != nil {
 				return err
 			}
 		}
 
-		if ext.Storefront.EntryFilePath != nil && storefrontPathPackage == nil && os.IsNotExist(storefrontPathNodeModules) || forceNpmInstall {
-			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path))); err != nil {
+		if ext.Storefront.EntryFilePath != nil && storefrontPathPackage == nil && (os.IsNotExist(storefrontPathNodeModules) || forceNpmInstall) {
+			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)), "--no-save"); err != nil {
 				fmt.Println(ext.TechnicalName)
 				fmt.Println(ext.Storefront.EntryFilePath)
 
