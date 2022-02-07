@@ -5,6 +5,7 @@ import (
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"io"
@@ -22,6 +23,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		password, _ := cobraCmd.Flags().GetString("password")
 		output, _ := cobraCmd.Flags().GetString("output")
 		clean, _ := cobraCmd.Flags().GetBool("clean")
+		skipLockTables, _ := cobraCmd.Flags().GetBool("skip-lock-tables")
 
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
@@ -36,6 +38,10 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		opt = append(opt, database.OptionValue("hex-encode", "1"))
 		opt = append(opt, database.OptionValue("set-charset", "utf8mb4"))
 
+		if skipLockTables {
+			opt = append(opt, database.OptionValue("skip-lock-tables", "1"))
+		}
+
 		logger, _ := zap.NewProduction()
 		dumper, err := database.NewMySQLDumper(db, logger, service, opt...)
 
@@ -46,7 +52,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		pConf := core.Rules{Ignore: []string{}, NoData: []string{}, Where: map[string]string{}, Rewrite: map[string]core.Rewrite{}}
 
 		if clean {
-			pConf.NoData = append(pConf.NoData, "cart", "customer_recovery", "dead_message", "enqueue", "elasticsearch_index_task", "log_entry", "message_queue_stats", "notification", "payment_token", "refresh_token", "version", "version_commit", "version_commit_data", "webhook_event_log")
+			pConf.NoData = append(pConf.NoData, "cart", "customer_recovery", "dead_message", "enqueue", "increment", "elasticsearch_index_task", "log_entry", "message_queue_stats", "notification", "payment_token", "refresh_token", "version", "version_commit", "version_commit_data", "webhook_event_log")
 		}
 
 		dumper.SetSelectMap(pConf.RewriteToMap())
@@ -64,6 +70,8 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return err
 		}
 
+		log.Infof("Successfully created the dump %s", output)
+
 		return nil
 	},
 }
@@ -76,4 +84,5 @@ func init() {
 	projectDatabaseDumpCmd.Flags().String("port", "3306", "mysql port")
 	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file")
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")
+	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
 }
