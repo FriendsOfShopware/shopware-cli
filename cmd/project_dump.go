@@ -39,6 +39,10 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		logger, _ := zap.NewProduction()
 		dumper, err := database.NewMySQLDumper(db, logger, service, opt...)
 
+		if err != nil {
+			return err
+		}
+
 		pConf := core.Rules{Ignore: []string{}, NoData: []string{}, Where: map[string]string{}, Rewrite: map[string]core.Rewrite{}}
 
 		if clean {
