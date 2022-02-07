@@ -46,8 +46,8 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	if cfgs.RequiresAdminBuild() {
 		for _, entry := range cfgs {
 			// If extension has package.json install it
-			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/administration/src/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/administration/src/", entry.BasePath), "install") //nolint:gosec
+			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/administration/package.json", entry.BasePath)); err == nil {
+				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/administration/", entry.BasePath), "install") //nolint:gosec
 				npmInstallCmd.Stdout = os.Stdout
 				npmInstallCmd.Stderr = os.Stderr
 				err := npmInstallCmd.Run()
