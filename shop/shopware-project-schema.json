@@ -15,21 +15,24 @@
                 },
                 "admin_api": {
                     "$ref": "#/definitions/AdminApi"
+                },
+                "dump": {
+                    "$ref": "#/definitions/Dump"
                 }
             }
         },
         "AdminApi": {
             "type": "object",
-            "title": "admin api",
+            "title": "Admin API credentials",
             "additionalProperties": false,
             "properties": {
                 "client_id": {
                     "type": "string",
-                    "description": "Client ID of integreation"
+                    "description": "Client ID of integration"
                 },
                 "client_secret": {
                     "type": "string",
-                    "description": "Client Secret of integreation"
+                    "description": "Client Secret of integration"
                 },
                 "username": {
                     "type": "string",
@@ -38,6 +41,27 @@
                 "password": {
                     "type": "string",
                     "description": "Password of admin user"
+                }
+            }
+        },
+        "Dump": {
+            "type": "object",
+            "title": "MySQL dump configuration",
+            "additionalProperties": false,
+            "properties": {
+                "rewrite": {
+                    "type": "object"
+                },
+                "nodata": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "ignore": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "where": {
+                    "type": "object"
                 }
             }
         }

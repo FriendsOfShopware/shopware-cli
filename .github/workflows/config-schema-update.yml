@@ -29,7 +29,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
-          echo -e "---\n title: 'Schema of .shopware-extensions.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
+          echo -e "---\n title: 'Schema of .shopware-extension.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
           echo -e "---\n title: 'Schema of .shopware-project.yml' \n---\n\n$(cat project.new.md)" > project.new.md
           rm -rf wiki/docs/shopware-extensions.yml-schema/index.md
           rm -ff wiki/docs/shopware-project.yml-schema/index.md

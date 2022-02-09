@@ -3,33 +3,33 @@ package shop
 import (
 	"context"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 
 	"github.com/doutorfinancas/go-mad/core"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	URL        string          `yaml:"url"`
-	AdminApi   *ConfigAdminApi `yaml:"admin_api"`
-	ConfigDump *ConfigDump     `yaml:"dump"`
+	AdminApi   *ConfigAdminApi `yaml:"admin_api,omitempty"`
+	ConfigDump *ConfigDump     `yaml:"dump,omitempty"`
 }
 
 type ConfigAdminApi struct {
-	ClientId     string `yaml:"client_id"`
-	ClientSecret string `yaml:"client_secret"`
-	Username     string `yaml:"username"`
-	Password     string `yaml:"password"`
+	ClientId     string `yaml:"client_id,omitempty"`
+	ClientSecret string `yaml:"client_secret,omitempty"`
+	Username     string `yaml:"username,omitempty"`
+	Password     string `yaml:"password,omitempty"`
 }
 
 type ConfigDump struct {
-	Rewrite map[string]core.Rewrite `yaml:"rewrite"`
-	NoData  []string                `yaml:"nodata"  json:"nodata"`
-	Ignore  []string                `yaml:"ignore"  json:"ignore"`
-	Where   map[string]string       `yaml:"where"   json:"where"`
+	Rewrite map[string]core.Rewrite `yaml:"rewrite,omitempty"`
+	NoData  []string                `yaml:"nodata,omitempty"`
+	Ignore  []string                `yaml:"ignore,omitempty"`
+	Where   map[string]string       `yaml:"where,omitempty"`
 }
 
 func ReadConfig(fileName string) (*Config, error) {

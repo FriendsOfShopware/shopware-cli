@@ -30,7 +30,25 @@ Arguments:
 
 ## shopware-cli project dump [database]
 
-Dumps the MySQL database as SQL
+Dumps the MySQL database as SQL. Additional configuration can be done with a `.shopware-project.yml` like
+
+```yaml
+dump:
+  # Rewrite column content new value
+  rewrite:
+    table:
+      column: "'new-value'"
+      colum2: "faker.Internet().Email()" # Uses faker data. See https://github.com/jaswdr/faker
+  # Ignore table content
+  nodata:
+    - table
+  # Ignore entire table
+  ignore:
+    - table
+  # Add a where to the export
+  where:
+    table: 'id > 5'
+```
 
 Parameters:
 
@@ -41,11 +59,11 @@ Parameters:
 * `--output` - Output file (default: `dump.sql`)
 * `--clean` - Ignores content of following tables: `cart`, `customer_recovery`, `dead_message`, `enqueue`, `increment`, `elasticsearch_index_task`, `log_entry`, `message_queue_stats`, `notification`, `payment_token`, `refresh_token`, `version`, `version_commit`, `version_commit_data`, `webhook_event_log`
 * `--skip-lock-tables` - Skips locking of tables
-* `--anonymize` - Anonymizes known user data tables. See https://github.com/FriendsOfShopware/shopware-cli/blob/main/cmd/project/project_dump.go#L61 for the list
+* `--anonymize` - Anonymize known user data tables. [See](https://github.com/FriendsOfShopware/shopware-cli/blob/main/cmd/project/project_dump.go#L61) for the list
 
 Examples:
 
-- `shopware-cli project dump sw6 --host 127.0.0.1 --username root --password root --clean --anonymize`
+- `shopware-cli project dump sw6 --host 127.0.0.1 --username root --password root --clean --anonymize
 
 ## shopware-cli project admin-api [method] [path]
 
