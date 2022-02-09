@@ -1,4 +1,4 @@
-package cmd
+package project
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ var projectCreateCmd = &cobra.Command{
 			return err
 		}
 
-		releases, err := update_api.GetLatestReleases(ctx)
+		releases, err := update_api.GetLatestReleases(cmd.Context())
 
 		if err != nil {
 			return err

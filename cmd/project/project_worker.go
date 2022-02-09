@@ -1,4 +1,4 @@
-package cmd
+package project
 
 import (
 	"context"
@@ -32,7 +32,7 @@ var projectWorkerCmd = &cobra.Command{
 			}
 		}
 
-		cancelCtx, cancel := context.WithCancel(ctx)
+		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancel)
 
 		var wg sync.WaitGroup

@@ -1,4 +1,4 @@
-package cmd
+package project
 
 import (
 	"encoding/json"

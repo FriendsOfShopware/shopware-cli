@@ -1,7 +1,10 @@
 package main
 
-import "shopware-cli/cmd"
+import (
+	"context"
+	"shopware-cli/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	cmd.Execute(context.Background())
 }
