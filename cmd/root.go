@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	accountApi "shopware-cli/account-api"
+	"shopware-cli/cmd/app"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -20,20 +21,20 @@ var rootCmd = &cobra.Command{
 	Version: version,
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+func Execute(ctx context.Context) {
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		log.Fatalln(err)
 	}
 }
 
 func init() {
-	ctx = context.Background()
 	rootCmd.SilenceErrors = true
 
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.shopware-cli.yaml)")
 	rootCmd.PersistentFlags().Bool("verbose", false, "show debug output")
+	app.Register(rootCmd)
 }
 
 func initConfig() {
