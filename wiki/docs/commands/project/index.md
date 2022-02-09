@@ -45,7 +45,7 @@ Parameters:
 
 Examples:
 
-- `project dump sw6 --host 127.0.0.1 --username root --password root --clean --anonymize`
+- `shopware-cli project dump sw6 --host 127.0.0.1 --username root --password root --clean --anonymize`
 
 ## shopware-cli project admin-api [method] [path]
 
