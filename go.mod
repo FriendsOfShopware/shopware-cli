@@ -53,3 +53,5 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
+
+replace github.com/doutorfinancas/go-mad => github.com/shyim/go-mad v0.0.0-20220209161455-0fb4f1464e6c

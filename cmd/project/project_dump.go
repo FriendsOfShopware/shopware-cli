@@ -24,6 +24,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		output, _ := cobraCmd.Flags().GetString("output")
 		clean, _ := cobraCmd.Flags().GetBool("clean")
 		skipLockTables, _ := cobraCmd.Flags().GetBool("skip-lock-tables")
+		anonymize, _ := cobraCmd.Flags().GetBool("anonymize")
 
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
@@ -53,6 +54,65 @@ var projectDatabaseDumpCmd = &cobra.Command{
 
 		if clean {
 			pConf.NoData = append(pConf.NoData, "cart", "customer_recovery", "dead_message", "enqueue", "increment", "elasticsearch_index_task", "log_entry", "message_queue_stats", "notification", "payment_token", "refresh_token", "version", "version_commit", "version_commit_data", "webhook_event_log")
+		}
+
+		if anonymize {
+			pConf.Rewrite = map[string]core.Rewrite{
+				"customer": map[string]string{
+					"first_name":     "faker.Person.FirstName()",
+					"last_name":      "faker.Person.LastName()",
+					"company":        "faker.Person.Name()",
+					"title":          "faker.Person.Name()",
+					"email":          "faker.Internet.Email()",
+					"remote_address": "faker.Internet.Ipv4()",
+				},
+				"customer_address": map[string]string{
+					"first_name":   "faker.Person.FirstName()",
+					"last_name":    "faker.Person.LastName()",
+					"company":      "faker.Person.Name()",
+					"title":        "faker.Person.Name()",
+					"street":       "faker.Address.StreetAddress()",
+					"zipcode":      "faker.Address.PostCode()",
+					"city":         "faker.Address.City()",
+					"phone_number": "faker.Phone.Number()",
+				},
+				"log_entry": map[string]string{
+					"provider": "",
+				},
+				"newsletter_recipient": map[string]string{
+					"email":      "faker.Internet.Email()",
+					"first_name": "faker.Person.FirstName()",
+					"last_name":  "faker.Person.LastName()",
+					"city":       "faker.Address.City()",
+				},
+				"order_address": map[string]string{
+					"first_name":   "faker.Person.FirstName()",
+					"last_name":    "faker.Person.LastName()",
+					"company":      "faker.Person.Name()",
+					"title":        "faker.Person.Name()",
+					"street":       "faker.Address.StreetAddress()",
+					"zipcode":      "faker.Address.PostCode()",
+					"city":         "faker.Address.City()",
+					"phone_number": "faker.Phone.Number()",
+				},
+				"order_customer": map[string]string{
+					"first_name":     "faker.Person.FirstName()",
+					"last_name":      "faker.Person.LastName()",
+					"company":        "faker.Person.Name()",
+					"title":          "faker.Person.Name()",
+					"email":          "faker.Internet.Email()",
+					"remote_address": "faker.Internet.Ipv4()",
+				},
+				"product_review": map[string]string{
+					"email": "faker.Internet.Email()",
+				},
+				"user": map[string]string{
+					"username":   "faker.Person.Name()",
+					"first_name": "faker.Person.FirstName()",
+					"last_name":  "faker.Person.LastName()",
+					"email":      "faker.Internet.Email()",
+				},
+			}
 		}
 
 		dumper.SetSelectMap(pConf.RewriteToMap())
@@ -85,4 +145,5 @@ func init() {
 	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file")
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")
 	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
+	projectDatabaseDumpCmd.Flags().Bool("anonymize", false, "Anonymize customer data")
 }
