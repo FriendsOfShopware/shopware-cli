@@ -41,3 +41,20 @@ Parameters:
 * `--output` - Output file (default: `dump.sql`)
 * `--clean` - Ignores content of following tables: `cart`, `customer_recovery`, `dead_message`, `enqueue`, `increment`, `elasticsearch_index_task`, `log_entry`, `message_queue_stats`, `notification`, `payment_token`, `refresh_token`, `version`, `version_commit`, `version_commit_data`, `webhook_event_log`
 * `--skip-lock-tables` - Skips locking of tables
+
+## shopware-cli project admin-api [method] [path]
+
+Run authentificated curl against the admin api
+
+Arguments:
+
+* `method` - **Required:** HTTP method
+* `path` - **Required:** HTTP path
+
+Parameters:
+
+* `--output-token` - Outputs only the access token
+
+Examples:
+
+- `shopware-cli project admin-api POST "/search/tax" -- -d '{"limit": 1}' -H 'Accept: application/json' -H 'Content-Type: application/json'`

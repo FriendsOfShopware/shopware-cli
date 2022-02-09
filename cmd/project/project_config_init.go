@@ -1,0 +1,143 @@
+package project
+
+import (
+	"fmt"
+	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
+	"os"
+	"shopware-cli/shop"
+)
+
+var projectConfigInitCmd = &cobra.Command{
+	Use:   "config-init",
+	Short: "Creates a new project config in current dir",
+	RunE: func(cobraCmd *cobra.Command, args []string) error {
+		config := &shop.Config{}
+		var content []byte
+		var err error
+
+		urlPrompt := promptui.Prompt{
+			Label:    "Shop-URL example: http://localhost",
+			Validate: emptyValidator,
+		}
+
+		config.URL, err = urlPrompt.Run()
+
+		if err != nil {
+			return err
+		}
+
+		if err = askApi(config); err != nil {
+			return err
+		}
+
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			os.Exit(1)
+		}
+
+		if content, err = yaml.Marshal(config); err != nil {
+			return err
+		}
+
+		if err := ioutil.WriteFile(".shopware-project.yml", content, os.ModePerm); err != nil {
+			return err
+		}
+
+		log.Info("Created .shopware-project.yml")
+
+		return nil
+	},
+}
+
+func askApi(config *shop.Config) error {
+	adminApi := promptui.Prompt{
+		Label:     "Configure admin-api access",
+		IsConfirm: true,
+	}
+
+	var result string
+	_, err := adminApi.Run()
+
+	if err != nil {
+		return nil //nolint:nilerr
+	}
+
+	apiAuthType := promptui.Select{
+		Label: "Auth type",
+		Items: []string{"user-password", "integration"},
+	}
+
+	if _, result, err = apiAuthType.Run(); err != nil {
+		return err
+	}
+
+	apiConfig := shop.ConfigAdminApi{}
+	config.AdminApi = &apiConfig
+
+	if result == "integration" {
+		clientIdPrompt := promptui.Prompt{
+			Label:    "Client-ID",
+			Validate: emptyValidator,
+		}
+
+		clientSecretPrompt := promptui.Prompt{
+			Label:    "Client-Secret",
+			Validate: emptyValidator,
+		}
+
+		if id, err := clientIdPrompt.Run(); err != nil {
+			return err
+		} else {
+			apiConfig.ClientId = id
+		}
+
+		if secret, err := clientSecretPrompt.Run(); err != nil {
+			return err
+		} else {
+			apiConfig.ClientSecret = secret
+		}
+
+		return nil
+	}
+
+	adminUserPrompt := promptui.Prompt{
+		Label:    "Admin User",
+		Validate: emptyValidator,
+	}
+
+	adminPasswordPrompt := promptui.Prompt{
+		Label:    "Admin Password",
+		Validate: emptyValidator,
+	}
+
+	if user, err := adminUserPrompt.Run(); err != nil {
+		return err
+	} else {
+		apiConfig.Username = user
+	}
+
+	if password, err := adminPasswordPrompt.Run(); err != nil {
+		return err
+	} else {
+		apiConfig.Password = password
+	}
+
+	return nil
+}
+
+func init() {
+	projectRootCmd.AddCommand(projectConfigInitCmd)
+}
+
+func emptyValidator(s string) error {
+	if len(s) == 0 {
+		return errors.New("this cannot be empty")
+	}
+
+	return nil
+}
