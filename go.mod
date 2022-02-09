@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/caarlos0/env/v6 v6.9.1
-	github.com/doutorfinancas/go-mad v0.0.0-20220204093100-b21521bdc4f5
+	github.com/doutorfinancas/go-mad v0.0.0-20220209173128-0ce6ec7309d4
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mholt/archiver/v3 v3.5.1
@@ -53,5 +53,3 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
-
-replace github.com/doutorfinancas/go-mad => github.com/shyim/go-mad v0.0.0-20220209161455-0fb4f1464e6c
