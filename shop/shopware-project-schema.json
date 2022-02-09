@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "shopware-cli",
+    "$ref": "#/definitions/Config",
+    "description": "shopware cli project configuration definition file",
+    "definitions": {
+        "Config": {
+            "type": "object",
+            "title": ".shopware-project.yml",
+            "additionalProperties": false,
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "URL to Shopware instance"
+                },
+                "admin_api": {
+                    "$ref": "#/definitions/AdminApi"
+                }
+            }
+        },
+        "AdminApi": {
+            "type": "object",
+            "title": "admin api",
+            "additionalProperties": false,
+            "properties": {
+                "client_id": {
+                    "type": "string",
+                    "description": "Client ID of integreation"
+                },
+                "client_secret": {
+                    "type": "string",
+                    "description": "Client Secret of integreation"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Username of admin user"
+                },
+                "password": {
+                    "type": "string",
+                    "description": "Password of admin user"
+                }
+            }
+        }
+    }
+}
