@@ -15,7 +15,7 @@ type ShopwareInstallRelease struct {
 	Sha256  string `json:"sha256"`
 }
 
-func GetLatestReleases(ctx context.Context) ([]ShopwareInstallRelease, error) {
+func GetLatestReleases(ctx context.Context) ([]*ShopwareInstallRelease, error) {
 	r, err := http.NewRequestWithContext(ctx, "GET", "https://update-api.shopware.com/v1/releases/install?major=6", nil)
 
 	if err != nil {
@@ -36,7 +36,7 @@ func GetLatestReleases(ctx context.Context) ([]ShopwareInstallRelease, error) {
 		return nil, err
 	}
 
-	var releases []ShopwareInstallRelease
+	var releases []*ShopwareInstallRelease
 
 	if err := json.Unmarshal(content, &releases); err != nil {
 		return nil, err

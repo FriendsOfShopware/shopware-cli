@@ -60,7 +60,7 @@ var projectCreateCmd = &cobra.Command{
 
 		for _, release := range releases {
 			if release.Version == result {
-				chooseVersion = &release
+				chooseVersion = release
 				break
 			}
 		}

@@ -12,7 +12,6 @@ import (
 
 var cfgFile string
 var version = "dev"
-var ctx context.Context
 
 var rootCmd = &cobra.Command{
 	Use:     "shopware-cli",
