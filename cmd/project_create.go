@@ -15,9 +15,9 @@ import (
 )
 
 var projectCreateCmd = &cobra.Command{
-	Use:   "create [name]",
+	Use:   "create [name] [version]",
 	Short: "Create a new Shopware 6 project",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectFolder := args[0]
 
@@ -35,29 +35,39 @@ var projectCreateCmd = &cobra.Command{
 			return err
 		}
 
-		var chooseVersions []string
-
-		for _, release := range releases {
-			chooseVersions = append(chooseVersions, release.Version)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Version",
-			Items: chooseVersions,
-		}
-
 		var result string
 
-		if _, result, err = prompt.Run(); err != nil {
-			return err
+		if len(args) == 2 {
+			result = args[1]
+		} else {
+			var chooseVersions []string
+
+			for _, release := range releases {
+				chooseVersions = append(chooseVersions, release.Version)
+			}
+
+			prompt := promptui.Select{
+				Label: "Select Version",
+				Items: chooseVersions,
+			}
+
+			if _, result, err = prompt.Run(); err != nil {
+				return err
+			}
 		}
 
-		var chooseVersion update_api.ShopwareInstallRelease
+		var chooseVersion *update_api.ShopwareInstallRelease
 
 		for _, release := range releases {
 			if release.Version == result {
-				chooseVersion = release
+				chooseVersion = &release
+				break
 			}
+		}
+
+		if chooseVersion == nil {
+			_ = os.RemoveAll(projectFolder)
+			return fmt.Errorf("cannot find version %s", result)
 		}
 
 		fileName := filepath.Base(chooseVersion.Uri)

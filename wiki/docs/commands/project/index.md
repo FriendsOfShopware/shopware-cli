@@ -3,9 +3,14 @@ title: Project Commands
 weight: 30
 ---
 
-## shopware-cli project create
+## shopware-cli project create [folder] [version]
 
 Create a new Shopware 6 project from the choosen version
+
+Arguments:
+
+* `folder` - **Required**: Folder name for the installation
+* `version` - Version to install
 
 ## shopware-cli project admin-build
 
