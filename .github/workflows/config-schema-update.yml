@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'extension/shopware-extension-schema.json'
+      - 'shopware-project-schema.json'
 
 jobs:
   config-schema-update:
@@ -22,14 +23,19 @@ jobs:
         run: |
           npm install wetzel -g
           wetzel extension/shopware-extension-schema.json >> schema.new.md
+          wetzel shop/shopware-project-schema.json.json >> project.new.md
 
       - name: Commit
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           echo -e "---\n title: 'Schema of .shopware-extensions.yml' \n---\n\n$(cat schema.new.md)" > schema.new.md
-          rm -f wiki/docs/shopware-extensions.yml-schema/index.md
+          echo -e "---\n title: 'Schema of .shopware-project.yml' \n---\n\n$(cat project.new.md)" > project.new.md
+          rm -rf wiki/docs/shopware-extensions.yml-schema/index.md
+          rm -ff wiki/docs/shopware-project.yml-schema/index.md
           mv schema.new.md wiki/docs/shopware-extensions.yml-schema/index.md
-          git add -f wiki/docs/shopware-extensions.yml-schema/index.md
-          git commit -m "chore: Update shopware-extension.yml-schema.md"
+          mkdir -p wiki/docs/shopware-project.yml-schema/ || true
+          mv project.new.md wiki/docs/shopware-project.yml-schema/index.md
+          git add -f wiki/docs/shopware-extensions.yml-schema/index.md wiki/docs/shopware-project.yml-schema/index.md
+          git commit -m "chore: Update json schema docs"
           git push
