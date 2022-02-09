@@ -3,16 +3,19 @@ package shop
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+
+	"github.com/doutorfinancas/go-mad/core"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"os"
 )
 
 type Config struct {
-	URL      string          `yaml:"url"`
-	AdminApi *ConfigAdminApi `yaml:"admin_api"`
+	URL        string          `yaml:"url"`
+	AdminApi   *ConfigAdminApi `yaml:"admin_api"`
+	ConfigDump *ConfigDump     `yaml:"dump"`
 }
 
 type ConfigAdminApi struct {
@@ -20,6 +23,13 @@ type ConfigAdminApi struct {
 	ClientSecret string `yaml:"client_secret"`
 	Username     string `yaml:"username"`
 	Password     string `yaml:"password"`
+}
+
+type ConfigDump struct {
+	Rewrite map[string]core.Rewrite `yaml:"rewrite"`
+	NoData  []string                `yaml:"nodata"  json:"nodata"`
+	Ignore  []string                `yaml:"ignore"  json:"ignore"`
+	Where   map[string]string       `yaml:"where"   json:"where"`
 }
 
 func ReadConfig(fileName string) (*Config, error) {

@@ -2,14 +2,16 @@ package project
 
 import (
 	"database/sql"
+	"io"
+	"os"
+	"shopware-cli/shop"
+
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"io"
-	"os"
 )
 
 var projectDatabaseDumpCmd = &cobra.Command{
@@ -113,6 +115,28 @@ var projectDatabaseDumpCmd = &cobra.Command{
 					"email":      "faker.Internet.Email()",
 				},
 			}
+		}
+
+		var projectCfg *shop.Config
+		if projectCfg, err = shop.ReadConfig(projectConfigPath); err != nil {
+			return err
+		}
+
+		if projectCfg != nil && projectCfg.ConfigDump != nil {
+			pConf.NoData = append(pConf.NoData, projectCfg.ConfigDump.NoData...)
+			pConf.Ignore = append(pConf.Ignore, projectCfg.ConfigDump.Ignore...)
+			for table, rewrites := range projectCfg.ConfigDump.Rewrite {
+				_, ok := pConf.Rewrite[table]
+
+				if !ok {
+					pConf.Rewrite[table] = rewrites
+				} else {
+					for k, v := range rewrites {
+						pConf.Rewrite[table][k] = v
+					}
+				}
+			}
+			pConf.Where = projectCfg.ConfigDump.Where
 		}
 
 		dumper.SetSelectMap(pConf.RewriteToMap())
