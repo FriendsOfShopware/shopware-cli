@@ -1,4 +1,4 @@
-name: ci 
+name: Wiki 
 on:
   workflow_dispatch:
   push:
