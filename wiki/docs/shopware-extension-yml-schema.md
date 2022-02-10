@@ -1,5 +1,5 @@
 ---
- title: 'Schema of .shopware-extensions.yml' 
+ title: 'Schema of .shopware-extension.yml' 
 ---
 
 # Objects
