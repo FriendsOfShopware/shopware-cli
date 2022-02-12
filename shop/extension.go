@@ -76,6 +76,18 @@ func (l ExtensionList) GetByName(name string) *ExtensionDetail {
 	return nil
 }
 
+func (l ExtensionList) FilterByUpdateable() ExtensionList {
+	newList := make(ExtensionList, 0)
+
+	for _, detail := range l {
+		if detail.IsUpdateAble() {
+			newList = append(newList, detail)
+		}
+	}
+
+	return newList
+}
+
 type ExtensionDetail struct {
 	Extensions             []interface{} `json:"extensions"`
 	Id                     interface{}   `json:"id"`

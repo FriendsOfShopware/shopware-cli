@@ -81,3 +81,82 @@ Parameters:
 Examples:
 
 - `shopware-cli project admin-api POST "/search/tax" -- -d '{"limit": 1}' -H 'Accept: application/json' -H 'Content-Type: application/json'`
+
+
+## shopware-cli project clear-cache
+
+Clears the cache of the shop
+
+## shopware-cli project extension list
+
+Lists all extensions of the shop
+
+Parameters:
+
+* `--json` - Outputs as JSON
+
+## shopware-cli project extension outdated
+
+Shows only extensions which are updateable. Exists with exit code 1 when updates are found
+
+Parameters:
+
+* `--json` - Outputs as JSON
+
+
+## shopware-cli project extension install
+
+Install one or more extensions
+
+Arguments:
+
+- The extension name
+
+
+## shopware-cli project extension uninstall
+
+Uninstall one or more extensions
+
+Arguments:
+
+- The extension name
+
+
+## shopware-cli project extension activate
+
+Activate one or more extensions
+
+Arguments:
+
+- The extension name
+
+
+## shopware-cli project extension deactivate
+
+Deactivates one or more extensions
+
+Arguments:
+
+- The extension name
+
+
+## shopware-cli project extension update
+
+Updates one or more extensions
+
+Arguments:
+
+- The extension name
+
+
+## shopware-cli project extension upload [folder|zip]
+
+Uploads one local extension zip or folder to shop
+
+Arguments:
+
+- zip or folder path
+
+Parameters:
+
+- `--activate` - Installs, Activates or updates the extension after upload
