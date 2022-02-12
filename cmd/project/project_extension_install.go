@@ -10,7 +10,7 @@ import (
 var projectExtensionInstallCmd = &cobra.Command{
 	Use:   "install [name]",
 	Short: "Install a extension",
-	Args: cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
 		var err error

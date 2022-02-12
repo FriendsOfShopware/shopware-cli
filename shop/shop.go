@@ -13,7 +13,7 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func NewShopClient(ctx context.Context,config *Config, httpClient *http.Client) (*Client, error) {
+func NewShopClient(ctx context.Context, config *Config, httpClient *http.Client) (*Client, error) {
 	shopClient := &Client{config.URL, httpClient}
 
 	if err := shopClient.authorize(ctx, config); err != nil {

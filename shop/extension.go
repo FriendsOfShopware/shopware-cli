@@ -1,12 +1,16 @@
 package shop
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 )
 
 func (c Client) RefreshExtensions(ctx context.Context) error {
@@ -21,6 +25,10 @@ func (c Client) RefreshExtensions(ctx context.Context) error {
 		return errors.Wrap(err, "RefreshExtensions")
 	}
 
+	if err := resp.Body.Close(); err != nil {
+		return err
+	}
+
 	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("RefreshExtensions: expected 204 from api, but got %d", resp.StatusCode)
 	}
@@ -29,7 +37,7 @@ func (c Client) RefreshExtensions(ctx context.Context) error {
 }
 
 func (c Client) GetInstalledExtensions(ctx context.Context) (ExtensionList, error) {
-	req, err := c.newRequest(ctx,  http.MethodGet, "/api/_action/extension/installed", nil)
+	req, err := c.newRequest(ctx, http.MethodGet, "/api/_action/extension/installed", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetInstalledExtensions")
 	}
@@ -39,6 +47,8 @@ func (c Client) GetInstalledExtensions(ctx context.Context) (ExtensionList, erro
 	if err != nil {
 		return nil, errors.Wrap(err, "GetInstalledExtensions")
 	}
+
+	defer resp.Body.Close()
 
 	content, err := ioutil.ReadAll(resp.Body)
 
@@ -108,15 +118,16 @@ type ExtensionDetail struct {
 }
 
 func (e ExtensionDetail) Status() string {
-	text := ""
+	var text string
 
-	if e.Source == "store" {
+	switch {
+	case e.Source == "store":
 		text = "can be downloaded from store"
-	} else if e.Active {
+	case e.Active:
 		text = "installed, activated"
-	} else if e.InstalledAt != nil {
+	case e.InstalledAt != nil:
 		text = "installed, not activated"
-	} else {
+	default:
 		text = "not installed, not activated"
 	}
 
@@ -135,6 +146,8 @@ func (c *Client) InstallExtension(ctx context.Context, extType, name string) err
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
@@ -162,6 +175,8 @@ func (c *Client) UninstallExtension(ctx context.Context, extType, name string) e
 		return err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
 
@@ -187,6 +202,8 @@ func (c *Client) ActivateExtension(ctx context.Context, extType, name string) er
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
@@ -214,6 +231,8 @@ func (c *Client) DeactivateExtension(ctx context.Context, extType, name string) 
 		return err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
 
@@ -239,6 +258,8 @@ func (c *Client) RemoveExtension(ctx context.Context, extType, name string) erro
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
@@ -266,6 +287,8 @@ func (c *Client) UpdateExtension(ctx context.Context, extType, name string) erro
 		return err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
 
@@ -292,6 +315,8 @@ func (c *Client) DownloadExtension(ctx context.Context, name string) error {
 		return err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNoContent {
 		content, err := ioutil.ReadAll(resp.Body)
 
@@ -300,6 +325,50 @@ func (c *Client) DownloadExtension(ctx context.Context, name string) error {
 		}
 
 		return fmt.Errorf("DownloadExtension: got http code %d from api: %s", resp.StatusCode, string(content))
+	}
+
+	return nil
+}
+
+func (c *Client) UploadExtension(ctx context.Context, extensionZip io.Reader) error {
+	var buf bytes.Buffer
+	parts := multipart.NewWriter(&buf)
+	mimeHeader := textproto.MIMEHeader{}
+	mimeHeader.Set("Content-Disposition", `form-data; name="file"; filename="extension.zip"`)
+	mimeHeader.Set("Content-Type", "application/zip")
+
+	part, err := parts.CreatePart(mimeHeader)
+	if err != nil {
+		return err
+	}
+
+	if _, err := io.Copy(part, extensionZip); err != nil {
+		return err
+	}
+	if err := parts.Close(); err != nil {
+		return err
+	}
+
+	var body io.Reader = &buf
+
+	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/upload", body)
+
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", parts.FormDataContentType())
+
+	var resp *http.Response
+
+	if resp, err = c.httpClient.Do(req); err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.New("could not upload extension")
 	}
 
 	return nil

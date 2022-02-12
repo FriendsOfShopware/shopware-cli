@@ -8,9 +8,9 @@ import (
 )
 
 var projectExtensionListCmd = &cobra.Command{
-	Use:   "list",
+	Use:     "list",
 	Aliases: []string{"ls"},
-	Short: "List all installed extensions",
+	Short:   "List all installed extensions",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
 		var err error

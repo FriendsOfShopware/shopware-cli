@@ -10,7 +10,7 @@ import (
 var projectExtensionDeactivateCmd = &cobra.Command{
 	Use:   "deactivate [name]",
 	Short: "Deactivate a extension",
-	Args: cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
 		var err error
@@ -41,7 +41,7 @@ var projectExtensionDeactivateCmd = &cobra.Command{
 				continue
 			}
 
-			if extension.Active == false {
+			if !extension.Active {
 				log.Infof("Extension %s is already deactivated", arg)
 				continue
 			}

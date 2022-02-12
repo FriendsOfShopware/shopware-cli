@@ -10,7 +10,7 @@ import (
 var projectExtensionActivateCmd = &cobra.Command{
 	Use:   "activate [name]",
 	Short: "Activate a extension",
-	Args: cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
 		var err error
@@ -41,7 +41,7 @@ var projectExtensionActivateCmd = &cobra.Command{
 				continue
 			}
 
-			if extension.Active == true {
+			if extension.Active {
 				log.Infof("Extension %s is already active", arg)
 				continue
 			}
