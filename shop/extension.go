@@ -87,7 +87,7 @@ type ExtensionDetail struct {
 	ProducerName           string        `json:"producerName"`
 	License                string        `json:"license"`
 	Version                string        `json:"version"`
-	LatestVersion          interface{}   `json:"latestVersion"`
+	LatestVersion          string        `json:"latestVersion"`
 	Languages              []interface{} `json:"languages"`
 	Rating                 interface{}   `json:"rating"`
 	NumberOfRatings        int           `json:"numberOfRatings"`
@@ -129,6 +129,10 @@ func (e ExtensionDetail) Status() string {
 		text = "installed, not activated"
 	default:
 		text = "not installed, not activated"
+	}
+
+	if len(e.LatestVersion) > 0 && e.LatestVersion != e.Version {
+		text = fmt.Sprintf("%s, update available to %s", text, e.LatestVersion)
 	}
 
 	return text

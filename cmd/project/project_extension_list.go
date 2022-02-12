@@ -51,6 +51,7 @@ var projectExtensionListCmd = &cobra.Command{
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
+		table.SetColWidth(100)
 		table.SetHeader([]string{"Name", "Version", "Status"})
 
 		for _, extension := range extensions {
