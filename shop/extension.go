@@ -138,6 +138,10 @@ func (e ExtensionDetail) Status() string {
 	return text
 }
 
+func (e ExtensionDetail) IsPlugin() bool {
+	return e.Type == "plugin"
+}
+
 func (c *Client) InstallExtension(ctx context.Context, extType, name string) error {
 	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/install/%s/%s", extType, name), nil)
 
