@@ -8,6 +8,7 @@ weight: 20
 Validate extension for store compliance
 
 Parameters:
+
 * path - Path to zip or extension folder
 
 
@@ -16,6 +17,7 @@ Parameters:
 Installs composer dependencies of the extension
 
 Parameters:
+
 * path - Path to extension folder
 
 
