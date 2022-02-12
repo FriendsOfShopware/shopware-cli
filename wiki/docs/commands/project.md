@@ -144,6 +144,8 @@ Arguments:
 
 Updates one or more extensions
 
+Use `all` as argument to update all possible extensions
+
 Arguments:
 
 - The extension name
