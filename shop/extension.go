@@ -131,7 +131,7 @@ func (e ExtensionDetail) Status() string {
 		text = "not installed, not activated"
 	}
 
-	if len(e.LatestVersion) > 0 && e.LatestVersion != e.Version {
+	if e.IsUpdateAble() {
 		text = fmt.Sprintf("%s, update available to %s", text, e.LatestVersion)
 	}
 
@@ -140,6 +140,10 @@ func (e ExtensionDetail) Status() string {
 
 func (e ExtensionDetail) IsPlugin() bool {
 	return e.Type == "plugin"
+}
+
+func (e ExtensionDetail) IsUpdateAble() bool {
+	return len(e.LatestVersion) > 0 && e.LatestVersion != e.Version
 }
 
 func (c *Client) InstallExtension(ctx context.Context, extType, name string) error {
@@ -376,7 +380,13 @@ func (c *Client) UploadExtension(ctx context.Context, extensionZip io.Reader) er
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		return errors.New("could not upload extension")
+		content, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("UploadExtension: got http code %d from api: %s", resp.StatusCode, string(content))
 	}
 
 	return nil

@@ -114,12 +114,12 @@ func CreateZip(baseFolder, zipFile string) error {
 	defer w.Close()
 
 	// Add some files to the archive.
-	addZipFiles(w, baseFolder, "")
+	AddZipFiles(w, baseFolder, "")
 
 	return nil
 }
 
-func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
+func AddZipFiles(w *zip.Writer, basePath, baseInZip string) {
 	// Open the Directory
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
@@ -146,7 +146,7 @@ func addZipFiles(w *zip.Writer, basePath, baseInZip string) {
 			// Recurse
 			newBase := basePath + file.Name() + "/"
 
-			addZipFiles(w, newBase, baseInZip+file.Name()+"/")
+			AddZipFiles(w, newBase, baseInZip+file.Name()+"/")
 		}
 	}
 }

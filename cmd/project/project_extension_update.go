@@ -55,7 +55,7 @@ var projectExtensionUpdateCmd = &cobra.Command{
 				continue
 			}
 
-			if extension.LatestVersion == "" || extension.Version == extension.LatestVersion {
+			if !extension.IsUpdateAble() {
 				log.Infof("Extension %s is up to date", arg)
 				continue
 			}

@@ -13,7 +13,7 @@ import (
 
 const (
 	TypePlatformApp    = "app"
-	TypePlatformPlugin = "platform"
+	TypePlatformPlugin = "plugin"
 )
 
 func GetExtensionByFolder(path string) (Extension, error) {
