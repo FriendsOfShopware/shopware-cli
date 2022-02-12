@@ -7,9 +7,9 @@ import (
 	"shopware-cli/shop"
 )
 
-var projectExtensionActivateCmd = &cobra.Command{
-	Use:   "activate [name]",
-	Short: "Activate a extension",
+var projectExtensionDeleteCmd = &cobra.Command{
+	Use:   "delete [name]",
+	Short: "Delete a extension",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
@@ -36,35 +36,39 @@ var projectExtensionActivateCmd = &cobra.Command{
 			extension := extensions.GetByName(arg)
 
 			if extension == nil {
-				failed = true
 				log.Errorf("Cannot find extension by name %s", arg)
 				continue
 			}
 
 			if extension.Active {
-				log.Infof("Extension %s is already active", arg)
+				if err := client.DeactivateExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+					failed = true
+
+					log.Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
+				}
+
 				continue
 			}
 
-			if extension.InstalledAt == nil {
-				if err := client.InstallExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+			if extension.InstalledAt != nil {
+				if err := client.UninstallExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
 					failed = true
 
-					log.Errorf("Installation of %s failed with error: %v", extension.Name, err)
+					log.Errorf("Uninstall of %s failed with error: %v", extension.Name, err)
 				}
 			}
 
-			if err := client.ActivateExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+			if err := client.RemoveExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
 				failed = true
 
-				log.Errorf("Activate of %s failed with error: %v", extension.Name, err)
+				log.Errorf("Remove of %s failed with error: %v", extension.Name, err)
 			}
 
-			log.Infof("Activated %s", extension.Name)
+			log.Infof("Removed %s", extension.Name)
 		}
 
 		if failed {
-			return fmt.Errorf("activation failed")
+			return fmt.Errorf("remove failed")
 		}
 
 		return nil
@@ -72,5 +76,5 @@ var projectExtensionActivateCmd = &cobra.Command{
 }
 
 func init() {
-	projectExtensionCmd.AddCommand(projectExtensionActivateCmd)
+	projectExtensionCmd.AddCommand(projectExtensionDeleteCmd)
 }

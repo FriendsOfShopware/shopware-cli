@@ -26,7 +26,7 @@ var projectExtensionInstallCmd = &cobra.Command{
 
 		activateAfterInstall, _ := cmd.PersistentFlags().GetBool("activate")
 
-		extensions, err := client.GetInstalledExtensions(cmd.Context())
+		extensions, err := client.GetAvailableExtensions(cmd.Context())
 
 		if err != nil {
 			return err

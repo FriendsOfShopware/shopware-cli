@@ -28,7 +28,7 @@ var projectExtensionListCmd = &cobra.Command{
 			return err
 		}
 
-		extensions, err := client.GetInstalledExtensions(cmd.Context())
+		extensions, err := client.GetAvailableExtensions(cmd.Context())
 
 		if err != nil {
 			return err

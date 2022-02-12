@@ -36,16 +36,16 @@ func (c Client) RefreshExtensions(ctx context.Context) error {
 	return nil
 }
 
-func (c Client) GetInstalledExtensions(ctx context.Context) (ExtensionList, error) {
+func (c Client) GetAvailableExtensions(ctx context.Context) (ExtensionList, error) {
 	req, err := c.newRequest(ctx, http.MethodGet, "/api/_action/extension/installed", nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetInstalledExtensions")
+		return nil, errors.Wrap(err, "GetAvailableExtensions")
 	}
 
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "GetInstalledExtensions")
+		return nil, errors.Wrap(err, "GetAvailableExtensions")
 	}
 
 	defer resp.Body.Close()
@@ -53,7 +53,7 @@ func (c Client) GetInstalledExtensions(ctx context.Context) (ExtensionList, erro
 	content, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return nil, errors.Wrap(err, "GetInstalledExtensions")
+		return nil, errors.Wrap(err, "GetAvailableExtensions")
 	}
 
 	var extensions ExtensionList
@@ -247,7 +247,7 @@ func (c *Client) DeactivateExtension(ctx context.Context, extType, name string) 
 }
 
 func (c *Client) RemoveExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/remove/%s/%s", extType, name), nil)
+	req, err := c.newRequest(ctx, http.MethodDelete, fmt.Sprintf("/api/_action/extension/remove/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "RemoveExtension")
