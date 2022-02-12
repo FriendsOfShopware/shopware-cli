@@ -45,9 +45,10 @@ var projectExtensionDeleteCmd = &cobra.Command{
 					failed = true
 
 					log.Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
+					continue
 				}
 
-				continue
+				log.Infof("Deactivated %s", extension.Name)
 			}
 
 			if extension.InstalledAt != nil {
@@ -55,7 +56,10 @@ var projectExtensionDeleteCmd = &cobra.Command{
 					failed = true
 
 					log.Errorf("Uninstall of %s failed with error: %v", extension.Name, err)
+					continue
 				}
+
+				log.Infof("Uninstalled %s", extension.Name)
 			}
 
 			if err := client.RemoveExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
