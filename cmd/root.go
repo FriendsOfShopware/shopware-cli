@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	accountApi "shopware-cli/account-api"
+	"shopware-cli/cmd/extension"
 	"shopware-cli/cmd/project"
 
 	log "github.com/sirupsen/logrus"
@@ -34,6 +35,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.shopware-cli.yaml)")
 	rootCmd.PersistentFlags().Bool("verbose", false, "show debug output")
 	project.Register(rootCmd)
+	extension.Register(rootCmd)
 }
 
 func initConfig() {

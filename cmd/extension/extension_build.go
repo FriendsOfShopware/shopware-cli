@@ -1,4 +1,4 @@
-package cmd
+package extension
 
 import (
 	"github.com/pkg/errors"
