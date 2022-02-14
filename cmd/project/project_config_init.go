@@ -13,7 +13,7 @@ import (
 )
 
 var projectConfigInitCmd = &cobra.Command{
-	Use:   "config-init",
+	Use:   "init",
 	Short: "Creates a new project config in current dir",
 	RunE: func(cobraCmd *cobra.Command, args []string) error {
 		config := &shop.Config{}
@@ -131,7 +131,7 @@ func askApi(config *shop.Config) error {
 }
 
 func init() {
-	projectRootCmd.AddCommand(projectConfigInitCmd)
+	projectConfigCmd.AddCommand(projectConfigInitCmd)
 }
 
 func emptyValidator(s string) error {
