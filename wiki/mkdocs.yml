@@ -2,7 +2,7 @@ site_name: Shopware CLI
 site_url: https://sw-cli.fos.gg
 repo_url: https://github.com/FriendsOfShopware/shopware-cli
 repo_name: shopware-cli
-edit_uri: edit/main/docs/
+edit_uri: edit/main/wiki/docs/
 theme:
   name: material
   palette:
