@@ -6,8 +6,10 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/doutorfinancas/go-mad/core"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -16,6 +18,7 @@ type Config struct {
 	URL        string          `yaml:"url"`
 	AdminApi   *ConfigAdminApi `yaml:"admin_api,omitempty"`
 	ConfigDump *ConfigDump     `yaml:"dump,omitempty"`
+	Sync       *ConfigSync     `yaml:"sync,omitempty"`
 }
 
 type ConfigAdminApi struct {
@@ -30,6 +33,15 @@ type ConfigDump struct {
 	NoData  []string                `yaml:"nodata,omitempty"`
 	Ignore  []string                `yaml:"ignore,omitempty"`
 	Where   map[string]string       `yaml:"where,omitempty"`
+}
+
+type ConfigSync struct {
+	Config []ConfigSyncConfig `yaml:"config"`
+}
+
+type ConfigSyncConfig struct {
+	SalesChannel *string                `yaml:"sales_channel,omitempty"`
+	Settings     map[string]interface{} `yaml:"settings"`
 }
 
 func ReadConfig(fileName string) (*Config, error) {
@@ -86,4 +98,8 @@ func (cfg ConfigAdminApi) GetTokenSource(ctx context.Context, shopURL string) (o
 	}
 
 	return oauthConf.TokenSource(ctx), nil
+}
+
+func NewUuid() string {
+	return strings.ReplaceAll(uuid.New().String(), "-", "")
 }

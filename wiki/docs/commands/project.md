@@ -162,3 +162,15 @@ Arguments:
 Parameters:
 
 - `--activate` - Installs, Activates or updates the extension after upload
+
+## shopware-cli project config pull
+
+Downloads the current external shop config to the local `.shopware-project.yml`. Use `shopware-cli project config init` to create the basic config file first
+
+## shopware-cli project config push
+
+Pushes the local configuration to the external system
+
+Parameters:
+
+* `--auto-approve` - Skips the manual confirmation

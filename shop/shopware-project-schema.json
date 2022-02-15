@@ -18,6 +18,9 @@
                 },
                 "dump": {
                     "$ref": "#/definitions/Dump"
+                },
+                "sync": {
+                    "$ref": "#/definitions/Sync"
                 }
             }
         },
@@ -64,6 +67,29 @@
                     "type": "object"
                 }
             }
+        },
+        "Sync": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "config": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/SyncConfigItem"}
+                }
+            }
+        },
+        "SyncConfigItem": {
+            "type": "object",
+            "properties": {
+                "sales_channel": {
+                    "title": "Sales Channel to apply",
+                    "type": "string",
+                },
+                "settings": {
+                    "type": "object"
+                }
+            },
+            "required": ["settings"]
         }
     }
 }
