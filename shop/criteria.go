@@ -144,6 +144,8 @@ func (c Client) Sync(ctx context.Context, payload map[string]SyncOperation) erro
 		return errors.Wrap(err, "Sync")
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
 		content, err := ioutil.ReadAll(resp.Body)
 

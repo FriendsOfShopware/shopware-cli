@@ -133,7 +133,7 @@ func (s SystemConfigSync) Pull(ctx context.Context, client *shop.Client, config 
 			record := recordRaw.(map[string]interface{})
 
 			key, _ := record["configurationKey"].(string)
-			val, _ := record["configurationValue"]
+			val := record["configurationValue"]
 
 			// app system shopId
 			if key == "core.app.shopId" {
