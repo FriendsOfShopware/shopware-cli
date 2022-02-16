@@ -29,6 +29,7 @@ var projectConfigPushCmd = &cobra.Command{
 		operation := &ConfigSyncOperation{
 			Operations:     map[string]shop.SyncOperation{},
 			SystemSettings: map[*string]map[string]interface{}{},
+			ThemeSettings:  []ThemeSyncOperation{},
 		}
 
 		for _, applyer := range NewSyncApplyers() {
@@ -42,13 +43,47 @@ var projectConfigPushCmd = &cobra.Command{
 			return nil
 		}
 
-		if len(operation.Operations) > 0 {
+		if operation.Operations.HasChanges() {
 			log.Println("Following entities will be written")
 
 			for _, values := range operation.Operations {
 				log.Printf("Action: %s, Entity: %s", values.Action, values.Entity)
 
 				content, _ := json.Marshal(values.Payload)
+
+				log.Printf("Payload: %s", string(content))
+			}
+		}
+
+		if operation.SystemSettings.HasChanges() {
+			log.Println("Following system_config changes will be applied")
+
+			for key, values := range operation.SystemSettings {
+				if len(values) == 0 {
+					continue
+				}
+
+				var k string
+
+				if key == nil {
+					k = "default"
+				} else {
+					k = *key
+				}
+
+				log.Printf("Sales-Channel: %s", k)
+
+				content, _ := json.Marshal(values)
+
+				log.Printf("Payload: %s", string(content))
+			}
+		}
+
+		if operation.ThemeSettings.HasChanges() {
+			for _, themeOp := range operation.ThemeSettings {
+				log.Printf("Updating theme: %s", themeOp.Name)
+
+				content, _ := json.Marshal(themeOp.Settings)
 
 				log.Printf("Payload: %s", string(content))
 			}
@@ -72,6 +107,14 @@ var projectConfigPushCmd = &cobra.Command{
 		if operation.SystemSettings.HasChanges() {
 			if err := client.UpdateSystemConfig(cmd.Context(), operation.SystemSettings.ToJson()); err != nil {
 				return err
+			}
+		}
+
+		if operation.ThemeSettings.HasChanges() {
+			for _, themeOp := range operation.ThemeSettings {
+				if err := client.SaveThemeConfiguration(cmd.Context(), themeOp.Id, shop.ThemeUpdateRequest{Config: themeOp.Settings}); err != nil {
+					return err
+				}
 			}
 		}
 

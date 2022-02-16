@@ -37,11 +37,21 @@ type ConfigDump struct {
 
 type ConfigSync struct {
 	Config []ConfigSyncConfig `yaml:"config"`
+	Theme  []ThemeConfig      `yaml:"theme"`
 }
 
 type ConfigSyncConfig struct {
 	SalesChannel *string                `yaml:"sales_channel,omitempty"`
 	Settings     map[string]interface{} `yaml:"settings"`
+}
+
+type ThemeConfig struct {
+	Name     string                      `yaml:"name"`
+	Settings map[string]ThemeConfigValue `yaml:"settings"`
+}
+
+type ThemeConfigValue struct {
+	Value interface{} `yaml:"value" json:"value"`
 }
 
 func ReadConfig(fileName string) (*Config, error) {

@@ -32,18 +32,41 @@ type ConfigSyncApplyer interface {
 }
 
 func NewSyncApplyers() []ConfigSyncApplyer {
-	return []ConfigSyncApplyer{SystemConfigSync{}}
+	return []ConfigSyncApplyer{SystemConfigSync{}, ThemeSync{}}
 }
 
 type ConfigSyncOperation struct {
-	Operations     map[string]shop.SyncOperation
+	Operations     Operation
 	SystemSettings SystemConfig
+	ThemeSettings  ThemeSettings
 }
 
+type ThemeSyncOperation struct {
+	Id       string
+	Name     string
+	Settings map[string]shop.ThemeConfigValue
+}
+
+type Operation map[string]shop.SyncOperation
 type SystemConfig map[*string]map[string]interface{}
+type ThemeSettings []ThemeSyncOperation
 
 func (o ConfigSyncOperation) HasChanges() bool {
-	return len(o.Operations) > 0 || o.SystemSettings.HasChanges()
+	return o.Operations.HasChanges() || o.SystemSettings.HasChanges() || o.ThemeSettings.HasChanges()
+}
+
+func (o Operation) HasChanges() bool {
+	return len(o) > 0
+}
+
+func (t ThemeSettings) HasChanges() bool {
+	for _, m := range t {
+		if len(m.Settings) > 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s SystemConfig) ToJson() string {
@@ -75,5 +98,11 @@ func (s SystemConfig) ToJson() string {
 }
 
 func (s SystemConfig) HasChanges() bool {
-	return len(s) > 0
+	for _, m := range s {
+		if len(m) > 0 {
+			return true
+		}
+	}
+
+	return false
 }

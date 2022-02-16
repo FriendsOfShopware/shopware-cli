@@ -75,6 +75,10 @@
                 "config": {
                     "type": "array",
                     "items": {"$ref": "#/definitions/SyncConfigItem"}
+                },
+                "theme": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/ThemeConfigItem"}
                 }
             }
         },
@@ -83,13 +87,24 @@
             "properties": {
                 "sales_channel": {
                     "title": "Sales Channel to apply",
-                    "type": "string",
+                    "type": "string"
                 },
                 "settings": {
                     "type": "object"
                 }
             },
             "required": ["settings"]
+        },
+        "ThemeConfigItem": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "object"
+                }
+            }
         }
     }
 }
