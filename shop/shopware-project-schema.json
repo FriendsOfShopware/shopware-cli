@@ -70,6 +70,7 @@
         },
         "Sync": {
             "type": "object",
+            "title": "Sync Settings",
             "additionalProperties": false,
             "properties": {
                 "config": {
@@ -84,6 +85,7 @@
         },
         "SyncConfigItem": {
             "type": "object",
+            "title": "System Config Sync",
             "properties": {
                 "sales_channel": {
                     "title": "Sales Channel to apply",
@@ -97,6 +99,7 @@
         },
         "ThemeConfigItem": {
             "type": "object",
+            "title": "Theme Config Sync",
             "properties": {
                 "name": {
                     "type": "string"
