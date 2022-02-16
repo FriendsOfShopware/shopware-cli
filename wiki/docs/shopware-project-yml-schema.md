@@ -6,6 +6,9 @@
 * [`.shopware-project.yml`](#reference-config) (root object)
 * [`Admin API credentials`](#reference-adminapi)
 * [`MySQL dump configuration`](#reference-dump)
+* [`Sync Settings`](#reference-sync)
+    * [`System Config Sync`](#reference-syncconfigitem)
+    * [`Theme Config Sync`](#reference-themeconfigitem)
 
 
 ---------------------------------------
@@ -19,6 +22,7 @@
 |**url**|`string`|URL to Shopware instance|No|
 |**admin_api**|`AdminApi`||No|
 |**dump**|`Dump`||No|
+|**sync**|`Sync`||No|
 
 Additional properties are not allowed.
 
@@ -37,6 +41,11 @@ URL to Shopware instance
 ### Config.dump
 
 * **Type**: `Dump`
+* **Required**: No
+
+### Config.sync
+
+* **Type**: `Sync`
 * **Required**: No
 
 
@@ -131,3 +140,80 @@ Additional properties are not allowed.
 ## shopware-cli
 
 shopware cli project configuration definition file
+
+
+
+---------------------------------------
+<a name="reference-sync"></a>
+## Sync Settings
+
+**`Sync Settings` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**config**|`SyncConfigItem` `[]`||No|
+|**theme**|`ThemeConfigItem` `[]`||No|
+
+Additional properties are not allowed.
+
+### Sync.config
+
+* **Type**: `SyncConfigItem` `[]`
+* **Required**: No
+
+### Sync.theme
+
+* **Type**: `ThemeConfigItem` `[]`
+* **Required**: No
+
+
+
+
+---------------------------------------
+<a name="reference-syncconfigitem"></a>
+## System Config Sync
+
+**`System Config Sync` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**sales_channel**|`string`||No|
+|**settings**|`object`|| &#10003; Yes|
+
+Additional properties are allowed.
+
+### SyncConfigItem.sales_channel
+
+* **Type**: `string`
+* **Required**: No
+
+### SyncConfigItem.settings
+
+* **Type**: `object`
+* **Required**:  &#10003; Yes
+
+
+
+
+---------------------------------------
+<a name="reference-themeconfigitem"></a>
+## Theme Config Sync
+
+**`Theme Config Sync` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**name**|`string`||No|
+|**settings**|`object`||No|
+
+Additional properties are allowed.
+
+### ThemeConfigItem.name
+
+* **Type**: `string`
+* **Required**: No
+
+### ThemeConfigItem.settings
+
+* **Type**: `object`
+* **Required**: No
