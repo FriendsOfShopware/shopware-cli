@@ -196,7 +196,6 @@ func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {
 
 		if ext.Storefront.EntryFilePath != nil && storefrontPathPackage == nil && (os.IsNotExist(storefrontPathNodeModules) || forceNpmInstall) {
 			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)), "--no-save"); err != nil {
-
 				return err
 			}
 		}
