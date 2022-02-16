@@ -50,6 +50,12 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 		}
 
 		for newK, newV := range config.Settings {
+			_, ok := operation.SystemSettings[config.SalesChannel]
+
+			if !ok {
+				operation.SystemSettings[config.SalesChannel] = map[string]interface{}{}
+			}
+
 			foundKey := false
 
 			for _, existingConfigRaw := range currentConfig.Data {
@@ -62,11 +68,7 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 					encodedTarget, _ := json.Marshal(newV)
 
 					if string(encodedSource) != string(encodedTarget) {
-						operation.Upsert["system_config"] = append(operation.Upsert["system_config"], map[string]interface{}{
-							"id":                 existingConfig["id"],
-							"configurationKey":   newK,
-							"configurationValue": newV,
-						})
+						operation.SystemSettings[config.SalesChannel][newK] = newV
 					}
 
 					break
@@ -74,12 +76,7 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 			}
 
 			if !foundKey {
-				operation.Upsert["system_config"] = append(operation.Upsert["system_config"], map[string]interface{}{
-					"id":                 shop.NewUuid(),
-					"configurationKey":   newK,
-					"configurationValue": newV,
-					"salesChannelId":     config.SalesChannel,
-				})
+				operation.SystemSettings[config.SalesChannel][newK] = newV
 			}
 		}
 	}

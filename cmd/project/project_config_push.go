@@ -2,7 +2,6 @@ package project
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -28,7 +27,8 @@ var projectConfigPushCmd = &cobra.Command{
 		}
 
 		operation := &ConfigSyncOperation{
-			Upsert: map[string][]map[string]interface{}{"system_config": {}},
+			Operations:     map[string]shop.SyncOperation{},
+			SystemSettings: map[*string]map[string]interface{}{},
 		}
 
 		for _, applyer := range NewSyncApplyers() {
@@ -42,13 +42,13 @@ var projectConfigPushCmd = &cobra.Command{
 			return nil
 		}
 
-		if len(operation.Upsert) > 0 {
+		if len(operation.Operations) > 0 {
 			log.Println("Following entities will be written")
 
-			for entity, values := range operation.Upsert {
-				log.Printf("Entity: %s", entity)
+			for _, values := range operation.Operations {
+				log.Printf("Action: %s, Entity: %s", values.Action, values.Entity)
 
-				content, _ := json.Marshal(values)
+				content, _ := json.Marshal(values.Payload)
 
 				log.Printf("Payload: %s", string(content))
 			}
@@ -65,26 +65,14 @@ var projectConfigPushCmd = &cobra.Command{
 			}
 		}
 
-		syncApiOperation := make(map[string]shop.SyncOperation)
-
-		for entity, values := range operation.Upsert {
-			syncApiOperation[fmt.Sprintf("upsert-%s", entity)] = shop.SyncOperation{
-				Entity:  entity,
-				Action:  "upsert",
-				Payload: values,
-			}
-		}
-
-		for entity, values := range operation.Delete {
-			syncApiOperation[fmt.Sprintf("delete-%s", entity)] = shop.SyncOperation{
-				Entity:  entity,
-				Action:  "delete",
-				Payload: values,
-			}
-		}
-
-		if err := client.Sync(cmd.Context(), syncApiOperation); err != nil {
+		if err := client.Sync(cmd.Context(), operation.Operations); err != nil {
 			return err
+		}
+
+		if operation.SystemSettings.HasChanges() {
+			if err := client.UpdateSystemConfig(cmd.Context(), operation.SystemSettings.ToJson()); err != nil {
+				return err
+			}
 		}
 
 		log.Infof("Configuration has been applied to remote")

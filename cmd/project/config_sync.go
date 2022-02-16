@@ -2,6 +2,8 @@ package project
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"shopware-cli/shop"
 )
 
@@ -34,22 +36,44 @@ func NewSyncApplyers() []ConfigSyncApplyer {
 }
 
 type ConfigSyncOperation struct {
-	Upsert map[string][]map[string]interface{}
-	Delete map[string][]map[string]interface{}
+	Operations     map[string]shop.SyncOperation
+	SystemSettings SystemConfig
 }
 
+type SystemConfig map[*string]map[string]interface{}
+
 func (o ConfigSyncOperation) HasChanges() bool {
-	for _, i := range o.Upsert {
-		if len(i) > 0 {
-			return true
+	return len(o.Operations) > 0 || o.SystemSettings.HasChanges()
+}
+
+func (s SystemConfig) ToJson() string {
+	text := ""
+
+	for key, v := range s {
+		if len(v) == 0 {
+			continue
 		}
+
+		content, _ := json.Marshal(v)
+
+		var k string
+
+		if key == nil {
+			k = `"null"`
+		} else {
+			k = fmt.Sprintf(`"%s"`, *key)
+		}
+
+		text += fmt.Sprintf(`%s: %s,`, k, content)
 	}
 
-	for _, i := range o.Delete {
-		if len(i) > 0 {
-			return true
-		}
+	if len(text) == 0 {
+		return "{}"
 	}
 
-	return false
+	return fmt.Sprintf("{%s}", text[:len(text)-1])
+}
+
+func (s SystemConfig) HasChanges() bool {
+	return len(s) > 0
 }

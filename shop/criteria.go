@@ -159,6 +159,37 @@ func (c Client) Sync(ctx context.Context, payload map[string]SyncOperation) erro
 	return nil
 }
 
+func (c Client) UpdateSystemConfig(ctx context.Context, payload string) error {
+	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/system-config/batch", strings.NewReader(payload))
+
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+
+	if err != nil {
+		return errors.Wrap(err, "UpdateSystemConfig")
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
+		content, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("UpdateSystemConfig: got http code %d from api: %s", resp.StatusCode, string(content))
+	}
+
+	return nil
+}
+
 type SyncOperation struct {
 	Entity  string                   `json:"entity"`
 	Action  string                   `json:"action"`
