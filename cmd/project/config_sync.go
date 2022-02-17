@@ -11,10 +11,8 @@ func readSystemConfig(ctx context.Context, client *shop.Client, salesChannelId *
 	c := shop.Criteria{}
 	c.Includes = map[string][]string{"system_config": {"id", "configurationKey", "configurationValue"}}
 
-	if salesChannelId != nil {
-		c.Filter = []shop.CriteriaFilter{
-			{Type: shop.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
-		}
+	c.Filter = []shop.CriteriaFilter{
+		{Type: shop.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
 	}
 
 	configs, err := client.SearchAll(ctx, "system_config", c)
