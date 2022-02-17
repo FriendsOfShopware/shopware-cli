@@ -26,7 +26,6 @@ func (c Client) GetThemeConfiguration(ctx context.Context, themeId string) (*The
 	defer resp.Body.Close()
 
 	content, err := ioutil.ReadAll(resp.Body)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "GetThemeConfiguration")
 	}
@@ -36,11 +35,17 @@ func (c Client) GetThemeConfiguration(ctx context.Context, themeId string) (*The
 		return nil, err
 	}
 
+	// Old shopware version, use fields instead
+	if result.CurrentFields == nil {
+		result.CurrentFields = &result.Fields
+	}
+
 	return result, nil
 }
 
 type ThemeConfiguration struct {
-	CurrentFields map[string]ThemeConfigValue `json:"currentFields"`
+	CurrentFields *map[string]ThemeConfigValue `json:"currentFields"`
+	Fields        map[string]ThemeConfigValue  `json:"fields"`
 }
 
 type ThemeUpdateRequest struct {

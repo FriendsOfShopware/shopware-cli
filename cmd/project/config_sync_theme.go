@@ -37,7 +37,7 @@ func (s ThemeSync) Push(ctx context.Context, client *shop.Client, config *shop.C
 					Settings: map[string]shop.ThemeConfigValue{},
 				}
 
-				for remoteFieldName, remoteFieldValue := range remoteConfigs.CurrentFields {
+				for remoteFieldName, remoteFieldValue := range *remoteConfigs.CurrentFields {
 					for localFieldName, localFieldValue := range localThemeConfig.Settings {
 						if remoteFieldName == localFieldName {
 							if remoteFieldValue != localFieldValue {
@@ -80,7 +80,7 @@ func (s ThemeSync) Pull(ctx context.Context, client *shop.Client, config *shop.C
 			return err
 		}
 
-		cfg.Settings = themeConfig.CurrentFields
+		cfg.Settings = *themeConfig.CurrentFields
 		config.Sync.Theme = append(config.Sync.Theme, cfg)
 	}
 
