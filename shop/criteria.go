@@ -116,7 +116,7 @@ func (c Client) SearchAll(ctx context.Context, entity string, criteria Criteria)
 			break
 		}
 
-		result.Data = append(result.Data, pagedResult.Data)
+		result.Data = append(result.Data, pagedResult.Data...)
 	}
 
 	return result, nil
