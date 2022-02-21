@@ -115,6 +115,7 @@
         },
         "MailTemplateItem": {
             "type": "object",
+            "title": "Mail Template Sync",
             "properties": {
                 "id": {
                     "type": "string"
@@ -127,6 +128,7 @@
         },
         "MailTemplateItemTranslation": {
             "type": "object",
+            "title": "Mail Template Single Translation",
             "properties": {
                 "language": {
                     "type": "string"
