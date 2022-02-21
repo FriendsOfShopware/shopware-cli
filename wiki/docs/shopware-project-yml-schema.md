@@ -7,6 +7,8 @@
 * [`Admin API credentials`](#reference-adminapi)
 * [`MySQL dump configuration`](#reference-dump)
 * [`Sync Settings`](#reference-sync)
+    * [`Mail Template Sync`](#reference-mailtemplateitem)
+        * [`Mail Template Single Translation`](#reference-mailtemplateitemtranslation)
     * [`System Config Sync`](#reference-syncconfigitem)
     * [`Theme Config Sync`](#reference-themeconfigitem)
 
@@ -98,6 +100,82 @@ Password of admin user
 
 
 ---------------------------------------
+<a name="reference-mailtemplateitemtranslation"></a>
+## Mail Template Single Translation
+
+**`Mail Template Single Translation` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**language**|`string`||No|
+|**senderName**|`string`||No|
+|**subject**|`string`||No|
+|**html**|`string`||No|
+|**plain**|`string`||No|
+|**customFields**|`object`||No|
+
+Additional properties are allowed.
+
+### MailTemplateItemTranslation.language
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItemTranslation.senderName
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItemTranslation.subject
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItemTranslation.html
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItemTranslation.plain
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItemTranslation.customFields
+
+* **Type**: `object`
+* **Required**: No
+
+
+
+
+---------------------------------------
+<a name="reference-mailtemplateitem"></a>
+## Mail Template Sync
+
+**`Mail Template Sync` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**id**|`string`||No|
+|**translations**|`MailTemplateItemTranslation` `[]`||No|
+
+Additional properties are allowed.
+
+### MailTemplateItem.id
+
+* **Type**: `string`
+* **Required**: No
+
+### MailTemplateItem.translations
+
+* **Type**: `MailTemplateItemTranslation` `[]`
+* **Required**: No
+
+
+
+
+---------------------------------------
 <a name="reference-dump"></a>
 ## MySQL dump configuration
 
@@ -153,6 +231,7 @@ shopware cli project configuration definition file
 |---|---|---|---|
 |**config**|`SyncConfigItem` `[]`||No|
 |**theme**|`ThemeConfigItem` `[]`||No|
+|**mail_template**|`MailTemplateItem` `[]`||No|
 
 Additional properties are not allowed.
 
@@ -164,6 +243,11 @@ Additional properties are not allowed.
 ### Sync.theme
 
 * **Type**: `ThemeConfigItem` `[]`
+* **Required**: No
+
+### Sync.mail_template
+
+* **Type**: `MailTemplateItem` `[]`
 * **Required**: No
 
 
