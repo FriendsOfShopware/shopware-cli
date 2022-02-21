@@ -80,6 +80,10 @@
                 "theme": {
                     "type": "array",
                     "items": {"$ref": "#/definitions/ThemeConfigItem"}
+                },
+                "mail_template": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/MailTemplateItem"}
                 }
             }
         },
@@ -105,6 +109,41 @@
                     "type": "string"
                 },
                 "settings": {
+                    "type": "object"
+                }
+            }
+        },
+        "MailTemplateItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "translations": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/MailTemplateItemTranslation"}
+                }
+            }
+        },
+        "MailTemplateItemTranslation": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "senderName": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "html": {
+                    "type": "string"
+                },
+                "plain": {
+                    "type": "string"
+                },
+                "customFields": {
                     "type": "object"
                 }
             }

@@ -26,9 +26,7 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 		if config.SalesChannel != nil && len(*config.SalesChannel) != 32 {
 			foundId := false
 
-			for _, scRowRaw := range salesChannelResponse.Data {
-				scRow := scRowRaw.(map[string]interface{})
-
+			for _, scRow := range salesChannelResponse.Data {
 				if *config.SalesChannel == scRow["name"] {
 					val, _ := scRow["id"].(string)
 					config.SalesChannel = &val
@@ -58,9 +56,7 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 
 			foundKey := false
 
-			for _, existingConfigRaw := range currentConfig.Data {
-				existingConfig := existingConfigRaw.(map[string]interface{})
-
+			for _, existingConfig := range currentConfig.Data {
 				if existingConfig["configurationKey"] == newK {
 					foundKey = true
 
@@ -97,11 +93,7 @@ func (s SystemConfigSync) Pull(ctx context.Context, client *shop.Client, config 
 
 	salesChannelList := make([]map[string]interface{}, 0)
 	salesChannelList = append(salesChannelList, nil)
-
-	for _, row := range salesChannelResponse.Data {
-		r := row.(map[string]interface{})
-		salesChannelList = append(salesChannelList, r)
-	}
+	salesChannelList = append(salesChannelList, salesChannelResponse.Data...)
 
 	for _, sc := range salesChannelList {
 		var sysConfigs *shop.SearchResponse
@@ -126,9 +118,7 @@ func (s SystemConfigSync) Pull(ctx context.Context, client *shop.Client, config 
 			return err
 		}
 
-		for _, recordRaw := range sysConfigs.Data {
-			record := recordRaw.(map[string]interface{})
-
+		for _, record := range sysConfigs.Data {
 			key, _ := record["configurationKey"].(string)
 			val := record["configurationValue"]
 

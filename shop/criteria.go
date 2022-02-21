@@ -31,6 +31,7 @@ type Criteria struct {
 	Filter         []CriteriaFilter    `json:"filter,omitempty"`
 	PostFilter     []CriteriaFilter    `json:"postFilter,omitempty"`
 	Sort           []CriteriaSort      `json:"sort,omitempty"`
+	Associations   map[string]Criteria `json:"associations,omitempty"`
 	Term           string              `json:"term,omitempty"`
 	TotalCountMode int                 `json:"totalCountMode,omitempty"`
 }
@@ -48,9 +49,9 @@ type CriteriaSort struct {
 }
 
 type SearchResponse struct {
-	Total        int64         `json:"total"`
-	Data         []interface{} `json:"data"`
-	Aggregations interface{}   `json:"aggregations"`
+	Total        int64                    `json:"total"`
+	Data         []map[string]interface{} `json:"data"`
+	Aggregations interface{}              `json:"aggregations"`
 }
 
 func (c Client) Search(ctx context.Context, entity string, criteria Criteria) (*SearchResponse, error) {

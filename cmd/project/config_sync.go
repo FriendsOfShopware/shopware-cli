@@ -30,7 +30,7 @@ type ConfigSyncApplyer interface {
 }
 
 func NewSyncApplyers() []ConfigSyncApplyer {
-	return []ConfigSyncApplyer{SystemConfigSync{}, ThemeSync{}}
+	return []ConfigSyncApplyer{SystemConfigSync{}, ThemeSync{}, MailTemplateSync{}}
 }
 
 type ConfigSyncOperation struct {

@@ -36,8 +36,9 @@ type ConfigDump struct {
 }
 
 type ConfigSync struct {
-	Config []ConfigSyncConfig `yaml:"config"`
-	Theme  []ThemeConfig      `yaml:"theme"`
+	Config       []ConfigSyncConfig `yaml:"config"`
+	Theme        []ThemeConfig      `yaml:"theme"`
+	MailTemplate []MailTemplate     `yaml:"mail_template"`
 }
 
 type ConfigSyncConfig struct {
@@ -52,6 +53,20 @@ type ThemeConfig struct {
 
 type ThemeConfigValue struct {
 	Value interface{} `yaml:"value" json:"value"`
+}
+
+type MailTemplate struct {
+	Id           string                    `yaml:"id"`
+	Translations []MailTemplateTranslation `yaml:"translations"`
+}
+
+type MailTemplateTranslation struct {
+	Language     string      `yaml:"language"`
+	SenderName   string      `yaml:"sender_name"`
+	Subject      string      `yaml:"subject"`
+	HTML         string      `yaml:"html"`
+	Plain        string      `yaml:"plain"`
+	CustomFields interface{} `yaml:"custom_fields"`
 }
 
 func ReadConfig(fileName string) (*Config, error) {

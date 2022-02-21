@@ -20,9 +20,7 @@ func (s ThemeSync) Push(ctx context.Context, client *shop.Client, config *shop.C
 		return err
 	}
 
-	for _, theme := range themes.Data {
-		t := theme.(map[string]interface{})
-
+	for _, t := range themes.Data {
 		remoteConfigs, err := client.GetThemeConfiguration(ctx, t["id"].(string))
 
 		if err != nil {
@@ -66,9 +64,7 @@ func (s ThemeSync) Pull(ctx context.Context, client *shop.Client, config *shop.C
 		return err
 	}
 
-	for _, theme := range themes.Data {
-		t := theme.(map[string]interface{})
-
+	for _, t := range themes.Data {
 		cfg := shop.ThemeConfig{
 			Name:     t["name"].(string),
 			Settings: map[string]shop.ThemeConfigValue{},
