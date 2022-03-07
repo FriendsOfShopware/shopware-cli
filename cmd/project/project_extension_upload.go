@@ -60,6 +60,10 @@ var projectExtensionUploadCmd = &cobra.Command{
 			}
 
 			ext, err = extension.GetExtensionByFolder(ext.GetPath())
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if cfg, err = shop.ReadConfig(projectConfigPath); err != nil {
@@ -168,8 +172,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 }
 
 func increaseExtensionVersion(ext extension.Extension) error {
-	switch ext.GetType() {
-	case "app":
+	if ext.GetType() == "app" {
 		manifestPath := fmt.Sprintf("%s/manifest.xml", ext.GetPath())
 		file, err := os.Open(manifestPath)
 
@@ -193,12 +196,11 @@ func increaseExtensionVersion(ext extension.Extension) error {
 				break
 			}
 
-			switch v := token.(type) {
-			case xml.StartElement:
+			if v, ok := token.(xml.StartElement); ok {
 				if v.Name.Local == "version" {
 					var versionStr string
 					if err = decoder.DecodeElement(&versionStr, &v); err != nil {
-						log.Fatal(err)
+						return err
 					}
 
 					ver, err := version.NewVersion(versionStr)
@@ -210,20 +212,20 @@ func increaseExtensionVersion(ext extension.Extension) error {
 					ver.Increase()
 
 					if err = encoder.EncodeElement(ver.String(), v); err != nil {
-						log.Fatal(err)
+						return err
 					}
 					continue
 				}
 			}
 
 			if err := encoder.EncodeToken(token); err != nil {
-				log.Fatal(err)
+				return err
 			}
 		}
 
 		// must call flush, otherwise some elements will be missing
 		if err := encoder.Flush(); err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		newManifest := buf.String()
@@ -234,48 +236,47 @@ func increaseExtensionVersion(ext extension.Extension) error {
 			return err
 		}
 
-		break
-	case "plugin":
-		composerJsonPath := fmt.Sprintf("%s/composer.json", ext.GetPath())
+		return nil
+	}
 
-		composerJsonContent, err := ioutil.ReadFile(composerJsonPath)
+	composerJsonPath := fmt.Sprintf("%s/composer.json", ext.GetPath())
 
-		if err != nil {
-			return err
-		}
+	composerJsonContent, err := ioutil.ReadFile(composerJsonPath)
 
-		var composerJson map[string]interface{}
+	if err != nil {
+		return err
+	}
 
-		if err := json.Unmarshal(composerJsonContent, &composerJson); err != nil {
-			return err
-		}
+	var composerJson map[string]interface{}
 
-		versionStr, ok := composerJson["version"].(string)
+	if err := json.Unmarshal(composerJsonContent, &composerJson); err != nil {
+		return err
+	}
 
-		if !ok {
-			versionStr = "0.0.1"
-			return nil
-		}
+	versionStr, ok := composerJson["version"].(string)
 
-		ver, err := version.NewVersion(versionStr)
+	if !ok {
+		return nil
+	}
 
-		if err != nil {
-			return err
-		}
+	ver, err := version.NewVersion(versionStr)
 
-		ver.Increase()
+	if err != nil {
+		return err
+	}
 
-		composerJson["version"] = ver.String()
+	ver.Increase()
 
-		composerJsonContent, err = json.Marshal(composerJson)
+	composerJson["version"] = ver.String()
 
-		if err != nil {
-			return err
-		}
+	composerJsonContent, err = json.Marshal(composerJson)
 
-		if err := ioutil.WriteFile(composerJsonPath, composerJsonContent, os.ModePerm); err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(composerJsonPath, composerJsonContent, os.ModePerm); err != nil {
+		return err
 	}
 
 	return nil
