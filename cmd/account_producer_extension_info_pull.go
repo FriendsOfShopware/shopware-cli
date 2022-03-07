@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"shopware-cli/extension"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 
@@ -20,7 +21,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Use:   "pull [path]",
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		path, err := filepath.Abs(args[0])

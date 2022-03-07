@@ -3,18 +3,19 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"os"
 )
 
 var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 	Use:   "configure-composer [domain]",
 	Short: "Configure local composer.json to use packages.shopware.com",
 	Args:  cobra.MinimumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		completions := make([]string, 0)
 
 		client, err := getAccountAPIByConfig()
@@ -35,7 +36,7 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 
 		return completions, cobra.ShellCompDirectiveNoFileComp
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		shops, err := client.Merchant().Shops()

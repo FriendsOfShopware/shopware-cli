@@ -1,18 +1,19 @@
 package project
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"shopware-cli/shop"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var projectConfigPullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Synchronizes your shop config to local",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var cfg *shop.Config
 		var err error
 

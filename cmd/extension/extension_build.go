@@ -1,10 +1,11 @@
 package extension
 
 import (
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	"shopware-cli/extension"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 	Use:   "build [path]",
 	Short: "Builds assets for extensions",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		validatedExtensions := make([]extension.Extension, 0)
 
 		for _, arg := range args {

@@ -2,16 +2,17 @@ package project
 
 import (
 	"encoding/json"
+	"shopware-cli/shop"
+
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"shopware-cli/shop"
 )
 
 var projectConfigPushCmd = &cobra.Command{
 	Use:   "push",
 	Short: "Synchronizes your local config to the external shop",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var cfg *shop.Config
 		var err error
 

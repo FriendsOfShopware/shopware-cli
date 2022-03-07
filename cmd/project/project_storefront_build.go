@@ -7,7 +7,7 @@ import (
 var projectStorefrontBuildCmd = &cobra.Command{
 	Use:   "storefront-build",
 	Short: "Builds the Storefront",
-	RunE: func(cobraCmd *cobra.Command, args []string) error {
+	RunE: func(cobraCmd *cobra.Command, _ []string) error {
 		forceNpmInstall, _ := cobraCmd.PersistentFlags().GetBool("npm-install")
 
 		var projectRoot string

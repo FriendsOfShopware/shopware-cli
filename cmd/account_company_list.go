@@ -12,7 +12,7 @@ var accountCompanyListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all available company for your Account",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		client := getAccountAPIByConfigOrFail()
 
 		table := tablewriter.NewWriter(os.Stdout)

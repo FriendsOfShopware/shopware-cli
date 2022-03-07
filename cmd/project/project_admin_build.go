@@ -7,7 +7,7 @@ import (
 var projectAdminBuildCmd = &cobra.Command{
 	Use:   "admin-build",
 	Short: "Builds the Administration",
-	RunE: func(cobraCmd *cobra.Command, args []string) error {
+	RunE: func(cobraCmd *cobra.Command, _ []string) error {
 		var projectRoot string
 		var err error
 

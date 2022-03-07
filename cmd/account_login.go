@@ -15,7 +15,7 @@ var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login into your Shopware Account",
 	Long:  "",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		email := appConfig.Account.Email
 		password := appConfig.Account.Password
 		newCredentials := false

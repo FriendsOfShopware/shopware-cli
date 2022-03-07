@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	accountApi "shopware-cli/account-api"
 	"strings"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -14,14 +15,14 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 	Use:   "create [name] [classic|platform|themes|apps]",
 	Short: "Creates a new extension",
 	Args:  cobra.ExactArgs(2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 1 {
 			return []string{accountApi.GenerationApps, accountApi.GenerationClassic, accountApi.GenerationThemes, accountApi.GenerationPlatform}, cobra.ShellCompDirectiveNoFileComp
 		}
 
 		return []string{}, cobra.ShellCompDirectiveNoFileComp
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()

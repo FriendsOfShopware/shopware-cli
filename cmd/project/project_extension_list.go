@@ -3,17 +3,18 @@ package project
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"os"
 	"shopware-cli/shop"
+
+	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
 )
 
 var projectExtensionListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List all installed extensions",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var cfg *shop.Config
 		var err error
 

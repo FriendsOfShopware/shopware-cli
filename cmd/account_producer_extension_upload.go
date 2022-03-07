@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	account_api "shopware-cli/account-api"
 	"shopware-cli/extension"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 
@@ -16,7 +17,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 	Use:   "upload [zip]",
 	Short: "Uploads a new extension upload",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
 			return errors.Wrap(err, "validate")

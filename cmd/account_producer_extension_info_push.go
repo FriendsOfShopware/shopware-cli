@@ -3,14 +3,15 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	accountApi "shopware-cli/account-api"
 	"shopware-cli/extension"
 	"strings"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/yuin/goldmark"
@@ -23,7 +24,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Use:   "push [zip or path]",
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		path, err := filepath.Abs(args[0])

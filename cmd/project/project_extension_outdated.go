@@ -3,17 +3,18 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"shopware-cli/shop"
+
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
-	"shopware-cli/shop"
 )
 
 var projectExtensionOutdatedCmd = &cobra.Command{
 	Use:   "outdated",
 	Short: "List all outdated extensions",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var cfg *shop.Config
 		var err error
 

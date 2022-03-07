@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"github.com/pkg/errors"
 	"os"
 	account_api "shopware-cli/account-api"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -13,7 +14,7 @@ import (
 var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all your extensions",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()

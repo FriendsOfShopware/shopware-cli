@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	accountApi "shopware-cli/account-api"
 	"strconv"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,7 @@ var accountCompanyUseCmd = &cobra.Command{
 	Short: "Use another company for your Account",
 	Args:  cobra.MinimumNArgs(1),
 	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		companyID, err := strconv.Atoi(args[0])
 		if err != nil {
 			return err

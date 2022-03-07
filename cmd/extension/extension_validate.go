@@ -2,11 +2,12 @@ package extension
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 	"shopware-cli/extension"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ var extensionValidateCmd = &cobra.Command{
 	Use:   "validate [path]",
 	Short: "Validate a Extension",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {

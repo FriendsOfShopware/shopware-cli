@@ -11,7 +11,7 @@ import (
 var accountCompanyMerchantShopListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all shops",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		table := tablewriter.NewWriter(os.Stdout)

@@ -10,7 +10,7 @@ var accountProducerInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "List information about your producer account",
 	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		client := getAccountAPIByConfigOrFail()
 
 		p, err := client.Producer()

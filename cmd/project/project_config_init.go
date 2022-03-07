@@ -2,20 +2,21 @@ package project
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"shopware-cli/shop"
+
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"os"
-	"shopware-cli/shop"
 )
 
 var projectConfigInitCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Creates a new project config in current dir",
-	RunE: func(cobraCmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		config := &shop.Config{}
 		var content []byte
 		var err error

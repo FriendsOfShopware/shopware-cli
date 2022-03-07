@@ -2,16 +2,17 @@ package project
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"os"
 	"shopware-cli/shop"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 var projectClearCacheCmd = &cobra.Command{
 	Use:   "clear-cache",
 	Short: "Clears the Shop cache",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var cfg *shop.Config
 		var err error
 
