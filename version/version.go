@@ -346,6 +346,14 @@ func (v *Version) Segments64() []int64 {
 	return result
 }
 
+func (v *Version) Increase() {
+	if len(v.segments) != 3 {
+		v.segments[2] = 1
+	}
+
+	v.segments[2]++
+}
+
 // String returns the full version string included pre-release
 // and metadata information.
 //

@@ -110,7 +110,7 @@ type ExtensionDetail struct {
 	Icon                   interface{}   `json:"icon"`
 	IconRaw                *string       `json:"iconRaw"`
 	Categories             []interface{} `json:"categories"`
-	Permissions            []interface{} `json:"permissions"`
+	Permissions            interface{}   `json:"permissions"`
 	Active                 bool          `json:"active"`
 	Type                   string        `json:"type"`
 	IsTheme                bool          `json:"isTheme"`
@@ -376,6 +376,66 @@ func (c *Client) UploadExtension(ctx context.Context, extensionZip io.Reader) er
 	var body io.Reader = &buf
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/upload", body)
+
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", parts.FormDataContentType())
+
+	var resp *http.Response
+
+	if resp, err = c.httpClient.Do(req); err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		content, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("UploadExtension: got http code %d from api: %s", resp.StatusCode, string(content))
+	}
+
+	return nil
+}
+
+func (c *Client) UploadExtensionUpdateCloud(ctx context.Context, extensionName string, extensionZip io.Reader) error {
+	var buf bytes.Buffer
+	parts := multipart.NewWriter(&buf)
+
+	if writer, err := parts.CreateFormField("media"); err != nil {
+		return err
+	} else {
+		_, err := writer.Write([]byte(extensionName))
+		if err != nil {
+			return err
+		}
+	}
+
+	mimeHeader := textproto.MIMEHeader{}
+	mimeHeader.Set("Content-Disposition", `form-data; name="file"; filename="extension.zip"`)
+	mimeHeader.Set("Content-Type", "application/zip")
+
+	part, err := parts.CreatePart(mimeHeader)
+	if err != nil {
+		return err
+	}
+
+	if _, err := io.Copy(part, extensionZip); err != nil {
+		return err
+	}
+	if err := parts.Close(); err != nil {
+		return err
+	}
+
+	var body io.Reader = &buf
+
+	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/update-private", body)
 
 	if err != nil {
 		return err

@@ -168,7 +168,7 @@ func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig
 		extPath := extension.GetPath()
 
 		if _, err := os.Stat(fmt.Sprintf("%s/%s/app", extPath, pathPrefix)); os.IsNotExist(err) {
-			log.Infof("Skipping extension %s as it doesnt contain assets", extName)
+			log.Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
 			continue
 		}
 

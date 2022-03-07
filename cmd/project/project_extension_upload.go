@@ -3,13 +3,21 @@ package project
 import (
 	"archive/zip"
 	"bytes"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"shopware-cli/extension"
 	"shopware-cli/shop"
+	"shopware-cli/version"
+	"strings"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 var projectExtensionUploadCmd = &cobra.Command{
@@ -20,6 +28,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 		var err error
 
 		doLifecycleEvents, _ := cmd.PersistentFlags().GetBool("activate")
+		increaseVersionBeforeUpload, _ := cmd.PersistentFlags().GetBool("increase-version")
 
 		path, err := filepath.Abs(args[0])
 
@@ -43,6 +52,14 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 		if err != nil {
 			return err
+		}
+
+		if increaseVersionBeforeUpload {
+			if err := increaseExtensionVersion(ext); err != nil {
+				return err
+			}
+
+			ext, err = extension.GetExtensionByFolder(ext.GetPath())
 		}
 
 		if cfg, err = shop.ReadConfig(projectConfigPath); err != nil {
@@ -74,30 +91,48 @@ var projectExtensionUploadCmd = &cobra.Command{
 			return err
 		}
 
-		if err := client.UploadExtension(cmd.Context(), &buf); err != nil {
+		shopInfo, err := client.Info(cmd.Context())
+
+		if err != nil {
+			return errors.Wrap(err, "cannot get shop info")
+		}
+
+		extensions, err := client.GetAvailableExtensions(cmd.Context())
+
+		if err != nil {
 			return err
+		}
+
+		if !shopInfo.IsCloudShop() || extensions.GetByName(name) == nil {
+			if err := client.UploadExtension(cmd.Context(), &buf); err != nil {
+				return errors.Wrap(err, "cannot upload extension")
+			}
+
+			extensions, err = client.GetAvailableExtensions(cmd.Context())
+
+			if err != nil {
+				return err
+			}
+		} else {
+			if err := client.UploadExtensionUpdateCloud(cmd.Context(), name, &buf); err != nil {
+				return errors.Wrap(err, "cannot upload extension update")
+			}
 		}
 
 		log.Infof("Uploaded extension %s with version %s", name, version)
 
 		if err := client.RefreshExtensions(cmd.Context()); err != nil {
-			return err
+			return errors.Wrap(err, "cannot refresh extension list")
 		}
 
 		log.Infof("Refreshed extension list")
 
 		if doLifecycleEvents {
-			extensions, err := client.GetAvailableExtensions(cmd.Context())
-
-			if err != nil {
-				return err
-			}
-
 			remoteExtension := extensions.GetByName(name)
 
 			if remoteExtension.InstalledAt == nil {
 				if err := client.InstallExtension(cmd.Context(), remoteExtension.Type, remoteExtension.Name); err != nil {
-					return err
+					return errors.Wrap(err, "cannot install extension")
 				}
 
 				log.Infof("Installed %s", name)
@@ -105,7 +140,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if !remoteExtension.Active {
 				if err := client.ActivateExtension(cmd.Context(), remoteExtension.Type, remoteExtension.Name); err != nil {
-					return err
+					return errors.Wrap(err, "cannot activate extension")
 				}
 
 				log.Infof("Activated %s", name)
@@ -113,7 +148,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if remoteExtension.IsUpdateAble() {
 				if err := client.UpdateExtension(cmd.Context(), remoteExtension.Type, remoteExtension.Name); err != nil {
-					return err
+					return errors.Wrap(err, "cannot update extension")
 				}
 
 				log.Infof("Updated %s from %s to %s", name, remoteExtension.Version, remoteExtension.LatestVersion)
@@ -132,7 +167,122 @@ var projectExtensionUploadCmd = &cobra.Command{
 	},
 }
 
+func increaseExtensionVersion(ext extension.Extension) error {
+	switch ext.GetType() {
+	case "app":
+		manifestPath := fmt.Sprintf("%s/manifest.xml", ext.GetPath())
+		file, err := os.Open(manifestPath)
+
+		if err != nil {
+			return errors.Wrap(err, "cannot read manifest file")
+		}
+
+		defer file.Close()
+
+		var buf bytes.Buffer
+		decoder := xml.NewDecoder(file)
+		encoder := xml.NewEncoder(&buf)
+
+		for {
+			token, err := decoder.Token()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Printf("error getting token: %v\n", err)
+				break
+			}
+
+			switch v := token.(type) {
+			case xml.StartElement:
+				if v.Name.Local == "version" {
+					var versionStr string
+					if err = decoder.DecodeElement(&versionStr, &v); err != nil {
+						log.Fatal(err)
+					}
+
+					ver, err := version.NewVersion(versionStr)
+
+					if err != nil {
+						return err
+					}
+
+					ver.Increase()
+
+					if err = encoder.EncodeElement(ver.String(), v); err != nil {
+						log.Fatal(err)
+					}
+					continue
+				}
+			}
+
+			if err := encoder.EncodeToken(token); err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		// must call flush, otherwise some elements will be missing
+		if err := encoder.Flush(); err != nil {
+			log.Fatal(err)
+		}
+
+		newManifest := buf.String()
+		newManifest = strings.ReplaceAll(newManifest, "xmlns:_xmlns=\"xmlns\" _xmlns:xsi=", "xmlns:xsi=")
+		newManifest = strings.ReplaceAll(newManifest, "xmlns:_XMLSchema-instance=\"http://www.w3.org/2001/XMLSchema-instance\" _XMLSchema-instance:noNamespaceSchemaLocation=", "xsi:noNamespaceSchemaLocation=")
+
+		if err := ioutil.WriteFile(manifestPath, []byte(newManifest), os.ModePerm); err != nil {
+			return err
+		}
+
+		break
+	case "plugin":
+		composerJsonPath := fmt.Sprintf("%s/composer.json", ext.GetPath())
+
+		composerJsonContent, err := ioutil.ReadFile(composerJsonPath)
+
+		if err != nil {
+			return err
+		}
+
+		var composerJson map[string]interface{}
+
+		if err := json.Unmarshal(composerJsonContent, &composerJson); err != nil {
+			return err
+		}
+
+		versionStr, ok := composerJson["version"].(string)
+
+		if !ok {
+			versionStr = "0.0.1"
+			return nil
+		}
+
+		ver, err := version.NewVersion(versionStr)
+
+		if err != nil {
+			return err
+		}
+
+		ver.Increase()
+
+		composerJson["version"] = ver.String()
+
+		composerJsonContent, err = json.Marshal(composerJson)
+
+		if err != nil {
+			return err
+		}
+
+		if err := ioutil.WriteFile(composerJsonPath, composerJsonContent, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func init() {
 	projectExtensionCmd.AddCommand(projectExtensionUploadCmd)
 	projectExtensionUploadCmd.PersistentFlags().Bool("activate", false, "Installs, Activates, Updates the extension")
+	projectExtensionUploadCmd.PersistentFlags().Bool("increase-version", false, "Increases extension version before uploading")
 }
