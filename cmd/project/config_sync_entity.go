@@ -13,7 +13,6 @@ type EntitySync struct{}
 
 func (s EntitySync) Push(ctx context.Context, client *shop.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	for _, entity := range config.Sync.Entity {
-
 		if entity.Exists != nil && len(*entity.Exists) > 0 {
 			criteria := make(map[string]interface{})
 			criteria["filter"] = entity.Exists
