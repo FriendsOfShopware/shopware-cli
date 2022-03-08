@@ -9,7 +9,7 @@ import (
 )
 
 func (c Client) ClearCache(ctx context.Context) error {
-	req, err := c.newRequest(ctx, http.MethodDelete, "/api/_action/cache", nil)
+	req, err := c.NewRequest(ctx, http.MethodDelete, "/api/_action/cache", nil)
 
 	if err != nil {
 		return errors.Wrap(err, "ClearCache")

@@ -41,6 +41,10 @@ func (c *Client) authorize(ctx context.Context, config *Config) error {
 	return nil
 }
 
-func (c *Client) newRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
 	return http.NewRequestWithContext(ctx, method, c.url+path, body)
+}
+
+func (c Client) Do(r *http.Request) (*http.Response, error) {
+	return c.httpClient.Do(r)
 }

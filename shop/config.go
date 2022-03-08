@@ -39,6 +39,7 @@ type ConfigSync struct {
 	Config       []ConfigSyncConfig `yaml:"config"`
 	Theme        []ThemeConfig      `yaml:"theme"`
 	MailTemplate []MailTemplate     `yaml:"mail_template"`
+	Entity       []EntitySync       `yaml:"entity"`
 }
 
 type ConfigSyncConfig struct {
@@ -58,6 +59,12 @@ type ThemeConfigValue struct {
 type MailTemplate struct {
 	Id           string                    `yaml:"id"`
 	Translations []MailTemplateTranslation `yaml:"translations"`
+}
+
+type EntitySync struct {
+	Entity  string                 `yaml:"entity"`
+	Exists  *[]interface{}         `yaml:"exists"`
+	Payload map[string]interface{} `yaml:"payload"`
 }
 
 type MailTemplateTranslation struct {

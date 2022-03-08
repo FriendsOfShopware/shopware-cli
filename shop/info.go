@@ -33,7 +33,7 @@ func (r InfoResponse) IsCloudShop() bool {
 }
 
 func (c Client) Info(ctx context.Context) (*InfoResponse, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, "/api/_info/config", nil)
+	req, err := c.NewRequest(ctx, http.MethodGet, "/api/_info/config", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Info")
 	}

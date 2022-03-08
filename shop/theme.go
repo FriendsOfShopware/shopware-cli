@@ -11,7 +11,7 @@ import (
 )
 
 func (c Client) GetThemeConfiguration(ctx context.Context, themeId string) (*ThemeConfiguration, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, fmt.Sprintf("/api/_action/theme/%s/configuration", themeId), nil)
+	req, err := c.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/api/_action/theme/%s/configuration", themeId), nil)
 
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (c Client) SaveThemeConfiguration(ctx context.Context, themeId string, upda
 		return err
 	}
 
-	req, err := c.newRequest(ctx, http.MethodPatch, fmt.Sprintf("/api/_action/theme/%s", themeId), bytes.NewReader(content))
+	req, err := c.NewRequest(ctx, http.MethodPatch, fmt.Sprintf("/api/_action/theme/%s", themeId), bytes.NewReader(content))
 
 	if err != nil {
 		return err

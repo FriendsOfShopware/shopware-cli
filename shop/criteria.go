@@ -61,7 +61,7 @@ func (c Client) Search(ctx context.Context, entity string, criteria Criteria) (*
 		return nil, err
 	}
 
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/search/%s", entity), bytes.NewReader(content))
+	req, err := c.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/api/search/%s", entity), bytes.NewReader(content))
 
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (c Client) Sync(ctx context.Context, payload map[string]SyncOperation) erro
 		return err
 	}
 
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/sync", bytes.NewReader(content))
+	req, err := c.NewRequest(ctx, http.MethodPost, "/api/_action/sync", bytes.NewReader(content))
 
 	if err != nil {
 		return err
@@ -161,7 +161,7 @@ func (c Client) Sync(ctx context.Context, payload map[string]SyncOperation) erro
 }
 
 func (c Client) UpdateSystemConfig(ctx context.Context, payload string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/system-config/batch", strings.NewReader(payload))
+	req, err := c.NewRequest(ctx, http.MethodPost, "/api/_action/system-config/batch", strings.NewReader(payload))
 
 	if err != nil {
 		return err

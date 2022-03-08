@@ -84,12 +84,17 @@
                 "mail_template": {
                     "type": "array",
                     "items": {"$ref": "#/definitions/MailTemplateItem"}
+                },
+                "entity": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/EntitySyncItem"}
                 }
             }
         },
         "SyncConfigItem": {
             "type": "object",
             "title": "System Config Sync",
+            "additionalProperties": false,
             "properties": {
                 "sales_channel": {
                     "title": "Sales Channel to apply",
@@ -104,6 +109,7 @@
         "ThemeConfigItem": {
             "type": "object",
             "title": "Theme Config Sync",
+            "additionalProperties": false,
             "properties": {
                 "name": {
                     "type": "string"
@@ -116,6 +122,7 @@
         "MailTemplateItem": {
             "type": "object",
             "title": "Mail Template Sync",
+            "additionalProperties": false,
             "properties": {
                 "id": {
                     "type": "string"
@@ -129,6 +136,7 @@
         "MailTemplateItemTranslation": {
             "type": "object",
             "title": "Mail Template Single Translation",
+            "additionalProperties": false,
             "properties": {
                 "language": {
                     "type": "string"
@@ -149,6 +157,68 @@
                     "type": "object"
                 }
             }
+        },
+        "EntitySyncItem": {
+            "type": "object",
+            "title": "Entity Sync",
+            "additionalProperties": false,
+            "properties": {
+                "entity": {
+                    "type": "string"
+                },
+                "exists": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/EntitySyncFilter"}
+                },
+                "payload": {
+                    "type": "object",
+                    "description": "API payload"
+                }
+            },
+            "required": ["entity", "payload"]
+        },
+        "EntitySyncFilter": {
+            "type": "object",
+            "title": "Entity Sync Filter",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["equals", "multi", "contains", "prefix", "suffix", "not", "range", "until", "equalsAll" ,"equalsAny"],
+                    "description": "filter type"
+                },
+                "field": {
+                    "type": "string",
+                    "description": "field"
+                },
+                "value": {
+                    "type": ["string", "integer", "array", "boolean", "null"],
+                    "description": "value"
+                },
+                "operator": {
+                    "type": "string",
+                    "enum": ["AND", "OR", "XOR"]
+                },
+                "queries": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/EntitySyncFilter"}
+                }
+            },
+            "required": ["type", "field"],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "multi"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["type", "queries"]
+                    }
+                }
+            ]
         }
     }
 }

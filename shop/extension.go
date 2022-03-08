@@ -14,7 +14,7 @@ import (
 )
 
 func (c Client) RefreshExtensions(ctx context.Context) error {
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/refresh", nil)
+	req, err := c.NewRequest(ctx, http.MethodPost, "/api/_action/extension/refresh", nil)
 	if err != nil {
 		return errors.Wrap(err, "RefreshExtensions")
 	}
@@ -37,7 +37,7 @@ func (c Client) RefreshExtensions(ctx context.Context) error {
 }
 
 func (c Client) GetAvailableExtensions(ctx context.Context) (ExtensionList, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, "/api/_action/extension/installed", nil)
+	req, err := c.NewRequest(ctx, http.MethodGet, "/api/_action/extension/installed", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAvailableExtensions")
 	}
@@ -159,7 +159,7 @@ func (e ExtensionDetail) IsUpdateAble() bool {
 }
 
 func (c *Client) InstallExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/install/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/install/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "InstallExtension")
@@ -187,7 +187,7 @@ func (c *Client) InstallExtension(ctx context.Context, extType, name string) err
 }
 
 func (c *Client) UninstallExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/uninstall/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/uninstall/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "UninstallExtension")
@@ -215,7 +215,7 @@ func (c *Client) UninstallExtension(ctx context.Context, extType, name string) e
 }
 
 func (c *Client) ActivateExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPut, fmt.Sprintf("/api/_action/extension/activate/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPut, fmt.Sprintf("/api/_action/extension/activate/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "ActivateExtension")
@@ -243,7 +243,7 @@ func (c *Client) ActivateExtension(ctx context.Context, extType, name string) er
 }
 
 func (c *Client) DeactivateExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPut, fmt.Sprintf("/api/_action/extension/deactivate/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPut, fmt.Sprintf("/api/_action/extension/deactivate/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "DeactivateExtension")
@@ -271,7 +271,7 @@ func (c *Client) DeactivateExtension(ctx context.Context, extType, name string) 
 }
 
 func (c *Client) RemoveExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodDelete, fmt.Sprintf("/api/_action/extension/remove/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodDelete, fmt.Sprintf("/api/_action/extension/remove/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "RemoveExtension")
@@ -299,7 +299,7 @@ func (c *Client) RemoveExtension(ctx context.Context, extType, name string) erro
 }
 
 func (c *Client) UpdateExtension(ctx context.Context, extType, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/update/%s/%s", extType, name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/update/%s/%s", extType, name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "UpdateExtension")
@@ -327,7 +327,7 @@ func (c *Client) UpdateExtension(ctx context.Context, extType, name string) erro
 }
 
 func (c *Client) DownloadExtension(ctx context.Context, name string) error {
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/download/%s", name), nil)
+	req, err := c.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/api/_action/extension/download/%s", name), nil)
 
 	if err != nil {
 		return errors.Wrap(err, "DownloadExtension")
@@ -375,7 +375,7 @@ func (c *Client) UploadExtension(ctx context.Context, extensionZip io.Reader) er
 
 	var body io.Reader = &buf
 
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/upload", body)
+	req, err := c.NewRequest(ctx, http.MethodPost, "/api/_action/extension/upload", body)
 
 	if err != nil {
 		return err
@@ -435,7 +435,7 @@ func (c *Client) UploadExtensionUpdateCloud(ctx context.Context, extensionName s
 
 	var body io.Reader = &buf
 
-	req, err := c.newRequest(ctx, http.MethodPost, "/api/_action/extension/update-private", body)
+	req, err := c.NewRequest(ctx, http.MethodPost, "/api/_action/extension/update-private", body)
 
 	if err != nil {
 		return err
