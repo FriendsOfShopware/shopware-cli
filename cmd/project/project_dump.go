@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"shopware-cli/shop"
+	"strings"
 
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
@@ -119,7 +120,9 @@ var projectDatabaseDumpCmd = &cobra.Command{
 
 		var projectCfg *shop.Config
 		if projectCfg, err = shop.ReadConfig(projectConfigPath); err != nil {
-			return err
+			if !strings.Contains(err.Error(), "cannot find .shopware-project.yml") {
+				return err
+			}
 		}
 
 		if projectCfg != nil && projectCfg.ConfigDump != nil {
