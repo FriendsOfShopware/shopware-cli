@@ -40,7 +40,7 @@ var (
 		"src/Resources/app/storefront/node_modules",
 		"src/Resources/app/administration/node_modules",
 		"src/Resources/app/node_modules",
-		"var"
+		"var",
 	}
 
 	defaultNotAllowedFiles = []string{
