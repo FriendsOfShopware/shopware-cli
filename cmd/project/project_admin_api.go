@@ -3,9 +3,11 @@ package project
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"os"
-	"os/exec"
+	"net/url"
+	"path"
+	"shopware-cli/curl"
 	"shopware-cli/shop"
+	"strings"
 )
 
 var projectAdminApiCmd = &cobra.Command{
@@ -46,19 +48,28 @@ var projectAdminApiCmd = &cobra.Command{
 			return fmt.Errorf("command needs 2 arguments")
 		}
 
-		options := []string{"-X", args[0], fmt.Sprintf("%s/api%s", cfg.URL, args[1]), "--header", fmt.Sprintf("Authorization: %s", token.AccessToken)}
-
-		if len(args) > 2 {
-			options = append(options, args[2:]...)
+		shopURL, err := url.Parse(cfg.URL)
+		if err != nil {
+			return err
 		}
 
-		cmd := exec.Command("curl", options...)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		apiPath, err := parsePath(args[1])
+		if err != nil {
+			return err
+		}
+
+		fullURL := shopURL.ResolveReference(apiPath)
+
+		cmd := curl.InitCurlCommand(curl.Url(fullURL), curl.Method(args[0]), curl.BearerToken(token.AccessToken), curl.Args(args[2:]))
 
 		return cmd.Run()
 	},
+}
+
+func parsePath(inputPath string) (*url.URL, error) {
+	inputPath = strings.TrimPrefix(inputPath, "/api")
+	inputPath = strings.TrimPrefix(inputPath, "api")
+	return url.Parse(path.Join("api", inputPath))
 }
 
 func init() {
