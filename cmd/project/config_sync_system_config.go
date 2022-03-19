@@ -16,11 +16,13 @@ func (s SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client,
 
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(ctx, c)
+	salesChannelResponse, resp, err := client.Repository.SalesChannel.SearchAll(ctx, c)
 
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	for _, config := range config.Sync.Config {
 		if config.SalesChannel != nil && len(*config.SalesChannel) != 32 {

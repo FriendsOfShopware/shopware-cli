@@ -6,7 +6,6 @@ import (
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"shopware-cli/shop"
@@ -15,7 +14,7 @@ import (
 type MailTemplateSync struct{}
 
 func (s MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
-	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
+	mailTemplates, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
 	}
@@ -103,7 +102,7 @@ func (s MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client,
 }
 
 func (s MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
-	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
+	mailTemplates, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
 	}
@@ -164,7 +163,7 @@ func (s MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client,
 	return nil
 }
 
-func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, *http.Response, error) {
+func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, error) {
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{
 		"mail_template":             {"id", "mailTemplateType", "translations"},
@@ -180,5 +179,5 @@ func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*a
 		defer resp.Body.Close()
 	}
 
-	return collection, resp, err
+	return collection, err
 }
