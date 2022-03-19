@@ -5,8 +5,10 @@
 # Objects
 * [`.shopware-project.yml`](#reference-config) (root object)
 * [`Admin API credentials`](#reference-adminapi)
+* [`Entity Sync Filter`](#reference-entitysyncfilterinner)
 * [`MySQL dump configuration`](#reference-dump)
 * [`Sync Settings`](#reference-sync)
+    * [`Entity Sync`](#reference-entitysyncitem)
     * [`Mail Template Sync`](#reference-mailtemplateitem)
         * [`Mail Template Single Translation`](#reference-mailtemplateitemtranslation)
     * [`System Config Sync`](#reference-syncconfigitem)
@@ -100,6 +102,99 @@ Password of admin user
 
 
 ---------------------------------------
+<a name="reference-entitysyncitem"></a>
+## Entity Sync
+
+**`Entity Sync` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**entity**|`string`|| &#10003; Yes|
+|**exists**|`EntitySyncFilter` `[]`||No|
+|**payload**|`object`|API payload| &#10003; Yes|
+
+Additional properties are not allowed.
+
+### EntitySyncItem.entity
+
+* **Type**: `string`
+* **Required**:  &#10003; Yes
+
+### EntitySyncItem.exists
+
+* **Type**: `EntitySyncFilter` `[]`
+* **Required**: No
+
+### EntitySyncItem.payload
+
+API payload
+
+* **Type**: `object`
+* **Required**:  &#10003; Yes
+
+
+
+
+---------------------------------------
+<a name="reference-entitysyncfilterinner"></a>
+## Entity Sync Filter
+
+**`Entity Sync Filter` Properties**
+
+|   |Type|Description|Required|
+|---|---|---|---|
+|**type**|`string`|filter type| &#10003; Yes|
+|**field**|`string`|field| &#10003; Yes|
+|**value**|`["string", "integer", "array", "boolean", "null"]`|value|No|
+|**operator**|`string`||No|
+
+Additional properties are not allowed.
+
+### EntitySyncFilterInner.type
+
+filter type
+
+* **Type**: `string`
+* **Required**:  &#10003; Yes
+* **Allowed values**:
+    * `"equals"`
+    * `"multi"`
+    * `"contains"`
+    * `"prefix"`
+    * `"suffix"`
+    * `"not"`
+    * `"range"`
+    * `"until"`
+    * `"equalsAll"`
+    * `"equalsAny"`
+
+### EntitySyncFilterInner.field
+
+field
+
+* **Type**: `string`
+* **Required**:  &#10003; Yes
+
+### EntitySyncFilterInner.value
+
+value
+
+* **Type**: `["string", "integer", "array", "boolean", "null"]`
+* **Required**: No
+
+### EntitySyncFilterInner.operator
+
+* **Type**: `string`
+* **Required**: No
+* **Allowed values**:
+    * `"AND"`
+    * `"OR"`
+    * `"XOR"`
+
+
+
+
+---------------------------------------
 <a name="reference-mailtemplateitemtranslation"></a>
 ## Mail Template Single Translation
 
@@ -108,20 +203,20 @@ Password of admin user
 |   |Type|Description|Required|
 |---|---|---|---|
 |**language**|`string`||No|
-|**senderName**|`string`||No|
+|**sender_name**|`string`||No|
 |**subject**|`string`||No|
 |**html**|`string`||No|
 |**plain**|`string`||No|
-|**customFields**|`object`||No|
+|**custom_fields**|`["object", "null"]`||No|
 
-Additional properties are allowed.
+Additional properties are not allowed.
 
 ### MailTemplateItemTranslation.language
 
 * **Type**: `string`
 * **Required**: No
 
-### MailTemplateItemTranslation.senderName
+### MailTemplateItemTranslation.sender_name
 
 * **Type**: `string`
 * **Required**: No
@@ -141,9 +236,9 @@ Additional properties are allowed.
 * **Type**: `string`
 * **Required**: No
 
-### MailTemplateItemTranslation.customFields
+### MailTemplateItemTranslation.custom_fields
 
-* **Type**: `object`
+* **Type**: `["object", "null"]`
 * **Required**: No
 
 
@@ -160,7 +255,7 @@ Additional properties are allowed.
 |**id**|`string`||No|
 |**translations**|`MailTemplateItemTranslation` `[]`||No|
 
-Additional properties are allowed.
+Additional properties are not allowed.
 
 ### MailTemplateItem.id
 
@@ -232,6 +327,7 @@ shopware cli project configuration definition file
 |**config**|`SyncConfigItem` `[]`||No|
 |**theme**|`ThemeConfigItem` `[]`||No|
 |**mail_template**|`MailTemplateItem` `[]`||No|
+|**entity**|`EntitySyncItem` `[]`||No|
 
 Additional properties are not allowed.
 
@@ -250,6 +346,11 @@ Additional properties are not allowed.
 * **Type**: `MailTemplateItem` `[]`
 * **Required**: No
 
+### Sync.entity
+
+* **Type**: `EntitySyncItem` `[]`
+* **Required**: No
+
 
 
 
@@ -264,7 +365,7 @@ Additional properties are not allowed.
 |**sales_channel**|`string`||No|
 |**settings**|`object`|| &#10003; Yes|
 
-Additional properties are allowed.
+Additional properties are not allowed.
 
 ### SyncConfigItem.sales_channel
 
@@ -290,7 +391,7 @@ Additional properties are allowed.
 |**name**|`string`||No|
 |**settings**|`object`||No|
 
-Additional properties are allowed.
+Additional properties are not allowed.
 
 ### ThemeConfigItem.name
 
