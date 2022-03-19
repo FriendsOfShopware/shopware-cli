@@ -4,29 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 )
 
-func readSystemConfig(ctx context.Context, client *shop.Client, salesChannelId *string) (*shop.SearchResponse, error) {
-	c := shop.Criteria{}
+func readSystemConfig(ctx context.Context, client *adminSdk.Client, salesChannelId *string) (*adminSdk.SystemConfigCollection, error) {
+	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"system_config": {"id", "configurationKey", "configurationValue"}}
 
-	c.Filter = []shop.CriteriaFilter{
-		{Type: shop.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
+	c.Filter = []adminSdk.CriteriaFilter{
+		{Type: adminSdk.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
 	}
 
-	configs, err := client.SearchAll(ctx, "system_config", c)
+	results, _, err := client.Repository.SystemConfig.SearchAll(adminSdk.NewApiContext(ctx), c)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return configs, nil
+	return results, nil
 }
 
 type ConfigSyncApplyer interface {
-	Push(ctx context.Context, client *shop.Client, config *shop.Config, operation *ConfigSyncOperation) error
-	Pull(ctx context.Context, client *shop.Client, config *shop.Config) error
+	Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error
+	Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error
 }
 
 func NewSyncApplyers() []ConfigSyncApplyer {
@@ -42,10 +43,10 @@ type ConfigSyncOperation struct {
 type ThemeSyncOperation struct {
 	Id       string
 	Name     string
-	Settings map[string]shop.ThemeConfigValue
+	Settings map[string]adminSdk.ThemeConfigValue
 }
 
-type Operation map[string]shop.SyncOperation
+type Operation map[string]adminSdk.SyncOperation
 type SystemConfig map[*string]map[string]interface{}
 type ThemeSettings []ThemeSyncOperation
 

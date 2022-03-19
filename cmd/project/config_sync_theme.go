@@ -2,37 +2,38 @@ package project
 
 import (
 	"context"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 )
 
 type ThemeSync struct{}
 
-func (s ThemeSync) Push(ctx context.Context, client *shop.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s ThemeSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if len(config.Sync.Theme) == 0 {
 		return nil
 	}
 
-	criteria := shop.Criteria{}
+	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, err := client.SearchAll(ctx, "theme", criteria)
+	themes, _, err := client.Repository.Theme.SearchAll(adminSdk.NewApiContext(ctx), criteria)
 
 	if err != nil {
 		return err
 	}
 
 	for _, t := range themes.Data {
-		remoteConfigs, err := client.GetThemeConfiguration(ctx, t["id"].(string))
+		remoteConfigs, _, err := client.ThemeManager.GetConfiguration(adminSdk.NewApiContext(ctx), t.Id)
 
 		if err != nil {
 			return err
 		}
 
 		for _, localThemeConfig := range config.Sync.Theme {
-			if localThemeConfig.Name == t["name"] {
+			if localThemeConfig.Name == t.Name {
 				op := ThemeSyncOperation{
-					Id:       t["id"].(string),
-					Name:     t["name"].(string),
-					Settings: map[string]shop.ThemeConfigValue{},
+					Id:       t.Id,
+					Name:     t.Name,
+					Settings: map[string]adminSdk.ThemeConfigValue{},
 				}
 
 				for remoteFieldName, remoteFieldValue := range *remoteConfigs.CurrentFields {
@@ -53,12 +54,12 @@ func (s ThemeSync) Push(ctx context.Context, client *shop.Client, config *shop.C
 	return nil
 }
 
-func (s ThemeSync) Pull(ctx context.Context, client *shop.Client, config *shop.Config) error {
+func (s ThemeSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Theme = make([]shop.ThemeConfig, 0)
 
-	criteria := shop.Criteria{}
+	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, err := client.SearchAll(ctx, "theme", criteria)
+	themes, _, err := client.Repository.Theme.SearchAll(adminSdk.NewApiContext(ctx), criteria)
 
 	if err != nil {
 		return err
@@ -66,11 +67,11 @@ func (s ThemeSync) Pull(ctx context.Context, client *shop.Client, config *shop.C
 
 	for _, t := range themes.Data {
 		cfg := shop.ThemeConfig{
-			Name:     t["name"].(string),
-			Settings: map[string]shop.ThemeConfigValue{},
+			Name:     t.Name,
+			Settings: map[string]adminSdk.ThemeConfigValue{},
 		}
 
-		themeConfig, err := client.GetThemeConfiguration(ctx, t["id"].(string))
+		themeConfig, _, err := client.ThemeManager.GetConfiguration(adminSdk.NewApiContext(ctx), t.Id)
 
 		if err != nil {
 			return err

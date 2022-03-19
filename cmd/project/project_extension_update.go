@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"shopware-cli/shop"
@@ -26,11 +27,11 @@ var projectExtensionUpdateCmd = &cobra.Command{
 
 		disableStoreUpdates, _ := cmd.PersistentFlags().GetBool("disable-store-update")
 
-		if err := client.RefreshExtensions(cmd.Context()); err != nil {
+		if _, err := client.ExtensionManager.Refresh(adminSdk.NewApiContext(cmd.Context())); err != nil {
 			return err
 		}
 
-		extensions, err := client.GetAvailableExtensions(cmd.Context())
+		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
 
 		if err != nil {
 			return err
@@ -66,14 +67,14 @@ var projectExtensionUpdateCmd = &cobra.Command{
 			}
 
 			if extension.UpdateSource == "store" && !disableStoreUpdates {
-				if err := client.DownloadExtension(cmd.Context(), arg); err != nil {
+				if _, err := client.ExtensionManager.DownloadExtension(adminSdk.NewApiContext(cmd.Context()), arg); err != nil {
 					log.Errorf("Download of %s update failed with error: %v", extension.Name, err)
 					failed = true
 					continue
 				}
 			}
 
-			if err := client.UpdateExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+			if _, err := client.ExtensionManager.UpdateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
 				log.Errorf("Update of %s failed with error: %v", extension.Name, err)

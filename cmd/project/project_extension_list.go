@@ -3,6 +3,7 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"os"
 	"shopware-cli/shop"
 
@@ -29,11 +30,11 @@ var projectExtensionListCmd = &cobra.Command{
 			return err
 		}
 
-		if err := client.RefreshExtensions(cmd.Context()); err != nil {
+		if _, err := client.ExtensionManager.Refresh(adminSdk.NewApiContext(cmd.Context())); err != nil {
 			return err
 		}
 
-		extensions, err := client.GetAvailableExtensions(cmd.Context())
+		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
 
 		if err != nil {
 			return err

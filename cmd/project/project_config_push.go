@@ -2,6 +2,7 @@ package project
 
 import (
 	"encoding/json"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 
 	"github.com/manifoldco/promptui"
@@ -28,7 +29,7 @@ var projectConfigPushCmd = &cobra.Command{
 		}
 
 		operation := &ConfigSyncOperation{
-			Operations:     map[string]shop.SyncOperation{},
+			Operations:     map[string]adminSdk.SyncOperation{},
 			SystemSettings: map[*string]map[string]interface{}{},
 			ThemeSettings:  []ThemeSyncOperation{},
 		}
@@ -103,19 +104,19 @@ var projectConfigPushCmd = &cobra.Command{
 			}
 		}
 
-		if err := client.Sync(cmd.Context(), operation.Operations); err != nil {
+		if _, err := client.Bulk.Sync(adminSdk.NewApiContext(cmd.Context()), operation.Operations); err != nil {
 			return err
 		}
 
 		if operation.SystemSettings.HasChanges() {
-			if err := client.UpdateSystemConfig(cmd.Context(), operation.SystemSettings.ToJson()); err != nil {
+			if _, err := client.SystemConfigManager.UpdateConfig(adminSdk.NewApiContext(cmd.Context()), operation.SystemSettings.ToJson()); err != nil {
 				return err
 			}
 		}
 
 		if operation.ThemeSettings.HasChanges() {
 			for _, themeOp := range operation.ThemeSettings {
-				if err := client.SaveThemeConfiguration(cmd.Context(), themeOp.Id, shop.ThemeUpdateRequest{Config: themeOp.Settings}); err != nil {
+				if _, err := client.ThemeManager.UpdateConfiguration(adminSdk.NewApiContext(cmd.Context()), themeOp.Id, adminSdk.ThemeUpdateRequest{Config: themeOp.Settings}); err != nil {
 					return err
 				}
 			}

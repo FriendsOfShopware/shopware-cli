@@ -1,8 +1,8 @@
 package shop
 
 import (
-	"context"
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -10,8 +10,6 @@ import (
 
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/google/uuid"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 type Config struct {
@@ -48,12 +46,8 @@ type ConfigSyncConfig struct {
 }
 
 type ThemeConfig struct {
-	Name     string                      `yaml:"name"`
-	Settings map[string]ThemeConfigValue `yaml:"settings"`
-}
-
-type ThemeConfigValue struct {
-	Value interface{} `yaml:"value" json:"value"`
+	Name     string                               `yaml:"name"`
+	Settings map[string]adminSdk.ThemeConfigValue `yaml:"settings"`
 }
 
 type MailTemplate struct {
@@ -102,34 +96,6 @@ func ReadConfig(fileName string) (*Config, error) {
 	}
 
 	return config, nil
-}
-
-func (cfg ConfigAdminApi) GetTokenSource(ctx context.Context, shopURL string) (oauth2.TokenSource, error) {
-	tokenURL := fmt.Sprintf("%s/api/oauth/token", shopURL)
-
-	if cfg.Username != "" {
-		oauthConf := &oauth2.Config{
-			ClientID: "administration",
-			Scopes:   []string{"write"},
-			Endpoint: oauth2.Endpoint{
-				TokenURL: tokenURL,
-			},
-		}
-
-		token, err := oauthConf.PasswordCredentialsToken(ctx, cfg.Username, cfg.Password)
-		if err != nil {
-			return nil, err
-		}
-		return oauth2.StaticTokenSource(token), nil
-	}
-
-	oauthConf := &clientcredentials.Config{
-		ClientID:     cfg.ClientId,
-		ClientSecret: cfg.ClientSecret,
-		TokenURL:     tokenURL,
-	}
-
-	return oauthConf.TokenSource(ctx), nil
 }
 
 func NewUuid() string {

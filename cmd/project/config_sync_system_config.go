@@ -3,20 +3,21 @@ package project
 import (
 	"context"
 	"encoding/json"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"shopware-cli/shop"
 )
 
 type SystemConfigSync struct{}
 
-func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s SystemConfigSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if config.Sync == nil {
 		return nil
 	}
 
-	c := shop.Criteria{}
+	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, err := client.SearchAll(ctx, "sales_channel", c)
+	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(adminSdk.NewApiContext(ctx), c)
 
 	if err != nil {
 		return err
@@ -27,9 +28,8 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 			foundId := false
 
 			for _, scRow := range salesChannelResponse.Data {
-				if *config.SalesChannel == scRow["name"] {
-					val, _ := scRow["id"].(string)
-					config.SalesChannel = &val
+				if *config.SalesChannel == scRow.Name {
+					config.SalesChannel = &scRow.Id
 
 					foundId = true
 				}
@@ -57,10 +57,10 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 			foundKey := false
 
 			for _, existingConfig := range currentConfig.Data {
-				if existingConfig["configurationKey"] == newK {
+				if existingConfig.ConfigurationKey == newK {
 					foundKey = true
 
-					encodedSource, _ := json.Marshal(existingConfig["configurationValue"])
+					encodedSource, _ := json.Marshal(existingConfig.ConfigurationValue)
 					encodedTarget, _ := json.Marshal(newV)
 
 					if string(encodedSource) != string(encodedTarget) {
@@ -80,38 +80,35 @@ func (s SystemConfigSync) Push(ctx context.Context, client *shop.Client, config 
 	return nil
 }
 
-func (s SystemConfigSync) Pull(ctx context.Context, client *shop.Client, config *shop.Config) error {
+func (s SystemConfigSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Config = make([]shop.ConfigSyncConfig, 0)
 
-	c := shop.Criteria{}
+	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, err := client.SearchAll(ctx, "sales_channel", c)
+	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(adminSdk.NewApiContext(ctx), c)
 
 	if err != nil {
 		return err
 	}
 
-	salesChannelList := make([]map[string]interface{}, 0)
-	salesChannelList = append(salesChannelList, nil)
+	salesChannelList := make([]adminSdk.SalesChannel, 0)
+	salesChannelList = append(salesChannelList, adminSdk.SalesChannel{Id: ""})
 	salesChannelList = append(salesChannelList, salesChannelResponse.Data...)
 
 	for _, sc := range salesChannelList {
-		var sysConfigs *shop.SearchResponse
+		var sysConfigs *adminSdk.SystemConfigCollection
 		var err error
 
 		cfg := shop.ConfigSyncConfig{
 			Settings: map[string]interface{}{},
 		}
 
-		if sc == nil {
+		if sc.Id == "" {
 			sysConfigs, err = readSystemConfig(ctx, client, nil)
 		} else {
-			scId, _ := sc["id"].(string)
-			scName, _ := sc["name"].(string)
+			cfg.SalesChannel = &sc.Name
 
-			cfg.SalesChannel = &scName
-
-			sysConfigs, err = readSystemConfig(ctx, client, &scId)
+			sysConfigs, err = readSystemConfig(ctx, client, &sc.Id)
 		}
 
 		if err != nil {
@@ -119,15 +116,12 @@ func (s SystemConfigSync) Pull(ctx context.Context, client *shop.Client, config 
 		}
 
 		for _, record := range sysConfigs.Data {
-			key, _ := record["configurationKey"].(string)
-			val := record["configurationValue"]
-
 			// app system shopId
-			if key == "core.app.shopId" {
+			if record.ConfigurationKey == "core.app.shopId" {
 				continue
 			}
 
-			cfg.Settings[key] = val
+			cfg.Settings[record.ConfigurationKey] = record.ConfigurationValue
 		}
 
 		config.Sync.Config = append(config.Sync.Config, cfg)

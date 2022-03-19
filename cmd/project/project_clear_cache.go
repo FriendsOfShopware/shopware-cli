@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"os"
 	"shopware-cli/shop"
 
@@ -39,7 +40,9 @@ var projectClearCacheCmd = &cobra.Command{
 			return err
 		}
 
-		return client.ClearCache(cmd.Context())
+		_, err = client.CacheManager.Clear(adminSdk.NewApiContext(cmd.Context()))
+
+		return err
 	},
 }
 

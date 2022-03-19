@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"shopware-cli/shop"
@@ -24,7 +25,7 @@ var projectExtensionDeactivateCmd = &cobra.Command{
 			return err
 		}
 
-		extensions, err := client.GetAvailableExtensions(cmd.Context())
+		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
 
 		if err != nil {
 			return err
@@ -46,7 +47,7 @@ var projectExtensionDeactivateCmd = &cobra.Command{
 				continue
 			}
 
-			if err := client.DeactivateExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+			if _, err := client.ExtensionManager.DeactivateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
 				log.Errorf("Deactivation of %s failed with error: %v", extension.Name, err)

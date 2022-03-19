@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"shopware-cli/shop"
@@ -24,7 +25,7 @@ var projectExtensionActivateCmd = &cobra.Command{
 			return err
 		}
 
-		extensions, err := client.GetAvailableExtensions(cmd.Context())
+		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
 
 		if err != nil {
 			return err
@@ -47,14 +48,14 @@ var projectExtensionActivateCmd = &cobra.Command{
 			}
 
 			if extension.InstalledAt == nil {
-				if err := client.InstallExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+				if _, err := client.ExtensionManager.InstallExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 					failed = true
 
 					log.Errorf("Installation of %s failed with error: %v", extension.Name, err)
 				}
 			}
 
-			if err := client.ActivateExtension(cmd.Context(), extension.Type, extension.Name); err != nil {
+			if _, err := client.ExtensionManager.ActivateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
 				log.Errorf("Activate of %s failed with error: %v", extension.Name, err)

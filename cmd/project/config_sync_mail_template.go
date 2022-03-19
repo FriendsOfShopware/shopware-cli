@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"shopware-cli/shop"
@@ -13,8 +15,8 @@ import (
 
 type MailTemplateSync struct{}
 
-func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config *shop.Config, operation *ConfigSyncOperation) error {
-	mailTemplates, err := fetchAllMailTemplates(ctx, client)
+func (s MailTemplateSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
 	}
@@ -23,37 +25,31 @@ func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config 
 
 	for _, external := range mailTemplates.Data {
 		for _, configEntry := range config.Sync.MailTemplate {
-			if external["id"] == configEntry.Id {
+			if external.Id == configEntry.Id {
 				mailUpdate := make(map[string]interface{})
 				mailUpdate["id"] = configEntry.Id
 				translationUpdates := make(map[string]map[string]interface{})
 
-				translations := external["translations"].([]interface{})
-
-				for _, translationRaw := range translations {
-					translation := translationRaw.(map[string]interface{})
-
-					if translation["language"] == nil {
+				for _, translation := range external.Translations {
+					if translation.Language == nil {
 						continue
 					}
 
-					language := translation["language"].(map[string]interface{})
-
 					for _, configTranslation := range configEntry.Translations {
-						if language["name"].(string) == configTranslation.Language {
+						if translation.Language.Name == configTranslation.Language {
 							translationUpdate := make(map[string]interface{})
 
-							if translation["senderName"].(string) != configTranslation.SenderName {
+							if translation.SenderName != configTranslation.SenderName {
 								translationUpdate["senderName"] = configTranslation.SenderName
 							}
 
-							if translation["subject"].(string) != configTranslation.Subject {
+							if translation.Subject != configTranslation.Subject {
 								translationUpdate["subject"] = configTranslation.Subject
 							}
 
 							if configTranslation.HTML != "" {
 								if content, err := ioutil.ReadFile(configTranslation.HTML); err == nil {
-									if translation["contentHtml"].(string) != string(content) {
+									if translation.ContentHtml != string(content) {
 										translationUpdate["contentHtml"] = string(content)
 									}
 								} else {
@@ -63,7 +59,7 @@ func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config 
 
 							if configTranslation.Plain != "" {
 								if content, err := ioutil.ReadFile(configTranslation.Plain); err == nil {
-									if translation["contentPlain"].(string) != string(content) {
+									if translation.ContentPlain != string(content) {
 										translationUpdate["contentPlain"] = string(content)
 									}
 								} else {
@@ -72,14 +68,14 @@ func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config 
 							}
 
 							localCustomFields, _ := json.Marshal(configTranslation.CustomFields)
-							remoteCustomFields, _ := json.Marshal(translation["customFields"])
+							remoteCustomFields, _ := json.Marshal(translation.CustomFields)
 
 							if string(localCustomFields) != string(remoteCustomFields) {
 								translationUpdate["customFields"] = configTranslation.CustomFields
 							}
 
 							if len(translationUpdate) > 0 {
-								translationUpdates[translation["languageId"].(string)] = translationUpdate
+								translationUpdates[translation.LanguageId] = translationUpdate
 							}
 						}
 					}
@@ -97,7 +93,7 @@ func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config 
 	}
 
 	if len(mailUpdates) > 0 {
-		operation.Operations["update-mail-template"] = shop.SyncOperation{
+		operation.Operations["update-mail-template"] = adminSdk.SyncOperation{
 			Action:  "upsert",
 			Entity:  "mail_template",
 			Payload: mailUpdates,
@@ -107,8 +103,8 @@ func (s MailTemplateSync) Push(ctx context.Context, client *shop.Client, config 
 	return nil
 }
 
-func (s MailTemplateSync) Pull(ctx context.Context, client *shop.Client, config *shop.Config) error {
-	mailTemplates, err := fetchAllMailTemplates(ctx, client)
+func (s MailTemplateSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
+	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
 	}
@@ -116,31 +112,25 @@ func (s MailTemplateSync) Pull(ctx context.Context, client *shop.Client, config 
 	config.Sync.MailTemplate = make([]shop.MailTemplate, 0)
 
 	for _, row := range mailTemplates.Data {
-		if row["mailTemplateType"] == nil {
-			log.Infof("mail_template entity with id %s does not have a type. Skipping", row["id"])
+		if row.MailTemplateType == nil {
+			log.Infof("mail_template entity with id %s does not have a type. Skipping", row.Id)
 			continue
 		}
 
-		mailType := row["mailTemplateType"].(map[string]interface{})
-		translations := row["translations"].([]interface{})
-
 		cfg := shop.MailTemplate{
-			Id:           row["id"].(string),
+			Id:           row.Id,
 			Translations: []shop.MailTemplateTranslation{},
 		}
 
-		for _, translationRaw := range translations {
-			translation := translationRaw.(map[string]interface{})
-
-			if translation["language"] == nil {
+		for _, translation := range row.Translations {
+			if translation.Language == nil {
 				continue
 			}
 
-			language := translation["language"].(map[string]interface{})
-			configKey := language["name"].(string)
+			configKey := translation.Language.Name
 
-			htmLFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-html.twig", mailType["technicalName"].(string), configKey)
-			plainFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-plain.twig", mailType["technicalName"].(string), configKey)
+			htmLFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-html.twig", row.MailTemplateType.TechnicalName, configKey)
+			plainFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-plain.twig", row.MailTemplateType.TechnicalName, configKey)
 			dir := filepath.Dir(htmLFilePath)
 
 			if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -151,18 +141,18 @@ func (s MailTemplateSync) Pull(ctx context.Context, client *shop.Client, config 
 
 			cfgLang := shop.MailTemplateTranslation{
 				Language:     configKey,
-				SenderName:   translation["senderName"].(string),
-				Subject:      translation["subject"].(string),
+				SenderName:   translation.SenderName,
+				Subject:      translation.Subject,
 				HTML:         htmLFilePath,
 				Plain:        plainFilePath,
-				CustomFields: translation["customFields"],
+				CustomFields: translation.CustomFields,
 			}
 
-			if err := ioutil.WriteFile(htmLFilePath, []byte(translation["contentHtml"].(string)), os.ModePerm); err != nil {
+			if err := ioutil.WriteFile(htmLFilePath, []byte(translation.ContentHtml), os.ModePerm); err != nil {
 				return err
 			}
 
-			if err := ioutil.WriteFile(plainFilePath, []byte(translation["contentPlain"].(string)), os.ModePerm); err != nil {
+			if err := ioutil.WriteFile(plainFilePath, []byte(translation.ContentPlain), os.ModePerm); err != nil {
 				return err
 			}
 
@@ -175,15 +165,15 @@ func (s MailTemplateSync) Pull(ctx context.Context, client *shop.Client, config 
 	return nil
 }
 
-func fetchAllMailTemplates(ctx context.Context, client *shop.Client) (*shop.SearchResponse, error) {
-	criteria := shop.Criteria{}
+func fetchAllMailTemplates(ctx context.Context, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, *http.Response, error) {
+	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{
 		"mail_template":             {"id", "mailTemplateType", "translations"},
 		"mail_template_type":        {"technicalName"},
 		"mail_template_translation": {"senderName", "subject", "contentHtml", "contentPlain", "language", "languageId"},
 		"language":                  {"name"},
 	}
-	criteria.Associations = map[string]shop.Criteria{"mailTemplateType": {}, "translations": {Associations: map[string]shop.Criteria{"language": {}}}}
+	criteria.Associations = map[string]adminSdk.Criteria{"mailTemplateType": {}, "translations": {Associations: map[string]adminSdk.Criteria{"language": {}}}}
 
-	return client.SearchAll(ctx, "mail_template", criteria)
+	return client.Repository.MailTemplate.SearchAll(adminSdk.NewApiContext(ctx), criteria)
 }

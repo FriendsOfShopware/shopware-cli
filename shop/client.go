@@ -3,48 +3,27 @@ package shop
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 
-	"golang.org/x/oauth2"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
-type Client struct {
-	url        string
-	httpClient *http.Client
-}
+func NewShopCredentials(config *Config) adminSdk.OAuthCredentials {
+	var cred adminSdk.OAuthCredentials
 
-func NewShopClient(ctx context.Context, config *Config, httpClient *http.Client) (*Client, error) {
-	shopClient := &Client{config.URL, httpClient}
-
-	if err := shopClient.authorize(ctx, config); err != nil {
-		return nil, err
+	if config.AdminApi.Username != "" {
+		cred = adminSdk.NewPasswordCredentials(config.AdminApi.Username, config.AdminApi.Password, []string{"write"})
+	} else {
+		cred = adminSdk.NewIntegrationCredentials(config.AdminApi.ClientId, config.AdminApi.ClientSecret, []string{"write"})
 	}
 
-	return shopClient, nil
+	return cred
 }
 
-func (c *Client) authorize(ctx context.Context, config *Config) error {
-	if c.httpClient != nil {
-		ctx = context.WithValue(ctx, oauth2.HTTPClient, c.httpClient)
-	}
-
+func NewShopClient(ctx context.Context, config *Config, httpClient *http.Client) (*adminSdk.Client, error) {
 	if config.AdminApi == nil {
-		return fmt.Errorf("admin-api is not enabled in config")
+		return nil, fmt.Errorf("admin-api is not enabled in config")
 	}
 
-	tokenSrc, err := config.AdminApi.GetTokenSource(ctx, config.URL)
-	if err != nil {
-		return err
-	}
-	c.httpClient = oauth2.NewClient(ctx, tokenSrc)
-	return nil
-}
-
-func (c *Client) NewRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
-	return http.NewRequestWithContext(ctx, method, c.url+path, body)
-}
-
-func (c Client) Do(r *http.Request) (*http.Response, error) {
-	return c.httpClient.Do(r)
+	return adminSdk.NewApiClient(ctx, config.URL, NewShopCredentials(config), httpClient)
 }
