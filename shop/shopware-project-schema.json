@@ -201,7 +201,46 @@
                 },
                 "queries": {
                     "type": "array",
-                    "items": {"$ref": "#/definitions/EntitySyncFilter"}
+                    "items": {"$ref": "#/definitions/EntitySyncFilterInner"}
+                }
+            },
+            "required": ["type", "field"],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "multi"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["type", "queries"]
+                    }
+                }
+            ]
+        },
+        "EntitySyncFilterInner": {
+            "type": "object",
+            "title": "Entity Sync Filter",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["equals", "multi", "contains", "prefix", "suffix", "not", "range", "until", "equalsAll" ,"equalsAny"],
+                    "description": "filter type"
+                },
+                "field": {
+                    "type": "string",
+                    "description": "field"
+                },
+                "value": {
+                    "type": ["string", "integer", "array", "boolean", "null"],
+                    "description": "value"
+                },
+                "operator": {
+                    "type": "string",
+                    "enum": ["AND", "OR", "XOR"]
                 }
             },
             "required": ["type", "field"],
