@@ -132,6 +132,8 @@ github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319150838-baf
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319150838-baf50e639e05/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319152306-02baac37e3c5 h1:jEQJajqaL3JCK1LiCxiHND0I7L8qWhZFxyRpFHk/qJY=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319152306-02baac37e3c5/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
+github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319160401-69328965239b h1:Tu6CtBt15OP1nv6DrHBYdFCMLAW+yXSnw7yBj9YkmgA=
+github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319160401-69328965239b/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=

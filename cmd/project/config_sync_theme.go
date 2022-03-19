@@ -1,6 +1,7 @@
 package project
 
 import (
+	"encoding/json"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 )
@@ -38,7 +39,10 @@ func (s ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config
 				for remoteFieldName, remoteFieldValue := range *remoteConfigs.CurrentFields {
 					for localFieldName, localFieldValue := range localThemeConfig.Settings {
 						if remoteFieldName == localFieldName {
-							if remoteFieldValue != localFieldValue {
+							localJson, _ := json.Marshal(localFieldValue)
+							remoteJson, _ := json.Marshal(remoteFieldValue)
+
+							if string(localJson) != string(remoteJson) {
 								op.Settings[remoteFieldName] = localFieldValue
 							}
 						}

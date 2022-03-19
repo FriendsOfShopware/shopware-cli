@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/caarlos0/env/v6 v6.9.1
 	github.com/doutorfinancas/go-mad v0.0.0-20220209173128-0ce6ec7309d4
-	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319152306-02baac37e3c5
+	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319160401-69328965239b
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0

@@ -17,6 +17,8 @@ var projectConfigPushCmd = &cobra.Command{
 		var cfg *shop.Config
 		var err error
 
+		apiCtx := adminSdk.NewApiContext(cmd.Context())
+
 		autoApprove, _ := cmd.PersistentFlags().GetBool("auto-approve")
 
 		if cfg, err = shop.ReadConfig(projectConfigPath); err != nil {
@@ -36,7 +38,7 @@ var projectConfigPushCmd = &cobra.Command{
 
 		if cfg.Sync != nil {
 			for _, applyer := range NewSyncApplyers() {
-				if err := applyer.Push(adminSdk.NewApiContext(cmd.Context()), client, cfg, operation); err != nil {
+				if err := applyer.Push(apiCtx, client, cfg, operation); err != nil {
 					return err
 				}
 			}
@@ -104,19 +106,19 @@ var projectConfigPushCmd = &cobra.Command{
 			}
 		}
 
-		if _, err := client.Bulk.Sync(adminSdk.NewApiContext(cmd.Context()), operation.Operations); err != nil {
+		if _, err := client.Bulk.Sync(apiCtx, operation.Operations); err != nil {
 			return err
 		}
 
 		if operation.SystemSettings.HasChanges() {
-			if _, err := client.SystemConfigManager.UpdateConfig(adminSdk.NewApiContext(cmd.Context()), operation.SystemSettings.ToJson()); err != nil {
+			if _, err := client.SystemConfigManager.UpdateConfig(apiCtx, operation.SystemSettings.ToJson()); err != nil {
 				return err
 			}
 		}
 
 		if operation.ThemeSettings.HasChanges() {
 			for _, themeOp := range operation.ThemeSettings {
-				if _, err := client.ThemeManager.UpdateConfiguration(adminSdk.NewApiContext(cmd.Context()), themeOp.Id, adminSdk.ThemeUpdateRequest{Config: themeOp.Settings}); err != nil {
+				if _, err := client.ThemeManager.UpdateConfiguration(apiCtx, themeOp.Id, adminSdk.ThemeUpdateRequest{Config: themeOp.Settings}); err != nil {
 					return err
 				}
 			}

@@ -141,7 +141,7 @@
                 "language": {
                     "type": "string"
                 },
-                "senderName": {
+                "sender_name": {
                     "type": "string"
                 },
                 "subject": {
@@ -153,8 +153,8 @@
                 "plain": {
                     "type": "string"
                 },
-                "customFields": {
-                    "type": "object"
+                "custom_fields": {
+                    "type": ["object", "null"]
                 }
             }
         },
