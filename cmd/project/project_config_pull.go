@@ -1,6 +1,7 @@
 package project
 
 import (
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"io/ioutil"
 	"os"
 	"shopware-cli/shop"
@@ -31,7 +32,7 @@ var projectConfigPullCmd = &cobra.Command{
 		}
 
 		for _, applyer := range NewSyncApplyers() {
-			if err := applyer.Pull(cmd.Context(), client, cfg); err != nil {
+			if err := applyer.Pull(adminSdk.NewApiContext(cmd.Context()), client, cfg); err != nil {
 				return err
 			}
 		}

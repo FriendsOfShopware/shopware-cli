@@ -36,7 +36,7 @@ var projectConfigPushCmd = &cobra.Command{
 
 		if cfg.Sync != nil {
 			for _, applyer := range NewSyncApplyers() {
-				if err := applyer.Push(cmd.Context(), client, cfg, operation); err != nil {
+				if err := applyer.Push(adminSdk.NewApiContext(cmd.Context()), client, cfg, operation); err != nil {
 					return err
 				}
 			}

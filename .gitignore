@@ -3,3 +3,6 @@
 dist/
 /completions
 /local
+/.shopware-cli
+/.shopware-project.yml
+/test-app

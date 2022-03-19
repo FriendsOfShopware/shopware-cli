@@ -1,14 +1,13 @@
 package project
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 )
 
-func readSystemConfig(ctx context.Context, client *adminSdk.Client, salesChannelId *string) (*adminSdk.SystemConfigCollection, error) {
+func readSystemConfig(ctx adminSdk.ApiContext, client *adminSdk.Client, salesChannelId *string) (*adminSdk.SystemConfigCollection, error) {
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"system_config": {"id", "configurationKey", "configurationValue"}}
 
@@ -16,7 +15,7 @@ func readSystemConfig(ctx context.Context, client *adminSdk.Client, salesChannel
 		{Type: adminSdk.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
 	}
 
-	results, _, err := client.Repository.SystemConfig.SearchAll(adminSdk.NewApiContext(ctx), c)
+	results, _, err := client.Repository.SystemConfig.SearchAll(ctx, c)
 
 	if err != nil {
 		return nil, err
@@ -26,8 +25,8 @@ func readSystemConfig(ctx context.Context, client *adminSdk.Client, salesChannel
 }
 
 type ConfigSyncApplyer interface {
-	Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error
-	Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error
+	Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error
+	Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error
 }
 
 func NewSyncApplyers() []ConfigSyncApplyer {

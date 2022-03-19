@@ -1,7 +1,6 @@
 package project
 
 import (
-	"context"
 	"encoding/json"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
@@ -10,14 +9,14 @@ import (
 
 type SystemConfigSync struct{}
 
-func (s SystemConfigSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if config.Sync == nil {
 		return nil
 	}
 
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(adminSdk.NewApiContext(ctx), c)
+	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(ctx, c)
 
 	if err != nil {
 		return err
@@ -80,12 +79,12 @@ func (s SystemConfigSync) Push(ctx context.Context, client *adminSdk.Client, con
 	return nil
 }
 
-func (s SystemConfigSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
+func (s SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Config = make([]shop.ConfigSyncConfig, 0)
 
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(adminSdk.NewApiContext(ctx), c)
+	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(ctx, c)
 
 	if err != nil {
 		return err

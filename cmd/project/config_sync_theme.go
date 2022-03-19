@@ -1,28 +1,27 @@
 package project
 
 import (
-	"context"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
 )
 
 type ThemeSync struct{}
 
-func (s ThemeSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if len(config.Sync.Theme) == 0 {
 		return nil
 	}
 
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, _, err := client.Repository.Theme.SearchAll(adminSdk.NewApiContext(ctx), criteria)
+	themes, _, err := client.Repository.Theme.SearchAll(ctx, criteria)
 
 	if err != nil {
 		return err
 	}
 
 	for _, t := range themes.Data {
-		remoteConfigs, _, err := client.ThemeManager.GetConfiguration(adminSdk.NewApiContext(ctx), t.Id)
+		remoteConfigs, _, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
 
 		if err != nil {
 			return err
@@ -54,12 +53,12 @@ func (s ThemeSync) Push(ctx context.Context, client *adminSdk.Client, config *sh
 	return nil
 }
 
-func (s ThemeSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
+func (s ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Theme = make([]shop.ThemeConfig, 0)
 
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, _, err := client.Repository.Theme.SearchAll(adminSdk.NewApiContext(ctx), criteria)
+	themes, _, err := client.Repository.Theme.SearchAll(ctx, criteria)
 
 	if err != nil {
 		return err
@@ -71,7 +70,7 @@ func (s ThemeSync) Pull(ctx context.Context, client *adminSdk.Client, config *sh
 			Settings: map[string]adminSdk.ThemeConfigValue{},
 		}
 
-		themeConfig, _, err := client.ThemeManager.GetConfiguration(adminSdk.NewApiContext(ctx), t.Id)
+		themeConfig, _, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
 
 		if err != nil {
 			return err

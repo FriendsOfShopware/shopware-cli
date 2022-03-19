@@ -1,7 +1,6 @@
 package project
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
@@ -15,7 +14,7 @@ import (
 
 type MailTemplateSync struct{}
 
-func (s MailTemplateSync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
@@ -103,7 +102,7 @@ func (s MailTemplateSync) Push(ctx context.Context, client *adminSdk.Client, con
 	return nil
 }
 
-func (s MailTemplateSync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
+func (s MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	mailTemplates, _, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
@@ -165,7 +164,7 @@ func (s MailTemplateSync) Pull(ctx context.Context, client *adminSdk.Client, con
 	return nil
 }
 
-func fetchAllMailTemplates(ctx context.Context, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, *http.Response, error) {
+func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, *http.Response, error) {
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{
 		"mail_template":             {"id", "mailTemplateType", "translations"},
@@ -175,5 +174,5 @@ func fetchAllMailTemplates(ctx context.Context, client *adminSdk.Client) (*admin
 	}
 	criteria.Associations = map[string]adminSdk.Criteria{"mailTemplateType": {}, "translations": {Associations: map[string]adminSdk.Criteria{"language": {}}}}
 
-	return client.Repository.MailTemplate.SearchAll(adminSdk.NewApiContext(ctx), criteria)
+	return client.Repository.MailTemplate.SearchAll(ctx, criteria)
 }

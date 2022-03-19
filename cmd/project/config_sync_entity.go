@@ -2,7 +2,6 @@ package project
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
@@ -11,7 +10,7 @@ import (
 
 type EntitySync struct{}
 
-func (s EntitySync) Push(ctx context.Context, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (s EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	for _, entity := range config.Sync.Entity {
 		if entity.Exists != nil && len(*entity.Exists) > 0 {
 			criteria := make(map[string]interface{})
@@ -23,7 +22,7 @@ func (s EntitySync) Push(ctx context.Context, client *adminSdk.Client, config *s
 				return err
 			}
 
-			r, err := client.NewRequest(adminSdk.NewApiContext(ctx), "POST", fmt.Sprintf("/api/search-ids/%s", entity.Entity), bytes.NewReader(searchPayload))
+			r, err := client.NewRequest(ctx, "POST", fmt.Sprintf("/api/search-ids/%s", entity.Entity), bytes.NewReader(searchPayload))
 
 			if err != nil {
 				return err
@@ -33,7 +32,7 @@ func (s EntitySync) Push(ctx context.Context, client *adminSdk.Client, config *s
 			r.Header.Set("Content-Type", "application/json")
 
 			var res criteriaApiResponse
-			_, err = client.Do(ctx, r, &res)
+			_, err = client.Do(ctx.Context, r, &res)
 
 			if err != nil {
 				return err
@@ -54,7 +53,7 @@ func (s EntitySync) Push(ctx context.Context, client *adminSdk.Client, config *s
 	return nil
 }
 
-func (s EntitySync) Pull(ctx context.Context, client *adminSdk.Client, config *shop.Config) error {
+func (s EntitySync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	return nil
 }
 
