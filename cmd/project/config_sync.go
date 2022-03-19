@@ -15,11 +15,13 @@ func readSystemConfig(ctx adminSdk.ApiContext, client *adminSdk.Client, salesCha
 		{Type: adminSdk.SearchFilterTypeEquals, Field: "salesChannelId", Value: salesChannelId},
 	}
 
-	results, _, err := client.Repository.SystemConfig.SearchAll(ctx, c)
+	results, resp, err := client.Repository.SystemConfig.SearchAll(ctx, c)
 
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	return results, nil
 }

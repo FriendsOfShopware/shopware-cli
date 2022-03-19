@@ -174,5 +174,11 @@ func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*a
 	}
 	criteria.Associations = map[string]adminSdk.Criteria{"mailTemplateType": {}, "translations": {Associations: map[string]adminSdk.Criteria{"language": {}}}}
 
-	return client.Repository.MailTemplate.SearchAll(ctx, criteria)
+	collection, resp, err := client.Repository.MailTemplate.SearchAll(ctx, criteria)
+
+	if err == nil {
+		defer resp.Body.Close()
+	}
+
+	return collection, resp, err
 }

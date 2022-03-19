@@ -32,11 +32,13 @@ func (s EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, confi
 			r.Header.Set("Content-Type", "application/json")
 
 			var res criteriaApiResponse
-			_, err = client.Do(ctx.Context, r, &res)
+			resp, err := client.Do(ctx.Context, r, &res)
 
 			if err != nil {
 				return err
 			}
+
+			defer resp.Body.Close()
 
 			if res.Total > 0 {
 				continue
