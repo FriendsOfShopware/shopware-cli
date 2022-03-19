@@ -86,11 +86,13 @@ func (s SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client,
 
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
-	salesChannelResponse, _, err := client.Repository.SalesChannel.SearchAll(ctx, c)
+	salesChannelResponse, resp, err := client.Repository.SalesChannel.SearchAll(ctx, c)
 
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	salesChannelList := make([]adminSdk.SalesChannel, 0)
 	salesChannelList = append(salesChannelList, adminSdk.SalesChannel{Id: ""})

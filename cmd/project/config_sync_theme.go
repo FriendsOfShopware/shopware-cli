@@ -15,18 +15,22 @@ func (s ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config
 
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, _, err := client.Repository.Theme.SearchAll(ctx, criteria)
+	themes, resp, err := client.Repository.Theme.SearchAll(ctx, criteria)
 
 	if err != nil {
 		return err
 	}
 
+	defer resp.Body.Close()
+
 	for _, t := range themes.Data {
-		remoteConfigs, _, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
+		remoteConfigs, resp, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
 
 		if err != nil {
 			return err
 		}
+
+		defer resp.Body.Close()
 
 		for _, localThemeConfig := range config.Sync.Theme {
 			if localThemeConfig.Name == t.Name {
@@ -62,11 +66,13 @@ func (s ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config
 
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
-	themes, _, err := client.Repository.Theme.SearchAll(ctx, criteria)
+	themes, resp, err := client.Repository.Theme.SearchAll(ctx, criteria)
 
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	for _, t := range themes.Data {
 		cfg := shop.ThemeConfig{
@@ -74,11 +80,13 @@ func (s ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config
 			Settings: map[string]adminSdk.ThemeConfigValue{},
 		}
 
-		themeConfig, _, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
+		themeConfig, resp, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
 
 		if err != nil {
 			return err
 		}
+
+		defer resp.Body.Close()
 
 		cfg.Settings = *themeConfig.CurrentFields
 		config.Sync.Theme = append(config.Sync.Theme, cfg)
