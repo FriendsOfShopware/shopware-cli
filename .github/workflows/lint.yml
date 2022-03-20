@@ -5,9 +5,17 @@ on:
       - v*
     branches:
       - main
+    paths:
+      - '*.go'
+      - '**/*.go'
   pull_request:
+    paths:
+      - '*.go'
+      - '**/*.go'
+
 permissions:
   contents: read
+
 jobs:
   golangci:
     name: lint
