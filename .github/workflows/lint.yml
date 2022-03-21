@@ -1,5 +1,6 @@
 name: golangci-lint
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*
@@ -8,10 +9,12 @@ on:
     paths:
       - '*.go'
       - '**/*.go'
+      - '.github/workflows/lint.yml'
   pull_request:
     paths:
       - '*.go'
       - '**/*.go'
+      - '.github/workflows/lint.yml'
 
 permissions:
   contents: read
