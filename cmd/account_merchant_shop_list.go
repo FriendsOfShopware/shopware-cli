@@ -9,8 +9,9 @@ import (
 )
 
 var accountCompanyMerchantShopListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all shops",
+	Use:     "list",
+	Short:   "List all shops",
+	Aliases: []string{"ls"},
 	RunE: func(_ *cobra.Command, _ []string) error {
 		client := getAccountAPIByConfigOrFail()
 
