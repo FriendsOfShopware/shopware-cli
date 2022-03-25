@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+	cp "github.com/otiai10/copy"
 	"io"
 	"io/ioutil"
 	"os"
@@ -47,14 +48,22 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 		var ext extension.Extension
 
+		isFolder := true
+
 		if stat.IsDir() {
 			ext, err = extension.GetExtensionByFolder(path)
 		} else {
 			ext, err = extension.GetExtensionByZip(path)
+			isFolder = false
 		}
 
 		if err != nil {
 			return err
+		}
+
+		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
+		if err != nil {
+			log.Fatalln(fmt.Errorf("update: %v", err))
 		}
 
 		if increaseVersionBeforeUpload {
@@ -66,6 +75,48 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if err != nil {
 				return err
+			}
+		}
+
+		if isFolder {
+			// Create temp dir
+			tempDir, err := ioutil.TempDir("", "extension")
+			if err != nil {
+				return errors.Wrap(err, "create temp directory")
+			}
+
+			extName, err := ext.GetName()
+			if err != nil {
+				return errors.Wrap(err, "get extension name")
+			}
+
+			extDir := fmt.Sprintf("%s/%s/", tempDir, extName)
+
+			err = os.Mkdir(extDir, os.ModePerm)
+			if err != nil {
+				return errors.Wrap(err, "create temp directory")
+			}
+
+			tempDir += "/"
+
+			defer func(path string) {
+				_ = os.RemoveAll(path)
+			}(tempDir)
+
+			err = cp.Copy(path, extDir)
+			if err != nil {
+				return errors.Wrap(err, "copy files")
+			}
+
+			ext, err = extension.GetExtensionByFolder(extDir)
+
+			if err != nil {
+				return err
+			}
+
+			// Cleanup not wanted files
+			if err := extension.CleanupExtensionFolder(ext.GetPath(), extCfg.Build.Zip.Pack.Excludes.Paths); err != nil {
+				return errors.Wrap(err, "cleanup package")
 			}
 		}
 

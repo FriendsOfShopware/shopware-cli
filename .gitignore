@@ -6,3 +6,4 @@ dist/
 /.shopware-cli
 /.shopware-project.yml
 /test-app
+/go-shopware-admin-api-sdk
