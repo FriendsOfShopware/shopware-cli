@@ -121,6 +121,7 @@ func createApiFromTokenCache() (*Client, error) {
 	}
 
 	log.Debugf("Using token cache from %s", tokenFilePath)
+	log.Debugf("Impersonating currently as %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id)
 
 	if !client.isTokenValid() {
 		return nil, fmt.Errorf("token is expired")

@@ -86,11 +86,13 @@ func getAccountAPIByConfigOrFail() *accountApi.Client {
 
 func changeAPIMembership(client *accountApi.Client, companyID int) error {
 	if companyID == 0 || client.GetActiveCompanyID() == companyID {
+		log.Tracef("Client is on correct membership skip")
 		return nil
 	}
 
 	for _, membership := range client.GetMemberships() {
 		if membership.Company.Id == companyID {
+			log.Tracef("Changing member ship from %s (%d) to %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id, membership.Company.Name, membership.Company.Id)
 			return client.ChangeActiveMembership(membership)
 		}
 	}

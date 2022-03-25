@@ -175,6 +175,16 @@ type Membership struct {
 	} `json:"roles"`
 }
 
+func (m Membership) GetRoles() []string {
+	roles := make([]string, 0)
+
+	for _, role := range m.Roles {
+		roles = append(roles, role.Name)
+	}
+
+	return roles
+}
+
 type changeMembershipRequest struct {
 	SelectedMembership struct {
 		Id int `json:"id"`
@@ -205,12 +215,13 @@ func (c *Client) ChangeActiveMembership(selected Membership) error {
 
 	if resp.StatusCode == 200 {
 		c.ActiveMembership = selected
+		c.Token.UserID = selected.Company.Id
+
+		if err := saveApiTokenToTokenCache(c); err != nil {
+			return err
+		}
 
 		return nil
-	}
-
-	if err := saveApiTokenToTokenCache(c); err != nil {
-		return err
 	}
 
 	return fmt.Errorf("could not change active membership due http error %d", resp.StatusCode)
