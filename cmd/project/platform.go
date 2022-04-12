@@ -159,7 +159,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	return runSimpleCommand(projectRoot, "php", "bin/console", "theme:compile")
+	return runSimpleCommand(projectRoot, "php", "bin/console", "assets:install")
 }
 
 func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {
