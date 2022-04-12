@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"github.com/pkg/errors"
@@ -11,9 +11,7 @@ var accountProducerInfoCmd = &cobra.Command{
 	Short: "List information about your producer account",
 	Long:  ``,
 	RunE: func(_ *cobra.Command, _ []string) error {
-		client := getAccountAPIByConfigOrFail()
-
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get producer endpoint")

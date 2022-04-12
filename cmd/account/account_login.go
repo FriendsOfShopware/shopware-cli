@@ -1,14 +1,13 @@
-package cmd
+package account
 
 import (
 	"fmt"
-	"os"
-	accountApi "shopware-cli/account-api"
-
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os"
+	accountApi "shopware-cli/account-api"
 )
 
 var loginCmd = &cobra.Command{
@@ -16,16 +15,20 @@ var loginCmd = &cobra.Command{
 	Short: "Login into your Shopware Account",
 	Long:  "",
 	RunE: func(_ *cobra.Command, _ []string) error {
-		email := appConfig.Account.Email
-		password := appConfig.Account.Password
+		email := services.Conf.GetAccountEmail()
+		password := services.Conf.GetAccountPassword()
 		newCredentials := false
 
 		if len(email) == 0 || len(password) == 0 {
 			email, password = askUserForEmailAndPassword()
 			newCredentials = true
 
-			appConfig.Account.Email = email
-			appConfig.Account.Password = password
+			if err := services.Conf.SetAccountEmail(email); err != nil {
+				return err
+			}
+			if err := services.Conf.SetAccountPassword(password); err != nil {
+				return err
+			}
 		} else {
 			log.Infof("Using existing credentials. Use account:logout to logout")
 		}
@@ -36,8 +39,8 @@ var loginCmd = &cobra.Command{
 			return errors.Wrap(err, "login failed with error")
 		}
 
-		if appConfig.Account.Company > 0 {
-			err = changeAPIMembership(client, appConfig.Account.Company)
+		if companyId := services.Conf.GetAccountCompanyId(); companyId > 0 {
+			err = changeAPIMembership(client, companyId)
 
 			if err != nil {
 				return errors.Wrap(err, "cannot change company member ship")
@@ -45,7 +48,7 @@ var loginCmd = &cobra.Command{
 		}
 
 		if newCredentials {
-			err := saveApplicationConfig()
+			err := services.Conf.Save()
 
 			if err != nil {
 				return errors.Wrap(err, "cannot save config")
@@ -108,4 +111,19 @@ func emptyValidator(s string) error {
 	}
 
 	return nil
+}
+func changeAPIMembership(client *accountApi.Client, companyID int) error {
+	if companyID == 0 || client.GetActiveCompanyID() == companyID {
+		log.Tracef("Client is on correct membership skip")
+		return nil
+	}
+
+	for _, membership := range client.GetMemberships() {
+		if membership.Company.Id == companyID {
+			log.Tracef("Changing member ship from %s (%d) to %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id, membership.Company.Name, membership.Company.Id)
+			return client.ChangeActiveMembership(membership)
+		}
+	}
+
+	return fmt.Errorf("could not find configured company with id %d", companyID)
 }

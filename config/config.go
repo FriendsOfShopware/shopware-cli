@@ -7,84 +7,179 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+	"strconv"
+	"sync"
 )
 
-type Config struct {
-	loadedWithEnv bool
-	Account       struct {
+var state *configState
+
+type configState struct {
+	mu            sync.RWMutex
+	cfgPath       string
+	inner         *configData
+	loadedFromEnv bool
+	isReady       bool
+	modified      bool
+}
+
+type configData struct {
+	Account struct {
 		Email    string `env:"SHOPWARE_CLI_ACCOUNT_EMAIL" yaml:"email"`
 		Password string `env:"SHOPWARE_CLI_ACCOUNT_PASSWORD" yaml:"password"`
 		Company  int    `env:"SHOPWARE_CLI_ACCOUNT_COMPANY" yaml:"company"`
 	} `yaml:"account"`
 }
 
-var appConfig *Config
-var cfgFile string
+type Config struct{}
 
-func getApplicationConfigPath() string {
-	if cfgFile != "" {
-		return cfgFile
+func init() {
+	state = &configState{
+		mu:      sync.RWMutex{},
+		cfgPath: "",
+		inner:   defaultConfig(),
 	}
-
-	configDir, err := os.UserConfigDir()
-
-	if err != nil {
-		return ".shopware-cli.yml"
-	}
-
-	cfgFile = fmt.Sprintf("%s/.shopware-cli.yml", configDir)
-
-	return cfgFile
 }
 
-func initApplicationConfig() error {
-	appConfig = &Config{}
+func defaultConfig() *configData {
+	config := &configData{}
+	config.Account.Email = ""
+	config.Account.Password = ""
+	config.Account.Company = 1
+	return config
+}
 
-	err := env.Parse(appConfig)
+func InitConfig(configPath string) error {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if state.isReady {
+		return nil
+	}
+
+	if len(configPath) > 0 {
+		state.cfgPath = configPath
+	} else {
+		configDir, err := os.UserConfigDir()
+
+		if err != nil {
+			return err
+		}
+
+		state.cfgPath = fmt.Sprintf("%s/.shopware-cli.yml", configDir)
+	}
+
+	err := env.Parse(state.inner)
 	if err != nil {
 		return err
 	}
+	if len(state.inner.Account.Email) > 0 {
+		state.loadedFromEnv = true
 
-	if len(appConfig.Account.Email) > 0 {
-		appConfig.loadedWithEnv = true
-
+		state.isReady = true
 		log.Tracef("Loaded config with environment variables")
 
 		return nil
 	}
-
-	cfg := getApplicationConfigPath()
-	if _, err := os.Stat(cfg); os.IsNotExist(err) {
+	if _, err := os.Stat(state.cfgPath); os.IsNotExist(err) {
 		return nil
 	}
 
-	content, err := ioutil.ReadFile(cfgFile)
+	content, err := ioutil.ReadFile(state.cfgPath)
 
 	if err != nil {
 		return err
 	}
 
-	err = yaml.Unmarshal(content, &appConfig)
+	err = yaml.Unmarshal(content, &state.inner)
 
 	if err != nil {
 		return err
 	}
 
-	log.Tracef("Using config file from %s", cfgFile)
-
+	log.Tracef("Using config file from %s", state.cfgPath)
+	state.isReady = true
 	return nil
 }
 
-func saveApplicationConfig() error {
-	if appConfig.loadedWithEnv {
+func SaveConfig() error {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if !state.modified || state.loadedFromEnv {
 		return nil
 	}
 
-	content, err := yaml.Marshal(appConfig)
-
+	configFile, err := os.OpenFile(state.cfgPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		return err
 	}
+	configWriter := yaml.NewEncoder(configFile)
+	defer func() {
+		state.modified = false
+		_ = configWriter.Close()
+	}()
 
-	return ioutil.WriteFile(getApplicationConfigPath(), content, os.ModePerm)
+	return configWriter.Encode(state.inner)
+}
+
+func (_ Config) GetAccountEmail() string {
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+	return state.inner.Account.Email
+}
+
+func (_ Config) GetAccountPassword() string {
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+	return state.inner.Account.Password
+}
+
+func (_ Config) GetAccountCompanyId() int {
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+	return state.inner.Account.Company
+}
+
+func (_ Config) SetAccountEmail(email string) error {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if state.loadedFromEnv {
+		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
+			"account.email",
+			email,
+		)
+	}
+	state.modified = true
+	state.inner.Account.Email = email
+	return nil
+}
+
+func (_ Config) SetAccountPassword(password string) error {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if state.loadedFromEnv {
+		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
+			"account.password",
+			"***",
+		)
+	}
+	state.modified = true
+	state.inner.Account.Password = password
+	return nil
+}
+
+func (_ Config) SetAccountCompanyId(id int) error {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if state.loadedFromEnv {
+		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
+			"account.company",
+			strconv.Itoa(id),
+		)
+	}
+	state.modified = true
+	state.inner.Account.Company = id
+	return nil
+}
+
+func (_ Config) Save() error {
+	return SaveConfig()
 }

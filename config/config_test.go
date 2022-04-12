@@ -5,12 +5,14 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"sync"
 	"testing"
 )
 
 func TestParseEnvConfig(t *testing.T) {
 	testEnv := newTestEnv(t)
 	defer testEnv.restore()
+	defer resetState()
 
 	testData := struct {
 		email, password string
@@ -33,25 +35,22 @@ func TestParseEnvConfig(t *testing.T) {
 		t.Fatal("expected loadedWithEnv to be true")
 	}
 
-	confService := Config2{}
-	if confService.GetAccountEmail() != testData.email {
-		t.Errorf("expected Email to be %q got %q", testData.email, appConfig.Account.Email)
+	confService := Config{}
+	if email := confService.GetAccountEmail(); email != testData.email {
+		t.Errorf("expected Email to be %q got %q", testData.email, email)
 	}
 
-	if confService.GetAccountPassword() != testData.password {
-		t.Errorf("expected password to be %q got %q", testData.password, appConfig.Account.Password)
+	if passw := confService.GetAccountPassword(); passw != testData.password {
+		t.Errorf("expected password to be %q got %q", testData.password, passw)
 	}
 
-	if confService.GetAccountCompanyId() != testData.companyId {
-		t.Errorf("expected Email to be %d got %d", testData.companyId, appConfig.Account.Company)
-	}
-
-	if len(cfgFile) > 0 {
-		t.Errorf("expected %q to be empty", cfgFile)
+	if cID := confService.GetAccountCompanyId(); cID != testData.companyId {
+		t.Errorf("expected Email to be %d got %d", testData.companyId, cID)
 	}
 }
 
 func TestParseFileConfig(t *testing.T) {
+	defer resetState()
 	testData := struct {
 		email, password string
 		companyId       int
@@ -66,7 +65,6 @@ func TestParseFileConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	testConfig := path.Join(cwd, "testdata/.shopware-cli.yml")
-	//cfgFile = testConfig
 
 	err = InitConfig(testConfig)
 	if err != nil {
@@ -76,25 +74,26 @@ func TestParseFileConfig(t *testing.T) {
 		t.Fatal("expected loadedWithEnv to be false")
 	}
 
-	confService := Config2{}
-	if confService.GetAccountEmail() != testData.email {
-		t.Errorf("expected Email to be %q got %q", testData.email, appConfig.Account.Email)
+	confService := Config{}
+	if email := confService.GetAccountEmail(); email != testData.email {
+		t.Errorf("expected Email to be %q got %q", testData.email, email)
 	}
 
-	if confService.GetAccountPassword() != testData.password {
-		t.Errorf("expected password to be %q got %q", testData.password, appConfig.Account.Password)
+	if pass := confService.GetAccountPassword(); pass != testData.password {
+		t.Errorf("expected password to be %q got %q", testData.password, pass)
 	}
 
-	if confService.GetAccountCompanyId() != testData.companyId {
-		t.Errorf("expected Email to be %d got %d", testData.companyId, appConfig.Account.Company)
+	if cID := confService.GetAccountCompanyId(); cID != testData.companyId {
+		t.Errorf("expected Email to be %d got %d", testData.companyId, cID)
 	}
 
 	if state.cfgPath != testConfig {
-		t.Errorf("unexpected change to cfgFile. expected %q got %q", testConfig, cfgFile)
+		t.Errorf("unexpected change to cfgFile. expected %q got %q", testConfig, state.cfgPath)
 	}
 }
 
 func TestSaveConfig(t *testing.T) {
+	defer resetState()
 	testData := struct {
 		email, password string
 		companyId       int
@@ -113,14 +112,14 @@ func TestSaveConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not open fixture %q %s", testConfig, err)
 	}
-	defer os.WriteFile(testConfig, configBackup, 0664)
+	defer os.WriteFile(testConfig, configBackup, os.ModePerm)
 
 	err = InitConfig(testConfig)
 	if err != nil {
 		t.Fatalf("unexpectd err: %q", err)
 	}
 
-	configService := Config2{}
+	configService := Config{}
 
 	if err := configService.SetAccountEmail(testData.email); err != nil {
 		t.Errorf("unexpected error %s", err)
@@ -136,7 +135,7 @@ func TestSaveConfig(t *testing.T) {
 		t.Fatalf("unexpected error %s", err)
 	}
 
-	if  state.modified {
+	if state.modified {
 		t.Errorf("config state must be marked unmodified after a save")
 	}
 
@@ -161,9 +160,43 @@ func TestSaveConfig(t *testing.T) {
 	if newConf.Account.Company != testData.companyId {
 		t.Errorf("expected Email to be %d got %d", testData.companyId, newConf.Account.Company)
 	}
+}
 
-	if state.cfgPath != testConfig {
-		t.Errorf("unexpected change to cfgFile. expected %q got %q", testConfig, cfgFile)
+func TestDontWriteEnvConfig(t *testing.T) {
+	testEnv := newTestEnv(t)
+	defer testEnv.restore()
+	defer resetState()
+
+	testData := struct {
+		email, password string
+		companyId       int
+	}{
+		email:     "test@test.com",
+		password:  "test123",
+		companyId: 456,
+	}
+
+	testEnv.set("SHOPWARE_CLI_ACCOUNT_EMAIL", testData.email)
+	testEnv.set("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
+	testEnv.set("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
+
+	err := InitConfig("")
+	if err != nil {
+		t.Fatalf("unexpectd err: %q", err)
+	}
+	if !state.loadedFromEnv {
+		t.Fatal("expected loadedWithEnv to be true")
+	}
+
+	confService := Config{}
+	if confService.SetAccountEmail("test@foo.com") == nil {
+		t.Error("expected an error when trying to write env config")
+	}
+	if confService.SetAccountPassword("S3CR3TF4RT3St") == nil {
+		t.Error("expected an error when trying to write env config")
+	}
+	if confService.SetAccountCompanyId(111) == nil {
+		t.Error("expected an error when trying to write env config")
 	}
 }
 
@@ -198,5 +231,13 @@ func (e *testEnv) restore() {
 		if err != nil {
 			e.t.Error(err)
 		}
+	}
+}
+
+func resetState() {
+	state = &configState{
+		mu:      sync.RWMutex{},
+		cfgPath: "",
+		inner:   defaultConfig(),
 	}
 }

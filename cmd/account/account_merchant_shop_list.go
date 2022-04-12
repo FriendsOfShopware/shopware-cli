@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"os"
@@ -13,12 +13,10 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 	Short:   "List all shops",
 	Aliases: []string{"ls"},
 	RunE: func(_ *cobra.Command, _ []string) error {
-		client := getAccountAPIByConfigOrFail()
-
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"ID", "Domain", "Usage"})
 
-		shops, err := client.Merchant().Shops()
+		shops, err := services.AccountClient.Merchant().Shops()
 
 		if err != nil {
 			return err

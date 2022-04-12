@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"fmt"
@@ -23,9 +23,7 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 		return []string{}, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(_ *cobra.Command, args []string) error {
-		client := getAccountAPIByConfigOrFail()
-
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get producer endpoint")

@@ -1,14 +1,13 @@
-package cmd
+package account
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
-
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	"os"
 )
 
 var accountCompanyMerchantShopComposerCmd = &cobra.Command{
@@ -18,13 +17,7 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 	ValidArgsFunction: func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		completions := make([]string, 0)
 
-		client, err := getAccountAPIByConfig()
-
-		if err != nil {
-			return completions, cobra.ShellCompDirectiveNoFileComp
-		}
-
-		shops, err := client.Merchant().Shops()
+		shops, err := services.AccountClient.Merchant().Shops()
 
 		if err != nil {
 			return completions, cobra.ShellCompDirectiveNoFileComp
@@ -37,9 +30,7 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 		return completions, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(_ *cobra.Command, args []string) error {
-		client := getAccountAPIByConfigOrFail()
-
-		shops, err := client.Merchant().Shops()
+		shops, err := services.AccountClient.Merchant().Shops()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get shops")
@@ -51,20 +42,20 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 			return fmt.Errorf("cannot find shop by domain %s", args[0])
 		}
 
-		token, err := client.Merchant().GetComposerToken(shop.Id)
+		token, err := services.AccountClient.Merchant().GetComposerToken(shop.Id)
 
 		if err != nil {
 			return err
 		}
 
 		if token == "" {
-			generatedToken, err := client.Merchant().GenerateComposerToken(shop.Id)
+			generatedToken, err := services.AccountClient.Merchant().GenerateComposerToken(shop.Id)
 
 			if err != nil {
 				return err
 			}
 
-			if err := client.Merchant().SaveComposerToken(shop.Id, generatedToken); err != nil {
+			if err := services.AccountClient.Merchant().SaveComposerToken(shop.Id, generatedToken); err != nil {
 				return err
 			}
 
