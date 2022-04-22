@@ -80,7 +80,9 @@ func InitConfig(configPath string) error {
 		return nil
 	}
 	if _, err := os.Stat(state.cfgPath); os.IsNotExist(err) {
-		return nil
+		if err := createNewConfig(state.cfgPath); err != nil {
+			return err
+		}
 	}
 
 	content, err := ioutil.ReadFile(state.cfgPath)
@@ -118,6 +120,16 @@ func SaveConfig() error {
 	}()
 
 	return configWriter.Encode(state.inner)
+}
+
+func createNewConfig(path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	encoder := yaml.NewEncoder(f)
+	return encoder.Encode(defaultConfig())
 }
 
 func (_ Config) GetAccountEmail() string {

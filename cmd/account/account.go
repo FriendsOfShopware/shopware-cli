@@ -19,7 +19,7 @@ type ServiceContainer struct {
 var services *ServiceContainer
 
 func Register(rootCmd *cobra.Command, onInit func() (*ServiceContainer, error)) {
-	accountRootCmd.PreRunE = func(_ *cobra.Command, _ []string) error {
+	accountRootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		ser, err := onInit()
 		services = ser
 		return err
