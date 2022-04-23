@@ -20,6 +20,12 @@ brew install FriendsOfShopware/tap/shopware-cli
 
 Download the .deb, .rpm or .apk packages from the [releases](https://github.com/FriendsOfShopware/shopware-cli/releases/) page and install them with the appropriate tools.
 
+### Nix with flakes
+
+```shell
+nix profile install github:FriendsOfShopware/shopware-cli
+```
+
 ### go install
 
 ```bash
