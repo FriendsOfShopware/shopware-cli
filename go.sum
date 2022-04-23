@@ -49,7 +49,6 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
-github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -124,16 +123,6 @@ github.com/envoyproxy/protoc-gen-validate v0.6.2/go.mod h1:2t7qjJNvHPx8IjnBOzl9E
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.9.0/go.mod h1:eQcE1qtQxscV5RaZvpXrrb8Drkc3/DdQ+uUYCNjL+zU=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220315174105-9056753d85f7 h1:wxkr2jOPF/1IyzipPuuGcNpTIl525cYuWnHkEYYfMeU=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220315174105-9056753d85f7/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319082046-b0f08fb262c2 h1:qZpR/TywCBUp2yLbG48KVfr/jdJS8cE+T0iL2Bo1wLg=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319082046-b0f08fb262c2/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319150838-baf50e639e05 h1:4Cejv5gRjhzkqklv6YUKQBgXMsxjMiJ4j3sZog2lPAY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319150838-baf50e639e05/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319152306-02baac37e3c5 h1:jEQJajqaL3JCK1LiCxiHND0I7L8qWhZFxyRpFHk/qJY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319152306-02baac37e3c5/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319160401-69328965239b h1:Tu6CtBt15OP1nv6DrHBYdFCMLAW+yXSnw7yBj9YkmgA=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220319160401-69328965239b/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc h1:+JURsvfNe+w0u3yRD5fd4y8RhpWSMEbPHE1yXbm7ijc=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
