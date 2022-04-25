@@ -27,8 +27,7 @@ func TestParseEnvConfig(t *testing.T) {
 	testEnv.set("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
 	testEnv.set("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
 
-	err := InitConfig("")
-	if err != nil {
+	if err := InitConfig(""); err != nil {
 		t.Fatalf("unexpectd err: %q", err)
 	}
 	if !state.loadedFromEnv {
@@ -66,8 +65,7 @@ func TestParseFileConfig(t *testing.T) {
 	}
 	testConfig := path.Join(cwd, "testdata/.shopware-cli.yml")
 
-	err = InitConfig(testConfig)
-	if err != nil {
+	if err := InitConfig(testConfig); err != nil {
 		t.Fatalf("unexpectd err: %q", err)
 	}
 	if state.loadedFromEnv {
@@ -112,10 +110,13 @@ func TestSaveConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not open fixture %q %s", testConfig, err)
 	}
-	defer os.WriteFile(testConfig, configBackup, os.ModePerm)
+	defer func() {
+		if err := os.WriteFile(testConfig, configBackup, os.ModePerm); err != nil {
+			t.Error(err)
+		}
+	}()
 
-	err = InitConfig(testConfig)
-	if err != nil {
+	if err := InitConfig(testConfig); err != nil {
 		t.Fatalf("unexpectd err: %q", err)
 	}
 
@@ -146,7 +147,7 @@ func TestSaveConfig(t *testing.T) {
 
 	var newConf configData
 	if err := yaml.Unmarshal(newConfData, &newConf); err != nil {
-		t.Fatalf("encounterd an error reading new config err: %q config: %q", err, string(newConfData))
+		t.Fatalf("encountered an error reading new config err: %q config: %q", err, string(newConfData))
 	}
 
 	if newConf.Account.Email != testData.email {
@@ -180,8 +181,7 @@ func TestDontWriteEnvConfig(t *testing.T) {
 	testEnv.set("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
 	testEnv.set("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
 
-	err := InitConfig("")
-	if err != nil {
+	if err := InitConfig(""); err != nil {
 		t.Fatalf("unexpectd err: %q", err)
 	}
 	if !state.loadedFromEnv {
@@ -206,6 +206,7 @@ type testEnv struct {
 }
 
 func newTestEnv(t *testing.T) *testEnv {
+	t.Helper()
 	return &testEnv{
 		t,
 		map[string]string{},

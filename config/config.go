@@ -109,7 +109,7 @@ func SaveConfig() error {
 		return nil
 	}
 
-	configFile, err := os.OpenFile(state.cfgPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	configFile, err := os.OpenFile(state.cfgPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return err
 	}
