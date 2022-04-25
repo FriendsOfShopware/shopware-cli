@@ -17,7 +17,6 @@ linters:
     - misspell
     - nakedret
     - noctx
-    - nolintlint
     - rowserrcheck
     - staticcheck
     - structcheck
@@ -44,6 +43,8 @@ linters:
     - errname
     - nilnil
     - tenv
+  # Fails with go 1.18 until https://github.com/golangci/golangci-lint/issues/2649 is resolved
+  #    - nolintlint
 
   # don't enable:
   # - ireturn
