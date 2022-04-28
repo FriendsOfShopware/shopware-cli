@@ -1,6 +1,7 @@
 package extension
 
 import (
+	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	"shopware-cli/extension"
 
@@ -24,7 +25,12 @@ var extensionPrepareCmd = &cobra.Command{
 			return errors.Wrap(err, "detect extension type")
 		}
 
-		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext)
+		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
+		if err != nil {
+			log.Warningf("error reading config: %v", err)
+		}
+
+		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext, extCfg)
 		if err != nil {
 			return errors.Wrap(err, "prepare zip")
 		}

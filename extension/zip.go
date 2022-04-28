@@ -193,7 +193,7 @@ func CleanupExtensionFolder(path string, additionalPaths []string) error {
 	})
 }
 
-func PrepareFolderForZipping(ctx context.Context, path string, ext Extension) error {
+func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, extCfg *Config) error {
 	composerJSONPath := path + "composer.json"
 
 	if _, err := os.Stat(composerJSONPath); os.IsNotExist(err) {
@@ -219,7 +219,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension) er
 		return errors.Wrap(err, "add composer replacements")
 	}
 
-	filtered := filterShopwareRequires(composer)
+	filtered := filterRequires(composer, extCfg)
 
 	if len(filtered["require"].(map[string]interface{})) == 0 {
 		return nil
@@ -262,7 +262,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension) er
 	return nil
 }
 
-func filterShopwareRequires(composer map[string]interface{}) map[string]interface{} {
+func filterRequires(composer map[string]interface{}, extCfg *Config) map[string]interface{} {
 	if _, ok := composer["provide"]; !ok {
 		composer["provide"] = make(map[string]interface{})
 	}
@@ -274,6 +274,9 @@ func filterShopwareRequires(composer map[string]interface{}) map[string]interfac
 	require := composer["require"]
 
 	keys := []string{"shopware/platform", "shopware/core", "shopware/shopware", "shopware/storefront", "shopware/administration", "composer/installers"}
+	if extCfg != nil {
+		keys = append(keys, extCfg.Build.Zip.Composer.ExcludedPackages...)
+	}
 
 	for _, key := range keys {
 		if _, ok := require.(map[string]interface{})[key]; ok {
