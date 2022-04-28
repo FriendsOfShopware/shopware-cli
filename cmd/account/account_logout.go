@@ -1,10 +1,9 @@
-package cmd
+package account
 
 import (
-	accountApi "shopware-cli/account-api"
-
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	accountApi "shopware-cli/account-api"
 
 	"github.com/spf13/cobra"
 )
@@ -19,12 +18,11 @@ var logoutCmd = &cobra.Command{
 			return errors.Wrap(err, "cannot invalidate token cache")
 		}
 
-		appConfig.Account.Company = 0
-		appConfig.Account.Email = ""
-		appConfig.Account.Password = ""
-		err = saveApplicationConfig()
+		_ = services.Conf.SetAccountCompanyId(0)
+		_ = services.Conf.SetAccountEmail("")
+		_ = services.Conf.SetAccountPassword("")
 
-		if err != nil {
+		if err := services.Conf.Save(); err != nil {
 			return errors.Wrap(err, "cannot write config")
 		}
 

@@ -14,7 +14,16 @@ import (
 
 const ApiUrl = "https://api.shopware.com"
 
-func NewApi(request LoginRequest) (*Client, error) {
+type AccountConfig interface {
+	GetAccountEmail() string
+	GetAccountPassword() string
+}
+
+func NewApi(config AccountConfig) (*Client, error) {
+	request := LoginRequest{
+		Email:    config.GetAccountEmail(),
+		Password: config.GetAccountPassword(),
+	}
 	client, err := createApiFromTokenCache()
 
 	if err == nil {
@@ -131,6 +140,14 @@ type tokenExpire struct {
 type LoginRequest struct {
 	Email    string `json:"shopwareId"`
 	Password string `json:"password"`
+}
+
+func (l LoginRequest) GetAccountEmail() string {
+	return l.Email
+}
+
+func (l LoginRequest) GetAccountPassword() string {
+	return l.Password
 }
 
 type Membership struct {

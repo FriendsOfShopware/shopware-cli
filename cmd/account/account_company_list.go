@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"os"
@@ -15,12 +15,10 @@ var accountCompanyListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Long:    ``,
 	Run: func(_ *cobra.Command, _ []string) {
-		client := getAccountAPIByConfigOrFail()
-
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"ID", "Name", "Customer ID", "Roles"})
 
-		for _, membership := range client.GetMemberships() {
+		for _, membership := range services.AccountClient.GetMemberships() {
 			table.Append([]string{
 				strconv.FormatInt(int64(membership.Company.Id), 10),
 				membership.Company.Name,

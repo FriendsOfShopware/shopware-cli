@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"path/filepath"
@@ -23,9 +23,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			return errors.Wrap(err, "validate")
 		}
 
-		client := getAccountAPIByConfigOrFail()
-
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 		if err != nil {
 			return err
 		}

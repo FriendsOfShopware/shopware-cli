@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"strconv"
@@ -14,15 +14,13 @@ var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
 	Short: "Delete a extension",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
-		client := getAccountAPIByConfigOrFail()
-
 		extensionId, err := strconv.Atoi(args[0])
 
 		if err != nil {
 			return errors.Wrap(err, "cannot convert id to int")
 		}
 
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get producer endpoint")

@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"fmt"
@@ -22,14 +22,13 @@ var accountCompanyUseCmd = &cobra.Command{
 			return err
 		}
 
-		client := getAccountAPIByConfigOrFail()
-
-		for _, membership := range client.GetMemberships() {
+		for _, membership := range services.AccountClient.GetMemberships() {
 			if membership.Company.Id == companyID {
-				appConfig.Account.Company = companyID
+				if err := services.Conf.SetAccountCompanyId(companyID); err != nil {
+					return err
+				}
 
-				err := saveApplicationConfig()
-				if err != nil {
+				if err := services.Conf.Save(); err != nil {
 					return err
 				}
 

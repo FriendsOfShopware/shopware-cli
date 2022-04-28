@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"bytes"
@@ -25,8 +25,6 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
-		client := getAccountAPIByConfigOrFail()
-
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {
@@ -57,7 +55,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			return errors.Wrap(err, "cannot get name")
 		}
 
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get producer endpoint")
@@ -204,9 +202,9 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 	}
 
 	if cfg.Store.Type != nil {
-		for _, storeProductType := range info.ProductTypes {
+		for i, storeProductType := range info.ProductTypes {
 			if storeProductType.Name == *cfg.Store.Type {
-				ext.ProductType = storeProductType
+				ext.ProductType = &info.ProductTypes[i]
 			}
 		}
 	}

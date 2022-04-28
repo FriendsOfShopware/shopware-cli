@@ -1,4 +1,4 @@
-package cmd
+package account
 
 import (
 	"fmt"
@@ -22,8 +22,6 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
-		client := getAccountAPIByConfigOrFail()
-
 		path, err := filepath.Abs(args[0])
 
 		if err != nil {
@@ -42,7 +40,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return errors.Wrap(err, "cannot get extension name")
 		}
 
-		p, err := client.Producer()
+		p, err := services.AccountClient.Producer()
 
 		if err != nil {
 			return errors.Wrap(err, "cannot get producer endpoint")
