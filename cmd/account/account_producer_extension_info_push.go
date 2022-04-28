@@ -202,9 +202,9 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 	}
 
 	if cfg.Store.Type != nil {
-		for _, storeProductType := range info.ProductTypes {
+		for i, storeProductType := range info.ProductTypes {
 			if storeProductType.Name == *cfg.Store.Type {
-				ext.ProductType = &storeProductType
+				ext.ProductType = &info.ProductTypes[i]
 			}
 		}
 	}
