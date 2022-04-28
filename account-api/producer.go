@@ -223,9 +223,8 @@ type Extension struct {
 		SupportMail          string `json:"supportMail"`
 		RatingMail           string `json:"ratingMail"`
 		SupportedLanguages   []struct {
-			Id          int    `json:"id"`
-			Name        string `json:"name"`
-			Description string `json:"description"`
+			Id   int    `json:"id"`
+			Name string `json:"name"`
 		} `json:"supportedLanguages"`
 		IconURL           string      `json:"iconUrl"`
 		CancelledContract interface{} `json:"cancelledContract"`
@@ -296,7 +295,7 @@ type Extension struct {
 	AutomaticBugfixVersionCompatibility bool               `json:"automaticBugfixVersionCompatibility"`
 	HiddenInStore                       bool               `json:"hiddenInStore"`
 	Certification                       interface{}        `json:"certification"`
-	ProductType                         StoreProductType   `json:"productType"`
+	ProductType                         *StoreProductType  `json:"productType"`
 	Status                              struct {
 		Name string `json:"name"`
 	} `json:"status"`
@@ -323,6 +322,7 @@ type Extension struct {
 	Successor                             interface{} `json:"successor"`
 	IsCompatibleWithLatestShopwareVersion bool        `json:"isCompatibleWithLatestShopwareVersion"`
 	PluginPreview                         interface{} `json:"pluginPreview"`
+	IsNoLongerAvailableForDownload        bool        `json:"isNoLongerAvailableForDownload"`
 }
 
 type CreateExtensionRequest struct {
