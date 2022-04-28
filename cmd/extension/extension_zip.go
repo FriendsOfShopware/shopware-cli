@@ -109,7 +109,7 @@ var extensionZipCmd = &cobra.Command{
 				return errors.Wrap(err, "before hooks composer")
 			}
 
-			if err := extension.PrepareFolderForZipping(cmd.Context(), extDir, ext); err != nil {
+			if err := extension.PrepareFolderForZipping(cmd.Context(), extDir, ext, extCfg); err != nil {
 				return errors.Wrap(err, "prepare package")
 			}
 

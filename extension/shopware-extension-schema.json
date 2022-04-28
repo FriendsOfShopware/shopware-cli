@@ -41,6 +41,10 @@
                                 "after_hooks": {
                                     "type": "array",
                                     "items": {"type": "string"}
+                                },
+                                "excluded_packages": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
                                 }
                             }
                         },

@@ -11,9 +11,10 @@ import (
 type ConfigBuild struct {
 	Zip struct {
 		Composer struct {
-			Enabled     bool     `yaml:"enabled"`
-			BeforeHooks []string `yaml:"before_hooks"`
-			AfterHooks  []string `yaml:"after_hooks"`
+			Enabled          bool     `yaml:"enabled"`
+			BeforeHooks      []string `yaml:"before_hooks"`
+			AfterHooks       []string `yaml:"after_hooks"`
+			ExcludedPackages []string `yaml:"excluded_packages"`
 		} `yaml:"composer"`
 		Assets struct {
 			Enabled     bool     `yaml:"enabled"`
