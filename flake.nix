@@ -29,7 +29,7 @@
         let
           pkgs = nixpkgsFor.${system};
         in
-        {
+        rec {
           shopware-cli = pkgs.buildGoModule {
             pname = "shopware-cli";
             inherit version;
@@ -47,19 +47,25 @@
             # remeber to bump this hash when your dependencies change.
             #vendorSha256 = pkgs.lib.fakeSha256;
 
-            vendorSha256 = "sha256-7FVYKkMb/fst2OgdEL4uq4IApm47UMw0U8zgfWNo1ho=";
+            vendorSha256 = "1h3ll34xx9xqs4fmicgiiqb339hf6mln0m06icfzbpazax778xyz";
           };
-        });
+	  default = shopware-cli;
+	});
 
-      defaultPackage = forAllSystems (system: self.packages.${system}.shopware-cli);
+      apps = forAllSystems (system: rec {
+        shopware-cli = {
+	  type = "app";
+	  program = "${self.packages.${system}.shopware-cli}/bin/shopware-cli";
+	};
+	default = shopware-cli;
+      });
+
+      defaultPackage = forAllSystems (system: self.packages.${system}.default);
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultApp = forAllSystems (system: {
-        type = "app";
-        program = "${self.packages.${system}.shopware_cli}/bin/shopware-cli";
-      });
+      defaultApp = forAllSystems (system: self.apps.${system}.default);
 
       devShell = forAllSystems (system:
         let pkgs = nixpkgsFor.${system};
