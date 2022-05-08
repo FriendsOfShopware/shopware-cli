@@ -226,7 +226,7 @@ func (a App) GetLicense() (string, error) {
 	return a.manifest.Meta.License, nil
 }
 
-func (a App) GetShopwareVersionConstraint() (*version.Constraints, error) {
+func (App) GetShopwareVersionConstraint() (*version.Constraints, error) {
 	v, err := version.NewConstraint("~6.4")
 
 	if err != nil {
@@ -236,7 +236,7 @@ func (a App) GetShopwareVersionConstraint() (*version.Constraints, error) {
 	return &v, err
 }
 
-func (a App) GetType() string {
+func (App) GetType() string {
 	return TypePlatformApp
 }
 
@@ -264,6 +264,6 @@ func (a App) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (a App) Validate(ctx *validationContext) {
+func (App) Validate(ctx *validationContext) {
 	validateTheme(ctx)
 }

@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -32,7 +33,7 @@ func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*h
 	return r, nil
 }
 
-func (c Client) doRequest(request *http.Request) ([]byte, error) {
+func (Client) doRequest(request *http.Request) ([]byte, error) {
 	resp, err := http.DefaultClient.Do(request)
 
 	if err != nil {
