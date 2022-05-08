@@ -3,17 +3,18 @@ package project
 import (
 	"encoding/json"
 	"fmt"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"shopware-cli/shop"
+
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+	log "github.com/sirupsen/logrus"
 )
 
 type MailTemplateSync struct{}
 
-func (s MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	mailTemplates, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err
@@ -101,7 +102,7 @@ func (s MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client,
 	return nil
 }
 
-func (s MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
+func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	mailTemplates, err := fetchAllMailTemplates(ctx, client)
 	if err != nil {
 		return err

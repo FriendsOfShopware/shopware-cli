@@ -11,7 +11,7 @@ import (
 
 type EntitySync struct{}
 
-func (s EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	for _, entity := range config.Sync.Entity {
 		if entity.Exists != nil && len(*entity.Exists) > 0 {
 			criteria := make(map[string]interface{})
@@ -56,7 +56,7 @@ func (s EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, confi
 	return nil
 }
 
-func (s EntitySync) Pull(_ adminSdk.ApiContext, _ *adminSdk.Client, _ *shop.Config) error {
+func (EntitySync) Pull(_ adminSdk.ApiContext, _ *adminSdk.Client, _ *shop.Config) error {
 	return nil
 }
 

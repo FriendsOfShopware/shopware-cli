@@ -2,13 +2,14 @@ package project
 
 import (
 	"encoding/json"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
+
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
 type ThemeSync struct{}
 
-func (s ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if len(config.Sync.Theme) == 0 {
 		return nil
 	}
@@ -61,7 +62,7 @@ func (s ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config
 	return nil
 }
 
-func (s ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
+func (ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Theme = make([]shop.ThemeConfig, 0)
 
 	criteria := adminSdk.Criteria{}

@@ -2,14 +2,15 @@ package project
 
 import (
 	"encoding/json"
+	"shopware-cli/shop"
+
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
-	"shopware-cli/shop"
 )
 
 type SystemConfigSync struct{}
 
-func (s SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
+func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config, operation *ConfigSyncOperation) error {
 	if config.Sync == nil {
 		return nil
 	}
@@ -81,7 +82,7 @@ func (s SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client,
 	return nil
 }
 
-func (s SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
+func (SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
 	config.Sync.Config = make([]shop.ConfigSyncConfig, 0)
 
 	c := adminSdk.Criteria{}

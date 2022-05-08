@@ -93,7 +93,7 @@ func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, er
 	return &shopwareConstraint, err
 }
 
-func (p PlatformPlugin) GetType() string {
+func (PlatformPlugin) GetType() string {
 	return TypePlatformPlugin
 }
 
