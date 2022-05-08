@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"shopware-cli/shop"
+
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
 type EntitySync struct{}
@@ -55,7 +56,7 @@ func (s EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, confi
 	return nil
 }
 
-func (s EntitySync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error {
+func (s EntitySync) Pull(_ adminSdk.ApiContext, _ *adminSdk.Client, _ *shop.Config) error {
 	return nil
 }
 
