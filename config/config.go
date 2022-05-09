@@ -132,25 +132,25 @@ func createNewConfig(path string) error {
 	return encoder.Encode(defaultConfig())
 }
 
-func (_ Config) GetAccountEmail() string {
+func (Config) GetAccountEmail() string {
 	state.mu.RLock()
 	defer state.mu.RUnlock()
 	return state.inner.Account.Email
 }
 
-func (_ Config) GetAccountPassword() string {
+func (Config) GetAccountPassword() string {
 	state.mu.RLock()
 	defer state.mu.RUnlock()
 	return state.inner.Account.Password
 }
 
-func (_ Config) GetAccountCompanyId() int {
+func (Config) GetAccountCompanyId() int {
 	state.mu.RLock()
 	defer state.mu.RUnlock()
 	return state.inner.Account.Company
 }
 
-func (_ Config) SetAccountEmail(email string) error {
+func (Config) SetAccountEmail(email string) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
@@ -164,7 +164,7 @@ func (_ Config) SetAccountEmail(email string) error {
 	return nil
 }
 
-func (_ Config) SetAccountPassword(password string) error {
+func (Config) SetAccountPassword(password string) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
@@ -178,7 +178,7 @@ func (_ Config) SetAccountPassword(password string) error {
 	return nil
 }
 
-func (_ Config) SetAccountCompanyId(id int) error {
+func (Config) SetAccountCompanyId(id int) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
@@ -192,6 +192,6 @@ func (_ Config) SetAccountCompanyId(id int) error {
 	return nil
 }
 
-func (_ Config) Save() error {
+func (Config) Save() error {
 	return SaveConfig()
 }
