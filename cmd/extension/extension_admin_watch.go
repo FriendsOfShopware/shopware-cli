@@ -1,21 +1,27 @@
 package extension
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"github.com/bep/godartsass"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/fsnotify/fsnotify"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/forward"
 	"github.com/vulcand/oxy/testutils"
 	"gopkg.in/antage/eventsource.v1"
+	"io"
 	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"shopware-cli/extension"
 	"strings"
 )
@@ -26,6 +32,130 @@ var portRegExp = regexp.MustCompile(`(?m)port:\s.*,`)
 var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
 var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
 var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
+
+var scssPlugin = api.Plugin{
+	Name: "scss",
+	Setup: func(build api.PluginBuild) {
+		dartSassBinary, err := downloadDartSass()
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Infof("Using dart-sass binary %s", dartSassBinary)
+
+		build.OnLoad(api.OnLoadOptions{Filter: `\.scss`},
+			func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+				content, err := ioutil.ReadFile(args.Path)
+				if err != nil {
+					return api.OnLoadResult{}, err
+				}
+
+				start, err := godartsass.Start(godartsass.Options{
+					DartSassEmbeddedFilename: dartSassBinary,
+					Timeout:                  0,
+					LogEventHandler:          nil,
+				})
+
+				if err != nil {
+					return api.OnLoadResult{}, err
+				}
+
+				execute, err := start.Execute(godartsass.Args{
+					Source:          string(content),
+					URL:             fmt.Sprintf("file://%s", args.Path),
+					EnableSourceMap: true,
+					IncludePaths: []string{
+						filepath.Dir(args.Path),
+					},
+				})
+
+				if err != nil {
+					return api.OnLoadResult{}, err
+				}
+
+				return api.OnLoadResult{
+					Contents: &execute.CSS,
+					Loader:   api.LoaderCSS,
+				}, nil
+			})
+	},
+}
+
+func downloadDartSass() (string, error) {
+	cacheDir, err := os.UserCacheDir()
+
+	if err != nil {
+		cacheDir = "/tmp"
+	}
+
+	expectedPath := fmt.Sprintf("%s/dart-sass-embedded", cacheDir)
+
+	if _, err := os.Stat(expectedPath); err == nil {
+		return expectedPath, nil
+	}
+
+	arch := runtime.GOARCH
+
+	switch runtime.GOARCH {
+	case "arm64":
+		arch = "arm64"
+		break
+	case "amd64":
+		arch = "x64"
+		break
+	case "386":
+		arch = "ia32"
+		break
+	}
+
+	url := fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", runtime.GOOS, arch)
+
+	tarFile, err := http.Get(url)
+	if err != nil {
+		return "", errors.Wrap(err, "cannot download dart-sass")
+	}
+
+	uncompressedStream, err := gzip.NewReader(tarFile.Body)
+	if err != nil {
+		return "", errors.Wrap(err, "cannot open gzip tar file")
+	}
+
+	tarReader := tar.NewReader(uncompressedStream)
+	foundDartSass := false
+
+	for true {
+		header, err := tarReader.Next()
+
+		if err == io.EOF {
+			break
+		}
+
+		if header.Name == "sass_embedded/dart-sass-embedded" {
+			foundDartSass = true
+			outFile, err := os.Create(expectedPath)
+			if err != nil {
+				return "", errors.Wrap(err, "cannot create dart-sass in temp")
+			}
+			if _, err := io.Copy(outFile, tarReader); err != nil {
+				return "", errors.Wrap(err, "cannot copy dart-sass in temp")
+			}
+			if err := outFile.Close(); err != nil {
+				return "", errors.Wrap(err, "cannot close dart-sass in temp")
+			}
+
+			if err := os.Chmod(expectedPath, 0775); err != nil {
+				return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
+			}
+		}
+	}
+
+	if !foundDartSass {
+		return "", fmt.Errorf("cannot find dart-sass executeable in tar file")
+	}
+
+	return cacheDir, nil
+}
 
 var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
@@ -63,7 +193,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 		fwd, _ := forward.New()
 		es = eventsource.New(nil, func(request *http.Request) [][]byte {
-			return [][]byte{[]byte("Access-Control-Allow-Origin: http://localhost:5000")}
+			return [][]byte{[]byte("Access-Control-Allow-Origin: http://localhost:8080")}
 		})
 
 		redirect := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -267,6 +397,7 @@ func compileExtension(entryPoint, jsFile, cssFile string) error {
 		Bundle:      true,
 		Write:       false,
 		LogLevel:    api.LogLevelInfo,
+		Plugins:     []api.Plugin{scssPlugin},
 		Loader: map[string]api.Loader{
 			".twig": api.LoaderText,
 			".scss": api.LoaderCSS,

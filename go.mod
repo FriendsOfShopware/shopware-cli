@@ -3,6 +3,7 @@ module shopware-cli
 go 1.18
 
 require (
+	github.com/bep/godartsass v0.14.0
 	github.com/caarlos0/env/v6 v6.9.1
 	github.com/doutorfinancas/go-mad v0.0.0-20220209173128-0ce6ec7309d4
 	github.com/evanw/esbuild v0.14.38
@@ -30,6 +31,7 @@ require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
+	github.com/cli/safeexec v1.0.0 // indirect
 	github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
