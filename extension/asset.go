@@ -214,7 +214,7 @@ func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig
 			Views: []string{
 				"Resources/views",
 			},
-			TechnicalName: strings.ReplaceAll(toSnakeCase(extName), "_", "-"),
+			TechnicalName: strings.ReplaceAll(ToSnakeCase(extName), "_", "-"),
 			Administration: ExtensionAssetConfigAdmin{
 				Path:          "Resources/app/administration/src",
 				EntryFilePath: entryFilePathAdmin,
