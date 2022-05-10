@@ -100,13 +100,10 @@ func downloadDartSass() (string, error) {
 	switch runtime.GOARCH {
 	case "arm64":
 		arch = "arm64"
-		break
 	case "amd64":
 		arch = "x64"
-		break
 	case "386":
 		arch = "ia32"
-		break
 	}
 
 	tarFile, err := http.Get(fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", runtime.GOOS, arch))
@@ -122,7 +119,7 @@ func downloadDartSass() (string, error) {
 	tarReader := tar.NewReader(uncompressedStream)
 	foundDartSass := false
 
-	for true {
+	for {
 		header, err := tarReader.Next()
 
 		if err == io.EOF {
@@ -359,8 +356,8 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 
 	err = filepath.WalkDir(watchDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
-			err = watcher.Add(watchDir)
-			if err != nil {
+			watchErr := watcher.Add(watchDir)
+			if watchErr != nil {
 				log.Fatal(err)
 			}
 		}
