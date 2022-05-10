@@ -109,9 +109,7 @@ func downloadDartSass() (string, error) {
 		break
 	}
 
-	url := fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", runtime.GOOS, arch)
-
-	tarFile, err := http.Get(url)
+	tarFile, err := http.Get(fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", runtime.GOOS, arch))
 	if err != nil {
 		return "", errors.Wrap(err, "cannot download dart-sass")
 	}
@@ -137,7 +135,7 @@ func downloadDartSass() (string, error) {
 			if err != nil {
 				return "", errors.Wrap(err, "cannot create dart-sass in temp")
 			}
-			if _, err := io.Copy(outFile, tarReader); err != nil {
+			if _, err := io.CopyN(outFile, tarReader, header.Size); err != nil {
 				return "", errors.Wrap(err, "cannot copy dart-sass in temp")
 			}
 			if err := outFile.Close(); err != nil {
@@ -154,7 +152,7 @@ func downloadDartSass() (string, error) {
 		return "", fmt.Errorf("cannot find dart-sass executeable in tar file")
 	}
 
-	return cacheDir, nil
+	return expectedPath, nil
 }
 
 var extensionAdminWatchCmd = &cobra.Command{
@@ -230,7 +228,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: 'http://localhost:8080/admin',")
 
 				w.Header().Set("content-type", "text/html")
-				w.Write([]byte(bodyStr))
+				if _, err := w.Write([]byte(bodyStr)); err != nil {
+					log.Error(err)
+				}
 				log.Debugf("Served modified admin")
 				return
 			}
@@ -259,7 +259,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 				var bundleInfo adminBundlesInfo
 				if err := json.Unmarshal(body, &bundleInfo); err != nil {
-					fmt.Println(string(body))
 					log.Errorf("could not decode bundle info %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
@@ -271,7 +270,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 				newJson, _ := json.Marshal(bundleInfo)
 
 				w.Header().Set("content-type", "application/json")
-				w.Write(newJson)
+				if _, err := w.Write(newJson); err != nil {
+					log.Error(err)
+				}
 
 				return
 			}
@@ -288,7 +289,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 			if req.URL.Path == "/live-reload.js" {
 				w.Header().Set("content-type", "application/json")
-				w.Write([]byte(("let eventSource = new EventSource('/events');\n\neventSource.onmessage = function (message) {\n    window.location.reload();\n}")))
+				_, _ = w.Write([]byte(("let eventSource = new EventSource('/events');\n\neventSource.onmessage = function (message) {\n    window.location.reload();\n}")))
 
 				return
 			}
@@ -303,7 +304,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 			Handler: redirect,
 		}
 		log.Infof("Admin Watcher started at http://localhost:8080/admin")
-		s.ListenAndServe()
+		if err := s.ListenAndServe(); err != nil {
+			return err
+		}
 
 		return nil
 	},
@@ -354,7 +357,7 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 
 	log.Infof("Watching for changes in %s", watchDir)
 
-	filepath.WalkDir(watchDir, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(watchDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			err = watcher.Add(watchDir)
 			if err != nil {
@@ -364,6 +367,10 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 
 		return nil
 	})
+
+	if err != nil {
+		log.Error(err)
+	}
 
 	<-done
 }
