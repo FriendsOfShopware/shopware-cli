@@ -47,17 +47,17 @@ func init() {
 // NewVersion parses the given version and returns a new
 // Version.
 func NewVersion(v string) (*Version, error) {
-	return newVersion(v, versionRegexp)
+	return newVersionFromRegExp(v, versionRegexp)
 }
 
 // NewSemver parses the given version and returns a new
 // Version that adheres strictly to SemVer specs
 // https://semver.org/
 func NewSemver(v string) (*Version, error) {
-	return newVersion(v, semverRegexp)
+	return newVersionFromRegExp(v, semverRegexp)
 }
 
-func newVersion(v string, pattern *regexp.Regexp) (*Version, error) {
+func newVersionFromRegExp(v string, pattern *regexp.Regexp) (*Version, error) {
 	matches := pattern.FindStringSubmatch(v)
 	if matches == nil {
 		return nil, fmt.Errorf("Malformed version: %s", v)
