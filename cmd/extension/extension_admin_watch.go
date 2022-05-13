@@ -32,6 +32,7 @@ var portRegExp = regexp.MustCompile(`(?m)port:\s.*,`)
 var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
 var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
 var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
+var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
 
 var scssPlugin = api.Plugin{
 	Name: "scss",
@@ -103,6 +104,8 @@ func downloadDartSass() (string, error) {
 		}
 	}
 
+	log.Infof("Downloading dart-sass")
+
 	osType := runtime.GOOS
 	arch := runtime.GOARCH
 
@@ -166,10 +169,6 @@ func downloadDartSass() (string, error) {
 		}
 	}
 
-	if err := os.Chmod(expectedPath, 0775); err != nil {
-		return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
-	}
-
 	return expectedPath, nil
 }
 
@@ -220,6 +219,16 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
+			assetPrefix := fmt.Sprintf("/bundles/%s/static/", strings.ToLower(name))
+			if strings.HasPrefix(req.URL.Path, assetPrefix) {
+				newFilePath := strings.TrimPrefix(req.URL.Path, assetPrefix)
+
+				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(entryPoint)), "static", newFilePath)
+
+				http.ServeFile(w, req, expectedLocation)
+				return
+			}
+
 			if req.URL.Path == "/admin" {
 				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
 
@@ -244,6 +253,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bodyStr = schemeRegExp.ReplaceAllString(bodyStr, "scheme: 'http',")
 				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: 'http://localhost:8080',")
 				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: 'http://localhost:8080/admin',")
+				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: 'http://localhost:8080'")
 
 				w.Header().Set("content-type", "text/html")
 				if _, err := w.Write([]byte(bodyStr)); err != nil {
@@ -350,7 +360,7 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 					continue
 				}
 
-				if stat, err := os.Stat(event.Name); err != nil && stat.IsDir() {
+				if stat, err := os.Stat(event.Name); err == nil && stat.IsDir() {
 					err = watcher.Add(event.Name)
 					if err != nil {
 						log.Fatal(err)
