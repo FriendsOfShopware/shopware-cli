@@ -142,9 +142,9 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 							}
 
 							break
-						} else {
-							log.Fatalln("Code review has not passed", lastReview.GetSummary())
 						}
+
+						log.Fatalln("Code review has not passed", lastReview.GetSummary())
 					}
 				}
 

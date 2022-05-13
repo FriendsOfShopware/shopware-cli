@@ -364,9 +364,9 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 					err = watcher.Add(event.Name)
 					if err != nil {
 						log.Fatal(err)
-					} else {
-						log.Debugf("Added watch path: %s", event.Name)
 					}
+
+					log.Debugf("Added watch path: %s", event.Name)
 				}
 
 				es.SendEventMessage("reload", "message", "1")
