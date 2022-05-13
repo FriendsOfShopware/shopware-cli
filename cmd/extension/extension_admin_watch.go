@@ -44,19 +44,19 @@ var scssPlugin = api.Plugin{
 
 		log.Infof("Using dart-sass binary %s", dartSassBinary)
 
+		start, err := godartsass.Start(godartsass.Options{
+			DartSassEmbeddedFilename: dartSassBinary,
+			Timeout:                  0,
+			LogEventHandler:          nil,
+		})
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		build.OnLoad(api.OnLoadOptions{Filter: `\.scss`},
 			func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 				content, err := ioutil.ReadFile(args.Path)
-				if err != nil {
-					return api.OnLoadResult{}, err
-				}
-
-				start, err := godartsass.Start(godartsass.Options{
-					DartSassEmbeddedFilename: dartSassBinary,
-					Timeout:                  0,
-					LogEventHandler:          nil,
-				})
-
 				if err != nil {
 					return api.OnLoadResult{}, err
 				}
@@ -89,12 +89,21 @@ func downloadDartSass() (string, error) {
 		cacheDir = "/tmp"
 	}
 
+	cacheDir += "/dart-sass-embedded"
+
 	expectedPath := fmt.Sprintf("%s/dart-sass-embedded", cacheDir)
 
 	if _, err := os.Stat(expectedPath); err == nil {
 		return expectedPath, nil
 	}
 
+	if _, err := os.Stat(filepath.Dir(expectedPath)); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(expectedPath), os.ModePerm); err != nil {
+			return "", err
+		}
+	}
+
+	osType := runtime.GOOS
 	arch := runtime.GOARCH
 
 	switch runtime.GOARCH {
@@ -106,7 +115,11 @@ func downloadDartSass() (string, error) {
 		arch = "ia32"
 	}
 
-	tarFile, err := http.Get(fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", runtime.GOOS, arch))
+	if osType == "darwin" {
+		osType = "macos"
+	}
+
+	tarFile, err := http.Get(fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", osType, arch))
 	if err != nil {
 		return "", errors.Wrap(err, "cannot download dart-sass")
 	}
@@ -117,7 +130,6 @@ func downloadDartSass() (string, error) {
 	}
 
 	tarReader := tar.NewReader(uncompressedStream)
-	foundDartSass := false
 
 	for {
 		header, err := tarReader.Next()
@@ -126,27 +138,36 @@ func downloadDartSass() (string, error) {
 			break
 		}
 
-		if header.Name == "sass_embedded/dart-sass-embedded" {
-			foundDartSass = true
-			outFile, err := os.Create(expectedPath)
-			if err != nil {
-				return "", errors.Wrap(err, "cannot create dart-sass in temp")
-			}
-			if _, err := io.CopyN(outFile, tarReader, header.Size); err != nil {
-				return "", errors.Wrap(err, "cannot copy dart-sass in temp")
-			}
-			if err := outFile.Close(); err != nil {
-				return "", errors.Wrap(err, "cannot close dart-sass in temp")
-			}
+		name := strings.TrimPrefix(header.Name, "sass_embedded/")
+		folder := fmt.Sprintf("%s/%s", cacheDir, filepath.Dir(name))
+		file := fmt.Sprintf("%s/%s", cacheDir, name)
 
-			if err := os.Chmod(expectedPath, 0775); err != nil {
-				return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
+		if !strings.HasSuffix(folder, ".") {
+			if _, err := os.Stat(folder); os.IsNotExist(err) {
+				if err := os.MkdirAll(folder, os.ModePerm); err != nil {
+					return "", err
+				}
 			}
+		}
+
+		outFile, err := os.Create(file)
+		if err != nil {
+			return "", errors.Wrap(err, "cannot create dart-sass in temp")
+		}
+		if _, err := io.CopyN(outFile, tarReader, header.Size); err != nil {
+			return "", errors.Wrap(err, "cannot copy dart-sass in temp")
+		}
+		if err := outFile.Close(); err != nil {
+			return "", errors.Wrap(err, "cannot close dart-sass in temp")
+		}
+
+		if err := os.Chmod(file, os.FileMode(header.Mode)); err != nil {
+			return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
 		}
 	}
 
-	if !foundDartSass {
-		return "", fmt.Errorf("cannot find dart-sass executeable in tar file")
+	if err := os.Chmod(expectedPath, 0775); err != nil {
+		return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
 	}
 
 	return expectedPath, nil
@@ -356,7 +377,7 @@ func setupWatcher(watchDir string, entryPoint string, jsFile string, cssFile str
 
 	err = filepath.WalkDir(watchDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
-			watchErr := watcher.Add(watchDir)
+			watchErr := watcher.Add(path)
 			if watchErr != nil {
 				log.Fatal(err)
 			}
@@ -405,6 +426,11 @@ func compileExtension(entryPoint, jsFile, cssFile string) error {
 		Loader: map[string]api.Loader{
 			".twig": api.LoaderText,
 			".scss": api.LoaderCSS,
+			".css":  api.LoaderCSS,
+			".png":  api.LoaderFile,
+			".jpg":  api.LoaderFile,
+			".jpeg": api.LoaderFile,
+			".ts":   api.LoaderTS,
 		},
 	})
 
