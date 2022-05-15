@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -81,12 +80,12 @@ func Unzip(r *zip.Reader, dest string) error {
 
 		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return fmt.Errorf("Unzip: %v", err)
+			return fmt.Errorf("unzip: %w", err)
 		}
 
 		rc, err := f.Open()
 		if err != nil {
-			return fmt.Errorf("Unzip: %v", err)
+			return fmt.Errorf("unzip: %w", err)
 		}
 
 		_, err = io.Copy(outFile, rc) //nolint:gosec
@@ -96,7 +95,7 @@ func Unzip(r *zip.Reader, dest string) error {
 		_ = rc.Close()
 
 		if err != nil {
-			return fmt.Errorf("Unzip: %v", err)
+			return fmt.Errorf("unzip: %w", err)
 		}
 	}
 
@@ -116,41 +115,57 @@ func CreateZip(baseFolder, zipFile string) error {
 	defer w.Close()
 
 	// Add some files to the archive.
-	AddZipFiles(w, baseFolder, "")
-
-	return nil
+	return AddZipFiles(w, baseFolder, "")
 }
 
-func AddZipFiles(w *zip.Writer, basePath, baseInZip string) {
+func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
 	// Open the Directory
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
-		log.Fatalln(err)
+		return fmt.Errorf("could not zip dir, basePath: %q, baseInZip: %q, %w", basePath, baseInZip, err)
 	}
 
 	for _, file := range files {
 		if !file.IsDir() {
 			dat, err := ioutil.ReadFile(basePath + file.Name())
 			if err != nil {
-				log.Fatalln(err)
+				return fmt.Errorf(
+					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
+					basePath,
+					baseInZip,
+					file.Name(),
+					err,
+				)
 			}
 
 			// Add some files to the archive.
 			f, err := w.Create(baseInZip + file.Name())
 			if err != nil {
-				log.Fatalln(err)
+				return fmt.Errorf(
+					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
+					basePath,
+					baseInZip,
+					file.Name(),
+					err,
+				)
 			}
-			_, err = f.Write(dat)
-			if err != nil {
-				log.Fatalln(err)
+			if _, err := f.Write(dat); err != nil {
+				return fmt.Errorf(
+					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
+					basePath,
+					baseInZip,
+					file.Name(),
+					err,
+				)
 			}
-		} else if file.IsDir() {
+		} else {
 			// Recurse
 			newBase := basePath + file.Name() + "/"
 
-			AddZipFiles(w, newBase, baseInZip+file.Name()+"/")
+			return AddZipFiles(w, newBase, baseInZip+file.Name()+"/")
 		}
 	}
+	return nil
 }
 
 func CleanupExtensionFolder(path string, additionalPaths []string) error {
