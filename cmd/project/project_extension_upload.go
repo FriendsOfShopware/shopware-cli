@@ -143,7 +143,9 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 		var buf bytes.Buffer
 		w := zip.NewWriter(&buf)
-		extension.AddZipFiles(w, ext.GetPath()+"/", name+"/")
+		if err := extension.AddZipFiles(w, ext.GetPath()+"/", name+"/"); err != nil {
+			return errors.Wrap(err, "uploading extension")
+		}
 
 		if err := w.Close(); err != nil {
 			return err
