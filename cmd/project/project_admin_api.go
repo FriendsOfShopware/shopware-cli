@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var skipDefaultHeaders bool
+
 var projectAdminApiCmd = &cobra.Command{
 	Use:   "admin-api [method] [path]",
 	Short: "pre authenticated curl interface to the Admin API",
@@ -62,7 +64,19 @@ var projectAdminApiCmd = &cobra.Command{
 
 		fullURL := shopURL.ResolveReference(apiPath)
 
-		cmd := curl.InitCurlCommand(curl.Url(fullURL), curl.Method(args[0]), curl.BearerToken(token.AccessToken), curl.Args(args[2:]))
+		commandConfig := []curl.CurlConfig{
+			curl.Url(fullURL),
+			curl.Method(args[0]),
+			curl.BearerToken(token.AccessToken),
+			curl.Args(args[2:]),
+		}
+
+		if !skipDefaultHeaders {
+			commandConfig = append(commandConfig, curl.Header("content-type", "application/json"))
+			commandConfig = append(commandConfig, curl.Header("accept", "application/json"))
+		}
+
+		cmd := curl.InitCurlCommand(commandConfig...)
 
 		return cmd.Run()
 	},
@@ -76,5 +90,12 @@ func parsePath(inputPath string) (*url.URL, error) {
 
 func init() {
 	projectAdminApiCmd.PersistentFlags().Bool("output-token", false, "Output only token")
+	projectAdminApiCmd.PersistentFlags().BoolVarP(
+		&skipDefaultHeaders,
+		"no-default-headers",
+		"",
+		false,
+		"skips setting the content-type and accept headers",
+	)
 	projectRootCmd.AddCommand(projectAdminApiCmd)
 }
