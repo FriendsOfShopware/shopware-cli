@@ -2,46 +2,19 @@ package mysqlproxy
 
 import (
 	json2 "encoding/json"
+	"fmt"
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/sql"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"strings"
 )
 
-func NewAdminTable(client *adminSdk.Client, entity Entity) *AdminTable {
-	var columns []*sql.Column
-
-	for name, property := range entity.Properties {
-		if property.Type == "association" {
-			continue
-		}
-		columns = append(columns, &sql.Column{
-			Name:          name,
-			Type:          property.GetType(),
-			Default:       nil,
-			AutoIncrement: false,
-			Nullable:      !property.IsPrimary(),
-			Source:        entity.Name,
-			PrimaryKey:    property.IsPrimary(),
-			Comment:       property.Comment(),
-			Extra:         "",
-		})
-	}
-
-	t := &AdminTable{
-		Client:      client,
-		adminEntity: entity,
-		columns:     columns,
-	}
-
-	return t
-}
-
 type AdminTable struct {
 	Client      *adminSdk.Client
 	adminEntity Entity
 	memory      *memory.Table
 	columns     []*sql.Column
+	isMapping   bool
 }
 
 func (at *AdminTable) Name() string {
@@ -60,7 +33,13 @@ func (at *AdminTable) Partitions(context *sql.Context) (sql.PartitionIter, error
 	at.memory = memory.NewTable(at.Name(), sql.NewPrimaryKeySchema(at.Schema()), nil)
 
 	ctx := adminSdk.NewApiContext(context)
-	req, err := at.Client.NewRequest(ctx, "POST", "/api/search/"+strings.ReplaceAll(at.Name(), "_", "-"), nil)
+	searchUrl := fmt.Sprintf("/api/search/%s", strings.ReplaceAll(at.Name(), "_", "-"))
+
+	if at.isMapping {
+		searchUrl = strings.ReplaceAll(searchUrl, "/search/", "/search-ids/")
+	}
+
+	req, err := at.Client.NewRequest(ctx, "POST", searchUrl, nil)
 
 	if err != nil {
 		return nil, err

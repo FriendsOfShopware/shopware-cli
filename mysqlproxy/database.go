@@ -60,23 +60,13 @@ func (db *AdminDatabase) GetTableNames(ctx *sql.Context) ([]string, error) {
 	return tables, nil
 }
 
-func (db AdminDatabase) loadTables(ctx context.Context) error {
-	req, err := db.Client.NewRequest(adminSdk.NewApiContext(ctx), "GET", "/api/_info/entity-schema.json", nil)
-
+func (db *AdminDatabase) loadTables(ctx context.Context) error {
+	schema, err := NewApiSchema(ctx, db.Client)
 	if err != nil {
 		return err
 	}
 
-	var schema map[string]Entity
-
-	_, err = db.Client.Do(ctx, req, &schema)
-	if err != nil {
-		return err
-	}
-
-	for s, entity := range schema {
-		db.tables[s] = NewAdminTable(db.Client, entity)
-	}
+	db.tables = schema.BuildTables(db.Client)
 
 	return nil
 }

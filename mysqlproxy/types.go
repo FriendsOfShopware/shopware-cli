@@ -15,6 +15,7 @@ type EntityProperty struct {
 	Relation string      `json:"relation"`
 	Entity   string      `json:"entity"`
 	Flags    interface{} `json:"flags,omitempty"`
+	Mapping  string      `json:"mapping,omitempty"`
 }
 
 func (p EntityProperty) GetType() sql.Type {
@@ -55,4 +56,14 @@ func (p EntityProperty) Comment() string {
 	}
 
 	return ""
+}
+
+func (e *Entity) MappingTables() []string {
+	var mappings []string
+	for _, p := range e.Properties {
+		if p.Relation == "many_to_many" && len(p.Mapping) > 0 {
+			mappings = append(mappings, p.Mapping)
+		}
+	}
+	return mappings
 }
