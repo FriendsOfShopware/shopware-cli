@@ -14,7 +14,12 @@ type AdminTable struct {
 	adminEntity Entity
 	memory      *memory.Table
 	columns     []*sql.Column
+	pkSchema    sql.PrimaryKeySchema
 	isMapping   bool
+}
+
+func (at *AdminTable) Deleter(context *sql.Context) sql.RowDeleter {
+	return &bulkEditor{table: at}
 }
 
 func (at *AdminTable) Name() string {
@@ -30,7 +35,8 @@ func (at *AdminTable) Schema() sql.Schema {
 }
 
 func (at *AdminTable) Partitions(context *sql.Context) (sql.PartitionIter, error) {
-	at.memory = memory.NewTable(at.Name(), sql.NewPrimaryKeySchema(at.Schema()), nil)
+	at.pkSchema = sql.NewPrimaryKeySchema(at.Schema())
+	at.memory = memory.NewTable(at.Name(), at.pkSchema, nil)
 
 	ctx := adminSdk.NewApiContext(context)
 	searchUrl := fmt.Sprintf("/api/search/%s", strings.ReplaceAll(at.Name(), "_", "-"))
