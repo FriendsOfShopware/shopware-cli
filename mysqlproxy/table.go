@@ -18,6 +18,10 @@ type AdminTable struct {
 	isMapping   bool
 }
 
+func (at *AdminTable) Updater(ctx *sql.Context) sql.RowUpdater {
+	return &bulkEditor{table: at}
+}
+
 func (at *AdminTable) Deleter(context *sql.Context) sql.RowDeleter {
 	return &bulkEditor{table: at}
 }
