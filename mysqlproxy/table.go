@@ -13,7 +13,7 @@ type AdminTable struct {
 	Client      *adminSdk.Client
 	adminEntity Entity
 	memory      *memory.Table
-	columns     []*sql.Column
+	columns     sql.Schema
 	pkSchema    sql.PrimaryKeySchema
 	isMapping   bool
 }

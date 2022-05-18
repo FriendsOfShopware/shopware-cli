@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dolthub/go-mysql-server/sql"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+	"sort"
 )
 
 type ApiSchema struct {
@@ -52,7 +53,7 @@ func (apiSchema *ApiSchema) BuildTables(client *adminSdk.Client) map[string]sql.
 	return tables
 }
 
-func entityColumns(entity Entity) []*sql.Column {
+func entityColumns(entity Entity) sql.Schema {
 	var columns []*sql.Column
 
 	for name, property := range entity.Properties {
@@ -71,5 +72,25 @@ func entityColumns(entity Entity) []*sql.Column {
 			Extra:         "",
 		})
 	}
+	sort.Sort(byPKandName{columns})
 	return columns
+}
+
+type byPKandName struct {
+	cols sql.Schema
+}
+
+func (b byPKandName) Len() int {
+	return len(b.cols)
+}
+
+func (b byPKandName) Less(i, j int) bool {
+	if b.cols[i].PrimaryKey && !b.cols[j].PrimaryKey {
+		return true
+	}
+	return b.cols[i].Name < b.cols[j].Name
+}
+
+func (b byPKandName) Swap(i, j int) {
+	b.cols[i], b.cols[j] = b.cols[j], b.cols[i]
 }
