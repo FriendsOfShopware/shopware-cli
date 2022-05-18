@@ -1,9 +1,9 @@
 package account
 
 import (
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	accountApi "shopware-cli/account-api"
 
 	"github.com/spf13/cobra"
 )

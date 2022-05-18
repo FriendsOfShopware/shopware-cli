@@ -1,4 +1,4 @@
-module shopware-cli
+module github.com/FriendsOfShopware/shopware-cli
 
 go 1.18
 

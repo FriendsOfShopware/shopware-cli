@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"shopware-cli/cmd"
+	"github.com/FriendsOfShopware/shopware-cli/cmd"
 )
 
 func main() {

@@ -1,9 +1,9 @@
 package account
 
 import (
+	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"path/filepath"
-	account_api "shopware-cli/account-api"
-	"shopware-cli/extension"
 	"time"
 
 	log "github.com/sirupsen/logrus"

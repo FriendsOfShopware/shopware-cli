@@ -2,11 +2,11 @@ package project
 
 import (
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/curl"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/spf13/cobra"
 	"net/url"
 	"path"
-	"shopware-cli/curl"
-	"shopware-cli/shop"
 	"strings"
 )
 

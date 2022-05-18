@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 	"github.com/manifoldco/promptui"
 	"github.com/mholt/archiver/v3"
 	"github.com/schollz/progressbar/v3"
@@ -11,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	update_api "shopware-cli/update-api"
 )
 
 var projectCreateCmd = &cobra.Command{

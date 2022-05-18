@@ -2,9 +2,9 @@ package extension
 
 import (
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"os"
 	"path/filepath"
-	"shopware-cli/extension"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

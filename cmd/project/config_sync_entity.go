@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"shopware-cli/shop"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )

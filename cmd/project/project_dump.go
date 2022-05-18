@@ -2,9 +2,9 @@ package project
 
 import (
 	"database/sql"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"io"
 	"os"
-	"shopware-cli/shop"
 	"strings"
 
 	"github.com/doutorfinancas/go-mad/core"

@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"shopware-cli/version"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 const (

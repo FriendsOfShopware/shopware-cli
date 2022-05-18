@@ -1,10 +1,10 @@
 package project
 
 import (
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"io/ioutil"
 	"os"
-	"shopware-cli/shop"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

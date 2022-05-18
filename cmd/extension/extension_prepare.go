@@ -1,9 +1,9 @@
 package extension
 
 import (
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
 	"path/filepath"
-	"shopware-cli/extension"
 
 	"github.com/pkg/errors"
 

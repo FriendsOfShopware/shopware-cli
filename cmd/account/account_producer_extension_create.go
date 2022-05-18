@@ -2,7 +2,7 @@ package account
 
 import (
 	"fmt"
-	accountApi "shopware-cli/account-api"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"strings"
 
 	"github.com/pkg/errors"

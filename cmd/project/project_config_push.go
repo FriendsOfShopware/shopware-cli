@@ -2,8 +2,8 @@ package project
 
 import (
 	"encoding/json"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	"shopware-cli/shop"
 
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"

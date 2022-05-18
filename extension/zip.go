@@ -17,7 +17,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"shopware-cli/version"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 var (
