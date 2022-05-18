@@ -3,11 +3,11 @@ package account
 import (
 	"bytes"
 	"fmt"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	accountApi "shopware-cli/account-api"
-	"shopware-cli/extension"
 	"strings"
 
 	"github.com/pkg/errors"

@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"shopware-cli/version"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 type translatedXmlNode []struct {

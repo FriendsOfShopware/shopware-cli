@@ -1,8 +1,8 @@
 package account
 
 import (
+	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"os"
-	account_api "shopware-cli/account-api"
 	"strconv"
 
 	"github.com/pkg/errors"

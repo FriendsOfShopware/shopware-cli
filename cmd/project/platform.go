@@ -3,12 +3,12 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"shopware-cli/extension"
 	"strings"
 )
 

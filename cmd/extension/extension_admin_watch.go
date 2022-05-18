@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/bep/godartsass"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/fsnotify/fsnotify"
@@ -22,7 +23,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"shopware-cli/extension"
 	"strings"
 )
 

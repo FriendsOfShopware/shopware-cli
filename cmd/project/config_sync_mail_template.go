@@ -3,10 +3,10 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"shopware-cli/shop"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"

@@ -2,9 +2,9 @@ package project
 
 import (
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"os"
-	"shopware-cli/shop"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"context"
-	accountApi "shopware-cli/account-api"
-	"shopware-cli/cmd/account"
-	"shopware-cli/cmd/extension"
-	"shopware-cli/cmd/project"
-	"shopware-cli/config"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/cmd/account"
+	"github.com/FriendsOfShopware/shopware-cli/cmd/extension"
+	"github.com/FriendsOfShopware/shopware-cli/cmd/project"
+	"github.com/FriendsOfShopware/shopware-cli/config"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

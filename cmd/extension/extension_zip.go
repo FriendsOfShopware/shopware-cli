@@ -2,11 +2,11 @@ package extension
 
 import (
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"shopware-cli/extension"
 
 	"github.com/pkg/errors"
 

@@ -2,11 +2,11 @@ package account
 
 import (
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-	"shopware-cli/extension"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
