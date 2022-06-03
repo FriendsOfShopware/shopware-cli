@@ -242,7 +242,7 @@ func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig
 			StyleFiles:    []string{},
 		},
 		Administration: ExtensionAssetConfigAdmin{
-			Path: "Resources/app/storefront/src",
+			Path: "Resources/app/administration/src",
 		},
 	}
 
