@@ -1,8 +1,10 @@
 package extension
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"os"
 	"path/filepath"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -33,7 +35,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 			validatedExtensions = append(validatedExtensions, ext)
 		}
 
-		err := extension.BuildAssetsForExtensions("", validatedExtensions)
+		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions)
 
 		if err != nil {
 			return errors.Wrap(err, "cannot build assets")

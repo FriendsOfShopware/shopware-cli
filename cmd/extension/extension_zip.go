@@ -128,7 +128,7 @@ var extensionZipCmd = &cobra.Command{
 				return err
 			}
 
-			if err := extension.BuildAssetsForExtensions("", []extension.Extension{tempExt}); err != nil {
+			if err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}); err != nil {
 				return errors.Wrap(err, "building assets")
 			}
 
