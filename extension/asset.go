@@ -3,16 +3,18 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error {
-	cfgs := buildAssetConfigFromExtensions(extensions)
+	cfgs := buildAssetConfigFromExtensions(extensions, shopwareRoot)
 
 	if len(cfgs) == 1 {
 		return nil
@@ -46,11 +48,8 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	if cfgs.RequiresAdminBuild() {
 		for _, entry := range cfgs {
 			// If extension has package.json install it
-			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/administration/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/administration/", entry.BasePath), "install") //nolint:gosec
-				npmInstallCmd.Stdout = os.Stdout
-				npmInstallCmd.Stderr = os.Stderr
-				err := npmInstallCmd.Run()
+			if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/administration/package.json")); err == nil {
+				err := npmInstall(filepath.Join(entry.BasePath, "Resources/app/administration/"))
 
 				if err != nil {
 					return err
@@ -58,20 +57,12 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 			}
 		}
 
-		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "install") //nolint:gosec
-		npmInstallCmd.Stdout = os.Stdout
-		npmInstallCmd.Stderr = os.Stderr
-		err := npmInstallCmd.Run()
-
-		if err != nil {
-			return err
-		}
-
-		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Administration/Resources/app/administration/", shopwareRoot), "run", "build") //nolint:gosec
-		npmBuildCmd.Env = []string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
-		npmBuildCmd.Stdout = os.Stdout
-		npmBuildCmd.Stderr = os.Stderr
-		err = npmBuildCmd.Run()
+		administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
+		err := npmInstallAndBuild(
+			administrationRoot,
+			"build",
+			[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH"))},
+		)
 
 		if err != nil {
 			return err
@@ -81,11 +72,8 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 	if cfgs.RequiresStorefrontBuild() {
 		for _, entry := range cfgs {
 			// If extension has package.json install it
-			if _, err := os.Stat(fmt.Sprintf("%s/Resources/app/storefront/package.json", entry.BasePath)); err == nil {
-				npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/Resources/app/storefront/", entry.BasePath), "install") //nolint:gosec
-				npmInstallCmd.Stdout = os.Stdout
-				npmInstallCmd.Stderr = os.Stderr
-				err := npmInstallCmd.Run()
+			if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/storefront/package.json")); err == nil {
+				err := npmInstall(filepath.Join(entry.BasePath, "%s/Resources/app/storefront/"))
 
 				if err != nil {
 					return err
@@ -93,24 +81,45 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 			}
 		}
 
-		npmInstallCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "install") //nolint:gosec
-		npmInstallCmd.Stdout = os.Stdout
-		npmInstallCmd.Stderr = os.Stderr
-		err := npmInstallCmd.Run()
+		storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
+		err := npmInstallAndBuild(
+			storefrontRoot,
+			"production",
+			[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
+		)
 
 		if err != nil {
 			return err
 		}
+	}
 
-		npmBuildCmd := exec.Command("npm", "--prefix", fmt.Sprintf("%s/src/Storefront/Resources/app/storefront/", shopwareRoot), "run", "production") //nolint:gosec
-		npmBuildCmd.Env = []string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
-		npmBuildCmd.Stdout = os.Stdout
-		npmBuildCmd.Stderr = os.Stderr
-		err = npmBuildCmd.Run()
+	return nil
+}
 
-		if err != nil {
-			return err
-		}
+func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string) error {
+	if err := npmInstall(path); err != nil {
+		return err
+	}
+
+	npmBuildCmd := exec.Command("npm", "--prefix", path, "run", buildCmd) //nolint:gosec
+	npmBuildCmd.Env = buildEnvVariables
+	npmBuildCmd.Stdout = os.Stdout
+	npmBuildCmd.Stderr = os.Stderr
+
+	if err := npmBuildCmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func npmInstall(path string) error {
+	npmInstallCmd := exec.Command("npm", "--prefix", path, "install") //nolint:gosec
+	npmInstallCmd.Stdout = os.Stdout
+	npmInstallCmd.Stderr = os.Stderr
+
+	if err := npmInstallCmd.Run(); err != nil {
+		return err
 	}
 
 	return nil
@@ -147,7 +156,7 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, extension := range extensions {
@@ -231,9 +240,19 @@ func buildAssetConfigFromExtensions(extensions []Extension) ExtensionAssetConfig
 		list[extName] = cfg
 	}
 
+	var basePath string
+	if shopwareRoot == "" {
+		basePath = "src/Storefront"
+	} else {
+		basePath = strings.TrimLeft(
+			strings.Replace(PlatformPath(shopwareRoot, "Storefront", ""), shopwareRoot, "", 1),
+			"/",
+		)
+	}
+
 	entryPath := "Resources/app/storefront/src/main.js"
 	list["Storefront"] = ExtensionAssetConfigEntry{
-		BasePath:      "src/Storefront/",
+		BasePath:      basePath,
 		Views:         []string{"Resources/views"},
 		TechnicalName: "storefront",
 		Storefront: ExtensionAssetConfigStorefront{
