@@ -59,6 +59,7 @@ func runDefaultValidate(context *validationContext) {
 		context.AddError("Extension name cannot be empty")
 	}
 
+	notAllowedErrorFormat := "file %s is not allowed in the zip file"
 	_ = filepath.Walk(context.Extension.GetPath(), func(path string, info fs.FileInfo, err error) error {
 		name := filepath.Base(path)
 
@@ -68,19 +69,19 @@ func runDefaultValidate(context *validationContext) {
 
 		for _, file := range defaultNotAllowedPaths {
 			if strings.HasPrefix(path, file) {
-				context.AddError(fmt.Sprintf("file %s is not allowed in the zip file", path))
+				context.AddError(fmt.Sprintf(notAllowedErrorFormat, path))
 			}
 		}
 
 		for _, file := range defaultNotAllowedFiles {
 			if file == name {
-				context.AddError(fmt.Sprintf("file %s is not allowed in the zip file", path))
+				context.AddError(fmt.Sprintf(notAllowedErrorFormat, path))
 			}
 		}
 
 		for _, ext := range defaultNotAllowedExtensions {
 			if strings.HasSuffix(name, ext) {
-				context.AddError(fmt.Sprintf("file %s is not allowed in the zip file", path))
+				context.AddError(fmt.Sprintf(notAllowedErrorFormat, path))
 			}
 		}
 

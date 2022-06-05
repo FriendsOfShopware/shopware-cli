@@ -91,6 +91,7 @@ type Config struct {
 }
 
 func ReadExtensionConfig(dir string) (*Config, error) {
+	errorFormat := "ReadExtensionConfig: %v"
 	config := &Config{}
 	config.Build.Zip.Assets.Enabled = true
 	config.Build.Zip.Composer.Enabled = true
@@ -109,18 +110,18 @@ func ReadExtensionConfig(dir string) (*Config, error) {
 	fileHandle, err := ioutil.ReadFile(fileName)
 
 	if err != nil {
-		return nil, fmt.Errorf("NewExtensionConfig: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	err = yaml.Unmarshal(fileHandle, &config)
 
 	if err != nil {
-		return nil, fmt.Errorf("NewExtensionConfig: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	err = validateExtensionConfig(config)
 	if err != nil {
-		return nil, fmt.Errorf("NewExtensionConfig: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return config, nil
@@ -132,7 +133,7 @@ func validateExtensionConfig(config *Config) error {
 	}
 
 	if config.Store.Tags.German != nil && len(*config.Store.Tags.German) > 5 {
-		return fmt.Errorf("store.info.tags.en can contain maximal 5 items")
+		return fmt.Errorf("store.info.tags.de can contain maximal 5 items")
 	}
 
 	if config.Store.Videos.English != nil && len(*config.Store.Videos.English) > 2 {

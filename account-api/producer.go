@@ -171,22 +171,24 @@ func (e producerEndpoint) GetExtensionByName(name string) (*Extension, error) {
 }
 
 func (e producerEndpoint) GetExtensionById(id int) (*Extension, error) {
+	errorFormat := "GetExtensionById: %v"
+
 	// Create it
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
 
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionById: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
 
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionById: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var extension Extension
 	if err := json.Unmarshal(body, &extension); err != nil {
-		return nil, fmt.Errorf("GetExtensionById: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return &extension, nil
@@ -407,16 +409,17 @@ func (e producerEndpoint) DeleteExtension(id int) error {
 }
 
 func (e producerEndpoint) GetSoftwareVersions(generation string) (*SoftwareVersionList, error) {
+	errorFormat := "shopware_versions: %v"
 	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"}]", ApiUrl, generation), nil)
 
 	if err != nil {
-		return nil, fmt.Errorf("shopware_versions: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
 
 	if err != nil {
-		return nil, fmt.Errorf("shopware_versions: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var versions SoftwareVersionList
@@ -424,7 +427,7 @@ func (e producerEndpoint) GetSoftwareVersions(generation string) (*SoftwareVersi
 	err = json.Unmarshal(body, &versions)
 
 	if err != nil {
-		return nil, fmt.Errorf("shopware_versions: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return &versions, nil

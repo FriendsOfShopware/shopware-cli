@@ -12,6 +12,7 @@ import (
 )
 
 var state *configState
+var environmentConfigErrorFormat = "could not set config value %s to %q config was loaded from the environment variables"
 
 type configState struct {
 	mu            sync.RWMutex
@@ -154,10 +155,7 @@ func (Config) SetAccountEmail(email string) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
-		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
-			"account.email",
-			email,
-		)
+		return fmt.Errorf(environmentConfigErrorFormat, "account.email", email)
 	}
 	state.modified = true
 	state.inner.Account.Email = email
@@ -168,10 +166,7 @@ func (Config) SetAccountPassword(password string) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
-		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
-			"account.password",
-			"***",
-		)
+		return fmt.Errorf(environmentConfigErrorFormat, "account.password", "***")
 	}
 	state.modified = true
 	state.inner.Account.Password = password
@@ -182,10 +177,7 @@ func (Config) SetAccountCompanyId(id int) error {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	if state.loadedFromEnv {
-		return fmt.Errorf("could not set config value %s to %q config was loaded from env",
-			"account.company",
-			strconv.Itoa(id),
-		)
+		return fmt.Errorf(environmentConfigErrorFormat, "account.company", strconv.Itoa(id))
 	}
 	state.modified = true
 	state.inner.Account.Company = id

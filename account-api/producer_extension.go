@@ -49,37 +49,37 @@ type ExtensionBinary struct {
 }
 
 func (e producerEndpoint) GetExtensionBinaries(extensionId int) ([]*ExtensionBinary, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries", ApiUrl, extensionId), nil)
+	errorFormat := "GetExtensionBinaries: %v"
 
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries", ApiUrl, extensionId), nil)
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionBinaries: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionBinaries: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var binaries []*ExtensionBinary
 	if err := json.Unmarshal(body, &binaries); err != nil {
-		return nil, fmt.Errorf("GetExtensionBinaries: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return binaries, nil
 }
 
 func (e producerEndpoint) UpdateExtensionBinaryInfo(extensionId int, binary ExtensionBinary) error {
-	content, err := json.Marshal(binary)
+	errorFormat := "UpdateExtensionBinaryInfo: %v"
 
+	content, err := json.Marshal(binary)
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryInfo: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/binaries/%d", ApiUrl, extensionId, binary.Id), bytes.NewReader(content)) //nolint:noctx
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryInfo: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	_, err = e.c.doRequest(r)
@@ -88,86 +88,80 @@ func (e producerEndpoint) UpdateExtensionBinaryInfo(extensionId int, binary Exte
 }
 
 func (e producerEndpoint) CreateExtensionBinaryFile(extensionId int, zipPath string) (*ExtensionBinary, error) {
+	errorFormat := "CreateExtensionBinaryFile: %v"
+
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
 	fileWritter, err := w.CreateFormFile("file", filepath.Base(zipPath))
-
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	zipFile, err := os.Open(zipPath)
-
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	_, err = io.Copy(fileWritter, zipFile)
-
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	err = w.Close()
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/binaries", ApiUrl, extensionId), &b)
-
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	r.Header.Set("content-type", w.FormDataContentType())
 
 	content, err := e.c.doRequest(r)
-
 	if err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	// For some reasons this API responses a array of binaries
 	var binary []*ExtensionBinary
 	if err := json.Unmarshal(content, &binary); err != nil {
-		return nil, fmt.Errorf("CreateExtensionBinaryFile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return binary[0], nil
 }
 
 func (e producerEndpoint) UpdateExtensionBinaryFile(extensionId, binaryId int, zipPath string) error {
+	errorFormat := "UpdateExtensionBinaryFile: %v"
+
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
 	fileWritter, err := w.CreateFormFile("file", filepath.Base(zipPath))
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	zipFile, err := os.Open(zipPath)
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
-	_, err = io.Copy(fileWritter, zipFile)
-
-	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
+	if _, err = io.Copy(fileWritter, zipFile); err != nil {
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	err = w.Close()
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/binaries/%d/file", ApiUrl, extensionId, binaryId), &b) //nolint:noctx
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionBinaryFile: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r.Header.Set("content-type", w.FormDataContentType())
@@ -178,36 +172,33 @@ func (e producerEndpoint) UpdateExtensionBinaryFile(extensionId, binaryId int, z
 }
 
 func (e producerEndpoint) UpdateExtensionIcon(extensionId int, iconFile string) error {
+	errorFormat := "UpdateExtensionIcon: %v"
+
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
 	fileWritter, err := w.CreateFormFile("file", filepath.Base(iconFile))
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	zipFile, err := os.Open(iconFile)
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
-	_, err = io.Copy(fileWritter, zipFile)
-
-	if err != nil {
-		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+	if _, err = io.Copy(fileWritter, zipFile); err != nil {
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	err = w.Close()
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/icon", ApiUrl, extensionId), &b)
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionIcon: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r.Header.Set("content-type", w.FormDataContentType())
@@ -231,31 +222,32 @@ type ExtensionImage struct {
 }
 
 func (e producerEndpoint) GetExtensionImages(extensionId int) ([]*ExtensionImage, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), nil)
+	errorFormat := "GetExtensionImages: %v"
 
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), nil)
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
-		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var images []*ExtensionImage
 	if err := json.Unmarshal(body, &images); err != nil {
-		return nil, fmt.Errorf("GetExtensionImages: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return images, nil
 }
 
 func (e producerEndpoint) DeleteExtensionImages(extensionId, imageId int) error {
-	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, imageId), nil)
+	errorFormat := "DeleteExtensionImages: %v"
 
+	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, imageId), nil)
 	if err != nil {
-		return fmt.Errorf("DeleteExtensionImages: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	_, err = e.c.doRequest(r)
@@ -264,16 +256,16 @@ func (e producerEndpoint) DeleteExtensionImages(extensionId, imageId int) error 
 }
 
 func (e producerEndpoint) UpdateExtensionImage(extensionId int, image *ExtensionImage) error {
-	content, err := json.Marshal(image)
+	errorFormat := "UpdateExtensionImage: %v"
 
+	content, err := json.Marshal(image)
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionImage: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d/pictures/%d", ApiUrl, extensionId, image.Id), bytes.NewReader(content)) //nolint:noctx
-
 	if err != nil {
-		return fmt.Errorf("UpdateExtensionImage: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	_, err = e.c.doRequest(r)
@@ -282,51 +274,44 @@ func (e producerEndpoint) UpdateExtensionImage(extensionId int, image *Extension
 }
 
 func (e producerEndpoint) AddExtensionImage(extensionId int, file string) (*ExtensionImage, error) {
+	errorFormat := "AddExtensionImage: %v"
+
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
 	fileWritter, err := w.CreateFormFile("file", filepath.Base(file))
-
 	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	zipFile, err := os.Open(file)
-
 	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	_, err = io.Copy(fileWritter, zipFile)
-
-	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	if _, err = io.Copy(fileWritter, zipFile); err != nil {
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	err = w.Close()
-	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+	if err = w.Close(); err != nil {
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/pictures", ApiUrl, extensionId), &b) //nolint:noctx
-
 	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	r.Header.Set("content-type", w.FormDataContentType())
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
-		return nil, fmt.Errorf("AddExtensionImage: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var list []*ExtensionImage
 
-	err = json.Unmarshal(body, &list)
-
-	if err != nil {
+	if err = json.Unmarshal(body, &list); err != nil {
 		return nil, fmt.Errorf("AddExtensionImage: %v", err)
 	}
 
@@ -334,10 +319,11 @@ func (e producerEndpoint) AddExtensionImage(extensionId int, file string) (*Exte
 }
 
 func (e producerEndpoint) TriggerCodeReview(extensionId int) error {
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/reviews", ApiUrl, extensionId), nil) //nolint:noctx
+	errorFormat := "TriggerCodeReview: %v"
 
+	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins/%d/reviews", ApiUrl, extensionId), nil) //nolint:noctx
 	if err != nil {
-		return fmt.Errorf("TriggerCodeReview: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	_, err = e.c.doRequest(r)
@@ -346,21 +332,21 @@ func (e producerEndpoint) TriggerCodeReview(extensionId int) error {
 }
 
 func (e producerEndpoint) GetBinaryReviewResults(extensionId, binaryId int) ([]BinaryReviewResult, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries/%d/checkresults", ApiUrl, extensionId, binaryId), nil) //nolint:noctx
+	errorFormat := "GetBinaryReviewResults: %v"
 
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d/binaries/%d/checkresults", ApiUrl, extensionId, binaryId), nil) //nolint:noctx
 	if err != nil {
-		return nil, fmt.Errorf("GetBinaryReviewResults: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
-		return nil, fmt.Errorf("GetBinaryReviewResults: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var results []BinaryReviewResult
 	if err := json.Unmarshal(body, &results); err != nil {
-		return nil, fmt.Errorf("GetBinaryReviewResults: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return results, nil
