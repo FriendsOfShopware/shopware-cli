@@ -116,7 +116,6 @@ func CreateZip(baseFolder, zipFile string) error {
 	w := zip.NewWriter(outFile)
 	defer w.Close()
 
-	// Add some files to the archive.
 	return AddZipFiles(w, baseFolder, "")
 }
 
@@ -128,8 +127,14 @@ func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
 	}
 
 	for _, file := range files {
-		if !file.IsDir() {
-			dat, err := ioutil.ReadFile(basePath + file.Name())
+		if file.IsDir() {
+			// Add files of directory recursively
+			if err = AddZipFiles(w, filepath.Join(basePath, file.Name()), filepath.Join(baseInZip, file.Name())); err != nil {
+				return err
+			}
+		} else {
+			// Add file to ZIP archive
+			dat, err := ioutil.ReadFile(filepath.Join(basePath, file.Name()))
 			if err != nil {
 				return fmt.Errorf(
 					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
@@ -140,8 +145,7 @@ func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
 				)
 			}
 
-			// Add some files to the archive.
-			f, err := w.Create(baseInZip + file.Name())
+			f, err := w.Create(filepath.Join(baseInZip, file.Name()))
 			if err != nil {
 				return fmt.Errorf(
 					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
@@ -160,13 +164,9 @@ func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
 					err,
 				)
 			}
-		} else {
-			// Recurse
-			newBase := basePath + file.Name() + "/"
-
-			return AddZipFiles(w, newBase, baseInZip+file.Name()+"/")
 		}
 	}
+
 	return nil
 }
 
