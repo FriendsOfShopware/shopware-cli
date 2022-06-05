@@ -61,6 +61,10 @@ func getPlatformPath(projectRoot, component, path string) string {
 	return fmt.Sprintf(projectRoot+"/vendor/shopware/%s/%s", strings.ToLower(component), path)
 }
 
+func runConsoleCommand(projectRoot string, command string) error {
+	return runSimpleCommand(projectRoot, "php", "bin/console", command)
+}
+
 func runSimpleCommand(root string, app string, args ...string) error {
 	cmd := exec.Command(app, args...)
 	cmd.Dir = root
@@ -74,7 +78,7 @@ func runSimpleCommand(root string, app string, args ...string) error {
 func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	storefrontRoot := getPlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
 
-	if err := runSimpleCommand(projectRoot, "php", "bin/console", "bundle:dump"); err != nil {
+	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
 		return err
 	}
 
@@ -82,8 +86,8 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	// Optional command, allowed to failure
-	_ = runSimpleCommand(projectRoot, "php", "bin/console", "feature:dump")
+	// Optional command, allowed to fail
+	_ = runConsoleCommand(projectRoot, "feature:dump")
 
 	// Optional npm install
 	_, err := os.Stat(getPlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules"))
@@ -113,17 +117,17 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	if err := runSimpleCommand(projectRoot, "php", "bin/console", "assets:install"); err != nil {
+	if err := runConsoleCommand(projectRoot, "assets:install"); err != nil {
 		return err
 	}
 
-	return runSimpleCommand(projectRoot, "php", "bin/console", "theme:compile")
+	return runConsoleCommand(projectRoot, "theme:compile")
 }
 
 func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 	adminRoot := getPlatformPath(projectRoot, "Administration", "Resources/app/administration")
 
-	if err := runSimpleCommand(projectRoot, "php", "bin/console", "bundle:dump"); err != nil {
+	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
 		return err
 	}
 
@@ -131,8 +135,8 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	// Optional command, allowed to failure
-	_ = runSimpleCommand(projectRoot, "php", "bin/console", "feature:dump")
+	// Optional command, allowed to fail
+	_ = runConsoleCommand(projectRoot, "feature:dump")
 
 	// Optional npm install
 
@@ -159,7 +163,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	return runSimpleCommand(projectRoot, "php", "bin/console", "assets:install")
+	return runConsoleCommand(projectRoot, "assets:install")
 }
 
 func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {

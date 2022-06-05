@@ -58,6 +58,8 @@ var (
 )
 
 func Unzip(r *zip.Reader, dest string) error {
+	errorFormat := "unzip: %w"
+
 	for _, f := range r.File {
 		// Store filename/path for returning and using later on
 		fpath := filepath.Join(dest, f.Name) //nolint:gosec
@@ -80,12 +82,12 @@ func Unzip(r *zip.Reader, dest string) error {
 
 		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return fmt.Errorf("unzip: %w", err)
+			return fmt.Errorf(errorFormat, err)
 		}
 
 		rc, err := f.Open()
 		if err != nil {
-			return fmt.Errorf("unzip: %w", err)
+			return fmt.Errorf(errorFormat, err)
 		}
 
 		_, err = io.Copy(outFile, rc) //nolint:gosec
@@ -95,7 +97,7 @@ func Unzip(r *zip.Reader, dest string) error {
 		_ = rc.Close()
 
 		if err != nil {
-			return fmt.Errorf("unzip: %w", err)
+			return fmt.Errorf(errorFormat, err)
 		}
 	}
 
@@ -209,7 +211,9 @@ func CleanupExtensionFolder(path string, additionalPaths []string) error {
 }
 
 func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, extCfg *Config) error {
-	composerJSONPath := path + "composer.json"
+	errorFormat := "PrepareFolderForZipping: %v"
+	composerJSONPath := filepath.Join(path, "composer.json")
+	composerLockPath := filepath.Join(path, "composer.lock")
 
 	if _, err := os.Stat(composerJSONPath); os.IsNotExist(err) {
 		return nil
@@ -218,14 +222,14 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	content, err := ioutil.ReadFile(composerJSONPath)
 
 	if err != nil {
-		return fmt.Errorf("PrepareFolderForZipping: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	var composer map[string]interface{}
 	err = json.Unmarshal(content, &composer)
 
 	if err != nil {
-		return fmt.Errorf("PrepareFolderForZipping: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	// Add replacements
@@ -241,24 +245,24 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	// Remove the composer.lock
-	if _, err := os.Stat(path + "composer.lock"); !os.IsNotExist(err) {
-		err := os.Remove(path + "composer.lock")
+	if _, err := os.Stat(composerLockPath); !os.IsNotExist(err) {
+		err := os.Remove(composerLockPath)
 		if err != nil {
-			return fmt.Errorf("PrepareFolderForZipping: %v", err)
+			return fmt.Errorf(errorFormat, err)
 		}
 	}
 
 	newContent, err := json.Marshal(&composer)
 
 	if err != nil {
-		return fmt.Errorf("PrepareFolderForZipping: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	err = ioutil.WriteFile(composerJSONPath, newContent, 0644) //nolint:gosec
 	if err != nil {
 		// Revert on failure
 		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
-		return fmt.Errorf("PrepareFolderForZipping: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	// Execute composer in this directory
@@ -269,7 +273,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	if err != nil {
 		// Revert on failure
 		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
-		return fmt.Errorf("PrepareFolderForZipping: %v", err)
+		return fmt.Errorf(errorFormat, err)
 	}
 
 	_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec

@@ -14,6 +14,8 @@ var projectConfigPushCmd = &cobra.Command{
 	Use:   "push",
 	Short: "Synchronizes your local config to the external shop",
 	RunE: func(cmd *cobra.Command, _ []string) error {
+		logFormat := "Payload: %s"
+
 		var cfg *shop.Config
 		var err error
 
@@ -57,7 +59,7 @@ var projectConfigPushCmd = &cobra.Command{
 
 				content, _ := json.Marshal(values.Payload)
 
-				log.Printf("Payload: %s", string(content))
+				log.Printf(logFormat, string(content))
 			}
 		}
 
@@ -81,7 +83,7 @@ var projectConfigPushCmd = &cobra.Command{
 
 				content, _ := json.Marshal(values)
 
-				log.Printf("Payload: %s", string(content))
+				log.Printf(logFormat, string(content))
 			}
 		}
 
@@ -91,7 +93,7 @@ var projectConfigPushCmd = &cobra.Command{
 
 				content, _ := json.Marshal(themeOp.Settings)
 
-				log.Printf("Payload: %s", string(content))
+				log.Printf(logFormat, string(content))
 			}
 		}
 

@@ -8,32 +8,32 @@ import (
 )
 
 func (c Client) GetMyProfile() (*myProfile, error) {
-	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil) //nolint:noctx
+	errorFormat := "GetMyProfile: %v"
 
+	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil) //nolint:noctx
 	if err != nil {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	resp, err := http.DefaultClient.Do(request)
-
 	if err != nil {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	var profile myProfile
 	if err := json.Unmarshal(data, &profile); err != nil {
-		return nil, fmt.Errorf("my_profile: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	return &profile, nil

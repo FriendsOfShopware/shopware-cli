@@ -20,6 +20,8 @@ type AccountConfig interface {
 }
 
 func NewApi(config AccountConfig) (*Client, error) {
+	errorFormat := "login: %v"
+
 	request := LoginRequest{
 		Email:    config.GetAccountEmail(),
 		Password: config.GetAccountPassword(),
@@ -32,7 +34,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 
 	s, err := json.Marshal(request)
 	if err != nil {
-		return nil, fmt.Errorf("login: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	req, err := http.NewRequest(http.MethodPost, ApiUrl+"/accesstokens", bytes.NewBuffer(s)) //nolint:noctx
@@ -44,14 +46,14 @@ func NewApi(config AccountConfig) (*Client, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("login: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("login: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	if resp.StatusCode != 200 {
@@ -61,7 +63,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 
 	var token token
 	if err := json.Unmarshal(data, &token); err != nil {
-		return nil, fmt.Errorf("login: %v", err)
+		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	memberships, err := fetchMemberships(token)
