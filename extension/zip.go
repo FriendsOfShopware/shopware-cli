@@ -212,7 +212,8 @@ func CleanupExtensionFolder(path string, additionalPaths []string) error {
 
 func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, extCfg *Config) error {
 	errorFormat := "PrepareFolderForZipping: %v"
-	composerJSONPath := path + "composer.json"
+	composerJSONPath := filepath.Join(path, "composer.json")
+	composerLockPath := filepath.Join(path, "composer.lock")
 
 	if _, err := os.Stat(composerJSONPath); os.IsNotExist(err) {
 		return nil
@@ -244,8 +245,8 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	// Remove the composer.lock
-	if _, err := os.Stat(path + "composer.lock"); !os.IsNotExist(err) {
-		err := os.Remove(path + "composer.lock")
+	if _, err := os.Stat(composerLockPath); !os.IsNotExist(err) {
+		err := os.Remove(composerLockPath)
 		if err != nil {
 			return fmt.Errorf(errorFormat, err)
 		}
