@@ -116,57 +116,28 @@ func CreateZip(baseFolder, zipFile string) error {
 	w := zip.NewWriter(outFile)
 	defer w.Close()
 
-	// Add some files to the archive.
 	return AddZipFiles(w, baseFolder, "")
 }
 
 func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
-	// Open the Directory
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
 		return fmt.Errorf("could not zip dir, basePath: %q, baseInZip: %q, %w", basePath, baseInZip, err)
 	}
 
 	for _, file := range files {
-		if !file.IsDir() {
-			dat, err := ioutil.ReadFile(basePath + file.Name())
-			if err != nil {
-				return fmt.Errorf(
-					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
-					basePath,
-					baseInZip,
-					file.Name(),
-					err,
-				)
-			}
-
-			// Add some files to the archive.
-			f, err := w.Create(baseInZip + file.Name())
-			if err != nil {
-				return fmt.Errorf(
-					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
-					basePath,
-					baseInZip,
-					file.Name(),
-					err,
-				)
-			}
-			if _, err := f.Write(dat); err != nil {
-				return fmt.Errorf(
-					"could not zip file, basePath: %q, baseInZip: %q, file: %q, %w",
-					basePath,
-					baseInZip,
-					file.Name(),
-					err,
-				)
+		if file.IsDir() {
+			// Add files of directory recursively
+			if err = AddZipFiles(w, filepath.Join(basePath, file.Name()), filepath.Join(baseInZip, file.Name())); err != nil {
+				return err
 			}
 		} else {
-			// Recurse
-			newBase := basePath + file.Name() + "/"
-
-			return AddZipFiles(w, newBase, baseInZip+file.Name()+"/")
+			if err = addFileToZip(w, filepath.Join(basePath, file.Name()), filepath.Join(baseInZip, file.Name())); err != nil {
+				return err
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -277,6 +248,26 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+
+	return nil
+}
+
+func addFileToZip(zipWriter *zip.Writer, sourcePath string, zipPath string) error {
+	zipErrorFormat := "could not zip file, sourcePath: %q, zipPath: %q, %w"
+
+	dat, err := ioutil.ReadFile(sourcePath)
+	if err != nil {
+		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
+	}
+
+	f, err := zipWriter.Create(zipPath)
+	if err != nil {
+		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
+	}
+
+	if _, err := f.Write(dat); err != nil {
+		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
+	}
 
 	return nil
 }

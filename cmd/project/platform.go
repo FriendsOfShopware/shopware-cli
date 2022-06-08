@@ -51,16 +51,6 @@ func findClosestShopwareProject() (string, error) {
 	return "", fmt.Errorf("cannot find Shopware project in current directory")
 }
 
-func getPlatformPath(projectRoot, component, path string) string {
-	if _, err := os.Stat(projectRoot + "/src/Core/composer.json"); err == nil {
-		return fmt.Sprintf(projectRoot+"/src/%s/%s", component, path)
-	} else if _, err := os.Stat(projectRoot + "/vendor/shopware/platform/"); err == nil {
-		return fmt.Sprintf(projectRoot+"/vendor/shopware/platform/src/%s/%s", component, path)
-	}
-
-	return fmt.Sprintf(projectRoot+"/vendor/shopware/%s/%s", strings.ToLower(component), path)
-}
-
 func runConsoleCommand(projectRoot string, command string) error {
 	return runSimpleCommand(projectRoot, "php", "bin/console", command)
 }
@@ -76,7 +66,7 @@ func runSimpleCommand(root string, app string, args ...string) error {
 }
 
 func buildStorefront(projectRoot string, forceNpmInstall bool) error {
-	storefrontRoot := getPlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
+	storefrontRoot := extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
 
 	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
 		return err
@@ -90,7 +80,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	_ = runConsoleCommand(projectRoot, "feature:dump")
 
 	// Optional npm install
-	_, err := os.Stat(getPlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules"))
+	_, err := os.Stat(extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", storefrontRoot, "--no-save"); err != nil {
@@ -98,7 +88,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 		}
 	}
 
-	if err := runSimpleCommand(projectRoot, "node", getPlatformPath(projectRoot, "Storefront", "Resources/app/storefront/copy-to-vendor.js")); err != nil {
+	if err := runSimpleCommand(projectRoot, "node", extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront/copy-to-vendor.js")); err != nil {
 		return err
 	}
 
@@ -125,7 +115,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 }
 
 func buildAdministration(projectRoot string, forceNpmInstall bool) error {
-	adminRoot := getPlatformPath(projectRoot, "Administration", "Resources/app/administration")
+	adminRoot := extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration")
 
 	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
 		return err
@@ -140,7 +130,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 
 	// Optional npm install
 
-	_, err := os.Stat(getPlatformPath(projectRoot, "Administration", "Resources/app/administration/node_modules"))
+	_, err := os.Stat(extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", adminRoot, "--no-save"); err != nil {
