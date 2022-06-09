@@ -31,36 +31,30 @@ type ConfigBuild struct {
 }
 
 type ConfigStore struct {
-	Availabilities                      *[]string                  `yaml:"availabilities"`
-	DefaultLocale                       *string                    `yaml:"default_locale"`
-	Localizations                       *[]string                  `yaml:"localizations"`
-	Categories                          *[]string                  `yaml:"categories"`
-	Type                                *string                    `yaml:"type"`
-	Icon                                *string                    `yaml:"icon"`
-	AutomaticBugfixVersionCompatibility *bool                      `yaml:"automatic_bugfix_version_compatibility"`
-	Description                         ConfigTranslatedString     `yaml:"description"`
-	InstallationManual                  ConfigTranslatedString     `yaml:"installation_manual"`
-	Tags                                ConfigTranslatedStringList `yaml:"tags"`
-	Videos                              ConfigTranslatedStringList `yaml:"videos"`
-	Highlights                          ConfigTranslatedStringList `yaml:"highlights"`
-	Features                            ConfigTranslatedStringList `yaml:"features"`
-	Faq                                 ConfigStoreTranslatedFaq   `yaml:"faq"`
-	Images                              *[]ConfigStoreImage        `yaml:"images"`
+	Availabilities                      *[]string                          `yaml:"availabilities"`
+	DefaultLocale                       *string                            `yaml:"default_locale"`
+	Localizations                       *[]string                          `yaml:"localizations"`
+	Categories                          *[]string                          `yaml:"categories"`
+	Type                                *string                            `yaml:"type"`
+	Icon                                *string                            `yaml:"icon"`
+	AutomaticBugfixVersionCompatibility *bool                              `yaml:"automatic_bugfix_version_compatibility"`
+	Description                         ConfigTranslated[string]           `yaml:"description"`
+	InstallationManual                  ConfigTranslated[string]           `yaml:"installation_manual"`
+	Tags                                ConfigTranslated[[]string]         `yaml:"tags"`
+	Videos                              ConfigTranslated[[]string]         `yaml:"videos"`
+	Highlights                          ConfigTranslated[[]string]         `yaml:"highlights"`
+	Features                            ConfigTranslated[[]string]         `yaml:"features"`
+	Faq                                 ConfigTranslated[[]ConfigStoreFaq] `yaml:"faq"`
+	Images                              *[]ConfigStoreImage                `yaml:"images"`
 }
 
-type ConfigTranslatedString struct {
-	German  *string `yaml:"de"`
-	English *string `yaml:"en"`
+type Translatable interface {
+	string | []string | []ConfigStoreFaq
 }
 
-type ConfigTranslatedStringList struct {
-	German  *[]string `yaml:"de"`
-	English *[]string `yaml:"en"`
-}
-
-type ConfigStoreTranslatedFaq struct {
-	German  *[]ConfigStoreFaq `yaml:"de"`
-	English *[]ConfigStoreFaq `yaml:"en"`
+type ConfigTranslated[T Translatable] struct {
+	German  *T `yaml:"de"`
+	English *T `yaml:"en"`
 }
 
 type ConfigStoreFaq struct {

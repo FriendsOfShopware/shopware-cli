@@ -3,12 +3,13 @@ package account
 import (
 	"bytes"
 	"fmt"
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -216,100 +217,66 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 	for _, info := range ext.Infos {
 		language := info.Locale.Name[0:2]
 
-		if language == "de" {
-			if cfg.Store.Tags.German != nil {
-				newTags := make([]accountApi.StoreTag, 0)
-
-				for _, tag := range *cfg.Store.Tags.German {
-					newTags = append(newTags, accountApi.StoreTag{Name: tag})
-				}
-
-				info.Tags = newTags
+		storeTags := getTranslation(language, cfg.Store.Tags)
+		if storeTags != nil {
+			var newTags []accountApi.StoreTag
+			for _, tag := range *storeTags {
+				newTags = append(newTags, accountApi.StoreTag{Name: tag})
 			}
 
-			if cfg.Store.Videos.German != nil {
-				newVideos := make([]accountApi.StoreVideo, 0)
+			info.Tags = newTags
+		}
 
-				for _, video := range *cfg.Store.Videos.German {
-					newVideos = append(newVideos, accountApi.StoreVideo{URL: video})
-				}
-
-				info.Videos = newVideos
+		storeVideos := getTranslation(language, cfg.Store.Videos)
+		if storeVideos != nil {
+			var newVideos []accountApi.StoreVideo
+			for _, video := range *storeVideos {
+				newVideos = append(newVideos, accountApi.StoreVideo{URL: video})
 			}
 
-			if cfg.Store.Highlights.German != nil {
-				info.Highlights = strings.Join(*cfg.Store.Highlights.German, "\n")
+			info.Videos = newVideos
+		}
+
+		storeHighlights := getTranslation(language, cfg.Store.Highlights)
+		if storeHighlights != nil {
+			info.Highlights = strings.Join(*storeHighlights, "\n")
+		}
+
+		storeFeatures := getTranslation(language, cfg.Store.Features)
+		if storeFeatures != nil {
+			info.Features = strings.Join(*storeFeatures, "\n")
+		}
+
+		storeFaqs := getTranslation(language, cfg.Store.Faq)
+		if storeFaqs != nil {
+			var newFaq []accountApi.StoreFaq
+			for _, faq := range *storeFaqs {
+				newFaq = append(newFaq, accountApi.StoreFaq{Question: faq.Question, Answer: faq.Answer})
 			}
 
-			if cfg.Store.Features.German != nil {
-				info.Features = strings.Join(*cfg.Store.Features.German, "\n")
-			}
+			info.Faqs = newFaq
+		}
 
-			if cfg.Store.Faq.German != nil {
-				newFaq := make([]accountApi.StoreFaq, 0)
+		storeDescription := getTranslation(language, cfg.Store.Description)
+		if storeDescription != nil {
+			info.Description = parseInlineablePath(*storeDescription, zipExt.GetPath())
+		}
 
-				for _, faq := range *cfg.Store.Faq.German {
-					newFaq = append(newFaq, accountApi.StoreFaq{Question: faq.Question, Answer: faq.Answer})
-				}
-
-				info.Faqs = newFaq
-			}
-
-			if cfg.Store.Description.German != nil {
-				info.Description = parseInlineablePath(*cfg.Store.Description.German, zipExt.GetPath())
-			}
-
-			if cfg.Store.InstallationManual.German != nil {
-				info.InstallationManual = parseInlineablePath(*cfg.Store.InstallationManual.German, zipExt.GetPath())
-			}
-		} else {
-			if cfg.Store.Tags.English != nil {
-				newTags := make([]accountApi.StoreTag, 0)
-
-				for _, tag := range *cfg.Store.Tags.English {
-					newTags = append(newTags, accountApi.StoreTag{Name: tag})
-				}
-
-				info.Tags = newTags
-			}
-
-			if cfg.Store.Videos.English != nil {
-				newVideos := make([]accountApi.StoreVideo, 0)
-
-				for _, video := range *cfg.Store.Videos.English {
-					newVideos = append(newVideos, accountApi.StoreVideo{URL: video})
-				}
-
-				info.Videos = newVideos
-			}
-
-			if cfg.Store.Highlights.English != nil {
-				info.Highlights = strings.Join(*cfg.Store.Highlights.English, "\n")
-			}
-
-			if cfg.Store.Features.English != nil {
-				info.Features = strings.Join(*cfg.Store.Features.English, "\n")
-			}
-
-			if cfg.Store.Faq.English != nil {
-				newFaq := make([]accountApi.StoreFaq, 0)
-
-				for _, faq := range *cfg.Store.Faq.English {
-					newFaq = append(newFaq, accountApi.StoreFaq{Question: faq.Question, Answer: faq.Answer})
-				}
-
-				info.Faqs = newFaq
-			}
-
-			if cfg.Store.Description.English != nil {
-				info.Description = parseInlineablePath(*cfg.Store.Description.English, zipExt.GetPath())
-			}
-
-			if cfg.Store.InstallationManual.English != nil {
-				info.InstallationManual = parseInlineablePath(*cfg.Store.InstallationManual.English, zipExt.GetPath())
-			}
+		storeManual := getTranslation(language, cfg.Store.InstallationManual)
+		if storeManual != nil {
+			info.InstallationManual = parseInlineablePath(*storeManual, zipExt.GetPath())
 		}
 	}
+}
+
+func getTranslation[T extension.Translatable](language string, config extension.ConfigTranslated[T]) *T {
+	if language == "de" {
+		return config.German
+	} else if language == "en" {
+		return config.English
+	}
+
+	return nil
 }
 
 func init() {
