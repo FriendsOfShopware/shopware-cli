@@ -73,7 +73,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		for _, entry := range cfgs {
 			// If extension has package.json install it
 			if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/storefront/package.json")); err == nil {
-				err := npmInstall(filepath.Join(entry.BasePath, "%s/Resources/app/storefront/"))
+				err := npmInstall(filepath.Join(entry.BasePath, "Resources/app/storefront/"))
 
 				if err != nil {
 					return err
@@ -117,6 +117,7 @@ func npmInstall(path string) error {
 	npmInstallCmd := exec.Command("npm", "--prefix", path, "install") //nolint:gosec
 	npmInstallCmd.Stdout = os.Stdout
 	npmInstallCmd.Stderr = os.Stderr
+	npmInstallCmd.Env = append(os.Environ(), "PUPPETEER_SKIP_DOWNLOAD=1")
 
 	if err := npmInstallCmd.Run(); err != nil {
 		return err

@@ -61,11 +61,14 @@ func runSimpleCommand(root string, app string, args ...string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Env = append(os.Environ(), "PUPPETEER_SKIP_DOWNLOAD=1")
 
 	return cmd.Run()
 }
 
 func buildStorefront(projectRoot string, forceNpmInstall bool) error {
+	log.Infof("Building storefront in root %s", projectRoot)
+
 	storefrontRoot := extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
 
 	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
@@ -83,6 +86,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	_, err := os.Stat(extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
+		log.Infof("Installing npm dependencies in %s", storefrontRoot)
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", storefrontRoot, "--no-save"); err != nil {
 			return installErr
 		}
@@ -95,6 +99,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	envs := []string{
 		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 		fmt.Sprintf("PROJECT_ROOT=%s", projectRoot),
+		"PUPPETEER_SKIP_DOWNLOAD=1",
 	}
 
 	npmRun := exec.Command("npm", "--prefix", storefrontRoot, "run", "production")
@@ -115,6 +120,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 }
 
 func buildAdministration(projectRoot string, forceNpmInstall bool) error {
+	log.Infof("Building Administration in root %s", projectRoot)
 	adminRoot := extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration")
 
 	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
@@ -133,6 +139,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 	_, err := os.Stat(extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
+		log.Infof("Installing npm dependencies in %s", adminRoot)
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", adminRoot, "--no-save"); err != nil {
 			return installErr
 		}
