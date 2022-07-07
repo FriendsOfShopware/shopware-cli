@@ -1,4 +1,4 @@
-FROM php:8.0-cli-alpine
+FROM php:7.4-cli-alpine
 
 LABEL org.opencontainers.image.source https://github.com/FriendsOfShopware/shopware-cli
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
