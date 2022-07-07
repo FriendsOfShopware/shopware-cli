@@ -8,7 +8,6 @@ require (
 	github.com/doutorfinancas/go-mad v0.0.0-20220319143655-053f3706cb75
 	github.com/evanw/esbuild v0.14.39
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
-	github.com/fsnotify/fsnotify v1.5.4
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
