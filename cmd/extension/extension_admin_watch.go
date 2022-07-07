@@ -6,6 +6,16 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/fs"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"runtime"
+	"strings"
+
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/bep/godartsass"
 	"github.com/evanw/esbuild/pkg/api"
@@ -16,15 +26,6 @@ import (
 	"github.com/vulcand/oxy/forward"
 	"github.com/vulcand/oxy/testutils"
 	"gopkg.in/antage/eventsource.v1"
-	"io"
-	"io/fs"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"runtime"
-	"strings"
 )
 
 var es eventsource.EventSource
@@ -147,8 +148,8 @@ func downloadDartSass() (string, error) {
 		}
 
 		name := strings.TrimPrefix(header.Name, "sass_embedded/")
-		folder := fmt.Sprintf("%s/%s", cacheDir, filepath.Dir(name))
-		file := fmt.Sprintf("%s/%s", cacheDir, name)
+		folder := filepath.Join(cacheDir, filepath.Dir(name))
+		file := filepath.Join(cacheDir, name)
 
 		if !strings.HasSuffix(folder, ".") {
 			if _, err := os.Stat(folder); os.IsNotExist(err) {
@@ -190,7 +191,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return err
 		}
 
-		entryPoint := fmt.Sprintf("%s/src/Resources/app/administration/src/main.js", ext.GetPath())
+		entryPoint := filepath.Join(ext.GetPath(), "src/Resources/app/administration/src/main.js")
 
 		if _, err := os.Stat(entryPoint); os.IsNotExist(err) {
 			return fmt.Errorf("cannot find entrypoint at %s", entryPoint)
@@ -202,8 +203,8 @@ var extensionAdminWatchCmd = &cobra.Command{
 		}
 
 		technicalName := strings.ReplaceAll(extension.ToSnakeCase(name), "_", "-")
-		jsFile := fmt.Sprintf("%s/src/Resources/public/administration/js/%s.js", ext.GetPath(), technicalName)
-		cssFile := fmt.Sprintf("%s/src/Resources/public/administration/css/%s.css", ext.GetPath(), technicalName)
+		jsFile := filepath.Join(ext.GetPath(), "src/Resources/public/administration/js", technicalName+".js")
+		cssFile := filepath.Join(ext.GetPath(), "src/Resources/public/administration/css", technicalName+".css")
 
 		if err := compileExtension(entryPoint, jsFile, cssFile); err != nil {
 			return err
