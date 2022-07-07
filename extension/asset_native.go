@@ -182,7 +182,9 @@ func CompileAdminExtension(ext Extension, options CompileAdminExtensionOptions) 
 	npmFile := filepath.Join(ext.GetPath(), "src/Resources/app/administration/package.json")
 
 	if _, err := os.Stat(npmFile); err == nil {
-		npmInstall(filepath.Dir(npmFile))
+		if err := npmInstall(filepath.Dir(npmFile)); err != nil {
+			return nil, err
+		}
 	}
 
 	entryPoint := filepath.Join(ext.GetPath(), "src/Resources/app/administration/src/main.js")
