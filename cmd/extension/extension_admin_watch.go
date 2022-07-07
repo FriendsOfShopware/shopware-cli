@@ -3,6 +3,7 @@ package extension
 import (
 	"archive/tar"
 	"compress/gzip"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
@@ -33,6 +34,9 @@ var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
 var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
 var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
 var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
+
+//go:embed static/variables.scss
+var scssVariables []byte
 
 var scssPlugin = api.Plugin{
 	Name: "scss",
@@ -69,6 +73,7 @@ var scssPlugin = api.Plugin{
 					IncludePaths: []string{
 						filepath.Dir(args.Path),
 					},
+					ImportResolver: scssImporter{},
 				})
 
 				if err != nil {
@@ -469,4 +474,26 @@ func compileExtension(entryPoint, jsFile, cssFile string) error {
 	}
 
 	return nil
+}
+
+type scssImporter struct{}
+
+const InternalScssPath = "file://internal//variables.scss"
+
+func (s scssImporter) CanonicalizeURL(url string) (string, error) {
+	if url == "~scss/variables" {
+		return InternalScssPath, nil
+	}
+
+	return "", nil
+}
+
+func (s scssImporter) Load(canonicalizedURL string) (string, error) {
+	if canonicalizedURL == InternalScssPath {
+		return string(scssVariables), nil
+	}
+
+	log.Infof("Load: %s", canonicalizedURL)
+
+	return "", nil
 }
