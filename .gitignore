@@ -1,4 +1,5 @@
 /.idea
+/.fleet
 /shopware-cli
 dist/
 /completions
@@ -7,3 +8,4 @@ dist/
 /.shopware-project.yml
 /test-app
 /go-shopware-admin-api-sdk
+/*.zip

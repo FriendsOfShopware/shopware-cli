@@ -61,7 +61,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 		err := npmInstallAndBuild(
 			administrationRoot,
 			"build",
-			[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH"))},
+			[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
 		)
 
 		if err != nil {
