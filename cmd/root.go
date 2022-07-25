@@ -40,12 +40,18 @@ func init() {
 
 	project.Register(rootCmd)
 	extension.Register(rootCmd)
-	account.Register(rootCmd, func() (*account.ServiceContainer, error) {
+	account.Register(rootCmd, func(commandName string) (*account.ServiceContainer, error) {
 		err := config.InitConfig(cfgFile)
 		if err != nil {
 			return nil, err
 		}
 		conf := config.Config{}
+		if commandName == "login" || commandName == "logout" {
+			return &account.ServiceContainer{
+				Conf:          conf,
+				AccountClient: nil,
+			}, nil
+		}
 		client, err := accountApi.NewApi(conf)
 		if err != nil {
 			return nil, err
