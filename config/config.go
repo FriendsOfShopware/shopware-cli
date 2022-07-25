@@ -45,7 +45,7 @@ func defaultConfig() *configData {
 	config := &configData{}
 	config.Account.Email = ""
 	config.Account.Password = ""
-	config.Account.Company = 1
+	config.Account.Company = 0
 	return config
 }
 
