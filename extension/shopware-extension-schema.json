@@ -63,6 +63,10 @@
                                 "after_hooks": {
                                     "type": "array",
                                     "items": {"type": "string"}
+                                },
+                                "enable_es_build_for_admin": {
+                                    "type": "boolean",
+                                    "default": false
                                 }
                             }
                         },

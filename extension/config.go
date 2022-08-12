@@ -17,9 +17,10 @@ type ConfigBuild struct {
 			ExcludedPackages []string `yaml:"excluded_packages"`
 		} `yaml:"composer"`
 		Assets struct {
-			Enabled     bool     `yaml:"enabled"`
-			BeforeHooks []string `yaml:"before_hooks"`
-			AfterHooks  []string `yaml:"after_hooks"`
+			Enabled               bool     `yaml:"enabled"`
+			BeforeHooks           []string `yaml:"before_hooks"`
+			AfterHooks            []string `yaml:"after_hooks"`
+			EnableESBuildForAdmin bool     `yaml:"enable_es_build_for_admin"`
 		} `yaml:"assets"`
 		Pack struct {
 			Excludes struct {

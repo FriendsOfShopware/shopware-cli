@@ -13,7 +13,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error {
+type AssetBuildConfig struct {
+	EnableESBuildForAdmin bool
+}
+
+func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error {
 	cfgs := buildAssetConfigFromExtensions(extensions, shopwareRoot)
 
 	if len(cfgs) == 1 {
@@ -57,15 +61,28 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension) error
 			}
 		}
 
-		administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
-		err := npmInstallAndBuild(
-			administrationRoot,
-			"build",
-			[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
-		)
+		if assetConfig.EnableESBuildForAdmin {
+			for _, extension := range extensions {
+				name, _ := extension.GetName()
+				if !cfgs.Has(name) {
+					continue
+				}
 
-		if err != nil {
-			return err
+				if _, err := CompileAdminExtension(extension, CompileAdminExtensionOptions{ProductionMode: true}); err != nil {
+					return err
+				}
+			}
+		} else {
+			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
+			err := npmInstallAndBuild(
+				administrationRoot,
+				"build",
+				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
+			)
+
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -288,6 +305,12 @@ func setupShopwareInTemp() (string, error) {
 }
 
 type ExtensionAssetConfig map[string]ExtensionAssetConfigEntry
+
+func (c ExtensionAssetConfig) Has(name string) bool {
+	_, ok := c[name]
+
+	return ok
+}
 
 func (c ExtensionAssetConfig) RequiresAdminBuild() bool {
 	for _, entry := range c {

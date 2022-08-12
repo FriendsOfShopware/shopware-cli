@@ -35,7 +35,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 			validatedExtensions = append(validatedExtensions, ext)
 		}
 
-		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions)
+		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, extension.AssetBuildConfig{EnableESBuildForAdmin: false})
 
 		if err != nil {
 			return errors.Wrap(err, "cannot build assets")
