@@ -283,7 +283,7 @@ func filterRequires(composer map[string]interface{}, extCfg *Config) map[string]
 	provide := composer["provide"]
 	require := composer["require"]
 
-	keys := []string{"shopware/platform", "shopware/core", "shopware/shopware", "shopware/storefront", "shopware/administration", "composer/installers"}
+	keys := []string{"shopware/platform", "shopware/core", "shopware/shopware", "shopware/storefront", "shopware/administration", "shopware/elasticsearch", "composer/installers"}
 	if extCfg != nil {
 		keys = append(keys, extCfg.Build.Zip.Composer.ExcludedPackages...)
 	}
