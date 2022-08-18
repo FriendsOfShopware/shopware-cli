@@ -42,14 +42,15 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return [][]byte{[]byte("Access-Control-Allow-Origin: http://localhost:8080")}
 		})
 
-		compileResult, err := extension.CompileAdminExtension(ext, extension.CompileAdminExtensionOptions{
-			ProductionMode: false,
-			WatchMode: &extension.WatchMode{
-				OnRebuild: func() {
-					es.SendEventMessage("reload", "message", "1")
-				},
+		options := extension.NewAssetCompileOptionsAdmin()
+		options.ProductionMode = false
+		options.WatchMode = &extension.WatchMode{
+			OnRebuild: func() {
+				es.SendEventMessage("reload", "message", "1")
 			},
-		})
+		}
+
+		compileResult, err := extension.CompileExtensionAsset(ext, options)
 
 		if err != nil {
 			return err

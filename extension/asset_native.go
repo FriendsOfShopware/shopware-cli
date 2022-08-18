@@ -166,20 +166,38 @@ type WatchMode struct {
 	OnRebuild func()
 }
 
-type CompileAdminExtensionResult struct {
+type AssetCompileResult struct {
 	Name       string
 	Entrypoint string
 	JsFile     string
 	CssFile    string
 }
 
-type CompileAdminExtensionOptions struct {
+type AssetCompileOptions struct {
 	ProductionMode bool
 	WatchMode      *WatchMode
+	EntrypointDir  string
+	OutputDir      string
 }
 
-func CompileAdminExtension(ext Extension, options CompileAdminExtensionOptions) (*CompileAdminExtensionResult, error) {
-	npmFile := filepath.Join(ext.GetPath(), "src/Resources/app/administration/package.json")
+func NewAssetCompileOptionsAdmin() AssetCompileOptions {
+	return AssetCompileOptions{
+		EntrypointDir: "src/Resources/app/administration/src",
+		OutputDir:     "src/Resources/public/administration",
+	}
+}
+
+func NewAssetCompileOptionsStorefront() AssetCompileOptions {
+	return AssetCompileOptions{
+		EntrypointDir: "src/Resources/app/storefront/src",
+		OutputDir:     "src/Resources/app/storefront/dist/storefront",
+	}
+}
+
+func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCompileResult, error) {
+	npmFolder := filepath.Dir(options.EntrypointDir)
+
+	npmFile := filepath.Join(ext.GetPath(), npmFolder, "package.json")
 
 	if _, err := os.Stat(npmFile); err == nil {
 		if err := npmInstall(filepath.Dir(npmFile)); err != nil {
@@ -187,10 +205,16 @@ func CompileAdminExtension(ext Extension, options CompileAdminExtensionOptions) 
 		}
 	}
 
-	entryPoint := filepath.Join(ext.GetPath(), "src/Resources/app/administration/src/main.js")
+	entryPoint := filepath.Join(ext.GetPath(), options.EntrypointDir, "main.js")
 
 	if _, err := os.Stat(entryPoint); os.IsNotExist(err) {
-		return nil, fmt.Errorf("cannot find entrypoint at %s", entryPoint)
+		entryPointTS := filepath.Join(ext.GetPath(), options.EntrypointDir, "main.ts")
+
+		if _, err := os.Stat(entryPointTS); os.IsNotExist(err) {
+			return nil, fmt.Errorf("cannot find entrypoint at %s as main.js or main.ts", options.EntrypointDir)
+		}
+
+		entryPoint = entryPointTS
 	}
 
 	name, err := ext.GetName()
@@ -199,8 +223,8 @@ func CompileAdminExtension(ext Extension, options CompileAdminExtensionOptions) 
 	}
 
 	technicalName := strings.ReplaceAll(ToSnakeCase(name), "_", "-")
-	jsFile := filepath.Join(ext.GetPath(), "src/Resources/public/administration/js", technicalName+".js")
-	cssFile := filepath.Join(ext.GetPath(), "src/Resources/public/administration/css", technicalName+".css")
+	jsFile := filepath.Join(ext.GetPath(), options.OutputDir, "js", technicalName+".js")
+	cssFile := filepath.Join(ext.GetPath(), options.OutputDir, "css", technicalName+".css")
 
 	bundlerOptions := api.BuildOptions{
 		MinifySyntax:      options.ProductionMode,
@@ -245,7 +269,7 @@ func CompileAdminExtension(ext Extension, options CompileAdminExtensionOptions) 
 		return nil, err
 	}
 
-	compileResult := CompileAdminExtensionResult{
+	compileResult := AssetCompileResult{
 		Name:       name,
 		Entrypoint: entryPoint,
 		JsFile:     jsFile,
