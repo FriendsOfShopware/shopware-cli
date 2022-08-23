@@ -3,11 +3,12 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
@@ -85,7 +86,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 					return
 				}
 
-				body, err := ioutil.ReadAll(resp.Body)
+				body, err := io.ReadAll(resp.Body)
 
 				if err != nil {
 					log.Errorf("proxy reading failed %v", err)
@@ -124,7 +125,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 					return
 				}
 
-				body, err := ioutil.ReadAll(resp.Body)
+				body, err := io.ReadAll(resp.Body)
 
 				if err != nil {
 					log.Errorf("proxy reading failed %v", err)
@@ -181,8 +182,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 		})
 
 		s := &http.Server{
-			Addr:    ":8080",
-			Handler: redirect,
+			Addr:              ":8080",
+			Handler:           redirect,
+			ReadHeaderTimeout: time.Second,
 		}
 		log.Infof("Admin Watcher started at http://localhost:8080/admin")
 		if err := s.ListenAndServe(); err != nil {

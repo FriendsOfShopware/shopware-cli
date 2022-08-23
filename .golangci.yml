@@ -38,7 +38,6 @@ linters:
     - predeclared
     - nilerr
     - makezero
-    - ifshort
     - forbidigo
     - errname
     - nilnil

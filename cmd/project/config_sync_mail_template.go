@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -47,7 +46,7 @@ func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 							}
 
 							if configTranslation.HTML != "" {
-								if content, err := ioutil.ReadFile(configTranslation.HTML); err == nil {
+								if content, err := os.ReadFile(configTranslation.HTML); err == nil {
 									if translation.ContentHtml != string(content) {
 										translationUpdate["contentHtml"] = string(content)
 									}
@@ -57,7 +56,7 @@ func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 							}
 
 							if configTranslation.Plain != "" {
-								if content, err := ioutil.ReadFile(configTranslation.Plain); err == nil {
+								if content, err := os.ReadFile(configTranslation.Plain); err == nil {
 									if translation.ContentPlain != string(content) {
 										translationUpdate["contentPlain"] = string(content)
 									}
@@ -147,11 +146,11 @@ func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 				CustomFields: translation.CustomFields,
 			}
 
-			if err := ioutil.WriteFile(htmLFilePath, []byte(translation.ContentHtml), os.ModePerm); err != nil {
+			if err := os.WriteFile(htmLFilePath, []byte(translation.ContentHtml), os.ModePerm); err != nil {
 				return err
 			}
 
-			if err := ioutil.WriteFile(plainFilePath, []byte(translation.ContentPlain), os.ModePerm); err != nil {
+			if err := os.WriteFile(plainFilePath, []byte(translation.ContentPlain), os.ModePerm); err != nil {
 				return err
 			}
 

@@ -3,7 +3,6 @@ package project
 import (
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	"io/ioutil"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -43,7 +42,7 @@ var projectConfigPullCmd = &cobra.Command{
 			return err
 		}
 
-		if err := ioutil.WriteFile(projectConfigPath, content, os.ModePerm); err != nil {
+		if err := os.WriteFile(projectConfigPath, content, os.ModePerm); err != nil {
 			return err
 		}
 

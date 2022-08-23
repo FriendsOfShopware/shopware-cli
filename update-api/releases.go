@@ -3,7 +3,7 @@ package update_api
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -30,7 +30,7 @@ func GetLatestReleases(ctx context.Context) ([]*ShopwareInstallRelease, error) {
 
 	defer resp.Body.Close()
 
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 
 	if err != nil {
 		return nil, err

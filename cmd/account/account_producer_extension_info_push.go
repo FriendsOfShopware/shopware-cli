@@ -3,7 +3,6 @@ package account
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -290,7 +289,7 @@ func parseInlineablePath(path, extensionDir string) string {
 
 	filePath := fmt.Sprintf("%s/%s", extensionDir, strings.TrimPrefix(path, "file:"))
 
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("Error reading file at path %s with error: %v", filePath, err))

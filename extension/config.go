@@ -2,7 +2,6 @@ package extension
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -103,7 +102,7 @@ func ReadExtensionConfig(dir string) (*Config, error) {
 		return nil, err
 	}
 
-	fileHandle, err := ioutil.ReadFile(fileName)
+	fileHandle, err := os.ReadFile(fileName)
 
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)

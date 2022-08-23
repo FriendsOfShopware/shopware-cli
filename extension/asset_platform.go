@@ -3,7 +3,6 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -309,7 +308,7 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 }
 
 func setupShopwareInTemp() (string, error) {
-	dir, err := ioutil.TempDir("", "extension")
+	dir, err := os.MkdirTemp("", "extension")
 	if err != nil {
 		return "", err
 	}

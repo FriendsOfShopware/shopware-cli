@@ -10,10 +10,11 @@ import (
 
 // CurlCommand represents an invocation of the curl executable.
 // For example: >Curl -X POST https://127.0.0.1/test
-// Becomes: CurlCommand{
-//    options: [ curlOption{flag: "-X", value: "POST"} ]
-//    args: ["https://127.0.0.1/test"]
-// }.
+//
+//	Becomes: CurlCommand{
+//	   options: [ curlOption{flag: "-X", value: "POST"} ]
+//	   args: ["https://127.0.0.1/test"]
+//	}.
 type CurlCommand struct {
 	options []curlOption
 	args    []string

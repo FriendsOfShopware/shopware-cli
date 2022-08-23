@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"os"
 )
 
@@ -69,7 +68,7 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 
 			var content []byte
 
-			if content, err = ioutil.ReadFile("composer.json"); err != nil {
+			if content, err = os.ReadFile("composer.json"); err != nil {
 				return err
 			}
 
@@ -97,13 +96,13 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 				return err
 			}
 
-			if err = ioutil.WriteFile("composer.json", content, os.ModePerm); err != nil {
+			if err = os.WriteFile("composer.json", content, os.ModePerm); err != nil {
 				return err
 			}
 
 			var authJson map[string]interface{}
 
-			if content, err = ioutil.ReadFile("auth.json"); err == nil {
+			if content, err = os.ReadFile("auth.json"); err == nil {
 				if err := json.Unmarshal(content, &authJson); err != nil {
 					return err
 				}
@@ -123,7 +122,7 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 				return err
 			}
 
-			if err = ioutil.WriteFile("auth.json", content, os.ModePerm); err != nil {
+			if err = os.WriteFile("auth.json", content, os.ModePerm); err != nil {
 				return err
 			}
 		}

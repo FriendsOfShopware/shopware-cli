@@ -190,7 +190,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return nil
 	}
 
-	content, err := ioutil.ReadFile(composerJSONPath)
+	content, err := os.ReadFile(composerJSONPath)
 
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
@@ -229,10 +229,10 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	err = ioutil.WriteFile(composerJSONPath, newContent, 0644) //nolint:gosec
+	err = os.WriteFile(composerJSONPath, newContent, 0644) //nolint:gosec
 	if err != nil {
 		// Revert on failure
-		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+		_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 		return fmt.Errorf(errorFormat, err)
 	}
 
@@ -243,11 +243,11 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	err = composerInstallCmd.Run()
 	if err != nil {
 		// Revert on failure
-		_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+		_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	_ = ioutil.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+	_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
 
 	return nil
 }
@@ -255,7 +255,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 func addFileToZip(zipWriter *zip.Writer, sourcePath string, zipPath string) error {
 	zipErrorFormat := "could not zip file, sourcePath: %q, zipPath: %q, %w"
 
-	dat, err := ioutil.ReadFile(sourcePath)
+	dat, err := os.ReadFile(sourcePath)
 	if err != nil {
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
 	}
@@ -321,7 +321,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 	}
 	defer resp.Body.Close()
 
-	versionString, err := ioutil.ReadAll(resp.Body)
+	versionString, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "read version body")
 	}
@@ -354,7 +354,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 				return nil, fmt.Errorf("get packte version %s: %w", component, err)
 			}
 
-			composerPartByte, err := ioutil.ReadAll(resp.Body)
+			composerPartByte, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return nil, errors.Wrap(err, "read component version body")
 			}

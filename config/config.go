@@ -5,7 +5,6 @@ import (
 	"github.com/caarlos0/env/v6"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"sync"
@@ -86,7 +85,7 @@ func InitConfig(configPath string) error {
 		}
 	}
 
-	content, err := ioutil.ReadFile(state.cfgPath)
+	content, err := os.ReadFile(state.cfgPath)
 
 	if err != nil {
 		return err

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -83,7 +82,7 @@ func ReadConfig(fileName string) (*Config, error) {
 		return nil, err
 	}
 
-	fileHandle, err := ioutil.ReadFile(fileName)
+	fileHandle, err := os.ReadFile(fileName)
 
 	if err != nil {
 		return nil, fmt.Errorf("ReadConfig: %v", err)

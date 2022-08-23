@@ -3,10 +3,10 @@ package extension
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	_ "embed"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -46,7 +46,7 @@ var scssPlugin = api.Plugin{
 
 		build.OnLoad(api.OnLoadOptions{Filter: `\.scss`},
 			func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-				content, err := ioutil.ReadFile(args.Path)
+				content, err := os.ReadFile(args.Path)
 				if err != nil {
 					return api.OnLoadResult{}, err
 				}
@@ -112,10 +112,14 @@ func downloadDartSass() (string, error) {
 		osType = "macos"
 	}
 
-	tarFile, err := http.Get(fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", osType, arch))
+	request, _ := http.NewRequestWithContext(context.Background(), "GET", fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", osType, arch), nil)
+
+	tarFile, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", errors.Wrap(err, "cannot download dart-sass")
 	}
+
+	defer tarFile.Body.Close()
 
 	uncompressedStream, err := gzip.NewReader(tarFile.Body)
 	if err != nil {

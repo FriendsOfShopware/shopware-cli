@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -42,7 +41,7 @@ func (Client) doRequest(request *http.Request) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %v", err)
 	}
@@ -108,7 +107,7 @@ func createApiFromTokenCache() (*Client, error) {
 		return nil, err
 	}
 
-	content, err := ioutil.ReadFile(tokenFilePath)
+	content, err := os.ReadFile(tokenFilePath)
 
 	if err != nil {
 		return nil, err
@@ -144,7 +143,7 @@ func saveApiTokenToTokenCache(client *Client) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(tokenFilePath, content, os.ModePerm)
+	err = os.WriteFile(tokenFilePath, content, os.ModePerm)
 
 	if err != nil {
 		return err

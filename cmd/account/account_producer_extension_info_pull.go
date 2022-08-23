@@ -3,7 +3,7 @@ package account
 import (
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -181,7 +181,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		}
 
 		extCfgFile := fmt.Sprintf("%s/%s", zipExt.GetPath(), ".shopware-extension.yml")
-		err = ioutil.WriteFile(extCfgFile, content, os.ModePerm)
+		err = os.WriteFile(extCfgFile, content, os.ModePerm)
 
 		if err != nil {
 			return errors.Wrap(err, "cannot save file")
@@ -209,12 +209,12 @@ func downloadFileTo(url string, target string) error {
 	}
 	defer resp.Body.Close()
 
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(err, "read file body")
 	}
 
-	err = ioutil.WriteFile(target, content, os.ModePerm)
+	err = os.WriteFile(target, content, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "write to file")
 	}

@@ -12,7 +12,6 @@ import (
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	cp "github.com/otiai10/copy"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,7 +79,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 		if isFolder {
 			// Create temp dir
-			tempDir, err := ioutil.TempDir("", "extension")
+			tempDir, err := os.MkdirTemp("", "extension")
 			if err != nil {
 				return errors.Wrap(err, "create temp directory")
 			}
@@ -288,7 +287,7 @@ func increaseExtensionVersion(ext extension.Extension) error {
 		newManifest = strings.ReplaceAll(newManifest, "xmlns:_xmlns=\"xmlns\" _xmlns:xsi=", "xmlns:xsi=")
 		newManifest = strings.ReplaceAll(newManifest, "xmlns:_XMLSchema-instance=\"http://www.w3.org/2001/XMLSchema-instance\" _XMLSchema-instance:noNamespaceSchemaLocation=", "xsi:noNamespaceSchemaLocation=")
 
-		if err := ioutil.WriteFile(manifestPath, []byte(newManifest), os.ModePerm); err != nil {
+		if err := os.WriteFile(manifestPath, []byte(newManifest), os.ModePerm); err != nil {
 			return err
 		}
 
@@ -297,7 +296,7 @@ func increaseExtensionVersion(ext extension.Extension) error {
 
 	composerJsonPath := fmt.Sprintf("%s/composer.json", ext.GetPath())
 
-	composerJsonContent, err := ioutil.ReadFile(composerJsonPath)
+	composerJsonContent, err := os.ReadFile(composerJsonPath)
 
 	if err != nil {
 		return err
@@ -331,7 +330,7 @@ func increaseExtensionVersion(ext extension.Extension) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(composerJsonPath, composerJsonContent, os.ModePerm); err != nil {
+	if err := os.WriteFile(composerJsonPath, composerJsonContent, os.ModePerm); err != nil {
 		return err
 	}
 

@@ -2,7 +2,7 @@ package extension
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -19,7 +19,7 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 	for _, file := range files {
 		language := strings.Trim(strings.ReplaceAll(strings.ReplaceAll(filepath.Base(file), "CHANGELOG", ""), ".md", ""), "_")
 
-		content, err := ioutil.ReadFile(file)
+		content, err := os.ReadFile(file)
 
 		if err != nil {
 			return nil, fmt.Errorf("parseMarkdownChangelogInPath: %v", err)

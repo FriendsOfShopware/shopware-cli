@@ -3,7 +3,6 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -11,7 +10,7 @@ func validateTheme(ctx *validationContext) {
 	themeJSONPath := fmt.Sprintf("%s/src/Resources/theme.json", ctx.Extension.GetPath())
 
 	if _, err := os.Stat(themeJSONPath); !os.IsNotExist(err) {
-		content, err := ioutil.ReadFile(themeJSONPath)
+		content, err := os.ReadFile(themeJSONPath)
 
 		if err != nil {
 			ctx.AddError("Invalid theme.json")

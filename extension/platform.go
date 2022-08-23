@@ -3,7 +3,6 @@ package extension
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -21,7 +20,7 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 		return nil, err
 	}
 
-	jsonFile, err := ioutil.ReadFile(composerJsonFile)
+	jsonFile, err := os.ReadFile(composerJsonFile)
 
 	if err != nil {
 		return nil, fmt.Errorf("newPlatformPlugin: %v", err)

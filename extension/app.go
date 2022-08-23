@@ -3,7 +3,6 @@ package extension
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/FriendsOfShopware/shopware-cli/version"
@@ -193,7 +192,7 @@ func newApp(path string) (*App, error) {
 		return nil, err
 	}
 
-	appFile, err := ioutil.ReadFile(appFileName)
+	appFile, err := os.ReadFile(appFileName)
 
 	if err != nil {
 		return nil, fmt.Errorf("newApp: %v", err)

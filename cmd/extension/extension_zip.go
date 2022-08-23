@@ -3,7 +3,6 @@ package extension
 import (
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -61,7 +60,7 @@ var extensionZipCmd = &cobra.Command{
 		}
 
 		// Create temp dir
-		tempDir, err := ioutil.TempDir("", "extension")
+		tempDir, err := os.MkdirTemp("", "extension")
 		if err != nil {
 			return errors.Wrap(err, "create temp directory")
 		}

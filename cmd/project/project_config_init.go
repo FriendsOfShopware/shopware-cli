@@ -3,7 +3,6 @@ package project
 import (
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"io/ioutil"
 	"os"
 
 	"github.com/manifoldco/promptui"
@@ -45,7 +44,7 @@ var projectConfigInitCmd = &cobra.Command{
 			return err
 		}
 
-		if err := ioutil.WriteFile(".shopware-project.yml", content, os.ModePerm); err != nil {
+		if err := os.WriteFile(".shopware-project.yml", content, os.ModePerm); err != nil {
 			return err
 		}
 

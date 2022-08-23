@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,7 +25,7 @@ func findClosestShopwareProject() (string, error) {
 
 		for _, file := range files {
 			if _, err := os.Stat(file); err == nil {
-				content, err := ioutil.ReadFile(file)
+				content, err := os.ReadFile(file)
 
 				if err != nil {
 					return "", err
@@ -174,7 +173,7 @@ func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {
 	var content []byte
 	var err error
 
-	if content, err = ioutil.ReadFile(projectRoot + "/var/plugins.json"); err != nil {
+	if content, err = os.ReadFile(projectRoot + "/var/plugins.json"); err != nil {
 		return err
 	}
 

@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -33,12 +32,12 @@ func GetExtensionByFolder(path string) (Extension, error) {
 }
 
 func GetExtensionByZip(filePath string) (Extension, error) {
-	dir, err := ioutil.TempDir("", "extension")
+	dir, err := os.MkdirTemp("", "extension")
 	if err != nil {
 		return nil, err
 	}
 
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 
 	if err != nil {
 		return nil, err
