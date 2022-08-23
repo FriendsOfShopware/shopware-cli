@@ -94,7 +94,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 	}
 
 	if cfgs.RequiresStorefrontBuild() {
-		if assetConfig.EnableESBuildForAdmin {
+		if assetConfig.EnableESBuildForStorefront {
 			for _, extension := range extensions {
 				name, _ := extension.GetName()
 				if !cfgs.Has(name) {
