@@ -47,7 +47,7 @@
             # remeber to bump this hash when your dependencies change.
             #vendorSha256 = pkgs.lib.fakeSha256;
 
-            vendorSha256 = "1h3ll34xx9xqs4fmicgiiqb339hf6mln0m06icfzbpazax778xyz";
+            vendorSha256 = "sha256-Vvyl9IUk12UKCB42R9hPkk3cNm6CPepB1LLhbRiEsjU=";
           };
 	  default = shopware-cli;
 	});
