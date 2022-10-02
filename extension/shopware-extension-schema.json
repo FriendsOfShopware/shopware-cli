@@ -22,6 +22,12 @@
             "title": "build",
             "additionalProperties": false,
             "properties": {
+                "extraBundles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "zip": {
                     "type": "object",
                     "additionalProperties": false,

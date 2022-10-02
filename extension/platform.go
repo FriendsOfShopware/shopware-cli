@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/version"
@@ -12,6 +13,14 @@ import (
 type PlatformPlugin struct {
 	path     string
 	composer platformComposerJson
+}
+
+func (p PlatformPlugin) GetRootDir() string {
+	return path.Join(p.path, "src")
+}
+
+func (p PlatformPlugin) GetResourcesDir() string {
+	return path.Join(p.GetRootDir(), "Resources")
 }
 
 func newPlatformPlugin(path string) (*PlatformPlugin, error) {

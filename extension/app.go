@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
@@ -183,6 +184,14 @@ func getTranslatedTextFromXmlNode(node translatedXmlNode, keys []string) string 
 type App struct {
 	path     string
 	manifest appManifest
+}
+
+func (a App) GetRootDir() string {
+	return a.path
+}
+
+func (a App) GetResourcesDir() string {
+	return path.Join(a.path, "Resources")
 }
 
 func newApp(path string) (*App, error) {

@@ -71,6 +71,10 @@ type extensionMetadata struct {
 
 type Extension interface {
 	GetName() (string, error)
+	GetResourcesDir() string
+
+	// GetRootDir Returns the root folder where the code is located plugin -> src, app ->
+	GetRootDir() string
 	GetVersion() (*version.Version, error)
 	GetLicense() (string, error)
 	GetShopwareVersionConstraint() (*version.Constraints, error)
