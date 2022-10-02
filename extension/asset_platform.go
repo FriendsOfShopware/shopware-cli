@@ -40,12 +40,12 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 			return err
 		}
 
-		//defer func(path string) {
-		//	err := os.RemoveAll(path)
-		//	if err != nil {
-		//		log.Println(err)
-		//	}
-		//}(shopwareRoot)
+		defer func(path string) {
+			err := os.RemoveAll(path)
+			if err != nil {
+				log.Println(err)
+			}
+		}(shopwareRoot)
 	}
 
 	if !buildWithoutShopwareSource {
