@@ -1,6 +1,10 @@
 package project
 
 import (
+	"time"
+
+	"github.com/FriendsOfShopware/shopware-cli/mysqlproxy"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	sqle "github.com/dolthub/go-mysql-server"
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
@@ -8,9 +12,6 @@ import (
 	"github.com/dolthub/go-mysql-server/sql/information_schema"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"shopware-cli/mysqlproxy"
-	"shopware-cli/shop"
-	"time"
 )
 
 var projectAdminMysqlCmd = &cobra.Command{
