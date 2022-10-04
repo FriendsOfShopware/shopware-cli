@@ -12,7 +12,7 @@ require (
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mholt/archiver/v3 v3.5.1
-	github.com/microcosm-cc/bluemonday v1.0.18
+	github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.7.0
 	github.com/pkg/errors v0.9.1
@@ -53,9 +53,9 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220511200225-c6db032c6c88 // indirect
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
+	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
-	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect

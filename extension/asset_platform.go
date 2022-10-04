@@ -13,6 +13,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const StorefrontWebpackConfig = "app/storefront/build/webpack.config.js"
+const StorefrontEntrypointJS = "app/storefront/src/main.js"
+const StorefrontEntrypointTS = "app/storefront/src/main.js"
+const StorefrontBaseCSS = "app/storefront/src/scss/base.scss"
+const AdministrationWebpackConfig = "app/administration/build/webpack.config.js"
+const AdministrationEntrypointJS = "app/administration/src/main.js"
+const AdministrationEntrypointTS = "app/administration/src/main.js"
+
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
 	EnableESBuildForStorefront bool
@@ -266,38 +274,38 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 	var entryFilePathAdmin, entryFilePathStorefront, webpackFileAdmin, webpackFileStorefront *string
 	storefrontStyles := make([]string, 0)
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/administration/src/main.js")); err == nil {
-		val := "app/administration/src/main.js"
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationEntrypointJS)); err == nil {
+		val := AdministrationEntrypointJS
 		entryFilePathAdmin = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/administration/src/main.ts")); err == nil {
-		val := "app/administration/src/main.ts"
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationEntrypointTS)); err == nil {
+		val := AdministrationEntrypointTS
 		entryFilePathAdmin = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/administration/build/webpack.config.js")); err == nil {
-		val := "app/administration/build/webpack.config.js"
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationWebpackConfig)); err == nil {
+		val := AdministrationWebpackConfig
 		webpackFileAdmin = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/storefront/src/main.js")); err == nil {
-		val := "app/storefront/src/main.js"
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontEntrypointJS)); err == nil {
+		val := StorefrontEntrypointJS
 		entryFilePathStorefront = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "/app/storefront/src/main.ts")); err == nil {
-		val := "app/storefront/src/main.ts"
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontEntrypointTS)); err == nil {
+		val := StorefrontEntrypointTS
 		entryFilePathStorefront = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/storefront/build/webpack.config.js")); err == nil {
-		val := "app/storefront/build/webpack.config.js"
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontWebpackConfig)); err == nil {
+		val := StorefrontWebpackConfig
 		webpackFileStorefront = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "app/storefront/src/scss/base.scss")); err == nil {
-		storefrontStyles = append(storefrontStyles, "app/storefront/src/scss/base.scss")
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontBaseCSS)); err == nil {
+		storefrontStyles = append(storefrontStyles, StorefrontBaseCSS)
 	}
 
 	cfg := ExtensionAssetConfigEntry{

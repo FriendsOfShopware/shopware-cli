@@ -59,20 +59,20 @@ func TestGenerateConfigForPlugin(t *testing.T) {
 		t.Error("Expected to have frosh-tools")
 	}
 
-	if *config["FroshTools"].Administration.EntryFilePath != "app/administration/src/main.js" {
+	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointJS {
 		t.Error("Expected to have Administration JS")
 	}
 
-	if *config["FroshTools"].Storefront.EntryFilePath != "app/storefront/src/main.js" {
+	if *config["FroshTools"].Storefront.EntryFilePath != StorefrontEntrypointJS {
 		t.Error("Expected to have Storefront JS")
 	}
 
 	if config["FroshTools"].Administration.Webpack != nil {
-		t.Error("Webpack is not overriden for admin")
+		t.Error("Webpack is not overridden for admin")
 	}
 
 	if config["FroshTools"].Storefront.Webpack != nil {
-		t.Error("Webpack is not overriden for storefront")
+		t.Error("Webpack is not overridden for storefront")
 	}
 
 	if config["FroshTools"].Administration.Path != "app/administration/src" {
@@ -146,11 +146,11 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 		t.Error("Expected to have frosh-tools")
 	}
 
-	if *config["FroshTools"].Administration.EntryFilePath != "app/administration/src/main.ts" {
+	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
 		t.Error("Expected to have Administration TS")
 	}
 
-	if *config["FroshTools"].Administration.Webpack != "app/administration/build/webpack.config.js" {
+	if *config["FroshTools"].Administration.Webpack != AdministrationWebpackConfig {
 		t.Error("Expected to have Administration Webpack")
 	}
 
@@ -158,7 +158,7 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 		t.Error("Expected to have Storefront TS")
 	}
 
-	if *config["FroshTools"].Storefront.Webpack != "app/storefront/build/webpack.config.js" {
+	if *config["FroshTools"].Storefront.Webpack != StorefrontWebpackConfig {
 		t.Error("Expected to have Storefront Webpack")
 	}
 
@@ -221,11 +221,11 @@ func TestGenerateConfigForApp(t *testing.T) {
 		t.Error("Expected to have frosh-app")
 	}
 
-	if *config["FroshApp"].Storefront.EntryFilePath != "app/storefront/src/main.ts" {
+	if *config["FroshApp"].Storefront.EntryFilePath != StorefrontEntrypointTS {
 		t.Error("Expected to have Storefront TS")
 	}
 
-	if *config["FroshApp"].Storefront.Webpack != "app/storefront/build/webpack.config.js" {
+	if *config["FroshApp"].Storefront.Webpack != StorefrontWebpackConfig {
 		t.Error("Expected to have Storefront Webpack")
 	}
 }
@@ -332,11 +332,11 @@ func TestGenerateConfigWithSubBundles(t *testing.T) {
 		t.Error("Expected to have foo")
 	}
 
-	if *config["FroshTools"].Administration.EntryFilePath != "app/administration/src/main.ts" {
+	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
 		t.Error("Expected to have Admin JS")
 	}
 
-	if *config["Foo"].Administration.EntryFilePath != "app/administration/src/main.ts" {
+	if *config["Foo"].Administration.EntryFilePath != AdministrationEntrypointTS {
 		t.Error("Expected to have Admin JS")
 	}
 }
@@ -393,11 +393,11 @@ func TestGenerateConfigWithSubBundlesWithNameOverride(t *testing.T) {
 		t.Error("Expected to have bla")
 	}
 
-	if *config["FroshTools"].Administration.EntryFilePath != "app/administration/src/main.ts" {
+	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
 		t.Error("Expected to have Admin JS")
 	}
 
-	if *config["Bla"].Administration.EntryFilePath != "app/administration/src/main.ts" {
+	if *config["Bla"].Administration.EntryFilePath != AdministrationEntrypointTS {
 		t.Error("Expected to have Admin JS")
 	}
 }
