@@ -43,9 +43,15 @@ Additional properties are not allowed.
 
 |   |Type|Description|Required|
 |---|---|---|---|
+|**extraBundles**|`object` `[]`||No|
 |**zip**|`object`||No|
 
 Additional properties are not allowed.
+
+### Build.extraBundles
+
+* **Type**: `object` `[]`
+* **Required**: No
 
 ### Build.zip
 
