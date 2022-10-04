@@ -5,12 +5,21 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
+
+const StorefrontWebpackConfig = "app/storefront/build/webpack.config.js"
+const StorefrontEntrypointJS = "app/storefront/src/main.js"
+const StorefrontEntrypointTS = "app/storefront/src/main.ts"
+const StorefrontBaseCSS = "app/storefront/src/scss/base.scss"
+const AdministrationWebpackConfig = "app/administration/build/webpack.config.js"
+const AdministrationEntrypointJS = "app/administration/src/main.js"
+const AdministrationEntrypointTS = "app/administration/src/main.ts"
 
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
@@ -206,77 +215,31 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 			continue
 		}
 
-		pathPrefix := "src/Resources"
-		extensionRoot := "src/"
-		if extension.GetType() == TypePlatformApp {
-			pathPrefix = "Resources"
-			extensionRoot = ""
-		}
-
 		extPath := extension.GetPath()
 
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app", extPath, pathPrefix)); os.IsNotExist(err) {
+		if _, err := os.Stat(path.Join(extension.GetResourcesDir(), "app")); os.IsNotExist(err) {
 			log.Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
 			continue
 		}
 
-		var entryFilePathAdmin, entryFilePathStorefront, webpackFileAdmin, webpackFileStorefront *string
-		storefrontStyles := make([]string, 0)
+		list[extName] = createConfigFromPath(extName, extension.GetResourcesDir())
 
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/src/main.js", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/administration/src/main.js"
-			entryFilePathAdmin = &val
+		extCfg, err := ReadExtensionConfig(extPath)
+
+		if err != nil {
+			log.Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
+			continue
 		}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/src/main.ts", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/administration/src/main.ts"
-			entryFilePathAdmin = &val
-		}
+		for _, bundle := range extCfg.Build.ExtraBundles {
+			bundleName := bundle.Name
 
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/administration/build/webpack.config.js", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/administration/build/webpack.config.js"
-			webpackFileAdmin = &val
-		}
+			if bundleName == "" {
+				bundleName = filepath.Base(bundle.Path)
+			}
 
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/main.js", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/storefront/src/main.js"
-			entryFilePathStorefront = &val
+			list[bundleName] = createConfigFromPath(bundleName, path.Join(extension.GetRootDir(), bundle.Path, "Resources"))
 		}
-
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/main.ts", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/storefront/src/main.ts"
-			entryFilePathStorefront = &val
-		}
-
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/build/webpack.config.js", extPath, pathPrefix)); err == nil {
-			val := "Resources/app/storefront/build/webpack.config.js"
-			webpackFileStorefront = &val
-		}
-
-		if _, err := os.Stat(fmt.Sprintf("%s/%s/app/storefront/src/scss/base.scss", extPath, pathPrefix)); err == nil {
-			storefrontStyles = append(storefrontStyles, "Resources/app/storefront/src/scss/base.scss")
-		}
-
-		cfg := ExtensionAssetConfigEntry{
-			BasePath: fmt.Sprintf("%s/%s", extPath, extensionRoot),
-			Views: []string{
-				"Resources/views",
-			},
-			TechnicalName: strings.ReplaceAll(ToSnakeCase(extName), "_", "-"),
-			Administration: ExtensionAssetConfigAdmin{
-				Path:          "Resources/app/administration/src",
-				EntryFilePath: entryFilePathAdmin,
-				Webpack:       webpackFileAdmin,
-			},
-			Storefront: ExtensionAssetConfigStorefront{
-				Path:          "Resources/app/storefront/src",
-				EntryFilePath: entryFilePathStorefront,
-				Webpack:       webpackFileStorefront,
-				StyleFiles:    storefrontStyles,
-			},
-		}
-
-		list[extName] = cfg
 	}
 
 	var basePath string
@@ -305,6 +268,65 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 	}
 
 	return list
+}
+
+func createConfigFromPath(entryPointName string, extensionRoot string) ExtensionAssetConfigEntry {
+	var entryFilePathAdmin, entryFilePathStorefront, webpackFileAdmin, webpackFileStorefront *string
+	storefrontStyles := make([]string, 0)
+
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationEntrypointJS)); err == nil {
+		val := AdministrationEntrypointJS
+		entryFilePathAdmin = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationEntrypointTS)); err == nil {
+		val := AdministrationEntrypointTS
+		entryFilePathAdmin = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationWebpackConfig)); err == nil {
+		val := AdministrationWebpackConfig
+		webpackFileAdmin = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontEntrypointJS)); err == nil {
+		val := StorefrontEntrypointJS
+		entryFilePathStorefront = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontEntrypointTS)); err == nil {
+		val := StorefrontEntrypointTS
+		entryFilePathStorefront = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontWebpackConfig)); err == nil {
+		val := StorefrontWebpackConfig
+		webpackFileStorefront = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontBaseCSS)); err == nil {
+		storefrontStyles = append(storefrontStyles, StorefrontBaseCSS)
+	}
+
+	cfg := ExtensionAssetConfigEntry{
+		BasePath: extensionRoot,
+		Views: []string{
+			"Resources/views",
+		},
+		TechnicalName: strings.ReplaceAll(ToSnakeCase(entryPointName), "_", "-"),
+		Administration: ExtensionAssetConfigAdmin{
+			Path:          "app/administration/src",
+			EntryFilePath: entryFilePathAdmin,
+			Webpack:       webpackFileAdmin,
+		},
+		Storefront: ExtensionAssetConfigStorefront{
+			Path:          "app/storefront/src",
+			EntryFilePath: entryFilePathStorefront,
+			Webpack:       webpackFileStorefront,
+			StyleFiles:    storefrontStyles,
+		},
+	}
+	return cfg
 }
 
 func setupShopwareInTemp() (string, error) {

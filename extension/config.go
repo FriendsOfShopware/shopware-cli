@@ -8,7 +8,8 @@ import (
 )
 
 type ConfigBuild struct {
-	Zip struct {
+	ExtraBundles []ConfigExtraBundle `yaml:"extraBundles"`
+	Zip          struct {
 		Composer struct {
 			Enabled          bool     `yaml:"enabled"`
 			BeforeHooks      []string `yaml:"before_hooks"`
@@ -29,6 +30,11 @@ type ConfigBuild struct {
 			BeforeHooks []string `yaml:"before_hooks"`
 		} `yaml:"pack"`
 	} `yaml:"zip"`
+}
+
+type ConfigExtraBundle struct {
+	Path string `yaml:"path"`
+	Name string `yaml:"name"`
 }
 
 type ConfigStore struct {

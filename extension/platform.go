@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/version"
@@ -12,6 +13,14 @@ import (
 type PlatformPlugin struct {
 	path     string
 	composer platformComposerJson
+}
+
+func (p PlatformPlugin) GetRootDir() string {
+	return path.Join(p.path, "src")
+}
+
+func (p PlatformPlugin) GetResourcesDir() string {
+	return path.Join(p.GetRootDir(), "Resources")
 }
 
 func newPlatformPlugin(path string) (*PlatformPlugin, error) {
@@ -52,18 +61,20 @@ type platformComposerJson struct {
 		Name     string `json:"name"`
 		Homepage string `json:"homepage"`
 	} `json:"authors"`
-	Require map[string]string `json:"require"`
-	Extra   struct {
-		ShopwarePluginClass string            `json:"shopware-plugin-class"`
-		Label               map[string]string `json:"label"`
-		Description         map[string]string `json:"description"`
-		ManufacturerLink    map[string]string `json:"manufacturerLink"`
-		SupportLink         map[string]string `json:"supportLink"`
-	} `json:"extra"`
+	Require  map[string]string         `json:"require"`
+	Extra    platformComposerJsonExtra `json:"extra"`
 	Autoload struct {
 		Psr0 map[string]string `json:"psr-0"`
 		Psr4 map[string]string `json:"psr-4"`
 	} `json:"autoload"`
+}
+
+type platformComposerJsonExtra struct {
+	ShopwarePluginClass string            `json:"shopware-plugin-class"`
+	Label               map[string]string `json:"label"`
+	Description         map[string]string `json:"description"`
+	ManufacturerLink    map[string]string `json:"manufacturerLink"`
+	SupportLink         map[string]string `json:"supportLink"`
 }
 
 func (p PlatformPlugin) GetName() (string, error) {
