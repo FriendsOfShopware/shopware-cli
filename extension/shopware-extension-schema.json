@@ -22,6 +22,22 @@
             "title": "build",
             "additionalProperties": false,
             "properties": {
+                "extraBundles": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["path"],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
                 "zip": {
                     "type": "object",
                     "additionalProperties": false,
