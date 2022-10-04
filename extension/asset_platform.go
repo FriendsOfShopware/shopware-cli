@@ -224,9 +224,13 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 		}
 
 		for _, bundle := range extCfg.Build.ExtraBundles {
-			bundleName := filepath.Base(bundle)
+			bundleName := bundle.Name
 
-			list[bundleName] = createConfigFromPath(bundleName, extension.GetResourcesDir())
+			if bundleName == "" {
+				bundleName = filepath.Base(bundle.Path)
+			}
+
+			list[bundleName] = createConfigFromPath(bundleName, path.Join(extension.GetRootDir(), bundle.Path, "Resources"))
 		}
 	}
 
@@ -292,7 +296,7 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 		webpackFileStorefront = &val
 	}
 
-	if _, err := os.Stat(path.Join(extensionRoot, "%s/%s/app/storefront/src/scss/base.scss")); err == nil {
+	if _, err := os.Stat(path.Join(extensionRoot, "app/storefront/src/scss/base.scss")); err == nil {
 		storefrontStyles = append(storefrontStyles, "app/storefront/src/scss/base.scss")
 	}
 

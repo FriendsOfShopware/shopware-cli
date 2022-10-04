@@ -15,27 +15,12 @@ type translatedXmlNode []struct {
 }
 
 type appManifest struct {
-	XMLName                   xml.Name `xml:"manifest"`
-	Text                      string   `xml:",chardata"`
-	Xsi                       string   `xml:"xsi,attr"`
-	NoNamespaceSchemaLocation string   `xml:"noNamespaceSchemaLocation,attr"`
-	Meta                      struct {
-		Text                    string            `xml:",chardata"`
-		Name                    string            `xml:"name"`
-		Label                   translatedXmlNode `xml:"label"`
-		Description             translatedXmlNode `xml:"description"`
-		Author                  string            `xml:"author"`
-		Copyright               string            `xml:"copyright"`
-		Version                 string            `xml:"version"`
-		License                 string            `xml:"license"`
-		Icon                    string            `xml:"icon"`
-		Privacy                 string            `xml:"privacy"`
-		PrivacyPolicyExtensions []struct {
-			Text string `xml:",chardata"`
-			Lang string `xml:"lang,attr"`
-		} `xml:"privacyPolicyExtensions"`
-	} `xml:"meta"`
-	Setup struct {
+	XMLName                   xml.Name        `xml:"manifest"`
+	Text                      string          `xml:",chardata"`
+	Xsi                       string          `xml:"xsi,attr"`
+	NoNamespaceSchemaLocation string          `xml:"noNamespaceSchemaLocation,attr"`
+	Meta                      appManifestMeta `xml:"meta"`
+	Setup                     struct {
 		Text            string `xml:",chardata"`
 		RegistrationUrl string `xml:"registrationUrl"`
 		Secret          string `xml:"secret"`
@@ -167,6 +152,23 @@ type appManifest struct {
 			Icon        string `xml:"icon"`
 		} `xml:"payment-method"`
 	} `xml:"payments"`
+}
+
+type appManifestMeta struct {
+	Text                    string            `xml:",chardata"`
+	Name                    string            `xml:"name"`
+	Label                   translatedXmlNode `xml:"label"`
+	Description             translatedXmlNode `xml:"description"`
+	Author                  string            `xml:"author"`
+	Copyright               string            `xml:"copyright"`
+	Version                 string            `xml:"version"`
+	License                 string            `xml:"license"`
+	Icon                    string            `xml:"icon"`
+	Privacy                 string            `xml:"privacy"`
+	PrivacyPolicyExtensions []struct {
+		Text string `xml:",chardata"`
+		Lang string `xml:"lang,attr"`
+	} `xml:"privacyPolicyExtensions"`
 }
 
 func getTranslatedTextFromXmlNode(node translatedXmlNode, keys []string) string {

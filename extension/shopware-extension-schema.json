@@ -25,7 +25,17 @@
                 "extraBundles": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["path"],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            }
+                        }
                     }
                 },
                 "zip": {
