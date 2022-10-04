@@ -15,11 +15,11 @@ import (
 
 const StorefrontWebpackConfig = "app/storefront/build/webpack.config.js"
 const StorefrontEntrypointJS = "app/storefront/src/main.js"
-const StorefrontEntrypointTS = "app/storefront/src/main.js"
+const StorefrontEntrypointTS = "app/storefront/src/main.ts"
 const StorefrontBaseCSS = "app/storefront/src/scss/base.scss"
 const AdministrationWebpackConfig = "app/administration/build/webpack.config.js"
 const AdministrationEntrypointJS = "app/administration/src/main.js"
-const AdministrationEntrypointTS = "app/administration/src/main.js"
+const AdministrationEntrypointTS = "app/administration/src/main.ts"
 
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
