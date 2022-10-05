@@ -28,6 +28,7 @@ archives:
         format: zip
     files:
       - completions/*
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
 release:
   github:
