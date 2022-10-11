@@ -18,12 +18,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.6.0
 	github.com/vulcand/oxy v1.4.1
 	github.com/yuin/goldmark v1.4.12
 	go.uber.org/zap v1.21.0
 	gopkg.in/antage/eventsource.v1 v1.0.0-20150318155416-803f4c5af225
-	gopkg.in/yaml.v3 v3.0.0-20220512140231-539c8e751b99
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -39,7 +39,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jaswdr/faker v1.10.2 // indirect
 	github.com/klauspost/compress v1.15.4 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
