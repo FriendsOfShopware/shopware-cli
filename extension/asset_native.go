@@ -4,7 +4,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	_ "embed"
 	"fmt"
 	"io"
