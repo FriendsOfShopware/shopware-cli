@@ -15,6 +15,13 @@ builds:
       - linux
       - windows
       - darwin
+    ignore:
+      - goos: linux
+        goarch: '386'
+      - goos: windows
+        goarch: 'i386'
+      - goos: windows
+        goarch: 'arm64'
 
 archives:
   - replacements:
