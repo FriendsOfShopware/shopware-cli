@@ -58,7 +58,8 @@ changelog:
 nfpms:
   -
     package_name: shopware-cli
-    vendor: Shyim
+    vendor: FriendsOfShopware
+    file_name_template: '{{ .PackageName }}_{{ .Os }}_{{ .Arch }}'
     homepage: https://github.com/FriendsOfShopware/shopware-cli/
     maintainer: Shyim <github@shyim.de>
     description: A Shopware CLI
