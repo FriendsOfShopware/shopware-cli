@@ -28,6 +28,9 @@ var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
 var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
 var assetRegExp = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
 
+var adminWatchListen = ""
+var adminWatchURL = ""
+
 var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
 	Short: "Builds assets for extensions",
@@ -39,8 +42,24 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return err
 		}
 
+		listenSplit := strings.Split(adminWatchListen, ":")
+
+		if len(listenSplit) != 2 {
+			return fmt.Errorf("listen should contain a colon")
+		}
+
+		if len(adminWatchURL) == 0 {
+			adminWatchURL = "http://localhost:" + listenSplit[1]
+		}
+
+		browserUrl, err := url.Parse(adminWatchURL)
+
+		if err != nil {
+			return err
+		}
+
 		es = eventsource.New(nil, func(request *http.Request) [][]byte {
-			return [][]byte{[]byte("Access-Control-Allow-Origin: http://localhost:8080")}
+			return [][]byte{[]byte("Access-Control-Allow-Origin: " + browserUrl.String())}
 		})
 
 		options := extension.NewAssetCompileOptionsAdmin()
@@ -61,6 +80,16 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 		if err != nil {
 			return err
+		}
+
+		browserPort := browserUrl.Port()
+
+		if len(browserPort) == 0 {
+			if browserUrl.Scheme == "https" {
+				browserPort = "443"
+			} else {
+				browserPort = "80"
+			}
 		}
 
 		fwd, _ := forward.New()
@@ -102,12 +131,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 				bodyStr := string(body)
 
-				bodyStr = hostRegExp.ReplaceAllString(bodyStr, "host: 'localhost',")
-				bodyStr = portRegExp.ReplaceAllString(bodyStr, "port: 8080,")
-				bodyStr = schemeRegExp.ReplaceAllString(bodyStr, "scheme: 'http',")
-				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: 'http://localhost:8080',")
-				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: 'http://localhost:8080/admin',")
-				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: 'http://localhost:8080'")
+				bodyStr = hostRegExp.ReplaceAllString(bodyStr, "host: '"+browserUrl.Host+"',")
+				bodyStr = portRegExp.ReplaceAllString(bodyStr, "port: "+browserPort+",")
+				bodyStr = schemeRegExp.ReplaceAllString(bodyStr, "scheme: '"+browserUrl.Scheme+"',")
+				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: '"+browserUrl.Scheme+"://"+browserUrl.Host+"',")
+				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: '"+browserUrl.Scheme+"://"+browserUrl.Host+targetShopUrl.Path+"/admin',")
+				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: '"+browserUrl.Scheme+"://"+browserUrl.Host+"'")
 
 				bodyStr = assetRegExp.ReplaceAllStringFunc(bodyStr, func(s string) string {
 					firstPart := ""
@@ -131,8 +160,8 @@ var extensionAdminWatchCmd = &cobra.Command{
 						return org
 					}
 
-					parsedUrl.Host = "localhost:8080"
-					parsedUrl.Scheme = "http"
+					parsedUrl.Host = browserUrl.Host
+					parsedUrl.Scheme = browserUrl.Scheme
 
 					return firstPart + parsedUrl.String() + "\""
 				})
@@ -180,8 +209,32 @@ var extensionAdminWatchCmd = &cobra.Command{
 					return
 				}
 
-				bundleInfo.Bundles[compileResult.Name] = adminBundlesInfoAsset{Css: []string{"http://localhost:8080/extension.css"}, Js: []string{"http://localhost:8080/extension.js"}}
-				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{"http://localhost:8080/live-reload.js"}}
+				for name, bundle := range bundleInfo.Bundles {
+					newCss := []string{}
+
+					for _, assetUrl := range bundle.Css {
+						parsedUrl, _ := url.Parse(assetUrl)
+						parsedUrl.Host = browserUrl.Host
+						parsedUrl.Scheme = browserUrl.Scheme
+
+						newCss = append(newCss, parsedUrl.String())
+					}
+
+					newJS := []string{}
+
+					for _, assetUrl := range bundle.Js {
+						parsedUrl, _ := url.Parse(assetUrl)
+						parsedUrl.Host = browserUrl.Host
+						parsedUrl.Scheme = browserUrl.Scheme
+
+						newJS = append(newJS, parsedUrl.String())
+					}
+
+					bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: newCss, Js: newJS}
+				}
+
+				bundleInfo.Bundles[compileResult.Name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
+				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/live-reload.js"}}
 
 				newJson, _ := json.Marshal(bundleInfo)
 
@@ -218,11 +271,11 @@ var extensionAdminWatchCmd = &cobra.Command{
 		wrapper, _ := gziphandler.GzipHandlerWithOpts(gziphandler.ContentTypes([]string{"application/vnd.api+json", "application/json ", "text/html", "text/javascript", "text/css", "image/png"}))
 
 		s := &http.Server{
-			Addr:              ":8080",
+			Addr:              adminWatchListen,
 			Handler:           wrapper(redirect),
 			ReadHeaderTimeout: time.Second,
 		}
-		log.Infof("Admin Watcher started at http://localhost:8080%s/admin", targetShopUrl.Path)
+		log.Infof("Admin Watcher started at "+browserUrl.String()+"%s/admin", targetShopUrl.Path)
 		if err := s.ListenAndServe(); err != nil {
 			return err
 		}
@@ -233,6 +286,8 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 func init() {
 	extensionRootCmd.AddCommand(extensionAdminWatchCmd)
+	extensionAdminWatchCmd.PersistentFlags().StringVar(&adminWatchListen, "port", ":8080", "Listen (default :8080)")
+	extensionAdminWatchCmd.PersistentFlags().StringVar(&adminWatchURL, "external-url", "", "External reachable url for admin watcher. Needed for reverse proxy setups")
 }
 
 type adminBundlesInfo struct {
