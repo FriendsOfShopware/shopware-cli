@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/NYTimes/gziphandler"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/forward"
-	"github.com/vulcand/oxy/testutils"
 	"gopkg.in/antage/eventsource.v1"
 )
 
@@ -25,14 +26,13 @@ var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
 var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
 var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
 var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
+var assetRegExp = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
 
 var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
 	Short: "Builds assets for extensions",
 	Args:  cobra.ExactArgs(2),
 	RunE: func(_ *cobra.Command, args []string) error {
-		log.Infof("!!!This command is ALPHA and does not support any features of the actual Shopware watcher!!!")
-
 		ext, err := extension.GetExtensionByFolder(args[0])
 
 		if err != nil {
@@ -52,6 +52,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 		}
 
 		compileResult, err := extension.CompileExtensionAsset(ext, options)
+
+		if err != nil {
+			return err
+		}
+
+		targetShopUrl, err := url.Parse(strings.TrimSuffix(args[1], "/"))
 
 		if err != nil {
 			return err
@@ -77,7 +83,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			if req.URL.Path == "/admin" {
+			if req.URL.Path == targetShopUrl.Path+"/admin" {
 				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
 
 				if err != nil {
@@ -103,6 +109,34 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: 'http://localhost:8080/admin',")
 				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: 'http://localhost:8080'")
 
+				bodyStr = assetRegExp.ReplaceAllStringFunc(bodyStr, func(s string) string {
+					firstPart := ""
+
+					if strings.HasPrefix(s, "href=\"") {
+						firstPart = "href=\""
+					} else if strings.HasPrefix(s, "content=\"") {
+						firstPart = "content=\""
+					} else if strings.HasPrefix(s, "src=\"") {
+						firstPart = "src=\""
+					}
+
+					org := s
+					s = strings.TrimPrefix(s, firstPart)
+					s = strings.TrimSuffix(s, "\"")
+
+					parsedUrl, err := url.Parse(s)
+
+					if err != nil {
+						log.Infof("cannot parse url: %s, err: %s", s, err.Error())
+						return org
+					}
+
+					parsedUrl.Host = "localhost:8080"
+					parsedUrl.Scheme = "http"
+
+					return firstPart + parsedUrl.String() + "\""
+				})
+
 				w.Header().Set("content-type", "text/html")
 				if _, err := w.Write([]byte(bodyStr)); err != nil {
 					log.Error(err)
@@ -110,10 +144,10 @@ var extensionAdminWatchCmd = &cobra.Command{
 				log.Debugf("Served modified admin")
 				return
 			}
-			if req.URL.Path == "/api/_info/config" {
+			if req.URL.Path == targetShopUrl.Path+"/api/_info/config" {
 				log.Debugf("intercept plugins call")
 
-				proxyReq, _ := http.NewRequest("GET", fmt.Sprintf("%s%s", args[1], req.URL.Path), nil)
+				proxyReq, _ := http.NewRequest("GET", targetShopUrl.Scheme+"://"+targetShopUrl.Host+req.URL.Path, nil)
 
 				proxyReq.Header.Set("Authorization", req.Header.Get("Authorization"))
 
@@ -177,16 +211,18 @@ var extensionAdminWatchCmd = &cobra.Command{
 			}
 
 			// let us forward this request to another server
-			req.URL = testutils.ParseURI(args[1])
+			req.URL = targetShopUrl
 			fwd.ServeHTTP(w, req)
 		})
 
+		wrapper, _ := gziphandler.GzipHandlerWithOpts(gziphandler.ContentTypes([]string{"application/vnd.api+json", "application/json ", "text/html", "text/javascript", "text/css", "image/png"}))
+
 		s := &http.Server{
 			Addr:              ":8080",
-			Handler:           redirect,
+			Handler:           wrapper(redirect),
 			ReadHeaderTimeout: time.Second,
 		}
-		log.Infof("Admin Watcher started at http://localhost:8080/admin")
+		log.Infof("Admin Watcher started at http://localhost:8080%s/admin", targetShopUrl.Path)
 		if err := s.ListenAndServe(); err != nil {
 			return err
 		}
