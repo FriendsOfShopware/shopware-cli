@@ -97,12 +97,14 @@ var extensionAdminWatchCmd = &cobra.Command{
 		redirect := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			log.Debugf("Got request %s %s", req.Method, req.URL.Path)
 
-			if strings.HasPrefix(req.URL.Path, "/events") {
+			// Real time updates, that the browser should reload
+			if strings.HasPrefix(req.URL.Path, "/__internal-admin-proxy/events") {
 				es.ServeHTTP(w, req)
 				return
 			}
 
-			assetPrefix := fmt.Sprintf("/bundles/%s/static/", strings.ToLower(compileResult.Name))
+			// Serve the local static folder to the cdn url
+			assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", strings.ToLower(compileResult.Name))
 			if strings.HasPrefix(req.URL.Path, assetPrefix) {
 				newFilePath := strings.TrimPrefix(req.URL.Path, assetPrefix)
 
@@ -112,6 +114,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
+			// Modify admin url index page to load anything from our watcher
 			if req.URL.Path == targetShopUrl.Path+"/admin" {
 				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
 
@@ -173,6 +176,8 @@ var extensionAdminWatchCmd = &cobra.Command{
 				log.Debugf("Served modified admin")
 				return
 			}
+
+			// Inject our custom extension JS
 			if req.URL.Path == targetShopUrl.Path+"/api/_info/config" {
 				log.Debugf("intercept plugins call")
 
@@ -258,7 +263,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 			if req.URL.Path == "/live-reload.js" {
 				w.Header().Set("content-type", "application/json")
-				_, _ = w.Write([]byte(("let eventSource = new EventSource('/events');\n\neventSource.onmessage = function (message) {\n    window.location.reload();\n}")))
+				_, _ = w.Write([]byte(("let eventSource = new EventSource('/__internal-admin-proxy/events');\n\neventSource.onmessage = function (message) {\n    window.location.reload();\n}")))
 
 				return
 			}
