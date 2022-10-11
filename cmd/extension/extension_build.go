@@ -17,6 +17,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 	Short: "Builds assets for extensions",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
+		assetCfg := extension.AssetBuildConfig{EnableESBuildForAdmin: false, EnableESBuildForStorefront: false}
 		validatedExtensions := make([]extension.Extension, 0)
 
 		for _, arg := range args {
@@ -35,7 +36,17 @@ var extensionAssetBundleCmd = &cobra.Command{
 			validatedExtensions = append(validatedExtensions, ext)
 		}
 
-		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, extension.AssetBuildConfig{EnableESBuildForAdmin: false, EnableESBuildForStorefront: false})
+		if len(args) == 1 {
+			extCfg, err := extension.ReadExtensionConfig(validatedExtensions[0].GetPath())
+			if err != nil {
+				return errors.Wrap(err, "cannot read extension config")
+			}
+
+			assetCfg.EnableESBuildForAdmin = extCfg.Build.Zip.Assets.EnableESBuildForAdmin
+			assetCfg.EnableESBuildForStorefront = extCfg.Build.Zip.Assets.EnableESBuildForStorefront
+		}
+
+		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg)
 
 		if err != nil {
 			return errors.Wrap(err, "cannot build assets")
