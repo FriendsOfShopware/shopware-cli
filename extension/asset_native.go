@@ -294,7 +294,7 @@ func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string, js
 		if strings.HasSuffix(file.Path, ".css") {
 			outFile = cssFile
 		} else {
-			hash := md5.New()
+			hash := md5.New() //nolint:gosec
 			hash.Write(file.Contents)
 
 			*jsMD5 = fmt.Sprintf("%x", hash.Sum(nil))
