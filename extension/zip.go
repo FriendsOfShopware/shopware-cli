@@ -41,6 +41,8 @@ var (
 		"src/Resources/app/administration/node_modules",
 		"src/Resources/app/node_modules",
 		"var",
+		".gitpod.yml",
+		".gitpod.Dockerfile",
 	}
 
 	defaultNotAllowedFiles = []string{
