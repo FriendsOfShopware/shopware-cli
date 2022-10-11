@@ -1,6 +1,7 @@
 package extension
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +28,9 @@ var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
 var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
 var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
 var assetRegExp = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
+
+//go:embed static/live-reload.js
+var liveReloadJS []byte
 
 var adminWatchListen = ""
 var adminWatchURL = ""
@@ -65,8 +69,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 		options := extension.NewAssetCompileOptionsAdmin()
 		options.ProductionMode = false
 		options.WatchMode = &extension.WatchMode{
-			OnRebuild: func() {
-				es.SendEventMessage("reload", "message", "1")
+			OnRebuild: func(onlyCssChanges bool) {
+				if onlyCssChanges {
+					es.SendEventMessage("reloadCss", "message", "1")
+				} else {
+					es.SendEventMessage("reload", "message", "1")
+				}
 			},
 		}
 
@@ -100,6 +108,14 @@ var extensionAdminWatchCmd = &cobra.Command{
 			// Real time updates, that the browser should reload
 			if strings.HasPrefix(req.URL.Path, "/__internal-admin-proxy/events") {
 				es.ServeHTTP(w, req)
+				return
+			}
+
+			// Our custom live reload script
+			if req.URL.Path == "/__internal-admin-proxy/live-reload.js" {
+				w.Header().Set("content-type", "application/json")
+				_, _ = w.Write(liveReloadJS)
+
 				return
 			}
 
@@ -139,7 +155,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bodyStr = schemeRegExp.ReplaceAllString(bodyStr, "scheme: '"+browserUrl.Scheme+"',")
 				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: '"+browserUrl.Scheme+"://"+browserUrl.Host+"',")
 				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: '"+browserUrl.Scheme+"://"+browserUrl.Host+targetShopUrl.Path+"/admin',")
-				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: '"+browserUrl.Scheme+"://"+browserUrl.Host+"'")
+				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: '"+browserUrl.Scheme+"://"+browserUrl.Host+targetShopUrl.Path+"'")
 
 				bodyStr = assetRegExp.ReplaceAllStringFunc(bodyStr, func(s string) string {
 					firstPart := ""
@@ -239,7 +255,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				}
 
 				bundleInfo.Bundles[compileResult.Name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
-				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/live-reload.js"}}
+				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/__internal-admin-proxy/live-reload.js"}}
 
 				newJson, _ := json.Marshal(bundleInfo)
 
@@ -258,13 +274,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 			if req.URL.Path == "/extension.js" {
 				http.ServeFile(w, req, compileResult.JsFile)
-				return
-			}
-
-			if req.URL.Path == "/live-reload.js" {
-				w.Header().Set("content-type", "application/json")
-				_, _ = w.Write([]byte(("let eventSource = new EventSource('/__internal-admin-proxy/events');\n\neventSource.onmessage = function (message) {\n    window.location.reload();\n}")))
-
 				return
 			}
 

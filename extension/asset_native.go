@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"context"
+	"crypto/md5"
 	_ "embed"
 	"fmt"
 	"io"
@@ -167,7 +168,7 @@ func downloadDartSass() (string, error) {
 }
 
 type WatchMode struct {
-	OnRebuild func()
+	OnRebuild func(bool)
 }
 
 type AssetCompileResult struct {
@@ -251,14 +252,17 @@ func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCo
 		},
 	}
 
+	jsMD5 := ""
+
 	if options.WatchMode != nil {
 		bundlerOptions.Watch = &api.WatchMode{
 			OnRebuild: func(br api.BuildResult) {
-				if err := writeBundlerResultToDisk(br, jsFile, cssFile); err != nil {
+				currentMD5 := jsMD5
+				if err := writeBundlerResultToDisk(br, jsFile, cssFile, &jsMD5); err != nil {
 					log.Error(err)
 				}
 
-				options.WatchMode.OnRebuild()
+				options.WatchMode.OnRebuild(currentMD5 == jsMD5)
 			},
 		}
 	}
@@ -269,7 +273,7 @@ func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCo
 		return nil, fmt.Errorf("initial compile failed")
 	}
 
-	if err := writeBundlerResultToDisk(result, jsFile, cssFile); err != nil {
+	if err := writeBundlerResultToDisk(result, jsFile, cssFile, &jsMD5); err != nil {
 		return nil, err
 	}
 
@@ -283,12 +287,17 @@ func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCo
 	return &compileResult, nil
 }
 
-func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string) error {
+func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string, jsMD5 *string) error {
 	for _, file := range result.OutputFiles {
 		outFile := jsFile
 
 		if strings.HasSuffix(file.Path, ".css") {
 			outFile = cssFile
+		} else {
+			hash := md5.New()
+			hash.Write(file.Contents)
+
+			*jsMD5 = fmt.Sprintf("%x", hash.Sum(nil))
 		}
 
 		outFolder := filepath.Dir(outFile)
