@@ -19,7 +19,7 @@ builds:
       - goos: linux
         goarch: '386'
       - goos: windows
-        goarch: 'i386'
+        goarch: '386'
       - goos: windows
         goarch: 'arm64'
 
@@ -66,7 +66,6 @@ nfpms:
   -
     package_name: shopware-cli
     vendor: FriendsOfShopware
-    file_name_template: '{{ .PackageName }}_{{ .Os }}_{{ .Arch }}'
     homepage: https://github.com/FriendsOfShopware/shopware-cli/
     maintainer: Shyim <github@shyim.de>
     description: A Shopware CLI
