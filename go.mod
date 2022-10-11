@@ -20,7 +20,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.0
 	github.com/vulcand/oxy v1.4.1
-	github.com/yuin/goldmark v1.4.12
+	github.com/yuin/goldmark v1.5.2
 	go.uber.org/zap v1.21.0
 	gopkg.in/antage/eventsource.v1 v1.0.0-20150318155416-803f4c5af225
 	gopkg.in/yaml.v3 v3.0.1
