@@ -4,7 +4,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - exportloopref
     - exhaustive
     - goconst
@@ -19,12 +18,10 @@ linters:
     - noctx
     - rowserrcheck
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
     - asciicheck
     - godot

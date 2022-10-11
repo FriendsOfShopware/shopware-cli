@@ -330,7 +330,9 @@ func validatePHPFiles(ctx *validationContext) {
 }
 
 func getPhpVersion(constraint *version.Constraints) (string, error) {
-	resp, err := http.Get("https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json")
+	r, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", nil)
+
+	resp, err := http.DefaultClient.Do(r)
 
 	if err != nil {
 		return "", err
