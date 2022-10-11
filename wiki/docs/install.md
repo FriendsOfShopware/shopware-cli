@@ -16,7 +16,35 @@ Below you can find the steps for each of them.
 brew install FriendsOfShopware/tap/shopware-cli
 ```
 
-### deb,rpm apt packages
+### Debian/Ubuntu — APT based Linux
+
+```bash
+curl -1sLf \
+  'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh' \
+  | sudo -E bash
+sudo apt install shopware-cli
+```
+
+### Fedora/CentOS/SUSE/RedHat — YUM based Linux
+
+```bash
+curl -1sLf \
+  'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.rpm.sh' \
+  | sudo -E bash
+sudo dnf install shopware-cli
+```
+
+### Alpine — APK based Linux
+
+```bash
+sudo apk add --no-cache bash
+curl -1sLf \
+  'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.alpine.sh' \
+  | sudo -E bash
+sudo apk add --no-cache shopware-cli
+```
+
+### Manually: deb,rpm apt packages
 
 Download the .deb, .rpm or .apk packages from the [releases](https://github.com/FriendsOfShopware/shopware-cli/releases/) page and install them with the appropriate tools.
 
