@@ -300,7 +300,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 func init() {
 	extensionRootCmd.AddCommand(extensionAdminWatchCmd)
-	extensionAdminWatchCmd.PersistentFlags().StringVar(&adminWatchListen, "port", ":8080", "Listen (default :8080)")
+	extensionAdminWatchCmd.PersistentFlags().StringVar(&adminWatchListen, "listen", ":8080", "Listen (default :8080)")
 	extensionAdminWatchCmd.PersistentFlags().StringVar(&adminWatchURL, "external-url", "", "External reachable url for admin watcher. Needed for reverse proxy setups")
 }
 

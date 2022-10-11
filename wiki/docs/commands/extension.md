@@ -46,3 +46,8 @@ Parameters:
 
 * path - Path to extension folder.
 * url - A URL of a running Shopware instance. This is used to proxy the requests to the admin API like http://localhost
+
+Options:
+
+* `--listen` - Listen Address for Server
+* `--external-url` - Use this URL in the browser. Needed for reverse proxy setups
