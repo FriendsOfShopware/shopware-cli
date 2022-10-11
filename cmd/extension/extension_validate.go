@@ -2,12 +2,13 @@ package extension
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/pkg/errors"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -44,22 +45,29 @@ var extensionValidateCmd = &cobra.Command{
 
 		context := extension.RunValidation(ext)
 
-		if !context.HasErrors() {
-			log.Infof("Validation passed without errors")
-			return nil
+		if context.HasErrors() || context.HasWarnings() {
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetHeader([]string{"Type", "Message"})
+			table.SetAutoWrapText(false)
+
+			for _, msg := range context.Errors() {
+				table.Append([]string{"Error", msg})
+			}
+
+			for _, msg := range context.Warnings() {
+				table.Append([]string{"Warning", msg})
+			}
+
+			table.Render()
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetColWidth(100)
-		table.SetHeader([]string{"Message"})
-
-		for _, msg := range context.Errors() {
-			table.Append([]string{msg})
+		if context.HasErrors() {
+			return fmt.Errorf("validation failed")
 		}
 
-		table.Render()
+		log.Infof("Validation has been successful")
 
-		return fmt.Errorf("validation failed")
+		return nil
 	},
 }
 

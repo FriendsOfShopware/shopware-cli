@@ -3,7 +3,6 @@ package extension
 import (
 	"fmt"
 	"io/fs"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -11,6 +10,7 @@ import (
 type validationContext struct {
 	Extension Extension
 	errors    []string
+	warnings  []string
 }
 
 func newValidationContext(ext Extension) *validationContext {
@@ -27,6 +27,18 @@ func (c validationContext) HasErrors() bool {
 
 func (c validationContext) Errors() []string {
 	return c.errors
+}
+
+func (c *validationContext) AddWarning(message string) {
+	c.warnings = append(c.warnings, message)
+}
+
+func (c validationContext) HasWarnings() bool {
+	return len(c.warnings) > 0
+}
+
+func (c validationContext) Warnings() []string {
+	return c.warnings
 }
 
 func RunValidation(ext Extension) *validationContext {
@@ -82,15 +94,6 @@ func runDefaultValidate(context *validationContext) {
 		for _, ext := range defaultNotAllowedExtensions {
 			if strings.HasSuffix(name, ext) {
 				context.AddError(fmt.Sprintf(notAllowedErrorFormat, path))
-			}
-		}
-
-		if strings.HasSuffix(name, ".php") {
-			phpCheck := exec.Command("php", "-l", path)
-			text, err := phpCheck.Output()
-
-			if err != nil {
-				context.AddError(string(text))
 			}
 		}
 
