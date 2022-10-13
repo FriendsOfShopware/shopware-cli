@@ -96,13 +96,12 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	}
 
 	envs := []string{
-		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 		fmt.Sprintf("PROJECT_ROOT=%s", projectRoot),
 		"PUPPETEER_SKIP_DOWNLOAD=1",
 	}
 
 	npmRun := exec.Command("npm", "--prefix", storefrontRoot, "run", "production")
-	npmRun.Env = envs
+	npmRun.Env = append(os.Environ(), envs...)
 	npmRun.Stdin = os.Stdin
 	npmRun.Stdout = os.Stdout
 	npmRun.Stderr = os.Stderr
@@ -144,13 +143,8 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 		}
 	}
 
-	envs := []string{
-		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
-		fmt.Sprintf("PROJECT_ROOT=%s", projectRoot),
-	}
-
 	npmRun := exec.Command("npm", "--prefix", adminRoot, "run", "build")
-	npmRun.Env = envs
+	npmRun.Env = append(os.Environ(), fmt.Sprintf("PROJECT_ROOT=%s", projectRoot))
 	npmRun.Stdin = os.Stdin
 	npmRun.Stdout = os.Stdout
 	npmRun.Stderr = os.Stderr

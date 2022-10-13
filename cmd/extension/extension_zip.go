@@ -172,8 +172,6 @@ func init() {
 
 func executeHooks(ext extension.Extension, hooks []string, extDir string) error {
 	env := []string{
-		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
-		fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
 		fmt.Sprintf("EXTENSION_DIR=%s", extDir),
 		fmt.Sprintf("ORIGINAL_EXTENSION_DIR=%s", ext.GetPath()),
 	}
@@ -183,7 +181,7 @@ func executeHooks(ext extension.Extension, hooks []string, extDir string) error 
 		hookCmd.Stdout = os.Stdout
 		hookCmd.Stderr = os.Stderr
 		hookCmd.Dir = extDir
-		hookCmd.Env = env
+		hookCmd.Env = append(os.Environ(), env...)
 		err := hookCmd.Run()
 
 		if err != nil {
