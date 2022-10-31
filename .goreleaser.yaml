@@ -61,6 +61,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^Merge pull request:'
 
 nfpms:
   -
