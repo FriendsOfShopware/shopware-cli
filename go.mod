@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/bep/godartsass v0.14.0
 	github.com/caarlos0/env/v6 v6.10.1
-	github.com/doutorfinancas/go-mad v0.0.0-20221011112120-9d010f41c6f0
+	github.com/doutorfinancas/go-mad v0.0.0-20221031120329-288cd003774876db34e5798f39b382ffa53d204c
 	github.com/evanw/esbuild v0.15.12
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
 	github.com/google/uuid v1.3.0
@@ -41,7 +41,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jaswdr/faker v1.15.0 // indirect
-	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -53,10 +53,13 @@ require (
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/net v0.0.0-20221004154528-8021a29435af // indirect
-	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1 // indirect
-	golang.org/x/sys v0.0.0-20221010170243-090e33056c14 // indirect
-	golang.org/x/term v0.0.0-20220919170432-7a66f970e087 // indirect
+	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/oauth2 v0.1.0 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
+
+// remove when https://github.com/doutorfinancas/go-mad/pull/42 is merged
+replace github.com/doutorfinancas/go-mad v0.0.0-20221031120329-288cd003774876db34e5798f39b382ffa53d204c => github.com/shyim/go-mad v0.0.0-20221031184014-288cd0037748

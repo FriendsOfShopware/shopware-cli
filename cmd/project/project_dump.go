@@ -2,10 +2,11 @@ package project
 
 import (
 	"database/sql"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
@@ -41,6 +42,8 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		var opt []database.Option
 		opt = append(opt, database.OptionValue("hex-encode", "1"))
 		opt = append(opt, database.OptionValue("set-charset", "utf8mb4"))
+		opt = append(opt, database.OptionValue("dump-trigger", ""))
+		opt = append(opt, database.OptionValue("skip-definer", ""))
 
 		if skipLockTables {
 			opt = append(opt, database.OptionValue("skip-lock-tables", "1"))
