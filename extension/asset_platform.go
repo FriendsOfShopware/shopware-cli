@@ -100,7 +100,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 			err := npmInstallAndBuild(
 				administrationRoot,
 				"build",
-				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
+				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
 			)
 
 			if err != nil {
@@ -139,7 +139,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 			err := npmInstallAndBuild(
 				storefrontRoot,
 				"production",
-				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("PATH=%s", os.Getenv("PATH")), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
+				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
 			)
 
 			if err != nil {
@@ -157,7 +157,7 @@ func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string
 	}
 
 	npmBuildCmd := exec.Command("npm", "--prefix", path, "run", buildCmd) //nolint:gosec
-	npmBuildCmd.Env = buildEnvVariables
+	npmBuildCmd.Env = append(os.Environ(), buildEnvVariables...)
 	npmBuildCmd.Stdout = os.Stdout
 	npmBuildCmd.Stderr = os.Stderr
 
