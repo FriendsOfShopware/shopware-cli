@@ -70,18 +70,23 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				return err
 			}
 		}
-	}
 
-	if cfgs.RequiresAdminBuild() {
-		for _, entry := range cfgs {
-			// If extension has package.json install it
-			if _, err := os.Stat(filepath.Join(entry.BasePath, "app/administration/package.json")); err == nil {
-				if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "app/administration/")); err != nil {
-					return err
-				}
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "app/administration/package.json")); err == nil {
+			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "app/administration/")); err != nil {
+				return err
 			}
 		}
 
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "app/storefront/package.json")); err == nil {
+			err := npmInstall(filepath.Join(entry.BasePath, "app/storefront/"))
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if cfgs.RequiresAdminBuild() {
 		if assetConfig.EnableESBuildForAdmin {
 			for _, extension := range extensions {
 				name, _ := extension.GetName()
@@ -124,17 +129,6 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				}
 			}
 		} else {
-			for _, entry := range cfgs {
-				// If extension has package.json install it
-				if _, err := os.Stat(filepath.Join(entry.BasePath, "app/storefront/package.json")); err == nil {
-					err := npmInstall(filepath.Join(entry.BasePath, "app/storefront/"))
-
-					if err != nil {
-						return err
-					}
-				}
-			}
-
 			storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
 			err := npmInstallAndBuild(
 				storefrontRoot,
