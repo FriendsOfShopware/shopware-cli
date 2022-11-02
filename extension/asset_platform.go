@@ -268,7 +268,7 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 		Views:         []string{"Resources/views"},
 		TechnicalName: "storefront",
 		Storefront: ExtensionAssetConfigStorefront{
-			Path:          "Resources/app/storefront/src",
+			Path:          "app/storefront/src",
 			EntryFilePath: &entryPath,
 			StyleFiles:    []string{},
 		},
