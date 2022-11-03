@@ -200,16 +200,6 @@ func NewAssetCompileOptionsStorefront() AssetCompileOptions {
 }
 
 func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCompileResult, error) {
-	npmFolder := filepath.Dir(options.EntrypointDir)
-
-	npmFile := filepath.Join(ext.GetPath(), npmFolder, "package.json")
-
-	if _, err := os.Stat(npmFile); err == nil {
-		if err := npmInstall(filepath.Dir(npmFile)); err != nil {
-			return nil, err
-		}
-	}
-
 	entryPoint := filepath.Join(ext.GetPath(), options.EntrypointDir, "main.js")
 
 	if _, err := os.Stat(entryPoint); os.IsNotExist(err) {

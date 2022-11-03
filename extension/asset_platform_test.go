@@ -75,11 +75,11 @@ func TestGenerateConfigForPlugin(t *testing.T) {
 		t.Error("Webpack is not overridden for storefront")
 	}
 
-	if config["FroshTools"].Administration.Path != "app/administration/src" {
+	if config["FroshTools"].Administration.Path != "Resources/app/administration/src" {
 		t.Error("Expected to have Administration Path")
 	}
 
-	if config["FroshTools"].Storefront.Path != "app/storefront/src" {
+	if config["FroshTools"].Storefront.Path != "Resources/app/storefront/src" {
 		t.Error("Expected to have Storefront Path")
 	}
 }
@@ -154,7 +154,7 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 		t.Error("Expected to have Administration Webpack")
 	}
 
-	if *config["FroshTools"].Storefront.EntryFilePath != "app/storefront/src/main.ts" {
+	if *config["FroshTools"].Storefront.EntryFilePath != "Resources/app/storefront/src/main.ts" {
 		t.Error("Expected to have Storefront TS")
 	}
 
@@ -162,11 +162,11 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 		t.Error("Expected to have Storefront Webpack")
 	}
 
-	if config["FroshTools"].Administration.Path != "app/administration/src" {
+	if config["FroshTools"].Administration.Path != "Resources/app/administration/src" {
 		t.Error("Expected to have Administration Path")
 	}
 
-	if config["FroshTools"].Storefront.Path != "app/storefront/src" {
+	if config["FroshTools"].Storefront.Path != "Resources/app/storefront/src" {
 		t.Error("Expected to have Storefront Path")
 	}
 }

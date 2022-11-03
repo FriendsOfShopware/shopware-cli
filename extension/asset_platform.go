@@ -13,13 +13,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const StorefrontWebpackConfig = "app/storefront/build/webpack.config.js"
-const StorefrontEntrypointJS = "app/storefront/src/main.js"
-const StorefrontEntrypointTS = "app/storefront/src/main.ts"
-const StorefrontBaseCSS = "app/storefront/src/scss/base.scss"
-const AdministrationWebpackConfig = "app/administration/build/webpack.config.js"
-const AdministrationEntrypointJS = "app/administration/src/main.js"
-const AdministrationEntrypointTS = "app/administration/src/main.ts"
+const StorefrontWebpackConfig = "Resources/app/storefront/build/webpack.config.js"
+const StorefrontEntrypointJS = "Resources/app/storefront/src/main.js"
+const StorefrontEntrypointTS = "Resources/app/storefront/src/main.ts"
+const StorefrontBaseCSS = "Resources/app/storefront/src/scss/base.scss"
+const AdministrationWebpackConfig = "Resources/app/administration/build/webpack.config.js"
+const AdministrationEntrypointJS = "Resources/app/administration/src/main.js"
+const AdministrationEntrypointTS = "Resources/app/administration/src/main.ts"
 
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
@@ -65,20 +65,20 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 	// Install shared node_modules between admin and storefront
 	for _, entry := range cfgs {
 		// Install also shared node_modules
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "app/package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "app")); err != nil {
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/package.json")); err == nil {
+			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources/app")); err != nil {
 				return err
 			}
 		}
 
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "app/administration/package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "app/administration/")); err != nil {
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/administration/package.json")); err == nil {
+			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources/app/administration/")); err != nil {
 				return err
 			}
 		}
 
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "app/storefront/package.json")); err == nil {
-			err := npmInstall(filepath.Join(entry.BasePath, "app/storefront/"))
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/storefront/package.json")); err == nil {
+			err := npmInstall(filepath.Join(entry.BasePath, "Resources/app/storefront/"))
 
 			if err != nil {
 				return err
@@ -227,12 +227,12 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 
 		extPath := extension.GetPath()
 
-		if _, err := os.Stat(path.Join(extension.GetResourcesDir(), "app")); os.IsNotExist(err) {
+		if _, err := os.Stat(path.Join(extension.GetRootDir(), "Resources")); os.IsNotExist(err) {
 			log.Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
 			continue
 		}
 
-		list[extName] = createConfigFromPath(extName, extension.GetResourcesDir())
+		list[extName] = createConfigFromPath(extName, extension.GetRootDir())
 
 		extCfg, err := ReadExtensionConfig(extPath)
 
@@ -248,7 +248,7 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 				bundleName = filepath.Base(bundle.Path)
 			}
 
-			list[bundleName] = createConfigFromPath(bundleName, path.Join(extension.GetRootDir(), bundle.Path, "Resources"))
+			list[bundleName] = createConfigFromPath(bundleName, path.Join(extension.GetRootDir(), bundle.Path))
 		}
 	}
 
@@ -318,6 +318,8 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 		storefrontStyles = append(storefrontStyles, StorefrontBaseCSS)
 	}
 
+	extensionRoot = strings.TrimRight(extensionRoot, "/") + "/"
+
 	cfg := ExtensionAssetConfigEntry{
 		BasePath: extensionRoot,
 		Views: []string{
@@ -325,12 +327,12 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 		},
 		TechnicalName: strings.ReplaceAll(ToSnakeCase(entryPointName), "_", "-"),
 		Administration: ExtensionAssetConfigAdmin{
-			Path:          "app/administration/src",
+			Path:          "Resources/app/administration/src",
 			EntryFilePath: entryFilePathAdmin,
 			Webpack:       webpackFileAdmin,
 		},
 		Storefront: ExtensionAssetConfigStorefront{
-			Path:          "app/storefront/src",
+			Path:          "Resources/app/storefront/src",
 			EntryFilePath: entryFilePathStorefront,
 			Webpack:       webpackFileStorefront,
 			StyleFiles:    storefrontStyles,
