@@ -37,6 +37,8 @@
             # in the Nix store.
             src = ./.;
 
+            nativeBuildInputs = [ pkgs.installShellFiles ];
+
             # This hash locks the dependencies of this package. It is
             # necessary because of how Go requires network access to resolve
             # VCS.  See https://www.tweag.io/blog/2021-03-04-gomod2nix/ for
@@ -47,7 +49,16 @@
             # remeber to bump this hash when your dependencies change.
             #vendorSha256 = pkgs.lib.fakeSha256;
 
-            vendorSha256 = "sha256-Vvyl9IUk12UKCB42R9hPkk3cNm6CPepB1LLhbRiEsjU=";
+            vendorSha256 = "sha256-tu7vbF6P5DyjQAJBctH73nAEko+A/Dkd0MHJr/TSp6U=";
+
+            postInstall = ''
+              export HOME="$(mktemp -d)"
+              installShellCompletion --cmd shopware-cli \
+                --bash <($out/bin/shopware-cli completion bash) \
+                --zsh <($out/bin/shopware-cli completion zsh) \
+                --fish <($out/bin/shopware-cli completion fish)
+            '';
+
           };
 	  default = shopware-cli;
 	});
@@ -70,7 +81,7 @@
       devShell = forAllSystems (system:
         let pkgs = nixpkgsFor.${system};
         in pkgs.mkShell {
-          buildInputs = with pkgs; [ go_1_18 golangci-lint ];
+          buildInputs = with pkgs; [ go golangci-lint ];
         });
     };
 }
