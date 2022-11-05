@@ -1,8 +1,8 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/go",
   "features": {
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.19"
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "latest"
     }
   }
 }
