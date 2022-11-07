@@ -13,9 +13,15 @@
       ],
       "groupName": "all dependencies",
       "groupSlug": "all"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchUpdateTypes":"patch",
+      "enabled": false
     }
   ],
   "lockFileMaintenance": {
     "enabled": false
-  }
+  },
+  "platformAutomerge": true
 }
