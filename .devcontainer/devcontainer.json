@@ -4,5 +4,8 @@
     "ghcr.io/devcontainers/features/node:1": {
       "version": "latest"
     }
-  }
+  },
+  "extensions": [
+    "golang.Go"
+  ]
 }
