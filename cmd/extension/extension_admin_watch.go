@@ -113,7 +113,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 			// Our custom live reload script
 			if req.URL.Path == "/__internal-admin-proxy/live-reload.js" {
-				w.Header().Set("content-type", "application/json")
+				w.Header().Set("content-type", "application/javascript")
 				_, _ = w.Write(liveReloadJS)
 
 				return
@@ -239,8 +239,11 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 					for _, assetUrl := range bundle.Css {
 						parsedUrl, _ := url.Parse(assetUrl)
-						parsedUrl.Host = browserUrl.Host
-						parsedUrl.Scheme = browserUrl.Scheme
+
+						if parsedUrl.Host == targetShopUrl.Host {
+							parsedUrl.Host = browserUrl.Host
+							parsedUrl.Scheme = browserUrl.Scheme
+						}
 
 						newCss = append(newCss, parsedUrl.String())
 					}
@@ -249,8 +252,10 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 					for _, assetUrl := range bundle.Js {
 						parsedUrl, _ := url.Parse(assetUrl)
-						parsedUrl.Host = browserUrl.Host
-						parsedUrl.Scheme = browserUrl.Scheme
+						if parsedUrl.Host == targetShopUrl.Host {
+							parsedUrl.Host = browserUrl.Host
+							parsedUrl.Scheme = browserUrl.Scheme
+						}
 
 						newJS = append(newJS, parsedUrl.String())
 					}
