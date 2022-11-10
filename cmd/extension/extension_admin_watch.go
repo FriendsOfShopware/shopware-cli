@@ -179,6 +179,10 @@ var extensionAdminWatchCmd = &cobra.Command{
 						return org
 					}
 
+					if parsedUrl.Host != targetShopUrl.Host {
+						return org
+					}
+
 					parsedUrl.Host = browserUrl.Host
 					parsedUrl.Scheme = browserUrl.Scheme
 
