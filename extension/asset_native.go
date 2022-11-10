@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -75,6 +76,10 @@ var scssPlugin = api.Plugin{
 }
 
 func downloadDartSass() (string, error) {
+	if path, err := exec.LookPath("dart-sass-embedded"); err == nil {
+		return path, nil
+	}
+
 	cacheDir, err := os.UserCacheDir()
 
 	if err != nil {
@@ -113,7 +118,7 @@ func downloadDartSass() (string, error) {
 		osType = "macos"
 	}
 
-	request, _ := http.NewRequestWithContext(context.Background(), "GET", fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.51.0/sass_embedded-1.51.0-%s-%s.tar.gz", osType, arch), nil)
+	request, _ := http.NewRequestWithContext(context.Background(), "GET", fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/1.56.1/sass_embedded-1.56.1-%s-%s.tar.gz", osType, arch), nil)
 
 	tarFile, err := http.DefaultClient.Do(request)
 	if err != nil {
