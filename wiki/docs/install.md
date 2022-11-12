@@ -60,7 +60,7 @@ nix profile install github:FriendsOfShopware/shopware-cli
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/shyim/devcontainers-features/symfony-cli:latest": {}
+        "ghcr.io/shyim/devcontainers-features/shopware-cli:latest": {}
     }
 }
 ```
