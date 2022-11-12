@@ -54,7 +54,7 @@ Download the .deb, .rpm or .apk packages from the [releases](https://github.com/
 nix profile install github:FriendsOfShopware/shopware-cli
 ```
 
-## GitHub Codespaces
+### GitHub Codespaces
 
 ```json
 {
