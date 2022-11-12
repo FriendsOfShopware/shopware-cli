@@ -54,6 +54,17 @@ Download the .deb, .rpm or .apk packages from the [releases](https://github.com/
 nix profile install github:FriendsOfShopware/shopware-cli
 ```
 
+## GitHub Codespaces
+
+```json
+{
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/shyim/devcontainers-features/symfony-cli:latest": {}
+    }
+}
+```
+
 ### go install
 
 ```bash
