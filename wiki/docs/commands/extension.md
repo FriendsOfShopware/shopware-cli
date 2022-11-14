@@ -27,7 +27,12 @@ Creates a zip file from extension folder
 
 Parameters:
 
-* path - Path to extension folder
+* path - Path to extension folder. F.e: `shopware-cli extension zip MyPlugin`
+
+Environment-Variables:
+
+* SHOPWARE_PROJECT_ROOT (optional) - Path to a installed shopware to speed up building. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension zip MyPlugin`
+
 
 ## shopware-cli extension build
 
@@ -35,7 +40,11 @@ Builds the JS and CSS assets into the extension folder
 
 Parameters:
 
-* path - Path to extension folder. This can be also multiple directories
+* path - Path to extension folder. This can be also multiple directories. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin MySecondPlugin`
+
+Environment-Variables:
+
+* SHOPWARE_PROJECT_ROOT (optional) - Path to a installed shopware to speed up building. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin`
 
 
 ## shopware-cli extension admin-watch
