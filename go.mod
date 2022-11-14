@@ -14,7 +14,7 @@ require (
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/otiai10/copy v1.7.0
+	github.com/otiai10/copy v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.11.0
 	github.com/sirupsen/logrus v1.9.0
