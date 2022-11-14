@@ -155,8 +155,8 @@ github.com/ulikunitz/xz v0.5.8/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oW
 github.com/ulikunitz/xz v0.5.9/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/ulikunitz/xz v0.5.10 h1:t92gobL9l3HE202wg3rlk19F6X+JOxl9BBrCCMYEYd8=
 github.com/ulikunitz/xz v0.5.10/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
-github.com/vulcand/oxy v1.4.1 h1:8FUsbr5xhSJqNlSrpUBcw93WuZIEI9JUyvThB9YqqF8=
-github.com/vulcand/oxy v1.4.1/go.mod h1:Yq8OBb0XWU/7nPSglwUH5LS2Pcp4yvad8SVayobZbSo=
+github.com/vulcand/oxy v1.4.2 h1:KibUVdKrwy7eXR3uHS2pYoZ9dCzKVcgDNHD2jkPZmxU=
+github.com/vulcand/oxy v1.4.2/go.mod h1:Yq8OBb0XWU/7nPSglwUH5LS2Pcp4yvad8SVayobZbSo=
 github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 h1:nIPpBwaJSVYIxUFsDv3M8ofmx9yWTog9BfvIu0q41lo=
 github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8/go.mod h1:HUYIGzjTL3rfEspMxjDjgmT5uz5wzYJKVo23qUhYTos=
 github.com/yuin/goldmark v1.5.3 h1:3HUJmBFbQW9fhQOzMgseU134xfi6hU+mjWywx5Ty+/M=
