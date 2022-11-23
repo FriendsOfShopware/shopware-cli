@@ -8,16 +8,22 @@
   "groupSlug": "all",
   "packageRules": [
     {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "Automatically merge minor and patch-level updates",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
       "matchPackagePatterns": [
         "*"
       ],
       "groupName": "all dependencies",
       "groupSlug": "all"
-    },
-    {
-      "matchManagers": ["dockerfile"],
-      "matchUpdateTypes":"patch",
-      "enabled": false
     }
   ],
   "lockFileMaintenance": {
