@@ -5,3 +5,9 @@ tasks:
 vscode:
   extensions:
     - golang.go
+
+jetbrains:
+  goland:
+    plugins:
+      - com.ypwang.plugin.go-linter
+      - com.github.copilot
