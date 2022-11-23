@@ -1,12 +1,12 @@
 module github.com/FriendsOfShopware/shopware-cli
 
-go 1.18
+go 1.19
 
 require (
 	github.com/bep/godartsass v0.14.0
 	github.com/caarlos0/env/v6 v6.10.1
-	github.com/doutorfinancas/go-mad v0.0.0-20221031120329-288cd003774876db34e5798f39b382ffa53d204c
-	github.com/evanw/esbuild v0.15.13
+	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
+	github.com/evanw/esbuild v0.15.15
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
