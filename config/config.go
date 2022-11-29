@@ -35,6 +35,7 @@ type ExtensionConfig struct {
 	Name             string
 	Namespace        string
 	ComposerPackage  string
+	ShopwareVersion  string
 	Description      string
 	License          string
 	Label            string

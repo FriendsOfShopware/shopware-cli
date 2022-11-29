@@ -24,9 +24,10 @@ var projectExtensionCreateCmd = &cobra.Command{
 		}
 
 		var extensionConfig config.ExtensionConfig = config.ExtensionConfig{
-			Name:      args[0],
-			Namespace: args[0],
-			License:   "MIT",
+			Name:            args[0],
+			Namespace:       args[0],
+			ShopwareVersion: "^6.4",
+			License:         "MIT",
 		}
 
 		namespace, _ := cmd.PersistentFlags().GetString("namespace")
@@ -46,6 +47,12 @@ var projectExtensionCreateCmd = &cobra.Command{
 		extensionConfig.ComposerPackage = askExtension(promptui.Prompt{
 			Label:    "Composer package",
 			Validate: validComposerPackage,
+		})
+
+		extensionConfig.ShopwareVersion = askExtension(promptui.Prompt{
+			Label:    "Required shopware/core version",
+			Validate: emptyValidator,
+			Default:  extensionConfig.ShopwareVersion,
 		})
 
 		extensionConfig.Label = askExtension(promptui.Prompt{
@@ -137,17 +144,18 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 	}
 
 	type composerStruct struct {
-		Name        string         `json:"name"`
-		Version     string         `json:"version"`
-		Description string         `json:"description"`
-		Type        string         `json:"type"`
-		License     string         `json:"license"`
-		Autoload    map[string]any `json:"autoload"`
-		Extra       composerExtra  `json:"extra"`
+		Name        string            `json:"name"`
+		Version     string            `json:"version"`
+		Description string            `json:"description"`
+		Type        string            `json:"type"`
+		License     string            `json:"license"`
+		Autoload    map[string]any    `json:"autoload"`
+		Require     map[string]string `json:"require"`
+		Extra       composerExtra     `json:"extra"`
 	}
 
 	composerData := composerStruct{
-		Name:        extensionConfig.Name,
+		Name:        extensionConfig.ComposerPackage,
 		Version:     "1.0.0",
 		Description: extensionConfig.Description,
 		Type:        "shopware-platform-plugin",
@@ -156,6 +164,9 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 			"psr-4": map[string]string{
 				fmt.Sprintf("%s\\", extensionConfig.Namespace): "src/",
 			},
+		},
+		Require: map[string]string{
+			"shopware/core": extensionConfig.ShopwareVersion,
 		},
 		Extra: composerExtra{
 			ShopwarePluginClass: fmt.Sprintf("%s\\%s", extensionConfig.Namespace, extensionConfig.Name),
@@ -174,7 +185,7 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 		},
 	}
 
-	jsonContent, err := json.MarshalIndent(composerData, "", " ")
+	jsonContent, err := json.MarshalIndent(composerData, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -221,8 +232,11 @@ func makeChangelog(pluginPath string) error {
 func makeBootstrap(pluginPath string, extensionConfig config.ExtensionConfig) error {
 
 	fileContentTemplate := `<?php declare(strict_types=1);
+
 namespace %s;
+
 use Shopware\Core\Framework\Plugin;
+
 class %s extends Plugin
 {
 }
