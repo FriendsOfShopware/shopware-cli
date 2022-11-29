@@ -1,9 +1,10 @@
-package project
+package extension
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/FriendsOfShopware/shopware-cli/config"
@@ -12,13 +13,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projectExtensionCreateCmd = &cobra.Command{
+var extensionCreateCmd = &cobra.Command{
 	Use:   "create [name]",
 	Short: "Create an extension boilerplate",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		rootPath, err := findClosestShopwareProject()
+		rootPath, err := filepath.Abs(".")
 		if err != nil {
 			return err
 		}
@@ -31,6 +32,7 @@ var projectExtensionCreateCmd = &cobra.Command{
 		}
 
 		namespace, _ := cmd.PersistentFlags().GetString("namespace")
+		createInCustomPlugins, _ := cmd.PersistentFlags().GetBool("create-in-custom-plugins")
 
 		if namespace != "" {
 			extensionConfig.Namespace = namespace
@@ -38,7 +40,12 @@ var projectExtensionCreateCmd = &cobra.Command{
 
 		fmt.Printf("Using namespace: %s\n", extensionConfig.Namespace)
 
-		pluginPath := fmt.Sprintf("%s/custom/plugins/%s", rootPath, extensionConfig.Name)
+		var pluginPath string
+		if createInCustomPlugins {
+			pluginPath = fmt.Sprintf("%s/custom/plugins/%s", rootPath, extensionConfig.Name)
+		} else {
+			pluginPath = fmt.Sprintf("%s/%s", rootPath, extensionConfig.Name)
+		}
 
 		if _, err := os.Stat(pluginPath); err == nil {
 			return fmt.Errorf("the directory '%s' already exists", pluginPath)
@@ -112,8 +119,9 @@ var projectExtensionCreateCmd = &cobra.Command{
 }
 
 func init() {
-	projectExtensionCmd.AddCommand(projectExtensionCreateCmd)
-	projectExtensionCreateCmd.PersistentFlags().String("namespace", "", "Namespace for the plugin")
+	extensionRootCmd.AddCommand(extensionCreateCmd)
+	extensionCreateCmd.PersistentFlags().String("namespace", "", "Namespace for the plugin")
+	extensionCreateCmd.PersistentFlags().Bool("create-in-custom-plugins", true, "Create the plugin in custom/plugins directory")
 }
 
 func askExtension(inputPrompt promptui.Prompt) string {
@@ -122,6 +130,13 @@ func askExtension(inputPrompt promptui.Prompt) string {
 	} else {
 		return id
 	}
+}
+
+func emptyValidator(s string) error {
+	if len(s) == 0 {
+		return errors.New("this cannot be empty")
+	}
+	return nil
 }
 
 func validComposerPackage(s string) error {
