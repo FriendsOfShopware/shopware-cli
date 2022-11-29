@@ -2,12 +2,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v6"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/caarlos0/env/v6"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 var state *configState
@@ -28,6 +29,17 @@ type configData struct {
 		Password string `env:"SHOPWARE_CLI_ACCOUNT_PASSWORD" yaml:"password"`
 		Company  int    `env:"SHOPWARE_CLI_ACCOUNT_COMPANY" yaml:"company"`
 	} `yaml:"account"`
+}
+
+type ExtensionConfig struct {
+	Name             string
+	Namespace        string
+	ComposerPackage  string
+	Description      string
+	License          string
+	Label            string
+	ManufacturerLink string
+	SupportLink      string
 }
 
 type Config struct{}
