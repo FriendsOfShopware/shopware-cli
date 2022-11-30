@@ -149,26 +149,6 @@ func validComposerPackage(s string) error {
 }
 
 func createComposerJson(composerFile string, extensionConfig config.ExtensionConfig) error {
-
-	type composerExtra struct {
-		ShopwarePluginClass string            `json:"shopware-plugin-class"`
-		Label               map[string]string `json:"label"`
-		Description         map[string]string `json:"description"`
-		ManufacturerLink    map[string]string `json:"manufacturerLink"`
-		SupportLink         map[string]string `json:"supportLink"`
-	}
-
-	type composerStruct struct {
-		Name        string            `json:"name"`
-		Version     string            `json:"version"`
-		Description string            `json:"description"`
-		Type        string            `json:"type"`
-		License     string            `json:"license"`
-		Autoload    map[string]any    `json:"autoload"`
-		Require     map[string]string `json:"require"`
-		Extra       composerExtra     `json:"extra"`
-	}
-
 	composerData := composerStruct{
 		Name:        extensionConfig.ComposerPackage,
 		Version:     "1.0.0",
@@ -205,7 +185,7 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 		return err
 	}
 
-	return os.WriteFile(composerFile, jsonContent, 0644)
+	return os.WriteFile(composerFile, jsonContent, 0600)
 }
 
 func makeDefaultServices(pluginPath string) error {
@@ -220,7 +200,7 @@ func makeDefaultServices(pluginPath string) error {
 `
 
 	servicesFilename := fmt.Sprintf("%s/src/Resources/config/services.xml", pluginPath)
-	return os.WriteFile(servicesFilename, []byte(xml), 0644)
+	return os.WriteFile(servicesFilename, []byte(xml), 0600)
 }
 
 func makeChangelog(pluginPath string) error {
@@ -241,11 +221,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `
 
 	changelogFilename := fmt.Sprintf("%s/CHANGELOG_en-GB.md", pluginPath)
-	return os.WriteFile(changelogFilename, []byte(changelogContent), 0644)
+	return os.WriteFile(changelogFilename, []byte(changelogContent), 0600)
 }
 
 func makeBootstrap(pluginPath string, extensionConfig config.ExtensionConfig) error {
-
 	fileContentTemplate := `<?php declare(strict_types=1);
 
 namespace %s;
@@ -258,5 +237,24 @@ class %s extends Plugin
 `
 	bootStrapFilename := fmt.Sprintf("%s/src/%s.php", pluginPath, extensionConfig.Name)
 	fileContent := fmt.Sprintf(fileContentTemplate, extensionConfig.Namespace, extensionConfig.Name)
-	return os.WriteFile(bootStrapFilename, []byte(fileContent), 0644)
+	return os.WriteFile(bootStrapFilename, []byte(fileContent), 0600)
+}
+
+type composerExtra struct {
+	ShopwarePluginClass string            `json:"shopware-plugin-class"`
+	Label               map[string]string `json:"label"`
+	Description         map[string]string `json:"description"`
+	ManufacturerLink    map[string]string `json:"manufacturerLink"`
+	SupportLink         map[string]string `json:"supportLink"`
+}
+
+type composerStruct struct {
+	Name        string            `json:"name"`
+	Version     string            `json:"version"`
+	Description string            `json:"description"`
+	Type        string            `json:"type"`
+	License     string            `json:"license"`
+	Autoload    map[string]any    `json:"autoload"`
+	Require     map[string]string `json:"require"`
+	Extra       composerExtra     `json:"extra"`
 }
