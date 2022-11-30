@@ -140,15 +140,14 @@ func createNewConfig(path string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+
 	encoder := yaml.NewEncoder(f)
 	err = encoder.Encode(defaultConfig())
 	if err != nil {
 		return err
 	}
 
-	return f.Sync()
-
+	return f.Close()
 }
 
 func (Config) GetAccountEmail() string {
