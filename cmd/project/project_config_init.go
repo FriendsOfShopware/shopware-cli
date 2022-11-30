@@ -2,8 +2,9 @@ package project
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"

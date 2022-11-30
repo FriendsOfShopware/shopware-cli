@@ -2,12 +2,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v6"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/caarlos0/env/v6"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 var state *configState
@@ -28,6 +29,18 @@ type configData struct {
 		Password string `env:"SHOPWARE_CLI_ACCOUNT_PASSWORD" yaml:"password"`
 		Company  int    `env:"SHOPWARE_CLI_ACCOUNT_COMPANY" yaml:"company"`
 	} `yaml:"account"`
+}
+
+type ExtensionConfig struct {
+	Name             string
+	Namespace        string
+	ComposerPackage  string
+	ShopwareVersion  string
+	Description      string
+	License          string
+	Label            string
+	ManufacturerLink string
+	SupportLink      string
 }
 
 type Config struct{}
@@ -127,9 +140,14 @@ func createNewConfig(path string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+
 	encoder := yaml.NewEncoder(f)
-	return encoder.Encode(defaultConfig())
+	err = encoder.Encode(defaultConfig())
+	if err != nil {
+		return err
+	}
+
+	return f.Close()
 }
 
 func (Config) GetAccountEmail() string {
