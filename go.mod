@@ -3,7 +3,7 @@ module github.com/FriendsOfShopware/shopware-cli
 go 1.19
 
 require (
-	github.com/bep/godartsass v0.14.0
+	github.com/bep/godartsass v0.15.0
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
 	github.com/evanw/esbuild v0.15.16
