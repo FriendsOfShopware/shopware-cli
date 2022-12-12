@@ -347,7 +347,7 @@ func setupShopwareInTemp() (string, error) {
 		return "", err
 	}
 
-	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/platform.git", "--depth=1", dir)
+	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/platform.git", "--depth=1", "-b", "6.4", dir)
 	gitCheckoutCmd.Stdout = os.Stdout
 	gitCheckoutCmd.Stderr = os.Stderr
 	err = gitCheckoutCmd.Run()
