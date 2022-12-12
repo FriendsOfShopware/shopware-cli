@@ -371,6 +371,10 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 			}
 
 			for k, v := range composerPart {
+				if _, userReplaced := replace.(map[string]interface{})[k]; userReplaced {
+					continue
+				}
+
 				replace.(map[string]interface{})[k] = v
 
 				delete(require.(map[string]interface{}), k)
