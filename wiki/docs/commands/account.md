@@ -48,6 +48,14 @@ Parameters:
 
 * name - Your extension name
 
+### shopware-cli account producer extension upload
+
+Upload a extension release to the Store.
+
+Parameters:
+
+* zipPath - Path to your zip file
+
 ### shopware-cli account producer extension info pull
 
 Downloads the store page information to the given extension
