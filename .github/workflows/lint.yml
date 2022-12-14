@@ -2,8 +2,8 @@ name: golangci-lint
 on:
   workflow_dispatch:
   push:
-    tags:
-      - v*
+    tags-ignore:
+      - "*"
     branches:
       - main
       - fix-lint-hints
