@@ -6,6 +6,8 @@ github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMo
 github.com/andybalholm/brotli v1.0.1/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/andybalholm/brotli v1.0.4 h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=
 github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
+github.com/antage/eventsource v0.0.0-20220422142129-c4aae935d5bd h1:FD3sn3oFA0wySr3iH+47H3lIts9qT9nZfoF935hxaH0=
+github.com/antage/eventsource v0.0.0-20220422142129-c4aae935d5bd/go.mod h1:jXAZMa2S7OGjBCXWeQVOIZd+LXToszS2zCh0NiHRGvE=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
@@ -34,6 +36,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/doutorfinancas/go-mad v0.0.0-20221115151105-4292f0e86b3f h1:MAnwW/gpYVplQAtvBoPglhQFEYj4VW6lp4JarTE/Q48=
 github.com/doutorfinancas/go-mad v0.0.0-20221115151105-4292f0e86b3f/go.mod h1:vzCojJS7hewjeum3mKHtqOhbppBggLF/1WCs1XbxKNI=
+github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800 h1:B0hq7hol4JxQSGxE2Mbl2u8OsaXrTDdxeJ9CFBM9/SE=
+github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800/go.mod h1:vzCojJS7hewjeum3mKHtqOhbppBggLF/1WCs1XbxKNI=
 github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 h1:iFaUwBSo5Svw6L7HYpRu/0lE3e0BaElwnNO1qkNQxBY=
 github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5/go.mod h1:qssHWj60/X5sZFNxpG4HBPDHVqxNm4DfnCKgrbZOT+s=
 github.com/dsnet/golib v0.0.0-20171103203638-1ea166775780/go.mod h1:Lj+Z9rebOhdfkVLjJ8T6VcRQv3SXugXy999NBtR9aFY=

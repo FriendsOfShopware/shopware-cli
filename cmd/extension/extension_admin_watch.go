@@ -14,10 +14,10 @@ import (
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/NYTimes/gziphandler"
+	"github.com/antage/eventsource"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/forward"
-	"gopkg.in/antage/eventsource.v1"
 )
 
 var es eventsource.EventSource
