@@ -166,7 +166,7 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 		Extra: composerExtra{
 			ShopwarePluginClass: fmt.Sprintf("%s\\%s", extensionConfig.Namespace, extensionConfig.Name),
 			Label: map[string]string{
-				"en_GB": extensionConfig.Label,
+				"en-GB": extensionConfig.Label,
 			},
 			Description: map[string]string{
 				"en-GB": extensionConfig.Description,
