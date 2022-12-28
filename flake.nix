@@ -49,7 +49,7 @@
             # remeber to bump this hash when your dependencies change.
             #vendorSha256 = pkgs.lib.fakeSha256;
 
-            vendorSha256 = "sha256-tu7vbF6P5DyjQAJBctH73nAEko+A/Dkd0MHJr/TSp6U=";
+            vendorSha256 = "sha256-Oz5GHafaFd5OLJTy5DD+83MYGNUWrkf4Jb0ipkIrMhg=";
 
             postInstall = ''
               export HOME="$(mktemp -d)"
