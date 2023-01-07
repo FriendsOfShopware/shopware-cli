@@ -61,6 +61,8 @@ github.com/evanw/esbuild v0.16.13 h1:AgVzVXHRchqMSwXGn3x/zLyezr2lcUeE6iAgc+eNX7o
 github.com/evanw/esbuild v0.16.13/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/evanw/esbuild v0.16.14 h1:g6sbKtJlnMi1Q/CAO0ddpKvvUbUOwcI6V2WsS/e819A=
 github.com/evanw/esbuild v0.16.14/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
+github.com/evanw/esbuild v0.16.15 h1:T2zAuN0R7AGUP/j7WDjTi3qg0kgo9teLx+o7P40DZkg=
+github.com/evanw/esbuild v0.16.15/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc h1:+JURsvfNe+w0u3yRD5fd4y8RhpWSMEbPHE1yXbm7ijc=
