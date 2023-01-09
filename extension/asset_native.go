@@ -25,6 +25,9 @@ import (
 //go:embed static/variables.scss
 var scssVariables []byte
 
+//go:embed static/mixins.scss
+var scssMixins []byte
+
 var scssPlugin = api.Plugin{
 	Name: "scss",
 	Setup: func(build api.PluginBuild) {
@@ -313,19 +316,28 @@ func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string, js
 
 type scssImporter struct{}
 
-const InternalScssPath = "file://internal//variables.scss"
+const InternalVariablesScssPath = "file://internal//variables.scss"
+const InternalMixinsScssPath = "file://internal//mixins.scss"
 
 func (s scssImporter) CanonicalizeURL(url string) (string, error) {
 	if url == "~scss/variables" {
-		return InternalScssPath, nil
+		return InternalVariablesScssPath, nil
+	}
+
+	if url == "~scss/mixins" {
+		return InternalMixinsScssPath, nil
 	}
 
 	return "", nil
 }
 
 func (s scssImporter) Load(canonicalizedURL string) (string, error) {
-	if canonicalizedURL == InternalScssPath {
+	if canonicalizedURL == InternalVariablesScssPath {
 		return string(scssVariables), nil
+	}
+
+	if canonicalizedURL == InternalMixinsScssPath {
+		return string(scssMixins), nil
 	}
 
 	log.Infof("Load: %s", canonicalizedURL)
