@@ -94,7 +94,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 					continue
 				}
 
-				options := NewAssetCompileOptionsAdmin()
+				options := NewAssetCompileOptionsAdmin(extension)
 				options.ProductionMode = true
 				if _, err := CompileExtensionAsset(extension, options); err != nil {
 					return err
@@ -122,7 +122,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 					continue
 				}
 
-				options := NewAssetCompileOptionsStorefront()
+				options := NewAssetCompileOptionsStorefront(extension)
 				options.ProductionMode = true
 				if _, err := CompileExtensionAsset(extension, options); err != nil {
 					return err

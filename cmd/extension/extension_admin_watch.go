@@ -66,7 +66,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return [][]byte{[]byte("Access-Control-Allow-Origin: " + browserUrl.String())}
 		})
 
-		options := extension.NewAssetCompileOptionsAdmin()
+		options := extension.NewAssetCompileOptionsAdmin(ext)
 		options.ProductionMode = false
 		options.WatchMode = &extension.WatchMode{
 			OnRebuild: func(onlyCssChanges bool) {

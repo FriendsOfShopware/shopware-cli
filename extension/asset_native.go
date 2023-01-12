@@ -193,17 +193,29 @@ type AssetCompileOptions struct {
 	OutputDir      string
 }
 
-func NewAssetCompileOptionsAdmin() AssetCompileOptions {
+func NewAssetCompileOptionsAdmin(ext Extension) AssetCompileOptions {
+	root := "src/"
+
+	if ext.GetType() == "app" {
+		root = ""
+	}
+
 	return AssetCompileOptions{
-		EntrypointDir: "src/Resources/app/administration/src",
-		OutputDir:     "src/Resources/public/administration",
+		EntrypointDir: root + "Resources/app/administration/src",
+		OutputDir:     root + "Resources/public/administration",
 	}
 }
 
-func NewAssetCompileOptionsStorefront() AssetCompileOptions {
+func NewAssetCompileOptionsStorefront(ext Extension) AssetCompileOptions {
+	root := "src/"
+
+	if ext.GetType() == "app" {
+		root = ""
+	}
+
 	return AssetCompileOptions{
-		EntrypointDir: "src/Resources/app/storefront/src",
-		OutputDir:     "src/Resources/app/storefront/dist/storefront",
+		EntrypointDir: root + "Resources/app/storefront/src",
+		OutputDir:     root + "Resources/app/storefront/dist/storefront",
 	}
 }
 
