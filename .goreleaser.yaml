@@ -43,11 +43,31 @@ release:
     name: shopware-cli
 
 dockers:
-  - image_templates:
+  -
+    image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}"
       - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}"
       - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-phpv8.1"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}-phpv8.1"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}.{{ .Minor }}-phpv8.1"
       - "ghcr.io/friendsofshopware/shopware-cli:latest"
+    build_flag_templates:
+      - "--build-arg=PHP_VERSION=8.1"
+  -
+    image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-phpv7.4"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}-phpv7.4"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}.{{ .Minor }}-phpv7.4"
+    build_flag_templates:
+      - "--build-arg=PHP_VERSION=7.4"
+  -
+    image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-phpv7.2"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}-phpv7.2"
+      - "ghcr.io/friendsofshopware/shopware-cli:v{{ .Major }}.{{ .Minor }}-phpv7.2"
+    build_flag_templates:
+      - "--build-arg=PHP_VERSION=7.2"
 
 checksum:
   name_template: 'checksums.txt'

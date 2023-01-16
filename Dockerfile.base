@@ -1,11 +1,23 @@
-FROM php:7.4.33-cli
+ARG PHP_VERSION
+
+FROM php:${PHP_VERSION}-cli
 
 LABEL org.opencontainers.image.source https://github.com/FriendsOfShopware/shopware-cli
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y git nodejs && \
-    install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis pcov imagick xsl calendar
+RUN apt-get update \
+    && apt-get install -y git \
+    && install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis pcov imagick xsl calendar
 
-ENTRYPOINT ["/usr/local/bin/shopware-cli"]
+RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
+    && . /root/.bashrc \
+    && nvm install 16 \
+    && nvm install 18 \
+    && nvm alias default 18 \
+    && nvm use default
+
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["bash"]
