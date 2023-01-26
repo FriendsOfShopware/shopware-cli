@@ -3,8 +3,7 @@ package extension
 import (
 	"archive/tar"
 	"compress/gzip"
-	"context"
-	"crypto/md5" //nolint:gosec
+	"context" //nolint:gosec
 	_ "embed"
 	"fmt"
 	"io"
@@ -262,28 +261,13 @@ func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCo
 		},
 	}
 
-	jsMD5 := ""
-
-	if options.WatchMode != nil {
-		bundlerOptions.Watch = &api.WatchMode{
-			OnRebuild: func(br api.BuildResult) {
-				currentMD5 := jsMD5
-				if err := writeBundlerResultToDisk(br, jsFile, cssFile, &jsMD5); err != nil {
-					log.Error(err)
-				}
-
-				options.WatchMode.OnRebuild(currentMD5 == jsMD5)
-			},
-		}
-	}
-
 	result := api.Build(bundlerOptions)
 
 	if len(result.Errors) > 0 {
 		return nil, fmt.Errorf("initial compile failed")
 	}
 
-	if err := writeBundlerResultToDisk(result, jsFile, cssFile, &jsMD5); err != nil {
+	if err := writeBundlerResultToDisk(result, jsFile, cssFile); err != nil {
 		return nil, err
 	}
 
@@ -297,17 +281,12 @@ func CompileExtensionAsset(ext Extension, options AssetCompileOptions) (*AssetCo
 	return &compileResult, nil
 }
 
-func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string, jsMD5 *string) error {
+func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string) error {
 	for _, file := range result.OutputFiles {
 		outFile := jsFile
 
 		if strings.HasSuffix(file.Path, ".css") {
 			outFile = cssFile
-		} else {
-			hash := md5.New() //nolint:gosec
-			hash.Write(file.Contents)
-
-			*jsMD5 = fmt.Sprintf("%x", hash.Sum(nil))
 		}
 
 		outFolder := filepath.Dir(outFile)
