@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -94,9 +95,9 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 					continue
 				}
 
-				options := NewAssetCompileOptionsAdmin(extension)
-				options.ProductionMode = true
-				if _, err := CompileExtensionAsset(extension, options); err != nil {
+				options := esbuild.NewAssetCompileOptionsAdmin(name, extension.GetPath(), extension.GetType())
+
+				if _, err := esbuild.CompileExtensionAsset(options); err != nil {
 					return err
 				}
 			}
@@ -122,9 +123,8 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 					continue
 				}
 
-				options := NewAssetCompileOptionsStorefront(extension)
-				options.ProductionMode = true
-				if _, err := CompileExtensionAsset(extension, options); err != nil {
+				options := esbuild.NewAssetCompileOptionsStorefront(name, extension.GetPath(), extension.GetType())
+				if _, err := esbuild.CompileExtensionAsset(options); err != nil {
 					return err
 				}
 			}
