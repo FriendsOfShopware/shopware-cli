@@ -38,7 +38,7 @@ func downloadDartSass() (string, error) {
 		cacheDir = "/tmp"
 	}
 
-	cacheDir += "/dart-sass-embedded"
+	cacheDir += "/dart-sass-embedded-" + dartSassVersion
 
 	expectedPath := fmt.Sprintf("%s/dart-sass-embedded", cacheDir)
 
