@@ -2,12 +2,15 @@ package extension
 
 import (
 	"archive/zip"
+	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -406,4 +409,75 @@ func getMinMatchingVersion(constraint *version.Constraints, versions []string) s
 	}
 
 	return vs[0].String()
+}
+
+// Remove secret from manifest
+func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
+	if ext.GetType() == "plugin" {
+		return nil
+	}
+
+	manifestPath := filepath.Join(extensionRoot, "manifest.xml")
+
+	file, err := os.Open(manifestPath)
+
+	if err != nil {
+		return errors.Wrap(err, "cannot read manifest file")
+	}
+
+	defer file.Close()
+
+	var buf bytes.Buffer
+	decoder := xml.NewDecoder(file)
+	encoder := xml.NewEncoder(&buf)
+
+	skip := false
+
+	for {
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("error getting token: %v\n", err)
+			break
+		}
+
+		if v, ok := token.(xml.StartElement); ok {
+			if v.Name.Local == "secret" {
+				skip = true
+				continue
+			}
+		}
+
+		if v, ok := token.(xml.EndElement); ok {
+			if v.Name.Local == "secret" {
+				skip = false
+				continue
+			}
+		}
+
+		if skip {
+			continue
+		}
+
+		if err := encoder.EncodeToken(token); err != nil {
+			return err
+		}
+	}
+
+	// must call flush, otherwise some elements will be missing
+	if err := encoder.Flush(); err != nil {
+		return err
+	}
+
+	newManifest := buf.String()
+	newManifest = strings.ReplaceAll(newManifest, "xmlns:_xmlns=\"xmlns\" _xmlns:xsi=", "xmlns:xsi=")
+	newManifest = strings.ReplaceAll(newManifest, "xmlns:_XMLSchema-instance=\"http://www.w3.org/2001/XMLSchema-instance\" _XMLSchema-instance:noNamespaceSchemaLocation=", "xsi:noNamespaceSchemaLocation=")
+
+	if err := os.WriteFile(manifestPath, []byte(newManifest), os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
 }

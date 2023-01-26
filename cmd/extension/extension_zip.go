@@ -2,10 +2,11 @@ package extension
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 
 	"github.com/pkg/errors"
 
@@ -15,6 +16,7 @@ import (
 )
 
 var disableGit = false
+var extensionReleaseMode = false
 
 var extensionZipCmd = &cobra.Command{
 	Use:   "zip [path] [branch]",
@@ -146,6 +148,12 @@ var extensionZipCmd = &cobra.Command{
 			return errors.Wrap(err, "cleanup package")
 		}
 
+		if extensionReleaseMode {
+			if err := extension.PrepareExtensionForRelease(extDir, ext); err != nil {
+				return errors.Wrap(err, "prepare for release")
+			}
+		}
+
 		fileName := fmt.Sprintf("%s-%s.zip", name, tag)
 		if len(tag) == 0 {
 			fileName = fmt.Sprintf("%s.zip", name)
@@ -168,6 +176,7 @@ var extensionZipCmd = &cobra.Command{
 func init() {
 	extensionRootCmd.AddCommand(extensionZipCmd)
 	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
+	extensionZipCmd.Flags().BoolVar(&extensionReleaseMode, "release", false, "Release mode (remove app secrets)")
 }
 
 func executeHooks(ext extension.Extension, hooks []string, extDir string) error {
