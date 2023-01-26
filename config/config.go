@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/caarlos0/env/v6"
+	"github.com/caarlos0/env/v7"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
