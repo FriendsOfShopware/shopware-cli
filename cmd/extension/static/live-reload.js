@@ -1,17 +1,19 @@
-let eventSource = new EventSource('/__internal-admin-proxy/events');
+new EventSource('/esbuild').addEventListener('change', e => {
+    const { added, removed, updated } = JSON.parse(e.data)
 
-eventSource.onmessage = function (message) {
-    if (message.data === 'reloadCss') {
-        document.querySelectorAll('link').forEach(link => {
-            if (link.href.indexOf('extension.css') !== -1) {
-                const newURL = new URL(link.href)
-        
-                newURL.searchParams.set('t', new Date().getTime())
-        
-                link.href = newURL.toString()
+    if (!added.length && !removed.length && updated.length === 1) {
+        for (const link of document.getElementsByTagName("link")) {
+            const url = new URL(link.href)
+
+            if (url.host === location.host && url.pathname === updated[0]) {
+                const next = link.cloneNode()
+                next.href = updated[0] + '?' + Math.random().toString(36).slice(2)
+                next.onload = () => link.remove()
+                link.parentNode.insertBefore(next, link.nextSibling)
+                return
             }
-        });
-    } else {
-        window.location.reload();
+        }
     }
-}
+
+    location.reload()
+})

@@ -12,15 +12,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/NYTimes/gziphandler"
-	"github.com/antage/eventsource"
-	log "github.com/sirupsen/logrus"
+	"github.com/evanw/esbuild/pkg/api"
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/forward"
+
+	log "github.com/sirupsen/logrus"
 )
 
-var es eventsource.EventSource
 var hostRegExp = regexp.MustCompile(`(?m)host:\s'.*,`)
 var portRegExp = regexp.MustCompile(`(?m)port:\s.*,`)
 var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
@@ -62,23 +63,24 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return err
 		}
 
-		es = eventsource.New(nil, func(request *http.Request) [][]byte {
-			return [][]byte{[]byte("Access-Control-Allow-Origin: " + browserUrl.String())}
-		})
+		name, _ := ext.GetName()
 
-		options := extension.NewAssetCompileOptionsAdmin(ext)
+		options := esbuild.NewAssetCompileOptionsAdmin(name, ext.GetPath(), ext.GetType())
 		options.ProductionMode = false
-		options.WatchMode = &extension.WatchMode{
-			OnRebuild: func(onlyCssChanges bool) {
-				if onlyCssChanges {
-					es.SendEventMessage("reloadCss", "message", "1")
-				} else {
-					es.SendEventMessage("reload", "message", "1")
-				}
-			},
+
+		esbuildContext, esBuildError := esbuild.Context(options)
+
+		if esBuildError != nil && len(esBuildError.Errors) > 0 {
+			return err
 		}
 
-		compileResult, err := extension.CompileExtensionAsset(ext, options)
+		if err := esbuildContext.Watch(api.WatchOptions{}); err != nil {
+			return err
+		}
+
+		esbuildServer, err := esbuildContext.Serve(api.ServeOptions{
+			Host: "127.0.0.1",
+		})
 
 		if err != nil {
 			return err
@@ -105,12 +107,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 		redirect := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			log.Debugf("Got request %s %s", req.Method, req.URL.Path)
 
-			// Real time updates, that the browser should reload
-			if strings.HasPrefix(req.URL.Path, "/__internal-admin-proxy/events") {
-				es.ServeHTTP(w, req)
-				return
-			}
-
 			// Our custom live reload script
 			if req.URL.Path == "/__internal-admin-proxy/live-reload.js" {
 				w.Header().Set("content-type", "application/javascript")
@@ -119,12 +115,18 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
+			if req.URL.Path == "/esbuild" {
+				req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", esbuildServer.Host, esbuildServer.Port), Path: req.URL.Path}
+				fwd.ServeHTTP(w, req)
+				return
+			}
+
 			// Serve the local static folder to the cdn url
-			assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", strings.ToLower(compileResult.Name))
+			assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", strings.ToLower(name))
 			if strings.HasPrefix(req.URL.Path, assetPrefix) {
 				newFilePath := strings.TrimPrefix(req.URL.Path, assetPrefix)
 
-				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(compileResult.Entrypoint)), "static", newFilePath)
+				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(filepath.Join(ext.GetPath(), "Resources/app/administration/src"))), "static", newFilePath)
 
 				http.ServeFile(w, req, expectedLocation)
 				return
@@ -263,7 +265,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 					bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: newCss, Js: newJS}
 				}
 
-				bundleInfo.Bundles[compileResult.Name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
+				bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
 				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/__internal-admin-proxy/live-reload.js"}}
 
 				newJson, _ := json.Marshal(bundleInfo)
@@ -276,13 +278,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			if req.URL.Path == "/extension.css" {
-				http.ServeFile(w, req, compileResult.CssFile)
-				return
-			}
-
-			if req.URL.Path == "/extension.js" {
-				http.ServeFile(w, req, compileResult.JsFile)
+			if req.URL.Path == "/extension.css" || req.URL.Path == "/extension.js" {
+				req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", esbuildServer.Host, esbuildServer.Port), Path: req.URL.Path}
+				fwd.ServeHTTP(w, req)
 				return
 			}
 
@@ -322,7 +320,9 @@ type adminBundlesInfo struct {
 	} `json:"adminWorker"`
 	Bundles  map[string]adminBundlesInfoAsset `json:"bundles"`
 	Settings struct {
-		EnableUrlFeature bool `json:"enableUrlFeature"`
+		EnableUrlFeature  bool `json:"enableUrlFeature"`
+		AppUrlReachable   bool `json:"appUrlReachable"`
+		AppsRequireAppUrl bool `json:"appsRequireAppUrl"`
 	} `json:"settings"`
 }
 
