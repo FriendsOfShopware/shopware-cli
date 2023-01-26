@@ -115,12 +115,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			if req.URL.Path == "/esbuild" {
-				req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", esbuildServer.Host, esbuildServer.Port), Path: req.URL.Path}
-				fwd.ServeHTTP(w, req)
-				return
-			}
-
 			// Serve the local static folder to the cdn url
 			assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", strings.ToLower(name))
 			if strings.HasPrefix(req.URL.Path, assetPrefix) {
@@ -278,7 +272,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			if req.URL.Path == "/extension.css" || req.URL.Path == "/extension.js" {
+			if req.URL.Path == "/extension.css" || req.URL.Path == "/extension.js" || req.URL.Path == "/esbuild" {
 				req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", esbuildServer.Host, esbuildServer.Port), Path: req.URL.Path}
 				fwd.ServeHTTP(w, req)
 				return
