@@ -3,11 +3,10 @@ module github.com/FriendsOfShopware/shopware-cli
 go 1.19
 
 require (
-	github.com/antage/eventsource v0.0.0-20220422142129-c4aae935d5bd
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
-	github.com/evanw/esbuild v0.17.3
+	github.com/evanw/esbuild v0.17.4
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
