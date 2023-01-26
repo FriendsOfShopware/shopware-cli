@@ -411,7 +411,7 @@ func getMinMatchingVersion(constraint *version.Constraints, versions []string) s
 	return vs[0].String()
 }
 
-// Remove secret from manifest
+// Remove secret from manifest.
 func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
 	if ext.GetType() == "plugin" {
 		return nil
