@@ -89,7 +89,7 @@ var extensionZipCmd = &cobra.Command{
 
 		// Extract files using strategy
 		if disableGit {
-			err = cp.Copy(path, extDir)
+			err = cp.Copy(path, extDir, copyOptions())
 			if err != nil {
 				return errors.Wrap(err, "copy files")
 			}
@@ -199,4 +199,12 @@ func executeHooks(ext extension.Extension, hooks []string, extDir string) error 
 	}
 
 	return nil
+}
+
+func copyOptions() cp.Options {
+	return cp.Options{
+		OnSymlink: func(string) cp.SymlinkAction {
+			return cp.Skip
+		},
+	}
 }
