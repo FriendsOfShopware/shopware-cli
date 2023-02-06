@@ -6,7 +6,7 @@ require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v7 v7.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
-	github.com/evanw/esbuild v0.17.5
+	github.com/evanw/esbuild v0.17.6
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
