@@ -75,7 +75,7 @@ func ReadConfig(fileName string) (*Config, error) {
 	_, err := os.Stat(fileName)
 
 	if os.IsNotExist(err) {
-		return nil, fmt.Errorf("cannot find .shopware-project.yml")
+		return nil, fmt.Errorf("cannot find .shopware-project.yml, use shopware-cli project config init to create one")
 	}
 
 	if err != nil {
