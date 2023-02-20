@@ -10,3 +10,9 @@ dist/
 /go-shopware-admin-api-sdk
 /*.zip
 /FroshTools
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+/.direnv
