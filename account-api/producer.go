@@ -410,7 +410,7 @@ func (e producerEndpoint) DeleteExtension(id int) error {
 
 func (e producerEndpoint) GetSoftwareVersions(generation string) (*SoftwareVersionList, error) {
 	errorFormat := "shopware_versions: %v"
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"}]", ApiUrl, generation), nil)
+	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"},{\"property\":\"includeNonPublic\",\"value\":\"1\"}]", ApiUrl, generation), nil)
 
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
