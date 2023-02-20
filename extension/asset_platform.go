@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/esbuild"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -43,7 +44,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 
 	var err error
 	if shopwareRoot == "" && !buildWithoutShopwareSource {
-		shopwareRoot, err = setupShopwareInTemp()
+		shopwareRoot, err = setupShopwareInTemp(extensions[0])
 
 		if err != nil {
 			return err
@@ -341,13 +342,25 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 	return cfg
 }
 
-func setupShopwareInTemp() (string, error) {
+func setupShopwareInTemp(ext Extension) (string, error) {
+	constraint, err := ext.GetShopwareVersionConstraint()
+
+	if err != nil {
+		return "", err
+	}
+
 	dir, err := os.MkdirTemp("", "extension")
 	if err != nil {
 		return "", err
 	}
 
-	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/platform.git", "--depth=1", "-b", "6.4", dir)
+	cloneBranch := "6.4"
+
+	if constraint.Check(version.Must(version.NewVersion("6.5.0"))) {
+		cloneBranch = "trunk"
+	}
+
+	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/platform.git", "--depth=1", "-b", cloneBranch, dir)
 	gitCheckoutCmd.Stdout = os.Stdout
 	gitCheckoutCmd.Stderr = os.Stderr
 	err = gitCheckoutCmd.Run()
