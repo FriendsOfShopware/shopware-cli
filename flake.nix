@@ -1,52 +1,57 @@
 {
   description = "Shopware CLI";
-
-  # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }:
     let
-
-      # Generate a user-friendly version number.
       version = "0.1.51";
-
-      # System types to support.
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-
-      # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-      # Nixpkgs instantiated for supported system types.
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in
     {
-
-      # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
         in
         rec {
+          dart-sass-embedded = pkgs.stdenv.mkDerivation rec {
+            pname = "dart-sass-embedded";
+            version = "1.58.3";
+
+            dontConfigure = true;
+            dontBuild = true;
+
+            nativeBuildInputs = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux pkgs.autoPatchelfHook;
+
+            src = pkgs.fetchurl {
+              url = {
+                "x86_64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-x64.tar.gz";
+                "aarch64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-arm64.tar.gz";
+                "aarch64-darwin" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-macos-arm64.tar.gz";
+              }."${pkgs.system}";
+              hash = {
+                "x86_64-linux" = "sha256-hFhg6FzfJ2ti41YwqvtiDkJ12khWUL5fVKAn/cGlLo8=";
+                "aarch64-linux" = "sha256-bYjpOvhjJPXneHc87ZPcsxZpQsOgvZqrknJFyFc67jg=";
+                "aarch64-darwin" = "sha256-AihqDuPmDGrjXZV4hYZh//TjWh4L6m5Xqs/18bVgaQw=";
+              }."${pkgs.system}";
+            };
+
+            installPhase = ''
+              mkdir -p $out/bin
+              cp -r * $out
+              ln -s $out/dart-sass-embedded $out/bin/dart-sass-embedded
+            '';
+          };
+
           shopware-cli = pkgs.buildGoModule {
             pname = "shopware-cli";
             inherit version;
-            # In 'nix develop', we don't need a copy of the source tree
-            # in the Nix store.
             src = ./.;
 
-            nativeBuildInputs = [ pkgs.installShellFiles ];
+            nativeBuildInputs = [ pkgs.installShellFiles pkgs.makeWrapper ];
 
-            # This hash locks the dependencies of this package. It is
-            # necessary because of how Go requires network access to resolve
-            # VCS.  See https://www.tweag.io/blog/2021-03-04-gomod2nix/ for
-            # details. Normally one can build with a fake sha256 and rely on native Go
-            # mechanisms to tell you what the hash should be or determine what
-            # it should be "out-of-band" with other tooling (eg. gomod2nix).
-            # To begin with it is recommended to set this, but one must
-            # remeber to bump this hash when your dependencies change.
-            #vendorSha256 = pkgs.lib.fakeSha256;
-
-            vendorSha256 = "sha256-Oz5GHafaFd5OLJTy5DD+83MYGNUWrkf4Jb0ipkIrMhg=";
+            vendorSha256 = "sha256-SdqCkw43wFEFhoPQhQuHGTMMtAGDSVTP9JWKbds09bI=";
 
             postInstall = ''
               export HOME="$(mktemp -d)"
@@ -56,29 +61,33 @@
                 --fish <($out/bin/shopware-cli completion fish)
             '';
 
+            postFixup = ''
+              wrapProgram $out/bin/shopware-cli \
+                --prefix PATH : ${dart-sass-embedded}/bin
+            '';
+
+            CGO_ENABLED = 0;
+
+            ldflags = [
+              "-s"
+              "-w"
+              "-X 'github.com/FriendsOfShopware/shopware-cli/cmd.version=${version}'"
+            ];
           };
-	  default = shopware-cli;
-	});
+          default = shopware-cli;
+        });
 
       apps = forAllSystems (system: rec {
         shopware-cli = {
-	  type = "app";
-	  program = "${self.packages.${system}.shopware-cli}/bin/shopware-cli";
-	};
-	default = shopware-cli;
+          type = "app";
+          program = "${self.packages.${system}.shopware-cli}/bin/shopware-cli";
+        };
+        default = shopware-cli;
       });
 
-      defaultPackage = forAllSystems (system: self.packages.${system}.default);
-
-      # The default package for 'nix build'. This makes sense if the
-      # flake provides only one package or there is a clear "main"
-      # package.
-      defaultApp = forAllSystems (system: self.apps.${system}.default);
-
-      devShell = forAllSystems (system:
-        let pkgs = nixpkgsFor.${system};
-        in pkgs.mkShell {
-          buildInputs = with pkgs; [ go golangci-lint ];
-        });
+      formatter = forAllSystems (
+        system:
+        nixpkgs.legacyPackages.${system}.nixpkgs-fmt
+      );
     };
 }
