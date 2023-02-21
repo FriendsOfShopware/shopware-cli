@@ -167,19 +167,19 @@ func constraintNotEqual(v, c *Version) bool {
 }
 
 func constraintGreaterThan(v, c *Version) bool {
-	return prereleaseCheck(v, c) && v.Compare(c) == 1
+	return (bothNotPreRelease(v, c) || prereleaseCheck(v, c)) && v.Compare(c) == 1
 }
 
 func constraintLessThan(v, c *Version) bool {
-	return prereleaseCheck(v, c) && v.Compare(c) == -1
+	return (bothNotPreRelease(v, c) || prereleaseCheck(v, c)) && v.Compare(c) == -1
 }
 
 func constraintGreaterThanEqual(v, c *Version) bool {
-	return prereleaseCheck(v, c) && v.Compare(c) >= 0
+	return (bothNotPreRelease(v, c) || prereleaseCheck(v, c)) && v.Compare(c) >= 0
 }
 
 func constraintLessThanEqual(v, c *Version) bool {
-	return prereleaseCheck(v, c) && v.Compare(c) <= 0
+	return (bothNotPreRelease(v, c) || prereleaseCheck(v, c)) && v.Compare(c) <= 0
 }
 
 func constraintPessimistic(v, c *Version) bool {
@@ -219,7 +219,7 @@ func constraintPessimistic(v, c *Version) bool {
 }
 
 func constraintCaret(v, c *Version) bool {
-	if !prereleaseCheck(v, c) || v.LessThan(c) {
+	if v.LessThan(c) {
 		return false
 	}
 
@@ -227,11 +227,15 @@ func constraintCaret(v, c *Version) bool {
 		return false
 	}
 
+	if reflect.DeepEqual(v.segments, c.segments) && !prereleaseCheck(v, c) {
+		return false
+	}
+
 	return true
 }
 
 func constraintTilde(v, c *Version) bool {
-	if !prereleaseCheck(v, c) || v.LessThan(c) {
+	if v.LessThan(c) {
 		return false
 	}
 
@@ -243,5 +247,13 @@ func constraintTilde(v, c *Version) bool {
 		return false
 	}
 
+	if reflect.DeepEqual(v.segments, c.segments) && !prereleaseCheck(v, c) {
+		return false
+	}
+
 	return true
+}
+
+func bothNotPreRelease(v, c *Version) bool {
+	return !v.IsPrerelease() || !c.IsPrerelease()
 }
