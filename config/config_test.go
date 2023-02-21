@@ -11,8 +11,6 @@ import (
 )
 
 func TestParseEnvConfig(t *testing.T) {
-	testEnv := newTestEnv(t)
-	defer testEnv.restore()
 	defer resetState()
 
 	testData := struct {
@@ -24,9 +22,9 @@ func TestParseEnvConfig(t *testing.T) {
 		companyId: 456,
 	}
 
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_EMAIL", testData.email)
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_EMAIL", testData.email)
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
 
 	assert.NoError(t, InitConfig(""))
 	assert.True(t, state.loadedFromEnv)
@@ -39,6 +37,7 @@ func TestParseEnvConfig(t *testing.T) {
 
 func TestParseFileConfig(t *testing.T) {
 	defer resetState()
+
 	testData := struct {
 		email, password string
 		companyId       int
@@ -64,6 +63,7 @@ func TestParseFileConfig(t *testing.T) {
 
 func TestSaveConfig(t *testing.T) {
 	defer resetState()
+
 	testData := struct {
 		email, password string
 		companyId       int
@@ -110,8 +110,6 @@ func TestSaveConfig(t *testing.T) {
 }
 
 func TestDontWriteEnvConfig(t *testing.T) {
-	testEnv := newTestEnv(t)
-	defer testEnv.restore()
 	defer resetState()
 
 	testData := struct {
@@ -123,9 +121,9 @@ func TestDontWriteEnvConfig(t *testing.T) {
 		companyId: 456,
 	}
 
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_EMAIL", testData.email)
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
-	testEnv.set("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_EMAIL", testData.email)
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_PASSWORD", testData.password)
+	t.Setenv("SHOPWARE_CLI_ACCOUNT_COMPANY", strconv.Itoa(testData.companyId))
 
 	assert.NoError(t, InitConfig(""))
 	assert.True(t, state.loadedFromEnv)
@@ -134,41 +132,6 @@ func TestDontWriteEnvConfig(t *testing.T) {
 	assert.Error(t, confService.SetAccountEmail("test@foo.com"))
 	assert.Error(t, confService.SetAccountPassword("S3CR3TF4RT3St"))
 	assert.Error(t, confService.SetAccountCompanyId(111))
-}
-
-type testEnv struct {
-	t       *testing.T
-	oldVars map[string]string
-}
-
-func newTestEnv(t *testing.T) *testEnv {
-	t.Helper()
-	return &testEnv{
-		t,
-		map[string]string{},
-	}
-}
-
-func (e *testEnv) set(key, value string) {
-	val := os.Getenv(key)
-	e.oldVars[key] = val
-	if err := os.Setenv(key, value); err != nil {
-		e.t.Fatal(err)
-	}
-}
-
-func (e *testEnv) restore() {
-	for key, value := range e.oldVars {
-		var err error
-		if len(value) > 0 {
-			err = os.Setenv(key, value)
-		} else {
-			err = os.Unsetenv(key)
-		}
-		if err != nil {
-			e.t.Error(err)
-		}
-	}
 }
 
 func resetState() {
