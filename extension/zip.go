@@ -343,7 +343,11 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 		return nil, errors.Wrap(err, "get shopware version constraint")
 	}
 
-	minVersion := getMinMatchingVersion(versionConstraint, versions)
+	minVersion, err := getMinMatchingVersion(versionConstraint, versions)
+	if err != nil {
+		return nil, errors.Wrap(err, "get min matching version")
+	}
+
 	components := []string{"core", "administration", "storefront", "administration"}
 
 	for _, component := range components {
@@ -388,7 +392,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 	return composer, nil
 }
 
-func getMinMatchingVersion(constraint *version.Constraints, versions []string) string {
+func getMinMatchingVersion(constraint *version.Constraints, versions []string) (string, error) {
 	vs := make([]*version.Version, 0)
 
 	for _, r := range versions {
@@ -402,16 +406,32 @@ func getMinMatchingVersion(constraint *version.Constraints, versions []string) s
 
 	sort.Sort(version.Collection(vs))
 
+	matchingVersions := make([]*version.Version, 0)
+
 	for _, v := range vs {
 		if constraint.Check(v) {
-			return v.String()
+			matchingVersions = append(matchingVersions, v)
 		}
 	}
 
-	return vs[0].String()
+	// If there are matching versions, return the first non-prerelease version
+	for _, matchingVersion := range matchingVersions {
+		if matchingVersion.IsPrerelease() {
+			continue
+		}
+
+		return matchingVersion.String(), nil
+	}
+
+	// If there are no non-prerelease versions, return the first matching version
+	if len(matchingVersions) > 0 {
+		return matchingVersions[0].String(), nil
+	}
+
+	return "", fmt.Errorf("no matching version found for constraint %s", constraint.String())
 }
 
-// Remove secret from manifest.
+// PrepareExtensionForRelease Remove secret from the manifest.
 func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
 	if ext.GetType() == "plugin" {
 		return nil

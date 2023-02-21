@@ -12,20 +12,13 @@ import (
 // The compiled regular expression used to test the validity of a version.
 var (
 	versionRegexp *regexp.Regexp
-	semverRegexp  *regexp.Regexp
 )
 
-// The raw regular expression string used for testing the validity
+// VersionRegexpRaw The raw regular expression string used for testing the validity
 // of a version.
 const (
 	VersionRegexpRaw string = `[\^~v]?([0-9]+(\.[0-9]+)*?)` +
 		`(-([0-9]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)|([-@]?([A-Za-z\-~]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)))?` +
-		`(\+([0-9A-Za-z\-~]+(\.[0-9A-Za-z\-~]+)*))?` +
-		`?`
-
-	// SemverRegexpRaw requires a separator between version and prerelease
-	SemverRegexpRaw string = `[\^~v]?([0-9]+(\.[0-9]+)*?)` +
-		`(-([0-9]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)|([-@]([A-Za-z\-~]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)))?` +
 		`(\+([0-9A-Za-z\-~]+(\.[0-9A-Za-z\-~]+)*))?` +
 		`?`
 )
@@ -41,20 +34,12 @@ type Version struct {
 
 func init() {
 	versionRegexp = regexp.MustCompile("^" + VersionRegexpRaw + "$")
-	semverRegexp = regexp.MustCompile("^" + SemverRegexpRaw + "$")
 }
 
 // NewVersion parses the given version and returns a new
 // Version.
 func NewVersion(v string) (*Version, error) {
 	return newVersionFromRegExp(v, versionRegexp)
-}
-
-// NewSemver parses the given version and returns a new
-// Version that adheres strictly to SemVer specs
-// https://semver.org/
-func NewSemver(v string) (*Version, error) {
-	return newVersionFromRegExp(v, semverRegexp)
 }
 
 func newVersionFromRegExp(v string, pattern *regexp.Regexp) (*Version, error) {
@@ -72,7 +57,7 @@ func newVersionFromRegExp(v string, pattern *regexp.Regexp) (*Version, error) {
 				"Error parsing version: %s", err)
 		}
 
-		segments[i] = int64(val)
+		segments[i] = val
 		si++
 	}
 
@@ -147,7 +132,7 @@ func (v *Version) Compare(other *Version) int {
 		hS = lenOther
 	}
 	// Compare the segments
-	// Because a constraint could have more/less specificity than the version it's
+	// Because a constraint could have less specificity than the version it's
 	// checking, we need to account for a lopsided or jagged comparison
 	for i := 0; i < hS; i++ {
 		if i > lenSelf-1 {
@@ -159,7 +144,7 @@ func (v *Version) Compare(other *Version) int {
 			}
 			break
 		} else if i > lenOther-1 {
-			// this means Other had the lower specificity
+			// this means Others had the lower specificity
 			// Check to see if the remaining segments in Self are all zeros -
 			if !allZero(segmentsSelf[i:]) {
 				//if not, it means that Self has to be greater than Other
@@ -174,7 +159,7 @@ func (v *Version) Compare(other *Version) int {
 		} else if lhs < rhs {
 			return -1
 		}
-		// Otherwis, rhs was > lhs, they're not equal
+		// Otherwise, rhs was > lhs, they're not equal
 		return 1
 	}
 
@@ -239,12 +224,12 @@ func comparePart(preSelf string, preOther string) int {
 }
 
 func comparePrereleases(v string, other string) int {
-	// the same pre release!
+	// the same pre-release!
 	if v == other {
 		return 0
 	}
 
-	// split both pre releases for analyse their parts
+	// split both pre-releases for analyse their parts
 	selfPreReleaseMeta := strings.Split(v, ".")
 	otherPreReleaseMeta := strings.Split(other, ".")
 
@@ -322,7 +307,12 @@ func (v *Version) Prerelease() string {
 	return v.pre
 }
 
-// Segments returns the numeric segments of the version as a slice of ints.
+// IsPrerelease returns true if the version has prerelease information.
+func (v *Version) IsPrerelease() bool {
+	return v.pre != ""
+}
+
+// Segments return the numeric segments of the version as a slice of ins.
 //
 // This excludes any metadata or pre-release information. For example,
 // for a version "1.2.3-beta", segments will return a slice of
@@ -382,7 +372,7 @@ func (v *Version) String() string {
 }
 
 // Original returns the original parsed version as-is, including any
-// potential whitespace, `v` prefix, etc.
+// potential space, `v` prefix, etc.
 func (v *Version) Original() string {
 	return v.original
 }
