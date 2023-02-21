@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
 	"path"
@@ -25,63 +26,23 @@ func TestGenerateConfigForPlugin(t *testing.T) {
 		},
 	}
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.js"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.js"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm))
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.js"), []byte("test"), os.ModePerm))
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "src"), os.ModePerm))
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.js"), []byte("test"), os.ModePerm))
 
 	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
 
-	if config.Has("FroshTools") == false {
-		t.Error("Expected to have FroshTools")
-	}
-
-	if config.RequiresAdminBuild() == false {
-		t.Error("Expected to require admin build")
-	}
-
-	if config.RequiresStorefrontBuild() == false {
-		t.Error("Expected to require storefront build")
-	}
-
-	if config["FroshTools"].TechnicalName != "frosh-tools" {
-		t.Error("Expected to have frosh-tools")
-	}
-
-	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointJS {
-		t.Error("Expected to have Administration JS")
-	}
-
-	if *config["FroshTools"].Storefront.EntryFilePath != StorefrontEntrypointJS {
-		t.Error("Expected to have Storefront JS")
-	}
-
-	if config["FroshTools"].Administration.Webpack != nil {
-		t.Error("Webpack is not overridden for admin")
-	}
-
-	if config["FroshTools"].Storefront.Webpack != nil {
-		t.Error("Webpack is not overridden for storefront")
-	}
-
-	if config["FroshTools"].Administration.Path != "Resources/app/administration/src" {
-		t.Error("Expected to have Administration Path")
-	}
-
-	if config["FroshTools"].Storefront.Path != "Resources/app/storefront/src" {
-		t.Error("Expected to have Storefront Path")
-	}
+	assert.True(t, config.Has("FroshTools"))
+	assert.True(t, config.RequiresAdminBuild())
+	assert.True(t, config.RequiresStorefrontBuild())
+	assert.Equal(t, "frosh-tools", config["FroshTools"].TechnicalName)
+	assert.Equal(t, "Resources/app/administration/src/main.js", *config["FroshTools"].Administration.EntryFilePath)
+	assert.Equal(t, "Resources/app/storefront/src/main.js", *config["FroshTools"].Storefront.EntryFilePath)
+	assert.Nil(t, config["FroshTools"].Administration.Webpack)
+	assert.Nil(t, config["FroshTools"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["FroshTools"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["FroshTools"].Storefront.Path)
 }
 
 func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
@@ -96,79 +57,31 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 		},
 	}
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm))
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "build"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "build"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "src"), os.ModePerm))
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "build"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "build"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "build", "webpack.config.js"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm))
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
 	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
 
-	if config.Has("FroshTools") == false {
-		t.Error("Expected to have FroshTools")
-	}
-
-	if config.RequiresAdminBuild() == false {
-		t.Error("Expected to require admin build")
-	}
-
-	if config.RequiresStorefrontBuild() == false {
-		t.Error("Expected to require storefront build")
-	}
-
-	if config["FroshTools"].TechnicalName != "frosh-tools" {
-		t.Error("Expected to have frosh-tools")
-	}
-
-	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
-		t.Error("Expected to have Administration TS")
-	}
-
-	if *config["FroshTools"].Administration.Webpack != AdministrationWebpackConfig {
-		t.Error("Expected to have Administration Webpack")
-	}
-
-	if *config["FroshTools"].Storefront.EntryFilePath != "Resources/app/storefront/src/main.ts" {
-		t.Error("Expected to have Storefront TS")
-	}
-
-	if *config["FroshTools"].Storefront.Webpack != StorefrontWebpackConfig {
-		t.Error("Expected to have Storefront Webpack")
-	}
-
-	if config["FroshTools"].Administration.Path != "Resources/app/administration/src" {
-		t.Error("Expected to have Administration Path")
-	}
-
-	if config["FroshTools"].Storefront.Path != "Resources/app/storefront/src" {
-		t.Error("Expected to have Storefront Path")
-	}
+	assert.True(t, config.Has("FroshTools"))
+	assert.True(t, config.RequiresAdminBuild())
+	assert.True(t, config.RequiresStorefrontBuild())
+	assert.Equal(t, "frosh-tools", config["FroshTools"].TechnicalName)
+	assert.Equal(t, "Resources/app/administration/src/main.ts", *config["FroshTools"].Administration.EntryFilePath)
+	assert.Equal(t, "Resources/app/storefront/src/main.ts", *config["FroshTools"].Storefront.EntryFilePath)
+	assert.Equal(t, "Resources/app/administration/build/webpack.config.js", *config["FroshTools"].Administration.Webpack)
+	assert.Equal(t, "Resources/app/storefront/build/webpack.config.js", *config["FroshTools"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["FroshTools"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["FroshTools"].Storefront.Path)
 }
 
 func TestGenerateConfigForApp(t *testing.T) {
@@ -183,63 +96,34 @@ func TestGenerateConfigForApp(t *testing.T) {
 		},
 	}
 
-	if err := os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "src"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "build"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "build"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
 	config := buildAssetConfigFromExtensions([]Extension{app}, "")
 
-	if config.Has("FroshApp") == false {
-		t.Error("Expected to have FroshApp")
-	}
+	assert.True(t, config.Has("FroshApp"))
+	assert.False(t, config.RequiresAdminBuild())
+	assert.True(t, config.RequiresStorefrontBuild())
 
-	if config.RequiresAdminBuild() == true {
-		t.Error("Expected to not require admin build")
-	}
-
-	if config.RequiresStorefrontBuild() == false {
-		t.Error("Expected to require storefront build")
-	}
-
-	if config["FroshApp"].TechnicalName != "frosh-app" {
-		t.Error("Expected to have frosh-app")
-	}
-
-	if *config["FroshApp"].Storefront.EntryFilePath != StorefrontEntrypointTS {
-		t.Error("Expected to have Storefront TS")
-	}
-
-	if *config["FroshApp"].Storefront.Webpack != StorefrontWebpackConfig {
-		t.Error("Expected to have Storefront Webpack")
-	}
+	assert.Equal(t, "frosh-app", config["FroshApp"].TechnicalName)
+	assert.Nil(t, config["FroshApp"].Administration.EntryFilePath)
+	assert.Equal(t, "Resources/app/storefront/src/main.ts", *config["FroshApp"].Storefront.EntryFilePath)
+	assert.Nil(t, config["FroshApp"].Administration.Webpack)
+	assert.Equal(t, "Resources/app/storefront/build/webpack.config.js", *config["FroshApp"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["FroshApp"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["FroshApp"].Storefront.Path)
 }
 
 func TestGenerateConfigAddsStorefrontAlwaysAsEntrypoint(t *testing.T) {
 	config := buildAssetConfigFromExtensions([]Extension{}, "")
 
-	if config.RequiresStorefrontBuild() == true {
-		t.Error("Storefront entrypoint is ignored for build")
-	}
-
-	if config.RequiresAdminBuild() == true {
-		t.Error("Storefront bundle does not offer a admin entrypoint")
-	}
+	assert.False(t, config.RequiresStorefrontBuild())
+	assert.False(t, config.RequiresAdminBuild())
 }
 
 func TestGenerateConfigDoesNotAddExtensionWithoutConfig(t *testing.T) {
@@ -256,9 +140,7 @@ func TestGenerateConfigDoesNotAddExtensionWithoutConfig(t *testing.T) {
 
 	config := buildAssetConfigFromExtensions([]Extension{app}, "")
 
-	if config.Has("FroshApp") == true {
-		t.Error("Expected to not have FroshApp")
-	}
+	assert.False(t, config.Has("FroshApp"))
 }
 
 func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
@@ -275,9 +157,7 @@ func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
 
 	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
 
-	if len(config) != 1 {
-		t.Error("Expected no to add plugin")
-	}
+	assert.Len(t, config, 1)
 }
 
 func TestGenerateConfigWithSubBundles(t *testing.T) {
@@ -292,53 +172,41 @@ func TestGenerateConfigWithSubBundles(t *testing.T) {
 		},
 	}
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm))
 
 	cfg := "{\"build\": {\"extraBundles\": [{\"path\": \"Foo\"}]}}"
 
-	if err := os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm))
 
 	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
 
-	if config.RequiresAdminBuild() == false {
-		t.Error("Expected to require admin build")
-	}
+	assert.True(t, config.RequiresAdminBuild())
+	assert.False(t, config.RequiresStorefrontBuild())
+	assert.True(t, config.Has("FroshTools"))
+	assert.True(t, config.Has("Foo"))
 
-	if config.Has("FroshTools") == false {
-		t.Error("Expected to have FroshTools")
-	}
+	assert.Equal(t, "frosh-tools", config["FroshTools"].TechnicalName)
+	assert.Equal(t, "Resources/app/administration/src/main.ts", *config["FroshTools"].Administration.EntryFilePath)
+	assert.Nil(t, config["FroshTools"].Administration.Webpack)
+	assert.Nil(t, config["FroshTools"].Storefront.EntryFilePath)
+	assert.Nil(t, config["FroshTools"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["FroshTools"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["FroshTools"].Storefront.Path)
 
-	if config.Has("Foo") == false {
-		t.Error("Expected to have Foo")
-	}
-
-	if config["Foo"].TechnicalName != "foo" {
-		t.Error("Expected to have foo")
-	}
-
-	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
-		t.Error("Expected to have Admin JS")
-	}
-
-	if *config["Foo"].Administration.EntryFilePath != AdministrationEntrypointTS {
-		t.Error("Expected to have Admin JS")
-	}
+	assert.Equal(t, "foo", config["Foo"].TechnicalName)
+	assert.Contains(t, config["Foo"].BasePath, "src/Foo")
+	assert.Equal(t, "Resources/app/administration/src/main.ts", *config["Foo"].Administration.EntryFilePath)
+	assert.Nil(t, config["Foo"].Administration.Webpack)
+	assert.Nil(t, config["Foo"].Storefront.EntryFilePath)
+	assert.Nil(t, config["Foo"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["Foo"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["Foo"].Storefront.Path)
 }
 
 func TestGenerateConfigWithSubBundlesWithNameOverride(t *testing.T) {
@@ -353,51 +221,40 @@ func TestGenerateConfigWithSubBundlesWithNameOverride(t *testing.T) {
 		},
 	}
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "administration", "src"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm))
 
-	if err := os.MkdirAll(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src"), os.ModePerm))
 
-	if err := os.WriteFile(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Foo", "Resources", "app", "administration", "src", "main.ts"), []byte("test"), os.ModePerm))
 
 	cfg := "{\"build\": {\"extraBundles\": [{\"path\": \"Foo\", \"name\": \"Bla\"}]}}"
 
-	if err := os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm); err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm))
 
 	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
 
-	if config.RequiresAdminBuild() == false {
-		t.Error("Expected to require admin build")
-	}
+	assert.True(t, config.RequiresAdminBuild())
+	assert.False(t, config.RequiresStorefrontBuild())
 
-	if config.Has("FroshTools") == false {
-		t.Error("Expected to have FroshTools")
-	}
+	assert.True(t, config.Has("FroshTools"))
+	assert.True(t, config.Has("Bla"))
 
-	if config.Has("Bla") == false {
-		t.Error("Expected to have Bla")
-	}
+	assert.Equal(t, "frosh-tools", config["FroshTools"].TechnicalName)
+	assert.Equal(t, "Resources/app/administration/src/main.ts", *config["FroshTools"].Administration.EntryFilePath)
+	assert.Nil(t, config["FroshTools"].Administration.Webpack)
+	assert.Nil(t, config["FroshTools"].Storefront.EntryFilePath)
+	assert.Nil(t, config["FroshTools"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["FroshTools"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["FroshTools"].Storefront.Path)
 
-	if config["Bla"].TechnicalName != "bla" {
-		t.Error("Expected to have bla")
-	}
-
-	if *config["FroshTools"].Administration.EntryFilePath != AdministrationEntrypointTS {
-		t.Error("Expected to have Admin JS")
-	}
-
-	if *config["Bla"].Administration.EntryFilePath != AdministrationEntrypointTS {
-		t.Error("Expected to have Admin JS")
-	}
+	assert.Equal(t, "bla", config["Bla"].TechnicalName)
+	assert.Contains(t, config["Bla"].BasePath, "src/Foo")
+	assert.Equal(t, "Resources/app/administration/src/main.ts", *config["Bla"].Administration.EntryFilePath)
+	assert.Nil(t, config["Bla"].Administration.Webpack)
+	assert.Nil(t, config["Bla"].Storefront.EntryFilePath)
+	assert.Nil(t, config["Bla"].Storefront.Webpack)
+	assert.Equal(t, "Resources/app/administration/src", config["Bla"].Administration.Path)
+	assert.Equal(t, "Resources/app/storefront/src", config["Bla"].Storefront.Path)
 }

@@ -22,7 +22,7 @@ jobs:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for Updates
-        run: nix run github:Mic92/nix-update -- composer-registry --url https://github.com/FriendsOfShopware/shopware-cli --flake
+        run: nix run github:Mic92/nix-update -- shopware-cli --url https://github.com/FriendsOfShopware/shopware-cli --flake
 
       - name: Commit file
         uses: EndBug/add-and-commit@v9
