@@ -22,7 +22,7 @@
             dontConfigure = true;
             dontBuild = true;
 
-            nativeBuildInputs = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux pkgs.autoPatchelfHook;
+            nativeBuildInputs = [ ] ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.autoPatchelfHook;
 
             src = pkgs.fetchurl {
               url = {
