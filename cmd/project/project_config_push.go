@@ -27,7 +27,7 @@ var projectConfigPushCmd = &cobra.Command{
 			return err
 		}
 
-		client, err := shop.NewShopClient(cmd.Context(), cfg, nil)
+		client, err := shop.NewShopClient(cmd.Context(), cfg)
 		if err != nil {
 			return err
 		}

@@ -27,15 +27,9 @@ var projectAdminApiCmd = &cobra.Command{
 			return fmt.Errorf("admin api is not activated in the config")
 		}
 
-		cred := shop.NewShopCredentials(cfg)
+		client, err := shop.NewShopClient(cobraCmd.Context(), cfg)
 
-		source, err := cred.GetTokenSource(cobraCmd.Context(), cfg.URL+"/api/oauth/token")
-
-		if err != nil {
-			return err
-		}
-
-		token, err := source.Token()
+		token, err := client.Token().Token()
 
 		if err != nil {
 			return err

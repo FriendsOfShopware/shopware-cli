@@ -35,7 +35,7 @@ var projectClearCacheCmd = &cobra.Command{
 
 		log.Infof("Clearing cache using admin-api")
 
-		client, err := shop.NewShopClient(cmd.Context(), cfg, nil)
+		client, err := shop.NewShopClient(cmd.Context(), cfg)
 		if err != nil {
 			return err
 		}
