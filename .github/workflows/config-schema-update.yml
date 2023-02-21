@@ -2,12 +2,13 @@ name: Update docs content
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  pull_request:
     paths:
       - 'extension/shopware-extension-schema.json'
       - 'shop/shopware-project-schema.json'
+
+permissions:
+  contents: write
 
 jobs:
   config-schema-update:
