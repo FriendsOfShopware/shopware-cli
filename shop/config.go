@@ -19,10 +19,11 @@ type Config struct {
 }
 
 type ConfigAdminApi struct {
-	ClientId     string `yaml:"client_id,omitempty"`
-	ClientSecret string `yaml:"client_secret,omitempty"`
-	Username     string `yaml:"username,omitempty"`
-	Password     string `yaml:"password,omitempty"`
+	ClientId        string `yaml:"client_id,omitempty"`
+	ClientSecret    string `yaml:"client_secret,omitempty"`
+	Username        string `yaml:"username,omitempty"`
+	Password        string `yaml:"password,omitempty"`
+	DisableSSLCheck bool   `yaml:"disable_ssl_check,omitempty"`
 }
 
 type ConfigDump struct {

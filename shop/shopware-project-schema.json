@@ -44,6 +44,11 @@
                 "password": {
                     "type": "string",
                     "description": "Password of admin user"
+                },
+                "disable_ssl_check": {
+                    "type": "boolean",
+                    "description": "Disable SSL check for API requests",
+                    "default": false
                 }
             }
         },

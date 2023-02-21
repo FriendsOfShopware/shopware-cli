@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v7 v7.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
 	github.com/evanw/esbuild v0.17.10
-	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc
+	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230221212710-973d4e710748
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
@@ -59,7 +59,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/oauth2 v0.5.0 // indirect
+	golang.org/x/oauth2 v0.5.0
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
