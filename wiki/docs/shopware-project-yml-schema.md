@@ -67,6 +67,7 @@ URL to Shopware instance
 |**client_secret**|`string`|Client Secret of integration|No|
 |**username**|`string`|Username of admin user|No|
 |**password**|`string`|Password of admin user|No|
+|**disable_ssl_check**|`boolean`|Disable SSL check for API requests|No, default: `false`|
 
 Additional properties are not allowed.
 
@@ -97,6 +98,13 @@ Password of admin user
 
 * **Type**: `string`
 * **Required**: No
+
+### AdminApi.disable_ssl_check
+
+Disable SSL check for API requests
+
+* **Type**: `boolean`
+* **Required**: No, default: `false`
 
 
 
