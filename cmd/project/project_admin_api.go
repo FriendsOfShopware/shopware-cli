@@ -2,12 +2,13 @@ package project
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/curl"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/spf13/cobra"
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/FriendsOfShopware/shopware-cli/curl"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/spf13/cobra"
 )
 
 var skipDefaultHeaders bool
@@ -28,6 +29,10 @@ var projectAdminApiCmd = &cobra.Command{
 		}
 
 		client, err := shop.NewShopClient(cobraCmd.Context(), cfg)
+
+		if err != nil {
+			return err
+		}
 
 		token, err := client.Token().Token()
 
@@ -63,6 +68,10 @@ var projectAdminApiCmd = &cobra.Command{
 			curl.Method(args[0]),
 			curl.BearerToken(token.AccessToken),
 			curl.Args(args[2:]),
+		}
+
+		if cfg.AdminApi.DisableSSLCheck {
+			commandConfig = append(commandConfig, curl.Args([]string{"--insecure"}))
 		}
 
 		if !skipDefaultHeaders {
