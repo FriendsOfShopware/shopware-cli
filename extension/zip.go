@@ -7,16 +7,16 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 
@@ -126,7 +126,7 @@ func CreateZip(baseFolder, zipFile string) error {
 }
 
 func AddZipFiles(w *zip.Writer, basePath, baseInZip string) error {
-	files, err := ioutil.ReadDir(basePath)
+	files, err := os.ReadDir(basePath)
 	if err != nil {
 		return fmt.Errorf("could not zip dir, basePath: %q, baseInZip: %q, %w", basePath, baseInZip, err)
 	}

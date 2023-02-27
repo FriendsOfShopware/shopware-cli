@@ -28,7 +28,7 @@ func NewShopClient(ctx context.Context, config *Config) (*adminSdk.Client, error
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: config.AdminApi.DisableSSLCheck,
+			InsecureSkipVerify: config.AdminApi.DisableSSLCheck, // nolint:gosec
 		},
 	}
 	client := &http.Client{Transport: tr}
