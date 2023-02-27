@@ -109,8 +109,8 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
-      name: Soner Sayakci
-      email: s.sayakci@shopware.com
+      name: Frosh Automation
+      email: ci@fos.gg
     folder: Formula
     goarm: "7"
     homepage: https://friendsofshopware.com
