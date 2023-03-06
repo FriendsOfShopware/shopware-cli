@@ -26,12 +26,12 @@ type PlatformPlugin struct {
 	composer platformComposerJson
 }
 
-// GetRootDir returns the src directory of the plugin
+// GetRootDir returns the src directory of the plugin.
 func (p PlatformPlugin) GetRootDir() string {
 	return path.Join(p.path, "src")
 }
 
-// GetResourcesDir returns the resources directory of the plugin
+// GetResourcesDir returns the resources directory of the plugin.
 func (p PlatformPlugin) GetResourcesDir() string {
 	return path.Join(p.GetRootDir(), "Resources")
 }

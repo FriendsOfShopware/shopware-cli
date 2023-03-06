@@ -42,7 +42,7 @@ const testAppManifestIcon = `<?xml version="1.0" encoding="UTF-8"?>
 func TestIconNotExists(t *testing.T) {
 	appPath := t.TempDir()
 
-	os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifest), os.ModePerm)
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifest), os.ModePerm))
 
 	app, err := newApp(appPath)
 
@@ -61,10 +61,10 @@ func TestIconNotExists(t *testing.T) {
 func TestIconExistsDefaultsPath(t *testing.T) {
 	appPath := t.TempDir()
 
-	os.MkdirAll(path.Join(appPath, "Resources/config"), os.ModePerm)
+	assert.NoError(t, os.MkdirAll(path.Join(appPath, "Resources/config"), os.ModePerm))
 
-	os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifest), os.ModePerm)
-	os.WriteFile(path.Join(appPath, "Resources/config/plugin.png"), []byte("test"), os.ModePerm)
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifest), os.ModePerm))
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "Resources/config/plugin.png"), []byte("test"), os.ModePerm))
 
 	app, err := newApp(appPath)
 
@@ -82,8 +82,8 @@ func TestIconExistsDefaultsPath(t *testing.T) {
 func TestIconExistsDifferentPath(t *testing.T) {
 	appPath := t.TempDir()
 
-	os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifestIcon), os.ModePerm)
-	os.WriteFile(path.Join(appPath, "app.png"), []byte("test"), os.ModePerm)
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifestIcon), os.ModePerm))
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "app.png"), []byte("test"), os.ModePerm))
 
 	app, err := newApp(appPath)
 
