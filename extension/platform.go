@@ -26,10 +26,12 @@ type PlatformPlugin struct {
 	composer platformComposerJson
 }
 
+// GetRootDir returns the src directory of the plugin.
 func (p PlatformPlugin) GetRootDir() string {
 	return path.Join(p.path, "src")
 }
 
+// GetResourcesDir returns the resources directory of the plugin.
 func (p PlatformPlugin) GetResourcesDir() string {
 	return path.Join(p.GetRootDir(), "Resources")
 }
@@ -86,6 +88,7 @@ type platformComposerJsonExtra struct {
 	Description         map[string]string `json:"description"`
 	ManufacturerLink    map[string]string `json:"manufacturerLink"`
 	SupportLink         map[string]string `json:"supportLink"`
+	PluginIcon          string            `json:"plugin-icon"`
 }
 
 func (p PlatformPlugin) GetName() (string, error) {
@@ -211,6 +214,17 @@ func (p PlatformPlugin) Validate(ctx *validationContext) {
 
 	if len(p.composer.Autoload.Psr0) == 0 && len(p.composer.Autoload.Psr4) == 0 {
 		ctx.AddError("At least one of the properties psr-0 or psr-4 are required in the composer.json")
+	}
+
+	pluginIcon := p.composer.Extra.PluginIcon
+
+	if len(pluginIcon) == 0 {
+		pluginIcon = "src/Resources/config/plugin.png"
+	}
+
+	// check if the plugin icon exists
+	if _, err := os.Stat(filepath.Join(p.GetPath(), pluginIcon)); os.IsNotExist(err) {
+		ctx.AddError(fmt.Sprintf("The plugin icon %s does not exist", pluginIcon))
 	}
 
 	validateTheme(ctx)

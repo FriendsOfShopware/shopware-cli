@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
@@ -274,6 +275,16 @@ func (a App) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (App) Validate(ctx *validationContext) {
+func (a App) Validate(ctx *validationContext) {
 	validateTheme(ctx)
+
+	appIcon := a.manifest.Meta.Icon
+
+	if appIcon == "" {
+		appIcon = "Resources/config/plugin.png"
+	}
+
+	if _, err := os.Stat(filepath.Join(a.GetPath(), appIcon)); os.IsNotExist(err) {
+		ctx.AddError(fmt.Sprintf("Cannot find app icon at %s", appIcon))
+	}
 }
