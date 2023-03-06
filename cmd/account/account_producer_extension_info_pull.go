@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -80,7 +81,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		if len(storeExt.IconURL) > 0 {
 			icon := "src/Resources/store/icon.png"
 			iconConfigPath = &icon
-			err := downloadFileTo(storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
+			err := downloadFileTo(cmd.Context(), storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
 			if err != nil {
 				return fmt.Errorf("cannot download file: %w", err)
 			}
@@ -106,7 +107,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 
 		for i, image := range storeImages {
 			imagePath := fmt.Sprintf("src/Resources/store/img-%d.png", i)
-			err := downloadFileTo(image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
+			err := downloadFileTo(cmd.Context(), image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
 			if err != nil {
 				return fmt.Errorf("cannot download file: %w", err)
 			}
@@ -195,8 +196,8 @@ func init() {
 	accountCompanyProducerExtensionInfoCmd.AddCommand(accountCompanyProducerExtensionInfoPullCmd)
 }
 
-func downloadFileTo(url string, target string) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func downloadFileTo(ctx context.Context, url string, target string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
