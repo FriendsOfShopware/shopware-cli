@@ -51,7 +51,7 @@ func TestIconNotExists(t *testing.T) {
 	assert.Equal(t, "MyExampleApp", app.manifest.Meta.Name)
 	assert.Equal(t, "", app.manifest.Meta.Icon)
 
-	ctx := newValidationContext(app)
+	ctx := newValidationContext(app, getTestContext())
 	app.Validate(ctx)
 
 	assert.Equal(t, 1, len(ctx.errors))
@@ -73,7 +73,7 @@ func TestIconExistsDefaultsPath(t *testing.T) {
 	assert.Equal(t, "MyExampleApp", app.manifest.Meta.Name)
 	assert.Equal(t, "", app.manifest.Meta.Icon)
 
-	ctx := newValidationContext(app)
+	ctx := newValidationContext(app, getTestContext())
 	app.Validate(ctx)
 
 	assert.Equal(t, 0, len(ctx.errors))
@@ -92,7 +92,7 @@ func TestIconExistsDifferentPath(t *testing.T) {
 	assert.Equal(t, "MyExampleApp", app.manifest.Meta.Name)
 	assert.Equal(t, "app.png", app.manifest.Meta.Icon)
 
-	ctx := newValidationContext(app)
+	ctx := newValidationContext(app, getTestContext())
 	app.Validate(ctx)
 
 	assert.Equal(t, 0, len(ctx.errors))
