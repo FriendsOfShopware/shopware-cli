@@ -11,17 +11,18 @@ import (
 
 	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/version"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
-const StorefrontWebpackConfig = "Resources/app/storefront/build/webpack.config.js"
-const StorefrontEntrypointJS = "Resources/app/storefront/src/main.js"
-const StorefrontEntrypointTS = "Resources/app/storefront/src/main.ts"
-const StorefrontBaseCSS = "Resources/app/storefront/src/scss/base.scss"
-const AdministrationWebpackConfig = "Resources/app/administration/build/webpack.config.js"
-const AdministrationEntrypointJS = "Resources/app/administration/src/main.js"
-const AdministrationEntrypointTS = "Resources/app/administration/src/main.ts"
+const (
+	StorefrontWebpackConfig     = "Resources/app/storefront/build/webpack.config.js"
+	StorefrontEntrypointJS      = "Resources/app/storefront/src/main.js"
+	StorefrontEntrypointTS      = "Resources/app/storefront/src/main.ts"
+	StorefrontBaseCSS           = "Resources/app/storefront/src/scss/base.scss"
+	AdministrationWebpackConfig = "Resources/app/administration/build/webpack.config.js"
+	AdministrationEntrypointJS  = "Resources/app/administration/src/main.js"
+	AdministrationEntrypointTS  = "Resources/app/administration/src/main.ts"
+)
 
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
@@ -81,7 +82,6 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/storefront/package.json")); err == nil {
 			err := npmInstall(filepath.Join(entry.BasePath, "Resources/app/storefront/"))
-
 			if err != nil {
 				return err
 			}
@@ -109,7 +109,6 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				"build",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
 			)
-
 			if err != nil {
 				return err
 			}
@@ -136,7 +135,6 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				"production",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
 			)
-
 			if err != nil {
 				return err
 			}
@@ -188,28 +186,26 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	varFolder := fmt.Sprintf("%s/var", shopwareRoot)
 	if _, err := os.Stat(varFolder); os.IsNotExist(err) {
 		err := os.Mkdir(varFolder, os.ModePerm)
-
 		if err != nil {
-			return errors.Wrap(err, "prepareShopwareForAsset")
+			return fmt.Errorf("prepareShopwareForAsset: %w", err)
 		}
 	}
 
 	pluginJson, err := json.Marshal(cfgs)
-
 	if err != nil {
-		return errors.Wrap(err, "prepareShopwareForAsset")
+		return fmt.Errorf("prepareShopwareForAsset: %w", err)
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/plugins.json", shopwareRoot), pluginJson, os.ModePerm)
 
 	if err != nil {
-		return errors.Wrap(err, "prepareShopwareForAsset")
+		return fmt.Errorf("prepareShopwareForAsset: %w", err)
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/features.json", shopwareRoot), []byte("{}"), os.ModePerm)
 
 	if err != nil {
-		return errors.Wrap(err, "prepareShopwareForAsset")
+		return fmt.Errorf("prepareShopwareForAsset: %w", err)
 	}
 
 	return nil
@@ -220,7 +216,6 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 
 	for _, extension := range extensions {
 		extName, err := extension.GetName()
-
 		if err != nil {
 			log.Errorf("Skipping extension %s as it has a invalid name", extension.GetPath())
 			continue
@@ -236,7 +231,6 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 		list[extName] = createConfigFromPath(extName, extension.GetRootDir())
 
 		extCfg, err := ReadExtensionConfig(extPath)
-
 		if err != nil {
 			log.Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
 			continue
@@ -344,7 +338,6 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 
 func setupShopwareInTemp(ext Extension) (string, error) {
 	constraint, err := ext.GetShopwareVersionConstraint()
-
 	if err != nil {
 		return "", err
 	}

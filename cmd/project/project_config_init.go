@@ -1,13 +1,13 @@
 package project
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/manifoldco/promptui"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -63,7 +63,6 @@ func askApi(config *shop.Config) error {
 
 	var result string
 	_, err := adminApi.Run()
-
 	if err != nil {
 		return nil //nolint:nilerr
 	}

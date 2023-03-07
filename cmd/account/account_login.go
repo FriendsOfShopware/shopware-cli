@@ -1,13 +1,14 @@
 package account
 
 import (
+	"errors"
 	"fmt"
+	"os"
+
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/manifoldco/promptui"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var loginCmd = &cobra.Command{
@@ -34,29 +35,26 @@ var loginCmd = &cobra.Command{
 		}
 
 		client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password})
-
 		if err != nil {
-			return errors.Wrap(err, "login failed with error")
+			return fmt.Errorf("login failed with error: %w", err)
 		}
 
 		if companyId := services.Conf.GetAccountCompanyId(); companyId > 0 {
 			err = changeAPIMembership(client, companyId)
 
 			if err != nil {
-				return errors.Wrap(err, "cannot change company member ship")
+				return fmt.Errorf("cannot change company member ship: %w", err)
 			}
 		}
 
 		if newCredentials {
 			err := services.Conf.Save()
-
 			if err != nil {
-				return errors.Wrap(err, "cannot save config")
+				return fmt.Errorf("cannot save config: %w", err)
 			}
 		}
 
 		profile, err := client.GetMyProfile()
-
 		if err != nil {
 			return err
 		}
@@ -83,7 +81,6 @@ func askUserForEmailAndPassword() (string, string) {
 	}
 
 	email, err := emailPrompt.Run()
-
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		os.Exit(1)
@@ -96,7 +93,6 @@ func askUserForEmailAndPassword() (string, string) {
 	}
 
 	password, err := passwordPrompt.Run()
-
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		os.Exit(1)
@@ -112,6 +108,7 @@ func emptyValidator(s string) error {
 
 	return nil
 }
+
 func changeAPIMembership(client *accountApi.Client, companyID int) error {
 	if companyID == 0 || client.GetActiveCompanyID() == companyID {
 		log.Tracef("Client is on correct membership skip")

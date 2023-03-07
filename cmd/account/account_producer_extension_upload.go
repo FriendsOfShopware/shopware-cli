@@ -1,14 +1,14 @@
 package account
 
 import (
-	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"fmt"
 	"path/filepath"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 
-	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
-			return errors.Wrap(err, "validate")
+			return fmt.Errorf("validate: %w", err)
 		}
 
 		p, err := services.AccountClient.Producer()
@@ -65,7 +65,7 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 		if foundBinary == nil {
 			foundBinary, err = p.CreateExtensionBinaryFile(ext.Id, path)
 			if err != nil {
-				return errors.Wrap(err, "create extension binary")
+				return fmt.Errorf("create extension binary: %w", err)
 			}
 		} else {
 			log.Infof("Found a zip with version %s already. Updating it", zipVersion)

@@ -43,8 +43,6 @@ github.com/evanw/esbuild v0.17.10 h1:RMwM8ehohA6RSgWVirjnsZ+u9ttNt0gWfRLYCxUbAoc
 github.com/evanw/esbuild v0.17.10/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc h1:+JURsvfNe+w0u3yRD5fd4y8RhpWSMEbPHE1yXbm7ijc=
-github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20220325180335-81b5b971debc/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230221212710-973d4e710748 h1:sJ26ZrK3cEJRXl4sPOiJqaWAEtggmoxkQ/A9GvQPAhM=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230221212710-973d4e710748/go.mod h1:mwQAhoVAiZb3/Ojs58BMsOOA8JMDpgAVX05SJDeQBgY=
 github.com/go-sql-driver/mysql v1.7.0 h1:ueSltNNllEqE3qcWBTD0iQd3IpL/6U+mJxLkazJ7YPc=

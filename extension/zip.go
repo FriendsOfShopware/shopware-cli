@@ -18,8 +18,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/pkg/errors"
-
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
@@ -114,7 +112,7 @@ func CreateZip(baseFolder, zipFile string) error {
 	// Get a Buffer to Write To
 	outFile, err := os.Create(zipFile)
 	if err != nil {
-		return errors.Wrap(err, "create zipfile")
+		return fmt.Errorf("create zipfile: %w", err)
 	}
 	defer outFile.Close()
 
@@ -197,7 +195,6 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	content, err := os.ReadFile(composerJSONPath)
-
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
@@ -210,9 +207,8 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	minVersion, err := lookupForMinMatchingVersion(ext, ctx)
-
 	if err != nil {
-		return errors.Wrap(err, "lookup for min matching version")
+		return fmt.Errorf("lookup for min matching version: %w", err)
 	}
 
 	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
@@ -225,7 +221,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	// Add replacements
 	composer, err = addComposerReplacements(ctx, composer, minVersion)
 	if err != nil {
-		return errors.Wrap(err, "add composer replacements")
+		return fmt.Errorf("add composer replacements: %w", err)
 	}
 
 	filtered := filterRequires(composer, extCfg)
@@ -243,7 +239,6 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	}
 
 	newContent, err := json.Marshal(&composer)
-
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
@@ -337,7 +332,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 		if _, ok := require.(map[string]interface{})[packageName]; ok {
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("https://swagger.docs.fos.gg/composer/%s/%s.json", minVersion, component), nil)
 			if err != nil {
-				return nil, errors.Wrap(err, "create component request")
+				return nil, fmt.Errorf("create component request: %w", err)
 			}
 
 			resp, err := http.DefaultClient.Do(req)
@@ -347,7 +342,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 
 			composerPartByte, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return nil, errors.Wrap(err, "read component version body")
+				return nil, fmt.Errorf("read component version body: %w", err)
 			}
 
 			_ = resp.Body.Close()
@@ -355,7 +350,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 			var composerPart map[string]string
 			err = json.Unmarshal(composerPartByte, &composerPart)
 			if err != nil {
-				return nil, errors.Wrap(err, "unmarshal component version")
+				return nil, fmt.Errorf("unmarshal component version: %w", err)
 			}
 
 			for k, v := range composerPart {
@@ -376,29 +371,29 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 func lookupForMinMatchingVersion(ext Extension, ctx context.Context) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", nil)
 	if err != nil {
-		return "", errors.Wrap(err, "create composer version request")
+		return "", fmt.Errorf("create composer version request: %w", err)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.Wrap(err, "fetch composer versions")
+		return "", fmt.Errorf("fetch composer versions: %w", err)
 	}
 	defer resp.Body.Close()
 
 	versionString, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Wrap(err, "read version body")
+		return "", fmt.Errorf("read version body: %w", err)
 	}
 
 	var versions []string
 	err = json.Unmarshal(versionString, &versions)
 	if err != nil {
-		return "", errors.Wrap(err, "unmarshal composer versions")
+		return "", fmt.Errorf("unmarshal composer versions: %w", err)
 	}
 
 	versionConstraint, err := ext.GetShopwareVersionConstraint()
 	if err != nil {
-		return "", errors.Wrap(err, "get shopware version constraint")
+		return "", fmt.Errorf("get shopware version constraint: %w", err)
 	}
 
 	return getMinMatchingVersion(versionConstraint, versions)
@@ -452,9 +447,8 @@ func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
 	manifestPath := filepath.Join(extensionRoot, "manifest.xml")
 
 	file, err := os.Open(manifestPath)
-
 	if err != nil {
-		return errors.Wrap(err, "cannot read manifest file")
+		return fmt.Errorf("cannot read manifest file: %w", err)
 	}
 
 	defer file.Close()

@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 
-	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const ApiUrl = "https://api.shopware.com"
@@ -38,7 +37,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 
 	req, err := http.NewRequest(http.MethodPost, ApiUrl+"/accesstokens", bytes.NewBuffer(s)) //nolint:noctx
 	if err != nil {
-		return nil, errors.Wrap(err, "create access token request")
+		return nil, fmt.Errorf("create access token request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -100,7 +99,6 @@ func fetchMemberships(token token) ([]Membership, error) {
 	}
 
 	resp, err := http.DefaultClient.Do(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +211,6 @@ func (c *Client) ChangeActiveMembership(selected Membership) error {
 	s, err := json.Marshal(changeMembershipRequest{SelectedMembership: struct {
 		Id int `json:"id"`
 	}(struct{ Id int }{Id: selected.Id})})
-
 	if err != nil {
 		return fmt.Errorf("ChangeActiveMembership: %v", err)
 	}

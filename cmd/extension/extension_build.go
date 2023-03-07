@@ -1,12 +1,12 @@
 package extension
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -22,15 +22,13 @@ var extensionAssetBundleCmd = &cobra.Command{
 
 		for _, arg := range args {
 			path, err := filepath.Abs(arg)
-
 			if err != nil {
-				return errors.Wrap(err, "cannot open file")
+				return fmt.Errorf("cannot open file: %w", err)
 			}
 
 			ext, err := extension.GetExtensionByFolder(path)
-
 			if err != nil {
-				return errors.Wrap(err, "cannot open extension")
+				return fmt.Errorf("cannot open extension: %w", err)
 			}
 
 			validatedExtensions = append(validatedExtensions, ext)
@@ -39,7 +37,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 		if len(args) == 1 {
 			extCfg, err := extension.ReadExtensionConfig(validatedExtensions[0].GetPath())
 			if err != nil {
-				return errors.Wrap(err, "cannot read extension config")
+				return fmt.Errorf("cannot read extension config: %w", err)
 			}
 
 			assetCfg.EnableESBuildForAdmin = extCfg.Build.Zip.Assets.EnableESBuildForAdmin
@@ -47,9 +45,8 @@ var extensionAssetBundleCmd = &cobra.Command{
 		}
 
 		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot build assets")
+			return fmt.Errorf("cannot build assets: %w", err)
 		}
 
 		log.Infof("Assets has been built")

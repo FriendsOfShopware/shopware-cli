@@ -1,7 +1,8 @@
 package account
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -12,14 +13,13 @@ var accountProducerInfoCmd = &cobra.Command{
 	Long:  ``,
 	RunE: func(_ *cobra.Command, _ []string) error {
 		p, err := services.AccountClient.Producer()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer endpoint")
+			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		profile, err := p.Profile()
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer profile")
+			return fmt.Errorf("cannot get producer profile: %w", err)
 		}
 
 		log.Infof("Name: %s", profile.Name)

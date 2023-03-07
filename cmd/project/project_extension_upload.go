@@ -6,17 +6,17 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/FriendsOfShopware/shopware-cli/version"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	cp "github.com/otiai10/copy"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/FriendsOfShopware/shopware-cli/version"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+	cp "github.com/otiai10/copy"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -34,15 +34,13 @@ var projectExtensionUploadCmd = &cobra.Command{
 		increaseVersionBeforeUpload, _ := cmd.PersistentFlags().GetBool("increase-version")
 
 		path, err := filepath.Abs(args[0])
-
 		if err != nil {
-			return errors.Wrap(err, "cannot find path")
+			return fmt.Errorf("cannot find path: %w", err)
 		}
 
 		stat, err := os.Stat(path)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot find path")
+			return fmt.Errorf("cannot find path: %w", err)
 		}
 
 		var ext extension.Extension
@@ -81,19 +79,19 @@ var projectExtensionUploadCmd = &cobra.Command{
 			// Create temp dir
 			tempDir, err := os.MkdirTemp("", "extension")
 			if err != nil {
-				return errors.Wrap(err, "create temp directory")
+				return fmt.Errorf("create temp directory: %w", err)
 			}
 
 			extName, err := ext.GetName()
 			if err != nil {
-				return errors.Wrap(err, "get extension name")
+				return fmt.Errorf("get extension name: %w", err)
 			}
 
 			extDir := fmt.Sprintf("%s/%s/", tempDir, extName)
 
 			err = os.Mkdir(extDir, os.ModePerm)
 			if err != nil {
-				return errors.Wrap(err, "create temp directory")
+				return fmt.Errorf("create temp directory: %w", err)
 			}
 
 			tempDir += "/"
@@ -104,7 +102,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			err = cp.Copy(path, extDir)
 			if err != nil {
-				return errors.Wrap(err, "copy files")
+				return fmt.Errorf("copy files: %w", err)
 			}
 
 			ext, err = extension.GetExtensionByFolder(extDir)
@@ -115,7 +113,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			// Cleanup not wanted files
 			if err := extension.CleanupExtensionFolder(ext.GetPath(), extCfg.Build.Zip.Pack.Excludes.Paths); err != nil {
-				return errors.Wrap(err, "cleanup package")
+				return fmt.Errorf("cleanup package: %w", err)
 			}
 		}
 
@@ -129,13 +127,11 @@ var projectExtensionUploadCmd = &cobra.Command{
 		}
 
 		name, err := ext.GetName()
-
 		if err != nil {
 			return err
 		}
 
 		version, err := ext.GetVersion()
-
 		if err != nil {
 			return err
 		}
@@ -143,7 +139,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 		var buf bytes.Buffer
 		w := zip.NewWriter(&buf)
 		if err := extension.AddZipFiles(w, ext.GetPath()+"/", name+"/"); err != nil {
-			return errors.Wrap(err, "uploading extension")
+			return fmt.Errorf("uploading extension: %w", err)
 		}
 
 		if err := w.Close(); err != nil {
@@ -151,20 +147,18 @@ var projectExtensionUploadCmd = &cobra.Command{
 		}
 
 		shopInfo, _, err := client.Info.Info(adminCtx)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get shop info")
+			return fmt.Errorf("cannot get shop info: %w", err)
 		}
 
 		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminCtx)
-
 		if err != nil {
 			return err
 		}
 
 		if !shopInfo.IsCloudShop() || extensions.GetByName(name) == nil {
 			if _, err := client.ExtensionManager.UploadExtension(adminCtx, &buf); err != nil {
-				return errors.Wrap(err, "cannot upload extension")
+				return fmt.Errorf("cannot upload extension: %w", err)
 			}
 
 			extensions, _, err = client.ExtensionManager.ListAvailableExtensions(adminCtx)
@@ -174,14 +168,14 @@ var projectExtensionUploadCmd = &cobra.Command{
 			}
 		} else {
 			if _, err := client.ExtensionManager.UploadExtensionUpdateToCloud(adminCtx, name, &buf); err != nil {
-				return errors.Wrap(err, "cannot upload extension update")
+				return fmt.Errorf("cannot upload extension update: %w", err)
 			}
 		}
 
 		log.Infof("Uploaded extension %s with version %s", name, version)
 
 		if _, err := client.ExtensionManager.Refresh(adminCtx); err != nil {
-			return errors.Wrap(err, "cannot refresh extension list")
+			return fmt.Errorf("cannot refresh extension list: %w", err)
 		}
 
 		log.Infof("Refreshed extension list")
@@ -191,7 +185,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if remoteExtension.InstalledAt == nil {
 				if _, err := client.ExtensionManager.InstallExtension(adminCtx, remoteExtension.Type, remoteExtension.Name); err != nil {
-					return errors.Wrap(err, "cannot install extension")
+					return fmt.Errorf("cannot install extension: %w", err)
 				}
 
 				log.Infof("Installed %s", name)
@@ -199,7 +193,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if !remoteExtension.Active {
 				if _, err := client.ExtensionManager.ActivateExtension(adminCtx, remoteExtension.Type, remoteExtension.Name); err != nil {
-					return errors.Wrap(err, "cannot activate extension")
+					return fmt.Errorf("cannot activate extension: %w", err)
 				}
 
 				log.Infof("Activated %s", name)
@@ -207,7 +201,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 			if remoteExtension.IsUpdateAble() {
 				if _, err := client.ExtensionManager.UpdateExtension(adminCtx, remoteExtension.Type, remoteExtension.Name); err != nil {
-					return errors.Wrap(err, "cannot update extension")
+					return fmt.Errorf("cannot update extension: %w", err)
 				}
 
 				log.Infof("Updated %s from %s to %s", name, remoteExtension.Version, remoteExtension.LatestVersion)
@@ -230,9 +224,8 @@ func increaseExtensionVersion(ext extension.Extension) error {
 	if ext.GetType() == "app" {
 		manifestPath := fmt.Sprintf("%s/manifest.xml", ext.GetPath())
 		file, err := os.Open(manifestPath)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot read manifest file")
+			return fmt.Errorf("cannot read manifest file: %w", err)
 		}
 
 		defer file.Close()
@@ -259,7 +252,6 @@ func increaseExtensionVersion(ext extension.Extension) error {
 					}
 
 					ver, err := version.NewVersion(versionStr)
-
 					if err != nil {
 						return err
 					}
@@ -297,7 +289,6 @@ func increaseExtensionVersion(ext extension.Extension) error {
 	composerJsonPath := fmt.Sprintf("%s/composer.json", ext.GetPath())
 
 	composerJsonContent, err := os.ReadFile(composerJsonPath)
-
 	if err != nil {
 		return err
 	}
@@ -315,7 +306,6 @@ func increaseExtensionVersion(ext extension.Extension) error {
 	}
 
 	ver, err := version.NewVersion(versionStr)
-
 	if err != nil {
 		return err
 	}
