@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
-
 	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
+
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 )
 
 var accountCompanyUseCmd = &cobra.Command{

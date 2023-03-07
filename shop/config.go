@@ -2,13 +2,13 @@ package shop
 
 import (
 	"fmt"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	"gopkg.in/yaml.v3"
 	"os"
 	"strings"
 
 	"github.com/doutorfinancas/go-mad/core"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {

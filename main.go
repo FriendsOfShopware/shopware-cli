@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/FriendsOfShopware/shopware-cli/cmd"
 )
 

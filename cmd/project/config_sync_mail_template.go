@@ -3,12 +3,13 @@ package project
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os"
 	"path/filepath"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 type MailTemplateSync struct{}

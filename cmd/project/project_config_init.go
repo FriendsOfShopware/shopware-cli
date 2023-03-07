@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectConfigInitCmd = &cobra.Command{

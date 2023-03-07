@@ -11,14 +11,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+	cp "github.com/otiai10/copy"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/FriendsOfShopware/shopware-cli/version"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	cp "github.com/otiai10/copy"
-
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 )
 
 var projectExtensionUploadCmd = &cobra.Command{

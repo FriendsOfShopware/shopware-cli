@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 )
 
 var loginCmd = &cobra.Command{

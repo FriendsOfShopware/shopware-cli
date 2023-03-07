@@ -8,12 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-
 	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 )
 
 var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{

@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/FriendsOfShopware/shopware-cli/config"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/config"
 )
 
 var extensionCreateCmd = &cobra.Command{

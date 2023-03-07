@@ -1,9 +1,11 @@
 package extension
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/version"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 func TestDetermineMinVersion(t *testing.T) {

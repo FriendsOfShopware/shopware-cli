@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 type EntitySync struct{}

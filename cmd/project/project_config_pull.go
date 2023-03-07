@@ -1,13 +1,14 @@
 package project
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"os"
 
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectConfigPullCmd = &cobra.Command{

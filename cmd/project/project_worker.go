@@ -2,14 +2,15 @@ package project
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strconv"
 	"sync"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 var projectWorkerCmd = &cobra.Command{

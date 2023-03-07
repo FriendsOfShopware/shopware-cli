@@ -2,12 +2,13 @@ package project
 
 import (
 	"encoding/json"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectConfigPushCmd = &cobra.Command{
