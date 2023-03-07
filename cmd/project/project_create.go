@@ -2,16 +2,18 @@ package project
 
 import (
 	"fmt"
-	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/manifoldco/promptui"
 	"github.com/mholt/archiver/v3"
 	"github.com/schollz/progressbar/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
+
+	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 )
 
 var projectCreateCmd = &cobra.Command{

@@ -5,12 +5,11 @@ import (
 	"path/filepath"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+
 	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
-
-	log "github.com/sirupsen/logrus"
-
-	"github.com/spf13/cobra"
 )
 
 var accountCompanyProducerExtensionUploadCmd = &cobra.Command{

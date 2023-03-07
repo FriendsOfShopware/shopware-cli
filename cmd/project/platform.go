@@ -3,12 +3,14 @@ package project
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 )
 
 func findClosestShopwareProject() (string, error) {

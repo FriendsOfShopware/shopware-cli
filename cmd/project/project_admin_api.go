@@ -6,9 +6,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/FriendsOfShopware/shopware-cli/curl"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/spf13/cobra"
 )
 
 var skipDefaultHeaders bool

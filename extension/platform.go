@@ -17,8 +17,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FriendsOfShopware/shopware-cli/version"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 type PlatformPlugin struct {

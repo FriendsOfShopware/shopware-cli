@@ -2,10 +2,11 @@ package project
 
 import (
 	"encoding/json"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 type SystemConfigSync struct{}

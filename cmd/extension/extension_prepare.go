@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 )
 
 var extensionPrepareCmd = &cobra.Command{

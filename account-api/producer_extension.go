@@ -9,8 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/version"
 	"github.com/microcosm-cc/bluemonday"
+
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 type SoftwareVersionList []SoftwareVersion

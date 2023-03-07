@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/version"
-	log "github.com/sirupsen/logrus"
 )
 
 const (

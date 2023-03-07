@@ -2,12 +2,13 @@ package project
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"os"
 
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectClearCacheCmd = &cobra.Command{

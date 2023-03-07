@@ -2,14 +2,15 @@ package cmd
 
 import (
 	"context"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/account"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/extension"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/project"
 	"github.com/FriendsOfShopware/shopware-cli/config"
-
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 )
 
 var cfgFile string

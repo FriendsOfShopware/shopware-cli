@@ -40,6 +40,7 @@ linters:
     - nilnil
     - tenv
     - depguard
+    - gci
   # Fails with go 1.18 until https://github.com/golangci/golangci-lint/issues/2649 is resolved
   #    - nolintlint
 
@@ -72,6 +73,11 @@ linters-settings:
     list-type: denylist
     packages:
       - github.com/pkg/errors
+  gci:
+    sections:
+      - Standard
+      - Default
+      - "Prefix(github.com/FriendsOfShopware/shopware-cli)"
 
 issues:
   exclude-rules:

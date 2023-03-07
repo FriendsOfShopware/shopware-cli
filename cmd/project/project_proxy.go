@@ -2,12 +2,14 @@ package project
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectProxyCmd = &cobra.Command{
