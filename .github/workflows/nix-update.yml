@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Nix
         uses: cachix/install-nix-action@v20
@@ -25,6 +27,11 @@ jobs:
         run: nix run github:Mic92/nix-update -- shopware-cli --url https://github.com/FriendsOfShopware/shopware-cli --flake
 
       - name: Commit file
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: "chore: Update vendor sha"
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          if [[ `git status --porcelain` ]]; then
+            git commit -m "chore: Update vendor sha"
+            git push
+          fi

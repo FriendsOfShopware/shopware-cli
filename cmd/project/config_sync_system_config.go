@@ -31,8 +31,9 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 			foundId := false
 
 			for _, scRow := range salesChannelResponse.Data {
+				scRow := scRow
 				if *config.SalesChannel == scRow.Name {
-					config.SalesChannel = &scRow.Id //nolint:exportloopref
+					config.SalesChannel = &scRow.Id
 
 					foundId = true
 				}
