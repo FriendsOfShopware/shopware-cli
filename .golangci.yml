@@ -39,6 +39,7 @@ linters:
     - errname
     - nilnil
     - tenv
+    - depguard
   # Fails with go 1.18 until https://github.com/golangci/golangci-lint/issues/2649 is resolved
   #    - nolintlint
 
@@ -67,6 +68,10 @@ linters:
 linters-settings:
   golint:
     min-confidence: 0
+  depguard:
+    list-type: denylist
+    packages:
+      - github.com/pkg/errors
 
 issues:
   exclude-rules:

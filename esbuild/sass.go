@@ -15,8 +15,6 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/pkg/errors"
 )
 
 const dartSassVersion = "1.57.1"
@@ -33,7 +31,6 @@ func downloadDartSass() (string, error) {
 	}
 
 	cacheDir, err := os.UserCacheDir()
-
 	if err != nil {
 		cacheDir = "/tmp"
 	}
@@ -74,14 +71,14 @@ func downloadDartSass() (string, error) {
 
 	tarFile, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return "", errors.Wrap(err, "cannot download dart-sass")
+		return "", fmt.Errorf("cannot download dart-sass: %w", err)
 	}
 
 	defer tarFile.Body.Close()
 
 	uncompressedStream, err := gzip.NewReader(tarFile.Body)
 	if err != nil {
-		return "", errors.Wrap(err, "cannot open gzip tar file")
+		return "", fmt.Errorf("cannot open gzip tar file: %w", err)
 	}
 
 	tarReader := tar.NewReader(uncompressedStream)
@@ -107,17 +104,17 @@ func downloadDartSass() (string, error) {
 
 		outFile, err := os.Create(file)
 		if err != nil {
-			return "", errors.Wrap(err, "cannot create dart-sass in temp")
+			return "", fmt.Errorf("cannot create dart-sass in temp: %w", err)
 		}
 		if _, err := io.CopyN(outFile, tarReader, header.Size); err != nil {
-			return "", errors.Wrap(err, "cannot copy dart-sass in temp")
+			return "", fmt.Errorf("cannot copy dart-sass in temp: %w", err)
 		}
 		if err := outFile.Close(); err != nil {
-			return "", errors.Wrap(err, "cannot close dart-sass in temp")
+			return "", fmt.Errorf("cannot close dart-sass in temp: %w", err)
 		}
 
 		if err := os.Chmod(file, os.FileMode(header.Mode)); err != nil {
-			return "", errors.Wrap(err, "cannot chmod dart-sass in temp")
+			return "", fmt.Errorf("cannot chmod dart-sass in temp: %w", err)
 		}
 	}
 

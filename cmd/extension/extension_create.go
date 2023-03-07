@@ -2,6 +2,7 @@ package extension
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/FriendsOfShopware/shopware-cli/config"
 	"github.com/manifoldco/promptui"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,6 @@ var extensionCreateCmd = &cobra.Command{
 	Short: "Create an extension boilerplate",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		rootPath, err := filepath.Abs(".")
 		if err != nil {
 			return err
@@ -143,7 +142,7 @@ func validComposerPackage(s string) error {
 	validComposerPackageRegExp := regexp.MustCompile("^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]?|-{0,2})[a-z0-9]+)*$")
 
 	if !validComposerPackageRegExp.MatchString(s) {
-		return errors.New(fmt.Sprintf("'%s' is not a valid composer package", s))
+		return fmt.Errorf("'%s' is not a valid composer package", s)
 	}
 	return nil
 }

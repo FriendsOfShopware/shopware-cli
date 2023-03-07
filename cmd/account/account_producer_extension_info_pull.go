@@ -2,16 +2,15 @@ package account
 
 import (
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 
-	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -23,33 +22,28 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
-
 		if err != nil {
-			return errors.Wrap(err, "cannot open file")
+			return fmt.Errorf("cannot open file: %w", err)
 		}
 
 		zipExt, err := extension.GetExtensionByFolder(path)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot open extension")
+			return fmt.Errorf("cannot open extension: %w", err)
 		}
 
 		zipName, err := zipExt.GetName()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get extension name")
+			return fmt.Errorf("cannot get extension name: %w", err)
 		}
 
 		p, err := services.AccountClient.Producer()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer endpoint")
+			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		storeExt, err := p.GetExtensionByName(zipName)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get store extension")
+			return fmt.Errorf("cannot get store extension: %w", err)
 		}
 
 		resourcesFolder := fmt.Sprintf("%s/src/Resources/store/", zipExt.GetPath())
@@ -72,7 +66,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			err = os.MkdirAll(resourcesFolder, os.ModePerm)
 
 			if err != nil {
-				return errors.Wrap(err, "cannot create file")
+				return fmt.Errorf("cannot create file: %w", err)
 			}
 		}
 
@@ -83,7 +77,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			iconConfigPath = &icon
 			err := downloadFileTo(storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
 			if err != nil {
-				return errors.Wrap(err, "cannot download file")
+				return fmt.Errorf("cannot download file: %w", err)
 			}
 		}
 
@@ -100,16 +94,15 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		}
 
 		storeImages, err := p.GetExtensionImages(storeExt.Id)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get extension images")
+			return fmt.Errorf("cannot get extension images: %w", err)
 		}
 
 		for i, image := range storeImages {
 			imagePath := fmt.Sprintf("src/Resources/store/img-%d.png", i)
 			err := downloadFileTo(image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
 			if err != nil {
-				return errors.Wrap(err, "cannot download file")
+				return fmt.Errorf("cannot download file: %w", err)
 			}
 
 			images = append(images, extension.ConfigStoreImage{
@@ -175,16 +168,15 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		}}
 
 		content, err := yaml.Marshal(newCfg)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot encode yaml")
+			return fmt.Errorf("cannot encode yaml: %w", err)
 		}
 
 		extCfgFile := fmt.Sprintf("%s/%s", zipExt.GetPath(), ".shopware-extension.yml")
 		err = os.WriteFile(extCfgFile, content, os.ModePerm)
 
 		if err != nil {
-			return errors.Wrap(err, "cannot save file")
+			return fmt.Errorf("cannot save file: %w", err)
 		}
 
 		log.Infof("Files has been written to the given extension folder")
@@ -200,23 +192,23 @@ func init() {
 func downloadFileTo(url string, target string) error {
 	req, err := http.NewRequest(http.MethodGet, url, nil) //nolint:noctx
 	if err != nil {
-		return errors.Wrap(err, "create request")
+		return fmt.Errorf("create request: %w", err)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return errors.Wrap(err, "download file")
+		return fmt.Errorf("download file: %w", err)
 	}
 	defer resp.Body.Close()
 
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, "read file body")
+		return fmt.Errorf("read file body: %w", err)
 	}
 
 	err = os.WriteFile(target, content, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "write to file")
+		return fmt.Errorf("write to file: %w", err)
 	}
 
 	return nil

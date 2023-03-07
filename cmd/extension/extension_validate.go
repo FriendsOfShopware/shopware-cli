@@ -8,8 +8,6 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/pkg/errors"
-
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -20,15 +18,13 @@ var extensionValidateCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
-
 		if err != nil {
-			return errors.Wrap(err, "cannot find path")
+			return fmt.Errorf("cannot find path: %w", err)
 		}
 
 		stat, err := os.Stat(path)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot find path")
+			return fmt.Errorf("cannot find path: %w", err)
 		}
 
 		var ext extension.Extension
@@ -40,7 +36,7 @@ var extensionValidateCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			return errors.Wrap(err, "cannot open extension")
+			return fmt.Errorf("cannot open extension: %w", err)
 		}
 
 		context := extension.RunValidation(ext)

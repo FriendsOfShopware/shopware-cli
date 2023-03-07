@@ -3,10 +3,10 @@ package account
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var accountCompanyMerchantShopComposerCmd = &cobra.Command{
@@ -17,7 +17,6 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 		completions := make([]string, 0)
 
 		shops, err := services.AccountClient.Merchant().Shops()
-
 		if err != nil {
 			return completions, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -30,9 +29,8 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 	},
 	RunE: func(_ *cobra.Command, args []string) error {
 		shops, err := services.AccountClient.Merchant().Shops()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get shops")
+			return fmt.Errorf("cannot get shops: %w", err)
 		}
 
 		shop := shops.GetByDomain(args[0])
@@ -42,14 +40,12 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 		}
 
 		token, err := services.AccountClient.Merchant().GetComposerToken(shop.Id)
-
 		if err != nil {
 			return err
 		}
 
 		if token == "" {
 			generatedToken, err := services.AccountClient.Merchant().GenerateComposerToken(shop.Id)
-
 			if err != nil {
 				return err
 			}

@@ -15,7 +15,6 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.22
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.9.0
-	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.13.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
@@ -28,6 +27,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
@@ -59,7 +59,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/oauth2 v0.5.0
+	golang.org/x/oauth2 v0.5.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

@@ -2,10 +2,10 @@ package account
 
 import (
 	"fmt"
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"strings"
 
-	"github.com/pkg/errors"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -24,14 +24,13 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 	},
 	RunE: func(_ *cobra.Command, args []string) error {
 		p, err := services.AccountClient.Producer()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer endpoint")
+			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		profile, err := p.Profile()
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer profile")
+			return fmt.Errorf("cannot get producer profile: %w", err)
 		}
 
 		if args[1] != accountApi.GenerationApps && args[1] != accountApi.GenerationPlatform && args[1] != accountApi.GenerationThemes && args[1] != accountApi.GenerationClassic {
@@ -49,9 +48,8 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 			}{Name: args[1]},
 			ProducerID: p.GetId(),
 		})
-
 		if err != nil {
-			return errors.Wrap(err, "cannot create extension")
+			return fmt.Errorf("cannot create extension: %w", err)
 		}
 
 		log.Infof("Extension with name %s has been successfully created", extension.Name)

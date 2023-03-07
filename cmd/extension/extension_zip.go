@@ -8,15 +8,15 @@ import (
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 
-	"github.com/pkg/errors"
-
 	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var disableGit = false
-var extensionReleaseMode = false
+var (
+	disableGit           = false
+	extensionReleaseMode = false
+)
 
 var extensionZipCmd = &cobra.Command{
 	Use:   "zip [path] [branch]",
@@ -35,7 +35,7 @@ var extensionZipCmd = &cobra.Command{
 
 		ext, err := extension.GetExtensionByFolder(path)
 		if err != nil {
-			return errors.Wrap(err, "detect extension type")
+			return fmt.Errorf("detect extension type: %w", err)
 		}
 
 		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
@@ -45,7 +45,7 @@ var extensionZipCmd = &cobra.Command{
 
 		name, err := ext.GetName()
 		if err != nil {
-			return errors.Wrap(err, "get name")
+			return fmt.Errorf("get name: %w", err)
 		}
 
 		// Clear previous zips
@@ -57,26 +57,26 @@ var extensionZipCmd = &cobra.Command{
 		for _, file := range existingFiles {
 			err = os.Remove(file)
 			if err != nil {
-				return errors.Wrap(err, "remove existing file")
+				return fmt.Errorf("remove existing file: %w", err)
 			}
 		}
 
 		// Create temp dir
 		tempDir, err := os.MkdirTemp("", "extension")
 		if err != nil {
-			return errors.Wrap(err, "create temp directory")
+			return fmt.Errorf("create temp directory: %w", err)
 		}
 
 		extName, err := ext.GetName()
 		if err != nil {
-			return errors.Wrap(err, "get extension name")
+			return fmt.Errorf("get extension name: %w", err)
 		}
 
 		extDir := fmt.Sprintf("%s/%s/", tempDir, extName)
 
 		err = os.Mkdir(extDir, os.ModePerm)
 		if err != nil {
-			return errors.Wrap(err, "create temp directory")
+			return fmt.Errorf("create temp directory: %w", err)
 		}
 
 		tempDir += "/"
@@ -91,12 +91,12 @@ var extensionZipCmd = &cobra.Command{
 		if disableGit {
 			err = cp.Copy(path, extDir, copyOptions())
 			if err != nil {
-				return errors.Wrap(err, "copy files")
+				return fmt.Errorf("copy files: %w", err)
 			}
 		} else {
 			tag, err = extension.GitCopyFolder(path, extDir)
 			if err != nil {
-				return errors.Wrap(err, "copy via git")
+				return fmt.Errorf("copy via git: %w", err)
 			}
 		}
 
@@ -107,21 +107,21 @@ var extensionZipCmd = &cobra.Command{
 
 		if extCfg.Build.Zip.Composer.Enabled {
 			if err := executeHooks(ext, extCfg.Build.Zip.Composer.BeforeHooks, extDir); err != nil {
-				return errors.Wrap(err, "before hooks composer")
+				return fmt.Errorf("before hooks composer: %w", err)
 			}
 
 			if err := extension.PrepareFolderForZipping(cmd.Context(), extDir, ext, extCfg); err != nil {
-				return errors.Wrap(err, "prepare package")
+				return fmt.Errorf("prepare package: %w", err)
 			}
 
 			if err := executeHooks(ext, extCfg.Build.Zip.Composer.AfterHooks, extDir); err != nil {
-				return errors.Wrap(err, "after hooks composer")
+				return fmt.Errorf("after hooks composer: %w", err)
 			}
 		}
 
 		if extCfg.Build.Zip.Assets.Enabled {
 			if err := executeHooks(ext, extCfg.Build.Zip.Assets.BeforeHooks, extDir); err != nil {
-				return errors.Wrap(err, "before hooks assets")
+				return fmt.Errorf("before hooks assets: %w", err)
 			}
 
 			var tempExt extension.Extension
@@ -135,22 +135,22 @@ var extensionZipCmd = &cobra.Command{
 			}
 
 			if err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}, assetBuildConfig); err != nil {
-				return errors.Wrap(err, "building assets")
+				return fmt.Errorf("building assets: %w", err)
 			}
 
 			if err := executeHooks(ext, extCfg.Build.Zip.Assets.AfterHooks, extDir); err != nil {
-				return errors.Wrap(err, "after hooks assets")
+				return fmt.Errorf("after hooks assets: %w", err)
 			}
 		}
 
 		// Cleanup not wanted files
 		if err := extension.CleanupExtensionFolder(extDir, extCfg.Build.Zip.Pack.Excludes.Paths); err != nil {
-			return errors.Wrap(err, "cleanup package")
+			return fmt.Errorf("cleanup package: %w", err)
 		}
 
 		if extensionReleaseMode {
 			if err := extension.PrepareExtensionForRelease(extDir, ext); err != nil {
-				return errors.Wrap(err, "prepare for release")
+				return fmt.Errorf("prepare for release: %w", err)
 			}
 		}
 
@@ -160,11 +160,11 @@ var extensionZipCmd = &cobra.Command{
 		}
 
 		if err := executeHooks(ext, extCfg.Build.Zip.Pack.BeforeHooks, extDir); err != nil {
-			return errors.Wrap(err, "before hooks pack")
+			return fmt.Errorf("before hooks pack: %w", err)
 		}
 
 		if err := extension.CreateZip(tempDir, fileName); err != nil {
-			return errors.Wrap(err, "create zip file")
+			return fmt.Errorf("create zip file: %w", err)
 		}
 
 		log.Infof("Created file %s", fileName)
@@ -192,7 +192,6 @@ func executeHooks(ext extension.Extension, hooks []string, extDir string) error 
 		hookCmd.Dir = extDir
 		hookCmd.Env = append(os.Environ(), env...)
 		err := hookCmd.Run()
-
 		if err != nil {
 			return err
 		}

@@ -1,11 +1,11 @@
 package account
 
 import (
-	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"fmt"
 	"os"
 	"strconv"
 
-	"github.com/pkg/errors"
+	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -16,9 +16,8 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Short: "Lists all your extensions",
 	RunE: func(_ *cobra.Command, _ []string) error {
 		p, err := services.AccountClient.Producer()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer endpoint")
+			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		criteria := account_api.ListExtensionCriteria{
@@ -32,7 +31,6 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 		}
 
 		extensions, err := p.Extensions(&criteria)
-
 		if err != nil {
 			return err
 		}

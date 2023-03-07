@@ -2,10 +2,10 @@ package account
 
 import (
 	"fmt"
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"strconv"
 
-	"github.com/pkg/errors"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -34,7 +34,7 @@ var accountCompanyUseCmd = &cobra.Command{
 
 				err = accountApi.InvalidateTokenCache()
 				if err != nil {
-					return errors.Wrap(err, "cannot invalidate token cache")
+					return fmt.Errorf("cannot invalidate token cache: %w", err)
 				}
 
 				log.Infof("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)

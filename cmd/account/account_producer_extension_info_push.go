@@ -10,7 +10,6 @@ import (
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -26,15 +25,13 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(_ *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
-
 		if err != nil {
-			return errors.Wrap(err, "cannot open file")
+			return fmt.Errorf("cannot open file: %w", err)
 		}
 
 		stat, err := os.Stat(path)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot open file")
+			return fmt.Errorf("cannot open file: %w", err)
 		}
 
 		var zipExt extension.Extension
@@ -46,25 +43,22 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			return errors.Wrap(err, "cannot open extension")
+			return fmt.Errorf("cannot open extension: %w", err)
 		}
 
 		zipName, err := zipExt.GetName()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get name")
+			return fmt.Errorf("cannot get name: %w", err)
 		}
 
 		p, err := services.AccountClient.Producer()
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get producer endpoint")
+			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		storeExt, err := p.GetExtensionByName(zipName)
-
 		if err != nil {
-			return errors.Wrap(err, "cannot get store extension")
+			return fmt.Errorf("cannot get store extension: %w", err)
 		}
 
 		metadata := zipExt.GetMetaData()
@@ -83,41 +77,39 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 
 		info, err := p.GetExtensionGeneralInfo()
 		if err != nil {
-			return errors.Wrap(err, "cannot get general info")
+			return fmt.Errorf("cannot get general info: %w", err)
 		}
 
 		extCfg, err := extension.ReadExtensionConfig(zipExt.GetPath())
 		if err != nil {
-			return errors.Wrap(err, "cannot read extension config")
+			return fmt.Errorf("cannot read extension config: %w", err)
 		}
 
 		if extCfg != nil {
 			if extCfg.Store.Icon != nil {
 				err := p.UpdateExtensionIcon(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), *extCfg.Store.Icon))
 				if err != nil {
-					return errors.Wrap(err, "cannot update extension icon due error")
+					return fmt.Errorf("cannot update extension icon due error: %w", err)
 				}
 			}
 
 			if extCfg.Store.Images != nil {
 				images, err := p.GetExtensionImages(storeExt.Id)
 				if err != nil {
-					return errors.Wrap(err, "cannot get images from remote server")
+					return fmt.Errorf("cannot get images from remote server: %w", err)
 				}
 
 				for _, image := range images {
 					err := p.DeleteExtensionImages(storeExt.Id, image.Id)
-
 					if err != nil {
-						return errors.Wrap(err, "cannot extension image")
+						return fmt.Errorf("cannot extension image: %w", err)
 					}
 				}
 
 				for _, configImage := range *extCfg.Store.Images {
 					apiImage, err := p.AddExtensionImage(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
-
 					if err != nil {
-						return errors.Wrap(err, "cannot upload image to extension")
+						return fmt.Errorf("cannot upload image to extension: %w", err)
 					}
 
 					apiImage.Priority = configImage.Priority
@@ -130,7 +122,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 					err = p.UpdateExtensionImage(storeExt.Id, apiImage)
 
 					if err != nil {
-						return errors.Wrap(err, "cannot update image information of extension")
+						return fmt.Errorf("cannot update image information of extension: %w", err)
 					}
 				}
 			}
@@ -290,7 +282,6 @@ func parseInlineablePath(path, extensionDir string) string {
 	filePath := fmt.Sprintf("%s/%s", extensionDir, strings.TrimPrefix(path, "file:"))
 
 	content, err := os.ReadFile(filePath)
-
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("Error reading file at path %s with error: %v", filePath, err))
 	}

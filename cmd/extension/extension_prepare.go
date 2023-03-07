@@ -1,11 +1,11 @@
 package extension
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 	"path/filepath"
 
-	"github.com/pkg/errors"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -17,12 +17,12 @@ var extensionPrepareCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
-			return errors.Wrap(err, "path not found")
+			return fmt.Errorf("path not found: %w", err)
 		}
 
 		ext, err := extension.GetExtensionByFolder(path)
 		if err != nil {
-			return errors.Wrap(err, "detect extension type")
+			return fmt.Errorf("detect extension type: %w", err)
 		}
 
 		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
@@ -32,7 +32,7 @@ var extensionPrepareCmd = &cobra.Command{
 
 		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext, extCfg)
 		if err != nil {
-			return errors.Wrap(err, "prepare zip")
+			return fmt.Errorf("prepare zip: %w", err)
 		}
 
 		return nil
