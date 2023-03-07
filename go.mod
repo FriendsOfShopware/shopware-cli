@@ -6,7 +6,7 @@ require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v7 v7.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
-	github.com/evanw/esbuild v0.17.10
+	github.com/evanw/esbuild v0.17.11
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230221212710-973d4e710748
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
@@ -18,7 +18,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.13.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.2
 	github.com/vulcand/oxy v1.4.2
 	github.com/yuin/goldmark v1.5.4
 	go.uber.org/zap v1.24.0
