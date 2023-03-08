@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -40,12 +40,12 @@ var projectExtensionActivateCmd = &cobra.Command{
 
 			if extension == nil {
 				failed = true
-				log.Errorf("Cannot find extension by name %s", arg)
+				logging.FromContext(cmd.Context()).Errorf("Cannot find extension by name %s", arg)
 				continue
 			}
 
 			if extension.Active {
-				log.Infof("Extension %s is already active", arg)
+				logging.FromContext(cmd.Context()).Infof("Extension %s is already active", arg)
 				continue
 			}
 
@@ -53,17 +53,17 @@ var projectExtensionActivateCmd = &cobra.Command{
 				if _, err := client.ExtensionManager.InstallExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 					failed = true
 
-					log.Errorf("Installation of %s failed with error: %v", extension.Name, err)
+					logging.FromContext(cmd.Context()).Errorf("Installation of %s failed with error: %v", extension.Name, err)
 				}
 			}
 
 			if _, err := client.ExtensionManager.ActivateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
-				log.Errorf("Activate of %s failed with error: %v", extension.Name, err)
+				logging.FromContext(cmd.Context()).Errorf("Activate of %s failed with error: %v", extension.Name, err)
 			}
 
-			log.Infof("Activated %s", extension.Name)
+			logging.FromContext(cmd.Context()).Infof("Activated %s", extension.Name)
 		}
 
 		if failed {

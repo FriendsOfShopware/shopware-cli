@@ -9,8 +9,9 @@ import (
 	"sync"
 	"syscall"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var projectWorkerCmd = &cobra.Command{
@@ -34,12 +35,12 @@ var projectWorkerCmd = &cobra.Command{
 		}
 
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
-		cancelOnTermination(cancel)
+		cancelOnTermination(cancelCtx, cancel)
 
 		var wg sync.WaitGroup
 		for a := 0; a < workerAmount; a++ {
 			wg.Add(1)
-			go func() {
+			go func(ctx context.Context) {
 				for {
 					cmd := exec.CommandContext(cancelCtx, "php", "bin/console", "messenger:consume", "-vvv")
 					cmd.Dir = projectRoot
@@ -47,10 +48,10 @@ var projectWorkerCmd = &cobra.Command{
 					cmd.Stderr = os.Stderr
 
 					if err := cmd.Run(); err != nil {
-						log.Fatal(err)
+						logging.FromContext(ctx).Fatal(err)
 					}
 				}
-			}()
+			}(cancelCtx)
 		}
 
 		wg.Wait()
@@ -63,12 +64,12 @@ func init() {
 	projectRootCmd.AddCommand(projectWorkerCmd)
 }
 
-func cancelOnTermination(cancel context.CancelFunc) {
-	log.Println("setting up a signal handler")
+func cancelOnTermination(ctx context.Context, cancel context.CancelFunc) {
+	logging.FromContext(ctx).Infof("setting up a signal handler")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGTERM)
 	go func() {
-		log.Printf("received SIGTERM %v\n", <-s)
+		logging.FromContext(ctx).Infof("received SIGTERM %v\n", <-s)
 		cancel()
 	}()
 }

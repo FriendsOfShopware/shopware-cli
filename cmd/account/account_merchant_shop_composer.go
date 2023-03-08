@@ -5,18 +5,20 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 	Use:   "configure-composer [domain]",
 	Short: "Configure local composer.json to use packages.shopware.com",
 	Args:  cobra.MinimumNArgs(1),
-	ValidArgsFunction: func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		completions := make([]string, 0)
 
-		shops, err := services.AccountClient.Merchant().Shops()
+		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
+
 		if err != nil {
 			return completions, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -27,8 +29,9 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 
 		return completions, cobra.ShellCompDirectiveNoFileComp
 	},
-	RunE: func(_ *cobra.Command, args []string) error {
-		shops, err := services.AccountClient.Merchant().Shops()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get shops: %w", err)
 		}
@@ -39,28 +42,30 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 			return fmt.Errorf("cannot find shop by domain %s", args[0])
 		}
 
-		token, err := services.AccountClient.Merchant().GetComposerToken(shop.Id)
+		token, err := services.AccountClient.Merchant().GetComposerToken(cmd.Context(), shop.Id)
+
 		if err != nil {
 			return err
 		}
 
 		if token == "" {
-			generatedToken, err := services.AccountClient.Merchant().GenerateComposerToken(shop.Id)
+			generatedToken, err := services.AccountClient.Merchant().GenerateComposerToken(cmd.Context(), shop.Id)
+
 			if err != nil {
 				return err
 			}
 
-			if err := services.AccountClient.Merchant().SaveComposerToken(shop.Id, generatedToken); err != nil {
+			if err := services.AccountClient.Merchant().SaveComposerToken(cmd.Context(), shop.Id, generatedToken); err != nil {
 				return err
 			}
 
 			token = generatedToken
 		}
 
-		log.Infof("The composer token is %s", token)
+		logging.FromContext(cmd.Context()).Infof("The composer token is %s", token)
 
 		if _, err := os.Stat("composer.json"); err == nil {
-			log.Info("Found composer.json, adding it now as repository")
+			logging.FromContext(cmd.Context()).Info("Found composer.json, adding it now as repository")
 
 			var content []byte
 

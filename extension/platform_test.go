@@ -53,7 +53,7 @@ func TestPluginIconNotExists(t *testing.T) {
 
 	plugin := getTestPlugin(dir)
 
-	ctx := newValidationContext(&plugin)
+	ctx := newValidationContext(&plugin, getTestContext())
 
 	plugin.Validate(ctx)
 
@@ -69,7 +69,7 @@ func TestPluginIconExists(t *testing.T) {
 	assert.NoError(t, os.MkdirAll(dir+"/src/Resources/config/", os.ModePerm))
 	assert.NoError(t, os.WriteFile(dir+"/src/Resources/config/plugin.png", []byte("test"), os.ModePerm))
 
-	ctx := newValidationContext(&plugin)
+	ctx := newValidationContext(&plugin, getTestContext())
 
 	plugin.Validate(ctx)
 
@@ -84,7 +84,7 @@ func TestPluginIconDifferntPathExists(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(dir+"/plugin.png", []byte("test"), os.ModePerm))
 
-	ctx := newValidationContext(&plugin)
+	ctx := newValidationContext(&plugin, getTestContext())
 
 	plugin.Validate(ctx)
 

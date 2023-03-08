@@ -14,8 +14,9 @@ import (
 var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all your extensions",
-	RunE: func(_ *cobra.Command, _ []string) error {
-		p, err := services.AccountClient.Producer()
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		p, err := services.AccountClient.Producer(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
@@ -30,7 +31,8 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 			criteria.OrderSequence = "asc"
 		}
 
-		extensions, err := p.Extensions(&criteria)
+		extensions, err := p.Extensions(cmd.Context(), &criteria)
+
 		if err != nil {
 			return err
 		}

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var accountCompanyUseCmd = &cobra.Command{
@@ -15,7 +15,7 @@ var accountCompanyUseCmd = &cobra.Command{
 	Short: "Use another company for your Account",
 	Args:  cobra.MinimumNArgs(1),
 	Long:  ``,
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		companyID, err := strconv.Atoi(args[0])
 		if err != nil {
 			return err
@@ -36,7 +36,7 @@ var accountCompanyUseCmd = &cobra.Command{
 					return fmt.Errorf("cannot invalidate token cache: %w", err)
 				}
 
-				log.Infof("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
+				logging.FromContext(cmd.Context()).Infof("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
 				return nil
 			}
 		}

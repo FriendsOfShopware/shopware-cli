@@ -16,8 +16,7 @@ import (
 	"sort"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
@@ -214,7 +213,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
 
 	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
-		log.Info("Shopware 6.5 detected, disabling composer replacements")
+		logging.FromContext(ctx).Info("Shopware 6.5 detected, disabling composer replacements")
 		return nil
 	}
 
@@ -465,8 +464,7 @@ func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
 			break
 		}
 		if err != nil {
-			log.Printf("error getting token: %v\n", err)
-			break
+			return err
 		}
 
 		if v, ok := token.(xml.StartElement); ok {

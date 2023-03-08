@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,9 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/FriendsOfShopware/shopware-cli/esbuild"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
@@ -30,15 +30,15 @@ type AssetBuildConfig struct {
 	EnableESBuildForStorefront bool
 }
 
-func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error {
-	cfgs := buildAssetConfigFromExtensions(extensions, shopwareRoot)
+func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig, ctx context.Context) error {
+	cfgs := buildAssetConfigFromExtensions(extensions, shopwareRoot, ctx)
 
 	if len(cfgs) == 1 {
 		return nil
 	}
 
 	if !cfgs.RequiresAdminBuild() && !cfgs.RequiresStorefrontBuild() {
-		log.Infof("Building assets has been skipped as not required")
+		logging.FromContext(ctx).Infof("Building assets has been skipped as not required")
 		return nil
 	}
 
@@ -55,7 +55,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 		defer func(path string) {
 			err := os.RemoveAll(path)
 			if err != nil {
-				log.Println(err)
+				logging.FromContext(ctx).Infoln(err)
 			}
 		}(shopwareRoot)
 	}
@@ -99,7 +99,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 
 				options := esbuild.NewAssetCompileOptionsAdmin(name, extension.GetPath(), extension.GetType())
 
-				if _, err := esbuild.CompileExtensionAsset(options); err != nil {
+				if _, err := esbuild.CompileExtensionAsset(options, ctx); err != nil {
 					return err
 				}
 			}
@@ -125,7 +125,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				}
 
 				options := esbuild.NewAssetCompileOptionsStorefront(name, extension.GetPath(), extension.GetType())
-				if _, err := esbuild.CompileExtensionAsset(options); err != nil {
+				if _, err := esbuild.CompileExtensionAsset(options, ctx); err != nil {
 					return err
 				}
 			}
@@ -212,20 +212,20 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string, ctx context.Context) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, extension := range extensions {
 		extName, err := extension.GetName()
 		if err != nil {
-			log.Errorf("Skipping extension %s as it has a invalid name", extension.GetPath())
+			logging.FromContext(ctx).Errorf("Skipping extension %s as it has a invalid name", extension.GetPath())
 			continue
 		}
 
 		extPath := extension.GetPath()
 
 		if _, err := os.Stat(path.Join(extension.GetRootDir(), "Resources")); os.IsNotExist(err) {
-			log.Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
+			logging.FromContext(ctx).Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
 			continue
 		}
 
@@ -233,7 +233,7 @@ func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string)
 
 		extCfg, err := ReadExtensionConfig(extPath)
 		if err != nil {
-			log.Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
+			logging.FromContext(ctx).Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
 			continue
 		}
 

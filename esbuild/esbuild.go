@@ -1,6 +1,7 @@
 package esbuild
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"os"
@@ -57,7 +58,7 @@ func NewAssetCompileOptionsStorefront(name, path, extType string) AssetCompileOp
 	}
 }
 
-func getEsbuildOptions(options AssetCompileOptions) (*api.BuildOptions, error) {
+func getEsbuildOptions(options AssetCompileOptions, ctx context.Context) (*api.BuildOptions, error) {
 	entryPoint := filepath.Join(options.Path, options.EntrypointDir, "main.js")
 
 	if _, err := os.Stat(entryPoint); os.IsNotExist(err) {
@@ -79,7 +80,7 @@ func getEsbuildOptions(options AssetCompileOptions) (*api.BuildOptions, error) {
 		Bundle:            true,
 		Write:             false,
 		LogLevel:          api.LogLevelWarning,
-		Plugins:           []api.Plugin{scssPlugin},
+		Plugins:           []api.Plugin{newScssPlugin(ctx)},
 		Loader: map[string]api.Loader{
 			".twig": api.LoaderText,
 			".scss": api.LoaderCSS,
@@ -94,8 +95,8 @@ func getEsbuildOptions(options AssetCompileOptions) (*api.BuildOptions, error) {
 	return &bundlerOptions, nil
 }
 
-func Context(options AssetCompileOptions) (api.BuildContext, *api.ContextError) {
-	bundlerOptions, err := getEsbuildOptions(options)
+func Context(options AssetCompileOptions, ctx context.Context) (api.BuildContext, *api.ContextError) {
+	bundlerOptions, err := getEsbuildOptions(options, ctx)
 
 	if err != nil {
 		panic(err)
@@ -104,12 +105,12 @@ func Context(options AssetCompileOptions) (api.BuildContext, *api.ContextError) 
 	return api.Context(*bundlerOptions)
 }
 
-func CompileExtensionAsset(options AssetCompileOptions) (*AssetCompileResult, error) {
+func CompileExtensionAsset(options AssetCompileOptions, ctx context.Context) (*AssetCompileResult, error) {
 	technicalName := strings.ReplaceAll(ToSnakeCase(options.Name), "_", "-")
 	jsFile := filepath.Join(options.Path, options.OutputDir, "js", technicalName+".js")
 	cssFile := filepath.Join(options.Path, options.OutputDir, "css", technicalName+".css")
 
-	bundlerOptions, err := getEsbuildOptions(options)
+	bundlerOptions, err := getEsbuildOptions(options, ctx)
 
 	if err != nil {
 		return nil, err

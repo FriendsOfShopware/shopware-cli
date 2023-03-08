@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -40,7 +40,7 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 			}
 
 			if !foundId {
-				log.Errorf("Cannot find sales channel id for %s", *config.SalesChannel)
+				logging.FromContext(ctx.Context).Errorf("Cannot find sales channel id for %s", *config.SalesChannel)
 				continue
 			}
 		}

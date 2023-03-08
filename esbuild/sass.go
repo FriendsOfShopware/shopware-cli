@@ -14,7 +14,7 @@ import (
 	"runtime"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 const dartSassVersion = "1.57.1"
@@ -25,7 +25,7 @@ var scssVariables []byte
 //go:embed static/mixins.scss
 var scssMixins []byte
 
-func downloadDartSass() (string, error) {
+func downloadDartSass(ctx context.Context) (string, error) {
 	if path, err := exec.LookPath("dart-sass-embedded"); err == nil {
 		return path, nil
 	}
@@ -49,7 +49,7 @@ func downloadDartSass() (string, error) {
 		}
 	}
 
-	log.Infof("Downloading dart-sass")
+	logging.FromContext(ctx).Infof("Downloading dart-sass")
 
 	osType := runtime.GOOS
 	arch := runtime.GOARCH

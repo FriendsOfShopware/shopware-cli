@@ -6,17 +6,17 @@ import (
 	"path/filepath"
 
 	"github.com/olekukonko/tablewriter"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionValidateCmd = &cobra.Command{
 	Use:   "validate [path]",
 	Short: "Validate a Extension",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
 			return fmt.Errorf("cannot find path: %w", err)
@@ -39,7 +39,7 @@ var extensionValidateCmd = &cobra.Command{
 			return fmt.Errorf("cannot open extension: %w", err)
 		}
 
-		context := extension.RunValidation(ext)
+		context := extension.RunValidation(ext, cmd.Context())
 
 		if context.HasErrors() || context.HasWarnings() {
 			table := tablewriter.NewWriter(os.Stdout)
@@ -61,7 +61,7 @@ var extensionValidateCmd = &cobra.Command{
 			return fmt.Errorf("validation failed")
 		}
 
-		log.Infof("Validation has been successful")
+		logging.FromContext(cmd.Context()).Infof("Validation has been successful")
 
 		return nil
 	},

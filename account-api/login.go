@@ -2,12 +2,13 @@ package account_api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 const ApiUrl = "https://api.shopware.com"
@@ -17,14 +18,14 @@ type AccountConfig interface {
 	GetAccountPassword() string
 }
 
-func NewApi(config AccountConfig) (*Client, error) {
+func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 	errorFormat := "login: %v"
 
 	request := LoginRequest{
 		Email:    config.GetAccountEmail(),
 		Password: config.GetAccountPassword(),
 	}
-	client, err := createApiFromTokenCache()
+	client, err := createApiFromTokenCache(ctx)
 
 	if err == nil {
 		return client, nil
@@ -35,7 +36,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, ApiUrl+"/accesstokens", bytes.NewBuffer(s)) //nolint:noctx
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, ApiUrl+"/accesstokens", bytes.NewBuffer(s))
 	if err != nil {
 		return nil, fmt.Errorf("create access token request: %w", err)
 	}
@@ -55,7 +56,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		log.Tracef("Login failed with response: %s", string(data))
+		logging.FromContext(ctx).Debugf("Login failed with response: %s", string(data))
 		return nil, fmt.Errorf("login failed. Check your credentials")
 	}
 
@@ -64,7 +65,7 @@ func NewApi(config AccountConfig) (*Client, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	memberships, err := fetchMemberships(token)
+	memberships, err := fetchMemberships(token, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +85,14 @@ func NewApi(config AccountConfig) (*Client, error) {
 	}
 
 	if err := saveApiTokenToTokenCache(client); err != nil {
-		log.Println(fmt.Sprintf("Cannot token cache: %v", err))
+		logging.FromContext(ctx).Errorf(fmt.Sprintf("Cannot token cache: %v", err))
 	}
 
 	return client, nil
 }
 
-func fetchMemberships(token token) ([]Membership, error) {
-	r, err := http.NewRequest("GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil) //nolint:noctx
+func fetchMemberships(token token, ctx context.Context) ([]Membership, error) {
+	r, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil)
 	r.Header.Set("x-shopware-token", token.Token)
 
 	if err != nil {
@@ -207,7 +208,7 @@ type changeMembershipRequest struct {
 	} `json:"membership"`
 }
 
-func (c *Client) ChangeActiveMembership(selected Membership) error {
+func (c *Client) ChangeActiveMembership(selected Membership, ctx context.Context) error {
 	s, err := json.Marshal(changeMembershipRequest{SelectedMembership: struct {
 		Id int `json:"id"`
 	}(struct{ Id int }{Id: selected.Id})})
@@ -215,7 +216,7 @@ func (c *Client) ChangeActiveMembership(selected Membership) error {
 		return fmt.Errorf("ChangeActiveMembership: %v", err)
 	}
 
-	r, err := c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/account/%d/memberships/change", ApiUrl, c.GetUserID()), bytes.NewBuffer(s)) //nolint:noctx
+	r, err := c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/account/%d/memberships/change", ApiUrl, c.GetUserID()), bytes.NewBuffer(s))
 	if err != nil {
 		return err
 	}

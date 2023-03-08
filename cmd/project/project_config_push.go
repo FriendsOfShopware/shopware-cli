@@ -5,9 +5,9 @@ import (
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"github.com/manifoldco/promptui"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -48,24 +48,24 @@ var projectConfigPushCmd = &cobra.Command{
 		}
 
 		if !operation.HasChanges() {
-			log.Infof("Configuration is up to date")
+			logging.FromContext(cmd.Context()).Infof("Configuration is up to date")
 			return nil
 		}
 
 		if operation.Operations.HasChanges() {
-			log.Println("Following entities will be written")
+			logging.FromContext(cmd.Context()).Infof("Following entities will be written")
 
 			for _, values := range operation.Operations {
-				log.Printf("Action: %s, Entity: %s", values.Action, values.Entity)
+				logging.FromContext(cmd.Context()).Infof("Action: %s, Entity: %s", values.Action, values.Entity)
 
 				content, _ := json.Marshal(values.Payload)
 
-				log.Printf(logFormat, string(content))
+				logging.FromContext(cmd.Context()).Infof(logFormat, string(content))
 			}
 		}
 
 		if operation.SystemSettings.HasChanges() {
-			log.Println("Following system_config changes will be applied")
+			logging.FromContext(cmd.Context()).Infof("Following system_config changes will be applied")
 
 			for key, values := range operation.SystemSettings {
 				if len(values) == 0 {
@@ -80,21 +80,21 @@ var projectConfigPushCmd = &cobra.Command{
 					k = *key
 				}
 
-				log.Printf("Sales-Channel: %s", k)
+				logging.FromContext(cmd.Context()).Infof("Sales-Channel: %s", k)
 
 				content, _ := json.Marshal(values)
 
-				log.Printf(logFormat, string(content))
+				logging.FromContext(cmd.Context()).Infof(logFormat, string(content))
 			}
 		}
 
 		if operation.ThemeSettings.HasChanges() {
 			for _, themeOp := range operation.ThemeSettings {
-				log.Printf("Updating theme: %s", themeOp.Name)
+				logging.FromContext(cmd.Context()).Infof("Updating theme: %s", themeOp.Name)
 
 				content, _ := json.Marshal(themeOp.Settings)
 
-				log.Printf(logFormat, string(content))
+				logging.FromContext(cmd.Context()).Infof(logFormat, string(content))
 			}
 		}
 
@@ -127,7 +127,7 @@ var projectConfigPushCmd = &cobra.Command{
 			}
 		}
 
-		log.Infof("Configuration has been applied to remote")
+		logging.FromContext(cmd.Context()).Infof("Configuration has been applied to remote")
 
 		return nil
 	},

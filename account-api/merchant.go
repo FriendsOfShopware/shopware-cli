@@ -1,6 +1,7 @@
 package account_api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 )
@@ -13,8 +14,8 @@ func (c Client) Merchant() *merchantEndpoint {
 	return &merchantEndpoint{c: c}
 }
 
-func (m merchantEndpoint) Shops() (MerchantShopList, error) {
-	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/shops?limit=100&userId=%d", ApiUrl, m.c.GetActiveCompanyID()), nil)
+func (m merchantEndpoint) Shops(ctx context.Context) (MerchantShopList, error) {
+	r, err := m.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/shops?limit=100&userId=%d", ApiUrl, m.c.GetActiveCompanyID()), nil)
 
 	if err != nil {
 		return nil, err
@@ -141,8 +142,8 @@ func (m MerchantShopList) GetByDomain(domain string) *MerchantShop {
 	return nil
 }
 
-func (m merchantEndpoint) GetComposerToken(shopId int) (string, error) {
-	r, err := m.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
+func (m merchantEndpoint) GetComposerToken(ctx context.Context, shopId int) (string, error) {
+	r, err := m.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
 
 	if err != nil {
 		return "", err
@@ -170,8 +171,8 @@ func (m merchantEndpoint) GetComposerToken(shopId int) (string, error) {
 	return token.Token, nil
 }
 
-func (m merchantEndpoint) GenerateComposerToken(shopId int) (string, error) {
-	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil) //nolint:noctx
+func (m merchantEndpoint) GenerateComposerToken(ctx context.Context, shopId int) (string, error) {
+	r, err := m.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken", ApiUrl, m.c.GetActiveCompanyID(), shopId), nil)
 
 	if err != nil {
 		return "", err
@@ -194,8 +195,8 @@ func (m merchantEndpoint) GenerateComposerToken(shopId int) (string, error) {
 	return token.Token, nil
 }
 
-func (m merchantEndpoint) SaveComposerToken(shopId int, token string) error {
-	r, err := m.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken/%s", ApiUrl, m.c.GetActiveCompanyID(), shopId, token), nil)
+func (m merchantEndpoint) SaveComposerToken(ctx context.Context, shopId int, token string) error {
+	r, err := m.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/companies/%d/shops/%d/packagestoken/%s", ApiUrl, m.c.GetActiveCompanyID(), shopId, token), nil)
 
 	if err != nil {
 		return err

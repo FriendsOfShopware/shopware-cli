@@ -7,7 +7,7 @@ import (
 var projectAdminBuildCmd = &cobra.Command{
 	Use:   "admin-build",
 	Short: "Builds the Administration",
-	RunE: func(cobraCmd *cobra.Command, _ []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		var projectRoot string
 		var err error
 
@@ -15,9 +15,9 @@ var projectAdminBuildCmd = &cobra.Command{
 			return err
 		}
 
-		forceNpmInstall, _ := cobraCmd.PersistentFlags().GetBool("npm-install")
+		forceNpmInstall, _ := cmd.PersistentFlags().GetBool("npm-install")
 
-		return buildAdministration(projectRoot, forceNpmInstall)
+		return buildAdministration(projectRoot, forceNpmInstall, cmd.Context())
 	},
 }
 

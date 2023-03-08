@@ -1,17 +1,20 @@
 package extension
 
 import (
-	"io"
+	"context"
 	"os"
 	"path"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-func init() {
-	log.SetOutput(io.Discard)
+func getTestContext() context.Context {
+	logger := logging.NewLogger(false)
+
+	return logging.WithLogger(context.TODO(), logger)
 }
 
 func TestGenerateConfigForPlugin(t *testing.T) {
@@ -31,7 +34,7 @@ func TestGenerateConfigForPlugin(t *testing.T) {
 	assert.NoError(t, os.MkdirAll(path.Join(dir, "src", "Resources", "app", "storefront", "src"), os.ModePerm))
 	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.js"), []byte("test"), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
+	config := buildAssetConfigFromExtensions([]Extension{plugin}, "", getTestContext())
 
 	assert.True(t, config.Has("FroshTools"))
 	assert.True(t, config.RequiresAdminBuild())
@@ -70,7 +73,7 @@ func TestGenerateConfigForPluginInTypeScript(t *testing.T) {
 	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm))
 	assert.NoError(t, os.WriteFile(path.Join(dir, "src", "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
+	config := buildAssetConfigFromExtensions([]Extension{plugin}, "", getTestContext())
 
 	assert.True(t, config.Has("FroshTools"))
 	assert.True(t, config.RequiresAdminBuild())
@@ -104,7 +107,7 @@ func TestGenerateConfigForApp(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]Extension{app}, "")
+	config := buildAssetConfigFromExtensions([]Extension{app}, "", getTestContext())
 
 	assert.True(t, config.Has("FroshApp"))
 	assert.False(t, config.RequiresAdminBuild())
@@ -120,7 +123,7 @@ func TestGenerateConfigForApp(t *testing.T) {
 }
 
 func TestGenerateConfigAddsStorefrontAlwaysAsEntrypoint(t *testing.T) {
-	config := buildAssetConfigFromExtensions([]Extension{}, "")
+	config := buildAssetConfigFromExtensions([]Extension{}, "", getTestContext())
 
 	assert.False(t, config.RequiresStorefrontBuild())
 	assert.False(t, config.RequiresAdminBuild())
@@ -138,7 +141,7 @@ func TestGenerateConfigDoesNotAddExtensionWithoutConfig(t *testing.T) {
 		},
 	}
 
-	config := buildAssetConfigFromExtensions([]Extension{app}, "")
+	config := buildAssetConfigFromExtensions([]Extension{app}, "", getTestContext())
 
 	assert.False(t, config.Has("FroshApp"))
 }
@@ -155,7 +158,7 @@ func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
 		},
 	}
 
-	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
+	config := buildAssetConfigFromExtensions([]Extension{plugin}, "", getTestContext())
 
 	assert.Len(t, config, 1)
 }
@@ -184,7 +187,7 @@ func TestGenerateConfigWithSubBundles(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
+	config := buildAssetConfigFromExtensions([]Extension{plugin}, "", getTestContext())
 
 	assert.True(t, config.RequiresAdminBuild())
 	assert.False(t, config.RequiresStorefrontBuild())
@@ -233,7 +236,7 @@ func TestGenerateConfigWithSubBundlesWithNameOverride(t *testing.T) {
 
 	assert.NoError(t, os.WriteFile(path.Join(dir, ".shopware-extension.yml"), []byte(cfg), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]Extension{plugin}, "")
+	config := buildAssetConfigFromExtensions([]Extension{plugin}, "", getTestContext())
 
 	assert.True(t, config.RequiresAdminBuild())
 	assert.False(t, config.RequiresStorefrontBuild())

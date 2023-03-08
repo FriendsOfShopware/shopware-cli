@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 
 	cp "github.com/otiai10/copy"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var (
@@ -40,7 +40,7 @@ var extensionZipCmd = &cobra.Command{
 
 		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			logging.FromContext(cmd.Context()).Fatalln(fmt.Errorf("update: %v", err))
 		}
 
 		name, err := ext.GetName()
@@ -134,7 +134,7 @@ var extensionZipCmd = &cobra.Command{
 				EnableESBuildForStorefront: extCfg.Build.Zip.Assets.EnableESBuildForStorefront,
 			}
 
-			if err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}, assetBuildConfig); err != nil {
+			if err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}, assetBuildConfig, cmd.Context()); err != nil {
 				return fmt.Errorf("building assets: %w", err)
 			}
 
@@ -167,7 +167,7 @@ var extensionZipCmd = &cobra.Command{
 			return fmt.Errorf("create zip file: %w", err)
 		}
 
-		log.Infof("Created file %s", fileName)
+		logging.FromContext(cmd.Context()).Infof("Created file %s", fileName)
 
 		return nil
 	},

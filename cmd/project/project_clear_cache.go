@@ -5,9 +5,9 @@ import (
 	"os"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -23,7 +23,7 @@ var projectClearCacheCmd = &cobra.Command{
 		}
 
 		if cfg.AdminApi == nil {
-			log.Infof("Clearing cache localy")
+			logging.FromContext(cmd.Context()).Infof("Clearing cache localy")
 
 			projectRoot, err := findClosestShopwareProject()
 
@@ -34,7 +34,7 @@ var projectClearCacheCmd = &cobra.Command{
 			return os.RemoveAll(fmt.Sprintf("%s/var/cache", projectRoot))
 		}
 
-		log.Infof("Clearing cache using admin-api")
+		logging.FromContext(cmd.Context()).Infof("Clearing cache using admin-api")
 
 		client, err := shop.NewShopClient(cmd.Context(), cfg)
 		if err != nil {

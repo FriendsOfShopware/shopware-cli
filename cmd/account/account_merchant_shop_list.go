@@ -12,11 +12,11 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List all shops",
 	Aliases: []string{"ls"},
-	RunE: func(_ *cobra.Command, _ []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"ID", "Domain", "Usage"})
 
-		shops, err := services.AccountClient.Merchant().Shops()
+		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
 
 		if err != nil {
 			return err

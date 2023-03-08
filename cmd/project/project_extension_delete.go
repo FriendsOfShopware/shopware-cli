@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -39,7 +39,7 @@ var projectExtensionDeleteCmd = &cobra.Command{
 			extension := extensions.GetByName(arg)
 
 			if extension == nil {
-				log.Errorf("Cannot find extension by name %s", arg)
+				logging.FromContext(cmd.Context()).Errorf("Cannot find extension by name %s", arg)
 				continue
 			}
 
@@ -47,31 +47,31 @@ var projectExtensionDeleteCmd = &cobra.Command{
 				if _, err := client.ExtensionManager.DeactivateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 					failed = true
 
-					log.Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
+					logging.FromContext(cmd.Context()).Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
 					continue
 				}
 
-				log.Infof("Deactivated %s", extension.Name)
+				logging.FromContext(cmd.Context()).Infof("Deactivated %s", extension.Name)
 			}
 
 			if extension.InstalledAt != nil {
 				if _, err := client.ExtensionManager.UninstallExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 					failed = true
 
-					log.Errorf("Uninstall of %s failed with error: %v", extension.Name, err)
+					logging.FromContext(cmd.Context()).Errorf("Uninstall of %s failed with error: %v", extension.Name, err)
 					continue
 				}
 
-				log.Infof("Uninstalled %s", extension.Name)
+				logging.FromContext(cmd.Context()).Infof("Uninstalled %s", extension.Name)
 			}
 
 			if _, err := client.ExtensionManager.RemoveExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
-				log.Errorf("Remove of %s failed with error: %v", extension.Name, err)
+				logging.FromContext(cmd.Context()).Errorf("Remove of %s failed with error: %v", extension.Name, err)
 			}
 
-			log.Infof("Removed %s", extension.Name)
+			logging.FromContext(cmd.Context()).Infof("Removed %s", extension.Name)
 		}
 
 		if failed {

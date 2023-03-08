@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/caarlos0/env/v7"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -88,7 +87,6 @@ func InitConfig(configPath string) error {
 		state.loadedFromEnv = true
 
 		state.isReady = true
-		log.Tracef("Loaded config with environment variables")
 
 		return nil
 	}
@@ -110,7 +108,6 @@ func InitConfig(configPath string) error {
 		return err
 	}
 
-	log.Tracef("Using config file from %s", state.cfgPath)
 	state.isReady = true
 	return nil
 }

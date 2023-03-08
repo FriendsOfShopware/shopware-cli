@@ -9,10 +9,10 @@ import (
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -20,15 +20,15 @@ var projectDatabaseDumpCmd = &cobra.Command{
 	Use:   "dump [database]",
 	Short: "Dumps the Shopware database",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cobraCmd *cobra.Command, args []string) error {
-		host, _ := cobraCmd.Flags().GetString("host")
-		port, _ := cobraCmd.Flags().GetString("port")
-		username, _ := cobraCmd.Flags().GetString("username")
-		password, _ := cobraCmd.Flags().GetString("password")
-		output, _ := cobraCmd.Flags().GetString("output")
-		clean, _ := cobraCmd.Flags().GetBool("clean")
-		skipLockTables, _ := cobraCmd.Flags().GetBool("skip-lock-tables")
-		anonymize, _ := cobraCmd.Flags().GetBool("anonymize")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		host, _ := cmd.Flags().GetString("host")
+		port, _ := cmd.Flags().GetString("port")
+		username, _ := cmd.Flags().GetString("username")
+		password, _ := cmd.Flags().GetString("password")
+		output, _ := cmd.Flags().GetString("output")
+		clean, _ := cmd.Flags().GetBool("clean")
+		skipLockTables, _ := cmd.Flags().GetBool("skip-lock-tables")
+		anonymize, _ := cmd.Flags().GetBool("anonymize")
 
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
@@ -160,7 +160,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return err
 		}
 
-		log.Infof("Successfully created the dump %s", output)
+		logging.FromContext(cmd.Context()).Infof("Successfully created the dump %s", output)
 
 		return nil
 	},

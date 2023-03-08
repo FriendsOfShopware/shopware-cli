@@ -17,8 +17,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
@@ -306,7 +305,7 @@ func validatePHPFiles(ctx *validationContext) {
 		return
 	}
 
-	log.Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
+	logging.FromContext(ctx.ctx).Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
 
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, fmt.Sprintf("https://php-syntax-checker.fos.gg/?version=%s", phpVersion), body)
 

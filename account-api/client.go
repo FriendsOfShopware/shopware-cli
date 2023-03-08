@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 type Client struct {
@@ -18,9 +18,9 @@ type Client struct {
 	Memberships      []Membership `json:"memberships"`
 }
 
-func (c Client) NewAuthenticatedRequest(method, path string, body io.Reader) (*http.Request, error) {
-	log.Tracef("%s: %s", method, path)
-	r, err := http.NewRequestWithContext(context.TODO(), method, path, body) // TODO: pass real context
+func (c Client) NewAuthenticatedRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
+	logging.FromContext(ctx).Debugf("%s: %s", method, path)
+	r, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func getApiTokenCacheFilePath() (string, error) {
 	return fmt.Sprintf("%s/%s", cacheDir, CacheFileName), nil
 }
 
-func createApiFromTokenCache() (*Client, error) {
+func createApiFromTokenCache(ctx context.Context) (*Client, error) {
 	tokenFilePath, err := getApiTokenCacheFilePath()
 
 	if err != nil {
@@ -120,8 +120,8 @@ func createApiFromTokenCache() (*Client, error) {
 		return nil, err
 	}
 
-	log.Debugf("Using token cache from %s", tokenFilePath)
-	log.Debugf("Impersonating currently as %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id)
+	logging.FromContext(ctx).Debugf("Using token cache from %s", tokenFilePath)
+	logging.FromContext(ctx).Debugf("Impersonating currently as %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id)
 
 	if !client.isTokenValid() {
 		return nil, fmt.Errorf("token is expired")

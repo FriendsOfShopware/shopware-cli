@@ -5,17 +5,17 @@ import (
 	"os"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionAssetBundleCmd = &cobra.Command{
 	Use:   "build [path]",
 	Short: "Builds assets for extensions",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		assetCfg := extension.AssetBuildConfig{EnableESBuildForAdmin: false, EnableESBuildForStorefront: false}
 		validatedExtensions := make([]extension.Extension, 0)
 
@@ -43,12 +43,13 @@ var extensionAssetBundleCmd = &cobra.Command{
 			assetCfg.EnableESBuildForStorefront = extCfg.Build.Zip.Assets.EnableESBuildForStorefront
 		}
 
-		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg)
+		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg, cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot build assets: %w", err)
 		}
 
-		log.Infof("Assets has been built")
+		logging.FromContext(cmd.Context()).Infof("Assets has been built")
 
 		return nil
 	},

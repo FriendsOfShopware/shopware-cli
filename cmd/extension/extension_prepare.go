@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionPrepareCmd = &cobra.Command{
@@ -27,7 +27,7 @@ var extensionPrepareCmd = &cobra.Command{
 
 		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
 		if err != nil {
-			log.Warningf("error reading config: %v", err)
+			logging.FromContext(cmd.Context()).Warnf("error reading config: %v", err)
 		}
 
 		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext, extCfg)

@@ -4,10 +4,10 @@ import (
 	"os"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -47,7 +47,7 @@ var projectConfigPullCmd = &cobra.Command{
 			return err
 		}
 
-		log.Infof("%s has been updated", projectConfigPath)
+		logging.FromContext(cmd.Context()).Infof("%s has been updated", projectConfigPath)
 
 		return nil
 	},
