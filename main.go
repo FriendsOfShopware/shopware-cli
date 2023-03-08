@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	logger := logging.NewLogger(false)
+	logger := logging.NewLogger()
 	cmd.Execute(logging.WithLogger(context.Background(), logger))
 }

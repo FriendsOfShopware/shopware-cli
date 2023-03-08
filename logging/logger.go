@@ -2,8 +2,6 @@ package logging
 
 import (
 	"context"
-	"time"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -16,19 +14,16 @@ const loggerKey = contextKey("logging")
 
 var fallbackLogger *zap.SugaredLogger
 
-func NewLogger(debug bool) *zap.SugaredLogger {
+func NewLogger() *zap.SugaredLogger {
 	loggerCfg := zap.NewDevelopmentConfig()
-	loggerCfg.EncoderConfig.EncodeTime = timeEncoder()
 	loggerCfg.EncoderConfig.MessageKey = "message"
 	loggerCfg.EncoderConfig.TimeKey = "timestamp"
 	loggerCfg.EncoderConfig.EncodeDuration = zapcore.NanosDurationEncoder
 	loggerCfg.EncoderConfig.StacktraceKey = "error.stack"
 	loggerCfg.EncoderConfig.FunctionKey = "logging.method_name"
-	loggerCfg.DisableStacktrace = !debug
-
-	if debug {
-		loggerCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	}
+	loggerCfg.DisableStacktrace = true
+	loggerCfg.DisableCaller = true
+	loggerCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
 	logger, err := loggerCfg.Build()
 	if err != nil {
@@ -36,13 +31,6 @@ func NewLogger(debug bool) *zap.SugaredLogger {
 	}
 
 	return logger.Sugar()
-}
-
-// timeEncoder encodes the time as RFC3339 nano.
-func timeEncoder() zapcore.TimeEncoder {
-	return func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(t.Format(time.RFC3339Nano))
-	}
 }
 
 func WithLogger(ctx context.Context, logger *zap.SugaredLogger) context.Context {
