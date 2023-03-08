@@ -2,6 +2,7 @@ package account_api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -20,8 +21,8 @@ func (e producerEndpoint) GetId() int {
 	return e.producerId
 }
 
-func (c Client) Producer() (*producerEndpoint, error) {
-	r, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/companies/%d/allocations", ApiUrl, c.GetActiveCompanyID()), nil) //nolint:noctx
+func (c Client) Producer(ctx context.Context) (*producerEndpoint, error) {
+	r, err := c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/companies/%d/allocations", ApiUrl, c.GetActiveCompanyID()), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +53,8 @@ type companyAllocation struct {
 	ProducerID        int  `json:"producerId"`
 }
 
-func (e producerEndpoint) Profile() (*producer, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyID()), nil) //nolint:noctx
+func (e producerEndpoint) Profile(ctx context.Context) (*producer, error) {
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyID()), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +122,7 @@ type ListExtensionCriteria struct {
 	Search        string `schema:"search,omitempty"`
 }
 
-func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]Extension, error) {
+func (e producerEndpoint) Extensions(ctx context.Context, criteria *ListExtensionCriteria) ([]Extension, error) {
 	encoder := schema.NewEncoder()
 	form := url.Values{}
 	form.Set("producerId", strconv.FormatInt(int64(e.GetId()), 10))
@@ -131,7 +132,7 @@ func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]Extensi
 		return nil, fmt.Errorf("list_extensions: %v", err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins?%s", ApiUrl, form.Encode()), nil) //nolint:noctx
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/plugins?%s", ApiUrl, form.Encode()), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -150,12 +151,12 @@ func (e producerEndpoint) Extensions(criteria *ListExtensionCriteria) ([]Extensi
 	return extensions, nil
 }
 
-func (e producerEndpoint) GetExtensionByName(name string) (*Extension, error) {
+func (e producerEndpoint) GetExtensionByName(ctx context.Context, name string) (*Extension, error) {
 	criteria := ListExtensionCriteria{
 		Search: name,
 	}
 
-	extensions, err := e.Extensions(&criteria)
+	extensions, err := e.Extensions(ctx, &criteria)
 
 	if err != nil {
 		return nil, err
@@ -163,18 +164,18 @@ func (e producerEndpoint) GetExtensionByName(name string) (*Extension, error) {
 
 	for _, ext := range extensions {
 		if strings.EqualFold(ext.Name, name) {
-			return e.GetExtensionById(ext.Id)
+			return e.GetExtensionById(ctx, ext.Id)
 		}
 	}
 
 	return nil, fmt.Errorf("cannot find Extension by name %s", name)
 }
 
-func (e producerEndpoint) GetExtensionById(id int) (*Extension, error) {
+func (e producerEndpoint) GetExtensionById(ctx context.Context, id int) (*Extension, error) {
 	errorFormat := "GetExtensionById: %v"
 
 	// Create it
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
 
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
@@ -342,7 +343,7 @@ const (
 	GenerationPlatform = "platform"
 )
 
-func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (*Extension, error) {
+func (e producerEndpoint) CreateExtension(ctx context.Context, newExtension CreateExtensionRequest) (*Extension, error) {
 	requestBody, err := json.Marshal(newExtension)
 
 	if err != nil {
@@ -350,7 +351,7 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 	}
 
 	// Create it
-	r, err := e.c.NewAuthenticatedRequest("POST", fmt.Sprintf("%s/plugins", ApiUrl), bytes.NewBuffer(requestBody)) //nolint:noctx
+	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/plugins", ApiUrl), bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +369,7 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 	extension.Name = newExtension.Name
 
 	// Patch the name
-	err = e.UpdateExtension(&extension)
+	err = e.UpdateExtension(ctx, &extension)
 
 	if err != nil {
 		return nil, err
@@ -377,7 +378,7 @@ func (e producerEndpoint) CreateExtension(newExtension CreateExtensionRequest) (
 	return &extension, nil
 }
 
-func (e producerEndpoint) UpdateExtension(extension *Extension) error {
+func (e producerEndpoint) UpdateExtension(ctx context.Context, extension *Extension) error {
 	requestBody, err := json.Marshal(extension)
 
 	if err != nil {
@@ -385,7 +386,7 @@ func (e producerEndpoint) UpdateExtension(extension *Extension) error {
 	}
 
 	// Patch the name
-	r, err := e.c.NewAuthenticatedRequest("PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody)) //nolint:noctx
+	r, err := e.c.NewAuthenticatedRequest(ctx, "PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody))
 
 	if err != nil {
 		return err
@@ -396,8 +397,8 @@ func (e producerEndpoint) UpdateExtension(extension *Extension) error {
 	return err
 }
 
-func (e producerEndpoint) DeleteExtension(id int) error {
-	r, err := e.c.NewAuthenticatedRequest("DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil) //nolint:noctx
+func (e producerEndpoint) DeleteExtension(ctx context.Context, id int) error {
+	r, err := e.c.NewAuthenticatedRequest(ctx, "DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
 
 	if err != nil {
 		return err
@@ -408,9 +409,9 @@ func (e producerEndpoint) DeleteExtension(id int) error {
 	return err
 }
 
-func (e producerEndpoint) GetSoftwareVersions(generation string) (*SoftwareVersionList, error) {
+func (e producerEndpoint) GetSoftwareVersions(ctx context.Context, generation string) (*SoftwareVersionList, error) {
 	errorFormat := "shopware_versions: %v"
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"},{\"property\":\"includeNonPublic\",\"value\":\"1\"}]", ApiUrl, generation), nil)
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"},{\"property\":\"includeNonPublic\",\"value\":\"1\"}]", ApiUrl, generation), nil)
 
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
@@ -562,8 +563,8 @@ type ExtensionGeneralInformation struct {
 	} `json:"releaseRequestStatus"`
 }
 
-func (e producerEndpoint) GetExtensionGeneralInfo() (*ExtensionGeneralInformation, error) {
-	r, err := e.c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil) //nolint:noctx
+func (e producerEndpoint) GetExtensionGeneralInfo(ctx context.Context) (*ExtensionGeneralInformation, error) {
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil)
 
 	if err != nil {
 		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)

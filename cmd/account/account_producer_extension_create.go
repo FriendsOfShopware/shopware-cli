@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+
+	"github.com/pkg/errors"
+
 	"github.com/spf13/cobra"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
@@ -21,13 +25,14 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 
 		return []string{}, cobra.ShellCompDirectiveNoFileComp
 	},
-	RunE: func(_ *cobra.Command, args []string) error {
-		p, err := services.AccountClient.Producer()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		p, err := services.AccountClient.Producer(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
-		profile, err := p.Profile()
+		profile, err := p.Profile(cmd.Context())
 		if err != nil {
 			return fmt.Errorf("cannot get producer profile: %w", err)
 		}
@@ -40,7 +45,7 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 			return fmt.Errorf("extension name must start with the prefix %s", profile.Prefix)
 		}
 
-		extension, err := p.CreateExtension(accountApi.CreateExtensionRequest{
+		extension, err := p.CreateExtension(cmd.Context(), accountApi.CreateExtensionRequest{
 			Name: args[0],
 			Generation: struct {
 				Name string `json:"name"`
@@ -51,7 +56,7 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 			return fmt.Errorf("cannot create extension: %w", err)
 		}
 
-		log.Infof("Extension with name %s has been successfully created", extension.Name)
+		logging.FromContext(cmd.Context()).Infof("Extension with name %s has been successfully created", extension.Name)
 
 		return nil
 	},

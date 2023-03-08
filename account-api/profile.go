@@ -1,16 +1,17 @@
 package account_api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
 
-func (c Client) GetMyProfile() (*myProfile, error) {
+func (c Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
 	errorFormat := "GetMyProfile: %v"
 
-	request, err := c.NewAuthenticatedRequest("GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil) //nolint:noctx
+	request, err := c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}

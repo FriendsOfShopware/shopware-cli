@@ -3,14 +3,14 @@ package cmd
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/account"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/extension"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/project"
 	"github.com/FriendsOfShopware/shopware-cli/config"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+
+	"github.com/spf13/cobra"
 )
 
 var cfgFile string
@@ -25,7 +25,7 @@ var rootCmd = &cobra.Command{
 
 func Execute(ctx context.Context) {
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
-		log.Fatalln(err)
+		logging.FromContext(ctx).Fatalln(err)
 	}
 }
 
@@ -53,7 +53,7 @@ func init() {
 				AccountClient: nil,
 			}, nil
 		}
-		client, err := accountApi.NewApi(conf)
+		client, err := accountApi.NewApi(conf, rootCmd.Context())
 		if err != nil {
 			return nil, err
 		}

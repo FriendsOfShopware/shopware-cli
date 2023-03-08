@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"github.com/olekukonko/tablewriter"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/shop"
@@ -55,7 +58,7 @@ var projectExtensionOutdatedCmd = &cobra.Command{
 		}
 
 		if len(extensions) == 0 {
-			log.Infof("All extensions are up-to-date")
+			logging.FromContext(cmd.Context()).Infof("All extensions are up-to-date")
 			return nil
 		}
 

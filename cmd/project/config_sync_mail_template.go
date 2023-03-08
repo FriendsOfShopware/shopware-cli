@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
-
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
+
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
 type MailTemplateSync struct{}
@@ -52,7 +52,7 @@ func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 										translationUpdate["contentHtml"] = string(content)
 									}
 								} else {
-									log.Errorf("Cannot read file %s, with error: %s", configTranslation.HTML, err)
+									logging.FromContext(ctx.Context).Errorf("Cannot read file %s, with error: %s", configTranslation.HTML, err)
 								}
 							}
 
@@ -62,7 +62,7 @@ func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 										translationUpdate["contentPlain"] = string(content)
 									}
 								} else {
-									log.Errorf("Cannot read file %s, with error: %s", configTranslation.Plain, err)
+									logging.FromContext(ctx.Context).Errorf("Cannot read file %s, with error: %s", configTranslation.Plain, err)
 								}
 							}
 
@@ -112,7 +112,7 @@ func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 
 	for _, row := range mailTemplates.Data {
 		if row.MailTemplateType == nil {
-			log.Infof("mail_template entity with id %s does not have a type. Skipping", row.Id)
+			logging.FromContext(ctx.Context).Infof("mail_template entity with id %s does not have a type. Skipping", row.Id)
 			continue
 		}
 

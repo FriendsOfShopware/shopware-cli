@@ -3,6 +3,7 @@ package project
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -11,9 +12,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	cp "github.com/otiai10/copy"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
@@ -60,11 +66,11 @@ var projectExtensionUploadCmd = &cobra.Command{
 
 		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
 		if err != nil {
-			log.Fatalln(fmt.Errorf("update: %v", err))
+			logging.FromContext(cmd.Context()).Fatalln(fmt.Errorf("update: %v", err))
 		}
 
 		if increaseVersionBeforeUpload {
-			if err := increaseExtensionVersion(ext); err != nil {
+			if err := increaseExtensionVersion(ext, cmd.Context()); err != nil {
 				return err
 			}
 
@@ -172,13 +178,13 @@ var projectExtensionUploadCmd = &cobra.Command{
 			}
 		}
 
-		log.Infof("Uploaded extension %s with version %s", name, version)
+		logging.FromContext(cmd.Context()).Infof("Uploaded extension %s with version %s", name, version)
 
 		if _, err := client.ExtensionManager.Refresh(adminCtx); err != nil {
 			return fmt.Errorf("cannot refresh extension list: %w", err)
 		}
 
-		log.Infof("Refreshed extension list")
+		logging.FromContext(cmd.Context()).Infof("Refreshed extension list")
 
 		if doLifecycleEvents {
 			remoteExtension := extensions.GetByName(name)
@@ -188,7 +194,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 					return fmt.Errorf("cannot install extension: %w", err)
 				}
 
-				log.Infof("Installed %s", name)
+				logging.FromContext(cmd.Context()).Infof("Installed %s", name)
 			}
 
 			if !remoteExtension.Active {
@@ -196,7 +202,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 					return fmt.Errorf("cannot activate extension: %w", err)
 				}
 
-				log.Infof("Activated %s", name)
+				logging.FromContext(cmd.Context()).Infof("Activated %s", name)
 			}
 
 			if remoteExtension.IsUpdateAble() {
@@ -204,7 +210,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 					return fmt.Errorf("cannot update extension: %w", err)
 				}
 
-				log.Infof("Updated %s from %s to %s", name, remoteExtension.Version, remoteExtension.LatestVersion)
+				logging.FromContext(cmd.Context()).Infof("Updated %s from %s to %s", name, remoteExtension.Version, remoteExtension.LatestVersion)
 			}
 		}
 
@@ -213,14 +219,14 @@ var projectExtensionUploadCmd = &cobra.Command{
 				return err
 			}
 
-			log.Infof("Cleared cache")
+			logging.FromContext(cmd.Context()).Infof("Cleared cache")
 		}
 
 		return nil
 	},
 }
 
-func increaseExtensionVersion(ext extension.Extension) error {
+func increaseExtensionVersion(ext extension.Extension, ctx context.Context) error {
 	if ext.GetType() == "app" {
 		manifestPath := fmt.Sprintf("%s/manifest.xml", ext.GetPath())
 		file, err := os.Open(manifestPath)
@@ -240,7 +246,7 @@ func increaseExtensionVersion(ext extension.Extension) error {
 				break
 			}
 			if err != nil {
-				log.Printf("error getting token: %v\n", err)
+				logging.FromContext(ctx).Errorf("error getting token: %v\n", err)
 				break
 			}
 

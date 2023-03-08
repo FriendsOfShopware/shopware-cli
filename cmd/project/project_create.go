@@ -7,13 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 	"github.com/manifoldco/promptui"
 	"github.com/mholt/archiver/v3"
 	"github.com/schollz/progressbar/v3"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 )
 
 var projectCreateCmd = &cobra.Command{
@@ -98,13 +97,13 @@ var projectCreateCmd = &cobra.Command{
 			_ = os.Remove(name)
 		}(fileName)
 
-		log.Infof("Unpacking now the zip")
+		logging.FromContext(cmd.Context()).Infof("Unpacking now the zip")
 
 		if err := archiver.Unarchive(fileName, projectFolder); err != nil {
 			return err
 		}
 
-		log.Infof("Shopware %s is created in folder %s", chooseVersion.Version, projectFolder)
+		logging.FromContext(cmd.Context()).Infof("Shopware %s is created in folder %s", chooseVersion.Version, projectFolder)
 
 		return nil
 	},

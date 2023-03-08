@@ -3,8 +3,9 @@ package project
 import (
 	"fmt"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/shop"
@@ -40,12 +41,12 @@ var projectExtensionUninstallCmd = &cobra.Command{
 
 			if extension == nil {
 				failed = true
-				log.Errorf("Cannot find extension by name %s", arg)
+				logging.FromContext(cmd.Context()).Errorf("Cannot find extension by name %s", arg)
 				continue
 			}
 
 			if extension.InstalledAt == nil {
-				log.Infof("Extension %s is already uninstalled", arg)
+				logging.FromContext(cmd.Context()).Infof("Extension %s is already uninstalled", arg)
 				continue
 			}
 
@@ -53,19 +54,19 @@ var projectExtensionUninstallCmd = &cobra.Command{
 				if _, err := client.ExtensionManager.DeactivateExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 					failed = true
 
-					log.Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
+					logging.FromContext(cmd.Context()).Errorf("Deactivation of %s failed with error: %v", extension.Name, err)
 				} else {
-					log.Infof("Deactivated %s", extension.Name)
+					logging.FromContext(cmd.Context()).Infof("Deactivated %s", extension.Name)
 				}
 			}
 
 			if _, err := client.ExtensionManager.UninstallExtension(adminSdk.NewApiContext(cmd.Context()), extension.Type, extension.Name); err != nil {
 				failed = true
 
-				log.Errorf("Installation of %s failed with error: %v", extension.Name, err)
+				logging.FromContext(cmd.Context()).Errorf("Installation of %s failed with error: %v", extension.Name, err)
 			}
 
-			log.Infof("Uninstalled %s", extension.Name)
+			logging.FromContext(cmd.Context()).Infof("Uninstalled %s", extension.Name)
 		}
 
 		if failed {

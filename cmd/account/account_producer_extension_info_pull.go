@@ -8,7 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+
+	"github.com/pkg/errors"
+
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
@@ -19,7 +23,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Use:   "pull [path]",
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
 			return fmt.Errorf("cannot open file: %w", err)
@@ -35,12 +39,14 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return fmt.Errorf("cannot get extension name: %w", err)
 		}
 
-		p, err := services.AccountClient.Producer()
+		p, err := services.AccountClient.Producer(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
-		storeExt, err := p.GetExtensionByName(zipName)
+		storeExt, err := p.GetExtensionByName(cmd.Context(), zipName)
+
 		if err != nil {
 			return fmt.Errorf("cannot get store extension: %w", err)
 		}
@@ -92,7 +98,8 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			availabilities = append(availabilities, a.Name)
 		}
 
-		storeImages, err := p.GetExtensionImages(storeExt.Id)
+		storeImages, err := p.GetExtensionImages(cmd.Context(), storeExt.Id)
+
 		if err != nil {
 			return fmt.Errorf("cannot get extension images: %w", err)
 		}
@@ -178,7 +185,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return fmt.Errorf("cannot save file: %w", err)
 		}
 
-		log.Infof("Files has been written to the given extension folder")
+		logging.FromContext(cmd.Context()).Infof("Files has been written to the given extension folder")
 
 		return nil
 	},
@@ -189,7 +196,7 @@ func init() {
 }
 
 func downloadFileTo(url string, target string) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil) //nolint:noctx
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}

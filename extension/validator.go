@@ -5,16 +5,19 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/net/context"
 )
 
 type validationContext struct {
 	Extension Extension
+	ctx       context.Context
 	errors    []string
 	warnings  []string
 }
 
-func newValidationContext(ext Extension) *validationContext {
-	return &validationContext{Extension: ext}
+func newValidationContext(ext Extension, ctx context.Context) *validationContext {
+	return &validationContext{Extension: ext, ctx: ctx}
 }
 
 func (c *validationContext) AddError(message string) {
@@ -41,8 +44,8 @@ func (c validationContext) Warnings() []string {
 	return c.warnings
 }
 
-func RunValidation(ext Extension) *validationContext {
-	context := newValidationContext(ext)
+func RunValidation(ext Extension, ctx context.Context) *validationContext {
+	context := newValidationContext(ext, ctx)
 
 	runDefaultValidate(context)
 	ext.Validate(context)

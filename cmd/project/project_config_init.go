@@ -1,12 +1,13 @@
 package project
 
 import (
-	"errors"
-	"fmt"
 	"os"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+
 	"github.com/manifoldco/promptui"
-	log "github.com/sirupsen/logrus"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
@@ -16,7 +17,7 @@ import (
 var projectConfigInitCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Creates a new project config in current dir",
-	RunE: func(_ *cobra.Command, _ []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		config := &shop.Config{}
 		var content []byte
 		var err error
@@ -37,7 +38,7 @@ var projectConfigInitCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
+			logging.FromContext(cmd.Context()).Fatalf("Prompt failed %v\n", err)
 			os.Exit(1)
 		}
 
@@ -49,7 +50,7 @@ var projectConfigInitCmd = &cobra.Command{
 			return err
 		}
 
-		log.Info("Created .shopware-project.yml")
+		logging.FromContext(cmd.Context()).Info("Created .shopware-project.yml")
 
 		return nil
 	},

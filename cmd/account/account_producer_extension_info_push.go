@@ -7,7 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+
+	"github.com/pkg/errors"
+
 	"github.com/spf13/cobra"
 	"github.com/yuin/goldmark"
 	goldmarkExtension "github.com/yuin/goldmark/extension"
@@ -22,7 +27,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 	Use:   "push [zip or path]",
 	Short: "Update store information of extension",
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
 		if err != nil {
 			return fmt.Errorf("cannot open file: %w", err)
@@ -50,12 +55,14 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			return fmt.Errorf("cannot get name: %w", err)
 		}
 
-		p, err := services.AccountClient.Producer()
+		p, err := services.AccountClient.Producer(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
-		storeExt, err := p.GetExtensionByName(zipName)
+		storeExt, err := p.GetExtensionByName(cmd.Context(), zipName)
+
 		if err != nil {
 			return fmt.Errorf("cannot get store extension: %w", err)
 		}
@@ -74,7 +81,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			}
 		}
 
-		info, err := p.GetExtensionGeneralInfo()
+		info, err := p.GetExtensionGeneralInfo(cmd.Context())
 		if err != nil {
 			return fmt.Errorf("cannot get general info: %w", err)
 		}
@@ -86,27 +93,29 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 
 		if extCfg != nil {
 			if extCfg.Store.Icon != nil {
-				err := p.UpdateExtensionIcon(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), *extCfg.Store.Icon))
+				err := p.UpdateExtensionIcon(cmd.Context(), storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), *extCfg.Store.Icon))
 				if err != nil {
 					return fmt.Errorf("cannot update extension icon due error: %w", err)
 				}
 			}
 
 			if extCfg.Store.Images != nil {
-				images, err := p.GetExtensionImages(storeExt.Id)
+				images, err := p.GetExtensionImages(cmd.Context(), storeExt.Id)
 				if err != nil {
 					return fmt.Errorf("cannot get images from remote server: %w", err)
 				}
 
 				for _, image := range images {
-					err := p.DeleteExtensionImages(storeExt.Id, image.Id)
+					err := p.DeleteExtensionImages(cmd.Context(), storeExt.Id, image.Id)
+
 					if err != nil {
 						return fmt.Errorf("cannot extension image: %w", err)
 					}
 				}
 
 				for _, configImage := range *extCfg.Store.Images {
-					apiImage, err := p.AddExtensionImage(storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
+					apiImage, err := p.AddExtensionImage(cmd.Context(), storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
+
 					if err != nil {
 						return fmt.Errorf("cannot upload image to extension: %w", err)
 					}
@@ -118,7 +127,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 					apiImage.Details[1].Activated = configImage.Activate.English
 					apiImage.Details[1].Preview = configImage.Preview.English
 
-					err = p.UpdateExtensionImage(storeExt.Id, apiImage)
+					err = p.UpdateExtensionImage(cmd.Context(), storeExt.Id, apiImage)
 
 					if err != nil {
 						return fmt.Errorf("cannot update image information of extension: %w", err)
@@ -126,22 +135,24 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 				}
 			}
 
-			updateStoreInfo(storeExt, zipExt, extCfg, info)
+			if err := updateStoreInfo(storeExt, zipExt, extCfg, info); err != nil {
+				return errors.Wrap(err, "cannot update store information")
+			}
 		}
 
-		err = p.UpdateExtension(storeExt)
+		err = p.UpdateExtension(cmd.Context(), storeExt)
 
 		if err != nil {
 			return err
 		}
 
-		log.Infof("Store information has been updated")
+		logging.FromContext(cmd.Context()).Infof("Store information has been updated")
 
 		return nil
 	},
 }
 
-func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) { //nolint:gocyclo
+func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg *extension.Config, info *accountApi.ExtensionGeneralInformation) error { //nolint:gocyclo
 	if cfg.Store.DefaultLocale != nil {
 		for _, locale := range info.Locales {
 			if locale.Name == *cfg.Store.DefaultLocale {
@@ -247,16 +258,28 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 			info.Faqs = newFaq
 		}
 
+		var err error
+
 		storeDescription := getTranslation(language, cfg.Store.Description)
 		if storeDescription != nil {
-			info.Description = parseInlineablePath(*storeDescription, zipExt.GetPath())
+			info.Description, err = parseInlineablePath(*storeDescription, zipExt.GetPath())
+
+			if err != nil {
+				return err
+			}
 		}
 
 		storeManual := getTranslation(language, cfg.Store.InstallationManual)
 		if storeManual != nil {
-			info.InstallationManual = parseInlineablePath(*storeManual, zipExt.GetPath())
+			info.InstallationManual, err = parseInlineablePath(*storeManual, zipExt.GetPath())
+
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
 
 func getTranslation[T extension.Translatable](language string, config extension.ConfigTranslated[T]) *T {
@@ -273,20 +296,20 @@ func init() {
 	accountCompanyProducerExtensionInfoCmd.AddCommand(accountCompanyProducerExtensionInfoPushCmd)
 }
 
-func parseInlineablePath(path, extensionDir string) string {
+func parseInlineablePath(path, extensionDir string) (string, error) {
 	if !strings.HasPrefix(path, "file:") {
-		return path
+		return path, nil
 	}
 
 	filePath := fmt.Sprintf("%s/%s", extensionDir, strings.TrimPrefix(path, "file:"))
 
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("Error reading file at path %s with error: %v", filePath, err))
+		return "", fmt.Errorf("Error reading file at path %s with error: %v", filePath, err)
 	}
 
 	if filepath.Ext(filePath) != ".md" {
-		return string(content)
+		return string(content), nil
 	}
 
 	md := goldmark.New(
@@ -304,8 +327,8 @@ func parseInlineablePath(path, extensionDir string) string {
 	err = md.Convert(content, &buf)
 
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("Cannot convert file at path %s from markdown to html with error: %v", filePath, err))
+		return "", fmt.Errorf("Cannot convert file at path %s from markdown to html with error: %v", filePath, err)
 	}
 
-	return buf.String()
+	return buf.String(), nil
 }

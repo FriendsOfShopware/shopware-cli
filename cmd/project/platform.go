@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,9 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 func findClosestShopwareProject() (string, error) {
@@ -67,8 +67,8 @@ func runSimpleCommand(root string, app string, args ...string) error {
 	return cmd.Run()
 }
 
-func buildStorefront(projectRoot string, forceNpmInstall bool) error {
-	log.Infof("Building storefront in root %s", projectRoot)
+func buildStorefront(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
+	logging.FromContext(ctx).Infof("Building storefront in root %s", projectRoot)
 
 	storefrontRoot := extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
 
@@ -76,7 +76,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 		return err
 	}
 
-	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall); err != nil {
+	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall, ctx); err != nil {
 		return err
 	}
 
@@ -87,7 +87,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	_, err := os.Stat(extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
-		log.Infof("Installing npm dependencies in %s", storefrontRoot)
+		logging.FromContext(ctx).Infof("Installing npm dependencies in %s", storefrontRoot)
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", storefrontRoot, "--no-save"); err != nil {
 			return installErr
 		}
@@ -119,15 +119,15 @@ func buildStorefront(projectRoot string, forceNpmInstall bool) error {
 	return runConsoleCommand(projectRoot, "theme:compile")
 }
 
-func buildAdministration(projectRoot string, forceNpmInstall bool) error {
-	log.Infof("Building Administration in root %s", projectRoot)
+func buildAdministration(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
+	logging.FromContext(ctx).Infof("Building Administration in root %s", projectRoot)
 	adminRoot := extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration")
 
 	if err := runConsoleCommand(projectRoot, "bundle:dump"); err != nil {
 		return err
 	}
 
-	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall); err != nil {
+	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall, ctx); err != nil {
 		return err
 	}
 
@@ -139,7 +139,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 	_, err := os.Stat(extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration/node_modules"))
 
 	if forceNpmInstall || os.IsNotExist(err) {
-		log.Infof("Installing npm dependencies in %s", adminRoot)
+		logging.FromContext(ctx).Infof("Installing npm dependencies in %s", adminRoot)
 		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", adminRoot, "--no-save"); err != nil {
 			return installErr
 		}
@@ -158,10 +158,10 @@ func buildAdministration(projectRoot string, forceNpmInstall bool) error {
 	return runConsoleCommand(projectRoot, "assets:install")
 }
 
-func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool) error {
+func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
 	// Skip if plugins.json is missing
 	if _, err := os.Stat(projectRoot + "/var/plugins.json"); os.IsNotExist(err) {
-		log.Infof("Cannot find a var/plugins.json")
+		logging.FromContext(ctx).Infof("Cannot find a var/plugins.json")
 		return nil
 	}
 

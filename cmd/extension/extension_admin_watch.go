@@ -12,14 +12,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/NYTimes/gziphandler"
-	"github.com/evanw/esbuild/pkg/api"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"github.com/vulcand/oxy/forward"
-
 	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/NYTimes/gziphandler"
+	"github.com/evanw/esbuild/pkg/api"
+	"github.com/spf13/cobra"
+	"github.com/vulcand/oxy/v2/forward"
 )
 
 var hostRegExp = regexp.MustCompile(`(?m)host:\s'.*,`)
@@ -40,7 +39,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
 	Short: "Builds assets for extensions",
 	Args:  cobra.ExactArgs(2),
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ext, err := extension.GetExtensionByFolder(args[0])
 
 		if err != nil {
@@ -68,7 +67,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 		options := esbuild.NewAssetCompileOptionsAdmin(name, ext.GetPath(), ext.GetType())
 		options.ProductionMode = false
 
-		esbuildContext, esBuildError := esbuild.Context(options)
+		esbuildContext, esBuildError := esbuild.Context(options, cmd.Context())
 
 		if esBuildError != nil && len(esBuildError.Errors) > 0 {
 			return err
@@ -102,10 +101,10 @@ var extensionAdminWatchCmd = &cobra.Command{
 			}
 		}
 
-		fwd, _ := forward.New()
+		fwd := forward.New(true)
 
 		redirect := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			log.Debugf("Got request %s %s", req.Method, req.URL.Path)
+			logging.FromContext(cmd.Context()).Debugf("Got request %s %s", req.Method, req.URL.Path)
 
 			// Our custom live reload script
 			if req.URL.Path == "/__internal-admin-proxy/live-reload.js" {
@@ -131,7 +130,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
 
 				if err != nil {
-					log.Errorf("proxy failed %v", err)
+					logging.FromContext(cmd.Context()).Errorf("proxy failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -139,7 +138,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				body, err := io.ReadAll(resp.Body)
 
 				if err != nil {
-					log.Errorf("proxy reading failed %v", err)
+					logging.FromContext(cmd.Context()).Errorf("proxy reading failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -171,7 +170,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 					parsedUrl, err := url.Parse(s)
 
 					if err != nil {
-						log.Infof("cannot parse url: %s, err: %s", s, err.Error())
+						logging.FromContext(cmd.Context()).Infof("cannot parse url: %s, err: %s", s, err.Error())
 						return org
 					}
 
@@ -187,15 +186,15 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 				w.Header().Set("content-type", "text/html")
 				if _, err := w.Write([]byte(bodyStr)); err != nil {
-					log.Error(err)
+					logging.FromContext(cmd.Context()).Error(err)
 				}
-				log.Debugf("Served modified admin")
+				logging.FromContext(cmd.Context()).Debugf("Served modified admin")
 				return
 			}
 
 			// Inject our custom extension JS
 			if req.URL.Path == targetShopUrl.Path+"/api/_info/config" {
-				log.Debugf("intercept plugins call")
+				logging.FromContext(cmd.Context()).Debugf("intercept plugins call")
 
 				proxyReq, _ := http.NewRequest("GET", targetShopUrl.Scheme+"://"+targetShopUrl.Host+req.URL.Path, nil)
 
@@ -204,7 +203,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 				resp, err := http.DefaultClient.Do(proxyReq)
 
 				if err != nil {
-					log.Errorf("proxy failed %v", err)
+					logging.FromContext(cmd.Context()).Errorf("proxy failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -212,20 +211,20 @@ var extensionAdminWatchCmd = &cobra.Command{
 				body, err := io.ReadAll(resp.Body)
 
 				if err != nil {
-					log.Errorf("proxy reading failed %v", err)
+					logging.FromContext(cmd.Context()).Errorf("proxy reading failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 
 				var bundleInfo adminBundlesInfo
 				if err := json.Unmarshal(body, &bundleInfo); err != nil {
-					log.Errorf("could not decode bundle info %v", err)
+					logging.FromContext(cmd.Context()).Errorf("could not decode bundle info %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 
 				if bundleInfo.Bundles == nil {
-					log.Errorf("cannot inject bundles. got invalid response %s", body)
+					logging.FromContext(cmd.Context()).Errorf("cannot inject bundles. got invalid response %s", body)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -266,7 +265,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 				w.Header().Set("content-type", "application/json")
 				if _, err := w.Write(newJson); err != nil {
-					log.Error(err)
+					logging.FromContext(cmd.Context()).Error(err)
 				}
 
 				return
@@ -290,7 +289,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			Handler:           wrapper(redirect),
 			ReadHeaderTimeout: time.Second,
 		}
-		log.Infof("Admin Watcher started at "+browserUrl.String()+"%s/admin", targetShopUrl.Path)
+		logging.FromContext(cmd.Context()).Infof("Admin Watcher started at "+browserUrl.String()+"%s/admin", targetShopUrl.Path)
 		if err := s.ListenAndServe(); err != nil {
 			return err
 		}

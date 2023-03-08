@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
 func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, error) {
@@ -83,7 +81,6 @@ func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error
 
 	changelogDe, ok := changelogs["de-DE"]
 	if !ok {
-		logrus.Debugf("german changelog is missing. using english as fallback")
 		changelogDe = changelogEn
 	}
 

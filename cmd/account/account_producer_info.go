@@ -1,9 +1,8 @@
 package account
 
 import (
-	"fmt"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -11,20 +10,21 @@ var accountProducerInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "List information about your producer account",
 	Long:  ``,
-	RunE: func(_ *cobra.Command, _ []string) error {
-		p, err := services.AccountClient.Producer()
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		p, err := services.AccountClient.Producer(cmd.Context())
+
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
-		profile, err := p.Profile()
+		profile, err := p.Profile(cmd.Context())
 		if err != nil {
 			return fmt.Errorf("cannot get producer profile: %w", err)
 		}
 
-		log.Infof("Name: %s", profile.Name)
-		log.Infof("Prefix: %s", profile.Prefix)
-		log.Infof("Website: %s", profile.Website)
+		logging.FromContext(cmd.Context()).Infof("Name: %s", profile.Name)
+		logging.FromContext(cmd.Context()).Infof("Prefix: %s", profile.Prefix)
+		logging.FromContext(cmd.Context()).Infof("Website: %s", profile.Website)
 
 		return nil
 	},

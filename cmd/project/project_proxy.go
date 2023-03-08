@@ -6,10 +6,9 @@ import (
 	"os/exec"
 	"runtime"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/spf13/cobra"
 )
 
 var projectProxyCmd = &cobra.Command{
@@ -39,7 +38,7 @@ var projectProxyCmd = &cobra.Command{
 			return fmt.Errorf(message)
 		}
 
-		log.Infof("Make sure you have set TRUSTED_PROXIES=127.0.0.1,::1 inside your .env file")
+		logging.FromContext(cobraCmd.Context()).Infof("Make sure you have set TRUSTED_PROXIES=127.0.0.1,::1 inside your .env file")
 
 		command := exec.Command(cloudflareInstalled, "tunnel", "--url", cfg.URL)
 		command.Stdin = os.Stdin
