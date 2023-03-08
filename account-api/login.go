@@ -18,7 +18,7 @@ type AccountConfig interface {
 	GetAccountPassword() string
 }
 
-func NewApi(config AccountConfig, ctx context.Context) (*Client, error) {
+func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 	errorFormat := "login: %v"
 
 	request := LoginRequest{

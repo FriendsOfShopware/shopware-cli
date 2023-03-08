@@ -53,7 +53,7 @@ func init() {
 				AccountClient: nil,
 			}, nil
 		}
-		client, err := accountApi.NewApi(conf, rootCmd.Context())
+        client, err := accountApi.NewApi(rootCmd.Context(), conf)
 		if err != nil {
 			return nil, err
 		}

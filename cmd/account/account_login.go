@@ -35,7 +35,7 @@ var loginCmd = &cobra.Command{
 			logging.FromContext(cmd.Context()).Infof("Using existing credentials. Use account:logout to logout")
 		}
 
-		client, err := accountApi.NewApi(accountApi.LoginRequest{Email: email, Password: password}, cmd.Context())
+        client, err := accountApi.NewApi(cmd.Context(), accountApi.LoginRequest{Email: email, Password: password})
 
 		if err != nil {
 			return fmt.Errorf("login failed with error: %w", err)
