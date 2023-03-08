@@ -24,6 +24,24 @@ var projectCreateCmd = &cobra.Command{
 	Use:   "create [name] [version]",
 	Short: "Create a new Shopware 6 project",
 	Args:  cobra.MinimumNArgs(1),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 1 {
+			filteredVersions, err := getFilteredInstallVersions(cmd.Context())
+
+			if err != nil {
+				return []string{}, cobra.ShellCompDirectiveNoFileComp
+			}
+			versions := make([]string, len(filteredVersions))
+
+			for i, v := range filteredVersions {
+				versions[i] = v.String()
+			}
+
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return []string{}, cobra.ShellCompDirectiveFilterDirs
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectFolder := args[0]
 
@@ -37,20 +55,7 @@ var projectCreateCmd = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Using Symfony Flex to create a new Shopware 6 project")
 
-		releases, err := fetchAvailableShopwareVersions(cmd.Context())
-
-		filteredVersions := make([]*version.Version, 0)
-		constraint, _ := version.NewConstraint(">=6.4.18.0")
-
-		for _, release := range releases {
-			parsed := version.Must(version.NewVersion(release))
-
-			if constraint.Check(parsed) {
-				filteredVersions = append(filteredVersions, parsed)
-			}
-		}
-
-		sort.Sort(sort.Reverse(version.Collection(filteredVersions)))
+		filteredVersions, err := getFilteredInstallVersions(cmd.Context())
 
 		if err != nil {
 			return err
@@ -123,6 +128,29 @@ var projectCreateCmd = &cobra.Command{
 
 		return cmdInstall.Run()
 	},
+}
+
+func getFilteredInstallVersions(ctx context.Context) ([]*version.Version, error) {
+	releases, err := fetchAvailableShopwareVersions(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	filteredVersions := make([]*version.Version, 0)
+	constraint, _ := version.NewConstraint(">=6.4.18.0")
+
+	for _, release := range releases {
+		parsed := version.Must(version.NewVersion(release))
+
+		if constraint.Check(parsed) {
+			filteredVersions = append(filteredVersions, parsed)
+		}
+	}
+
+	sort.Sort(sort.Reverse(version.Collection(filteredVersions)))
+
+	return filteredVersions, nil
 }
 
 func init() {
