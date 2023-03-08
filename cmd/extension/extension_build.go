@@ -5,14 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionAssetBundleCmd = &cobra.Command{

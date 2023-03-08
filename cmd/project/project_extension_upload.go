@@ -12,17 +12,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/FriendsOfShopware/shopware-cli/version"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	cp "github.com/otiai10/copy"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )

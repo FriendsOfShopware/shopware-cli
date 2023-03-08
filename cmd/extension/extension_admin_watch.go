@@ -12,13 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FriendsOfShopware/shopware-cli/esbuild"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/NYTimes/gziphandler"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/v2/forward"
+
+	"github.com/FriendsOfShopware/shopware-cli/esbuild"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var hostRegExp = regexp.MustCompile(`(?m)host:\s'.*,`)

@@ -14,8 +14,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/pkg/errors"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 const dartSassVersion = "1.57.1"

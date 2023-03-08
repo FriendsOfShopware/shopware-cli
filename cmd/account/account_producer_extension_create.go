@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var accountCompanyProducerExtensionCreateCmd = &cobra.Command{

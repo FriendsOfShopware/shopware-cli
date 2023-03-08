@@ -7,12 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
 	"github.com/yuin/goldmark"
 	goldmarkExtension "github.com/yuin/goldmark/extension"
@@ -21,6 +16,7 @@ import (
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{

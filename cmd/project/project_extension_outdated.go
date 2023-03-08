@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
-
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 

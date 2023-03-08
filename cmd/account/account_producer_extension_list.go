@@ -4,11 +4,8 @@ import (
 	"os"
 	"strconv"
 
-	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
-
-	"github.com/pkg/errors"
-
 	"github.com/olekukonko/tablewriter"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"

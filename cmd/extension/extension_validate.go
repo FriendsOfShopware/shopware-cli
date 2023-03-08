@@ -5,13 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/olekukonko/tablewriter"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
-
-	"github.com/pkg/errors"
-
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 )
 
 var extensionValidateCmd = &cobra.Command{

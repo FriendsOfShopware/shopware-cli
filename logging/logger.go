@@ -4,9 +4,8 @@ import (
 	"context"
 	"time"
 
-	"go.uber.org/zap/zapcore"
-
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // contextKey is a private string type to prevent collisions in the context map.

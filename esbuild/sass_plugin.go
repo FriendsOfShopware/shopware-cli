@@ -6,9 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/bep/godartsass"
 	"github.com/evanw/esbuild/pkg/api"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 func newScssPlugin(ctx context.Context) api.Plugin {

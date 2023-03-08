@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/spf13/cobra"
+
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/spf13/cobra"
 )
 
 var projectProxyCmd = &cobra.Command{

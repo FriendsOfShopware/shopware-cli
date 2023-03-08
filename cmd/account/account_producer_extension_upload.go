@@ -4,16 +4,12 @@ import (
 	"path/filepath"
 	"time"
 
-	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-
 	"github.com/pkg/errors"
-
 	"github.com/spf13/cobra"
 
 	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var accountCompanyProducerExtensionUploadCmd = &cobra.Command{

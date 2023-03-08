@@ -6,15 +6,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 

@@ -7,12 +7,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 	"github.com/manifoldco/promptui"
 	"github.com/mholt/archiver/v3"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
+	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
 )
 
 var projectCreateCmd = &cobra.Command{

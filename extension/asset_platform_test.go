@@ -6,8 +6,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 func getTestContext() context.Context {

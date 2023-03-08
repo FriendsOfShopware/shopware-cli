@@ -6,15 +6,12 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
-
-	"github.com/pkg/errors"
-
 	cp "github.com/otiai10/copy"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var (

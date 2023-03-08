@@ -9,8 +9,9 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/spf13/cobra"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var projectWorkerCmd = &cobra.Command{

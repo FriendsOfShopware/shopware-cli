@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
+	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
+
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-
-	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
 type MailTemplateSync struct{}
