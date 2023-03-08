@@ -14,7 +14,6 @@ import (
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 	cp "github.com/otiai10/copy"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"

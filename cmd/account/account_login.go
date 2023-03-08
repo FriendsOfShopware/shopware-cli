@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
@@ -107,7 +106,7 @@ func askUserForEmailAndPassword() (string, string) {
 
 func emptyValidator(s string) error {
 	if len(s) == 0 {
-		return errors.New("this cannot be empty")
+		return fmt.Errorf("this cannot be empty")
 	}
 
 	return nil

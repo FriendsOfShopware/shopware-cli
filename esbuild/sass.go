@@ -14,8 +14,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 

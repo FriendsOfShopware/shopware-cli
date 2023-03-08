@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/yuin/goldmark"
 	goldmarkExtension "github.com/yuin/goldmark/extension"
@@ -132,7 +131,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			}
 
 			if err := updateStoreInfo(storeExt, zipExt, extCfg, info); err != nil {
-				return errors.Wrap(err, "cannot update store information")
+				return fmt.Errorf("cannot update store information: %w", err)
 			}
 		}
 

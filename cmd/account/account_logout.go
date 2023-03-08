@@ -1,7 +1,8 @@
 package account
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"

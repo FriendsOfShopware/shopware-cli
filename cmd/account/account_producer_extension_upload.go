@@ -1,10 +1,10 @@
 package account
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
