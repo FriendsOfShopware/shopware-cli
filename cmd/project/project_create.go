@@ -1,19 +1,23 @@
 package project
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
+	"os/exec"
+	"sort"
+	"strings"
+	"text/template"
 
 	"github.com/manifoldco/promptui"
-	"github.com/mholt/archiver/v3"
-	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
-	update_api "github.com/FriendsOfShopware/shopware-cli/update-api"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
 var projectCreateCmd = &cobra.Command{
@@ -31,7 +35,22 @@ var projectCreateCmd = &cobra.Command{
 			return err
 		}
 
-		releases, err := update_api.GetLatestReleases(cmd.Context())
+		logging.FromContext(cmd.Context()).Infof("Using Symfony Flex to create a new Shopware 6 project")
+
+		releases, err := fetchAvailableShopwareVersions(cmd.Context())
+
+		filteredVersions := make([]*version.Version, 0)
+		constraint, _ := version.NewConstraint(">=6.4.18.0")
+
+		for _, release := range releases {
+			parsed := version.Must(version.NewVersion(release))
+
+			if constraint.Check(parsed) {
+				filteredVersions = append(filteredVersions, parsed)
+			}
+		}
+
+		sort.Sort(sort.Reverse(version.Collection(filteredVersions)))
 
 		if err != nil {
 			return err
@@ -42,15 +61,9 @@ var projectCreateCmd = &cobra.Command{
 		if len(args) == 2 {
 			result = args[1]
 		} else {
-			var chooseVersions []string
-
-			for _, release := range releases {
-				chooseVersions = append(chooseVersions, release.Version)
-			}
-
 			prompt := promptui.Select{
 				Label: "Select Version",
-				Items: chooseVersions,
+				Items: filteredVersions,
 			}
 
 			if _, result, err = prompt.Run(); err != nil {
@@ -58,58 +71,181 @@ var projectCreateCmd = &cobra.Command{
 			}
 		}
 
-		var chooseVersion *update_api.ShopwareInstallRelease
+		chooseVersion := ""
 
-		for _, release := range releases {
-			if release.Version == result {
-				chooseVersion = release
+		for _, release := range filteredVersions {
+			if release.String() == result {
+				chooseVersion = release.String()
 				break
 			}
 		}
 
-		if chooseVersion == nil {
+		if chooseVersion == "" {
 			_ = os.RemoveAll(projectFolder)
 			return fmt.Errorf("cannot find version %s", result)
 		}
 
-		fileName := filepath.Base(chooseVersion.Uri)
+		logging.FromContext(cmd.Context()).Infof("Setting up Shopware %s", chooseVersion)
 
-		req, _ := http.NewRequest("GET", chooseVersion.Uri, nil)
-		resp, _ := http.DefaultClient.Do(req)
-		defer func(Body io.ReadCloser) {
-			_ = Body.Close()
-		}(resp.Body)
+		composerJson, err := generateComposerJson(chooseVersion, strings.Contains(chooseVersion, "rc"))
 
-		f, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
-
-		bar := progressbar.DefaultBytes(
-			resp.ContentLength,
-			"downloading",
-		)
-
-		if _, err := io.Copy(io.MultiWriter(f, bar), resp.Body); err != nil {
+		if err != nil {
 			return err
 		}
 
-		defer func(name string) {
-			_ = os.Remove(name)
-		}(fileName)
-
-		logging.FromContext(cmd.Context()).Infof("Unpacking now the zip")
-
-		if err := archiver.Unarchive(fileName, projectFolder); err != nil {
+		if err := os.WriteFile(fmt.Sprintf("%s/composer.json", projectFolder), []byte(composerJson), os.ModePerm); err != nil {
 			return err
 		}
 
-		logging.FromContext(cmd.Context()).Infof("Shopware %s is created in folder %s", chooseVersion.Version, projectFolder)
+		if err := os.WriteFile(fmt.Sprintf("%s/.env", projectFolder), []byte(""), os.ModePerm); err != nil {
+			return err
+		}
 
-		return nil
+		if err := os.WriteFile(fmt.Sprintf("%s/.gitignore", projectFolder), []byte("/.idea\n/vendor"), os.ModePerm); err != nil {
+			return err
+		}
+
+		if err := os.MkdirAll(fmt.Sprintf("%s/custom/plugins", projectFolder), os.ModePerm); err != nil {
+			return err
+		}
+
+		if err := os.MkdirAll(fmt.Sprintf("%s/custom/static-plugins", projectFolder), os.ModePerm); err != nil {
+			return err
+		}
+
+		logging.FromContext(cmd.Context()).Infof("Installing dependencies")
+
+		cmdInstall := exec.Command("composer", "install")
+		cmdInstall.Dir = projectFolder
+		cmdInstall.Stdin = os.Stdin
+		cmdInstall.Stdout = os.Stdout
+		cmdInstall.Stderr = os.Stderr
+
+		return cmdInstall.Run()
 	},
 }
 
 func init() {
 	projectRootCmd.AddCommand(projectCreateCmd)
+}
+
+func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://releases.shopware.com/changelog/index.json", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	content, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var releases []string
+
+	if err := json.Unmarshal(content, &releases); err != nil {
+		return nil, err
+	}
+
+	return releases, nil
+}
+
+func generateComposerJson(version string, rc bool) (string, error) {
+	tplContent, err := template.New("composer.json").Parse(`{
+    "name": "shopware/production",
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "composer-runtime-api": "^2.0",
+        "shopware/administration": "{{ .Version }}",
+        "shopware/core": "{{ .Version }}",
+        "shopware/elasticsearch": "{{ .Version }}",
+        "shopware/storefront": "{{ .Version }}",
+        "symfony/flex": "~2",
+        "symfony/runtime": "^5.0|^6.0"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "custom/plugins/*",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "custom/plugins/*/packages/*",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "custom/static-plugins/*",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+	{{if .RC}}
+    "minimum-stability": "RC",
+	{{end}}
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "auto-scripts": [
+        ],
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ]
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": true,
+            "endpoint": [
+                "https://raw.githubusercontent.com/shopware/recipes/flex/main/index.json",
+                "flex://defaults"
+            ]
+        }
+    }
+}`)
+
+	if err != nil {
+		return "", err
+	}
+
+	buf := new(bytes.Buffer)
+
+	err = tplContent.Execute(buf, struct {
+		Version string
+		RC      bool
+	}{
+		Version: version,
+		RC:      rc,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
