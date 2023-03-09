@@ -99,6 +99,16 @@ func TestCaretConstraint(t *testing.T) {
 	assert.Equal(t, false, constraint.Check(Must(NewVersion("7.0.0"))))
 }
 
+func TestVersionWithoutOperator(t *testing.T) {
+	constraint, err := NewConstraint("6.4.0.0")
+
+	assert.NoError(t, err)
+
+	assert.Equal(t, false, constraint.Check(Must(NewVersion("6.3.0.0"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.4.0.0"))))
+	assert.Equal(t, false, constraint.Check(Must(NewVersion("6.5.0.0"))))
+}
+
 func TestSortingVersions(t *testing.T) {
 	vs := []*Version{
 		Must(NewVersion("6.5.0.0-rc2")),
