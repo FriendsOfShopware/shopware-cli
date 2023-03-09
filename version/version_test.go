@@ -86,6 +86,19 @@ func TestMatchingRCWithGreaterThanEqual(t *testing.T) {
 	assert.Equal(t, "6.5.0.0-rc1", match)
 }
 
+func TestCaretConstraint(t *testing.T) {
+	constraint, _ := NewConstraint("^6.4.0")
+
+	assert.Equal(t, false, constraint.Check(Must(NewVersion("6.3.0.0"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.4.0.0"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.4.0.1"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.4.1.0"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.4.5.0"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.5.5.5"))))
+	assert.Equal(t, true, constraint.Check(Must(NewVersion("6.9.9.9"))))
+	assert.Equal(t, false, constraint.Check(Must(NewVersion("7.0.0"))))
+}
+
 func TestSortingVersions(t *testing.T) {
 	vs := []*Version{
 		Must(NewVersion("6.5.0.0-rc2")),
@@ -370,6 +383,34 @@ func TestLessThanOrEqual(t *testing.T) {
 				"%s <= %s\nexpected: %t\nactual: %t",
 				tc.v1, tc.v2,
 				expected, actual)
+		}
+	}
+}
+
+func TestConstraintPrerelease(t *testing.T) {
+	cases := []struct {
+		constraint string
+		prerelease bool
+	}{
+		{"= 1.0", false},
+		{"= 1.0-beta", true},
+		{"~> 2.1.0", false},
+		{"~> 2.1.0-dev", true},
+		{"> 2.0", false},
+		{">= 2.1.0-a", true},
+	}
+
+	for _, tc := range cases {
+		c, err := parseSingle(tc.constraint)
+		if err != nil {
+			t.Fatalf("err: %s", err)
+		}
+
+		actual := c.Prerelease()
+		expected := tc.prerelease
+		if actual != expected {
+			t.Fatalf("Constraint: %s\nExpected: %#v",
+				tc.constraint, expected)
 		}
 	}
 }

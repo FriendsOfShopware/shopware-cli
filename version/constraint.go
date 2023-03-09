@@ -39,9 +39,16 @@ func init() {
 		"~":  constraintTilde,
 	}
 
-	ops := make([]string, 0, len(constraintOperators))
-	for k := range constraintOperators {
-		ops = append(ops, regexp.QuoteMeta(k))
+	ops := []string{
+		"=",
+		"!=",
+		">",
+		"<",
+		">=",
+		"<=",
+		"~>",
+		"\\^",
+		"~",
 	}
 
 	constraintRegexp = regexp.MustCompile(fmt.Sprintf(
@@ -73,6 +80,16 @@ func NewConstraint(cs string) (Constraints, error) {
 	return Constraints(or), nil
 }
 
+// MustConstraints is a helper that wraps a call to a function
+// returning (Constraints, error) and panics if error is non-nil.
+func MustConstraints(c Constraints, err error) Constraints {
+	if err != nil {
+		panic(err)
+	}
+
+	return c
+}
+
 // Check tests if a version satisfies all the constraints.
 func (cs Constraints) Check(v *Version) bool {
 	for _, o := range cs {
@@ -90,6 +107,12 @@ func (cs Constraints) Check(v *Version) bool {
 	}
 
 	return false
+}
+
+// Prerelease returns true if the version underlying this constraint
+// contains a prerelease field.
+func (c *Constraint) Prerelease() bool {
+	return len(c.check.Prerelease()) > 0
 }
 
 // Returns the string format of the constraints
