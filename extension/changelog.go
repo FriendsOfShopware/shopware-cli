@@ -49,7 +49,7 @@ func parseMarkdownChangelog(content string) map[string]string {
 			currentVersion = strings.Trim(strings.TrimPrefix(line, "#"), " ")
 			versionText = ""
 		} else if strings.HasPrefix(line, "-") || strings.HasPrefix(line, "*") {
-			versionText = strings.Trim(versionText+line[1:]+"\n", " ")
+			versionText = strings.Trim(versionText+line[1:]+"<br>", " ")
 		}
 	}
 
