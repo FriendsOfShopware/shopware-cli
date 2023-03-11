@@ -30,8 +30,8 @@ type AssetBuildConfig struct {
 	EnableESBuildForStorefront bool
 }
 
-func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig, ctx context.Context) error {
-	cfgs := buildAssetConfigFromExtensions(extensions, shopwareRoot, ctx)
+func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error {
+	cfgs := buildAssetConfigFromExtensions(ctx, extensions, shopwareRoot)
 
 	if len(cfgs) == 1 {
 		return nil
@@ -99,7 +99,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 
 				options := esbuild.NewAssetCompileOptionsAdmin(name, extension.GetPath(), extension.GetType())
 
-				if _, err := esbuild.CompileExtensionAsset(options, ctx); err != nil {
+				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
 				}
 			}
@@ -125,7 +125,7 @@ func BuildAssetsForExtensions(shopwareRoot string, extensions []Extension, asset
 				}
 
 				options := esbuild.NewAssetCompileOptionsStorefront(name, extension.GetPath(), extension.GetType())
-				if _, err := esbuild.CompileExtensionAsset(options, ctx); err != nil {
+				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
 				}
 			}
@@ -212,7 +212,7 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(extensions []Extension, shopwareRoot string, ctx context.Context) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(ctx context.Context, extensions []Extension, shopwareRoot string) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, extension := range extensions {

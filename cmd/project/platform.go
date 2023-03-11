@@ -66,7 +66,7 @@ func runSimpleCommand(root string, app string, args ...string) error {
 	return cmd.Run()
 }
 
-func buildStorefront(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
+func buildStorefront(ctx context.Context, projectRoot string, forceNpmInstall bool) error {
 	logging.FromContext(ctx).Infof("Building storefront in root %s", projectRoot)
 
 	storefrontRoot := extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront")
@@ -75,7 +75,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool, ctx context.Conte
 		return err
 	}
 
-	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall, ctx); err != nil {
+	if err := setupExtensionNodeModules(ctx, projectRoot, forceNpmInstall); err != nil {
 		return err
 	}
 
@@ -118,7 +118,7 @@ func buildStorefront(projectRoot string, forceNpmInstall bool, ctx context.Conte
 	return runConsoleCommand(projectRoot, "theme:compile")
 }
 
-func buildAdministration(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
+func buildAdministration(ctx context.Context, projectRoot string, forceNpmInstall bool) error {
 	logging.FromContext(ctx).Infof("Building Administration in root %s", projectRoot)
 	adminRoot := extension.PlatformPath(projectRoot, "Administration", "Resources/app/administration")
 
@@ -126,7 +126,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool, ctx context.C
 		return err
 	}
 
-	if err := setupExtensionNodeModules(projectRoot, forceNpmInstall, ctx); err != nil {
+	if err := setupExtensionNodeModules(ctx, projectRoot, forceNpmInstall); err != nil {
 		return err
 	}
 
@@ -157,7 +157,7 @@ func buildAdministration(projectRoot string, forceNpmInstall bool, ctx context.C
 	return runConsoleCommand(projectRoot, "assets:install")
 }
 
-func setupExtensionNodeModules(projectRoot string, forceNpmInstall bool, ctx context.Context) error {
+func setupExtensionNodeModules(ctx context.Context, projectRoot string, forceNpmInstall bool) error {
 	// Skip if plugins.json is missing
 	if _, err := os.Stat(projectRoot + "/var/plugins.json"); os.IsNotExist(err) {
 		logging.FromContext(ctx).Infof("Cannot find a var/plugins.json")

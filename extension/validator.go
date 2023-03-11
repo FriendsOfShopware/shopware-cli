@@ -16,7 +16,7 @@ type ValidationContext struct {
 	warnings  []string
 }
 
-func newValidationContext(ext Extension, ctx context.Context) *ValidationContext {
+func newValidationContext(ctx context.Context, ext Extension) *ValidationContext {
 	return &ValidationContext{Extension: ext, ctx: ctx}
 }
 
@@ -44,8 +44,8 @@ func (c *ValidationContext) Warnings() []string {
 	return c.warnings
 }
 
-func RunValidation(ext Extension, ctx context.Context) *ValidationContext {
-	context := newValidationContext(ext, ctx)
+func RunValidation(ctx context.Context, ext Extension) *ValidationContext {
+	context := newValidationContext(ctx, ext)
 
 	runDefaultValidate(context)
 	ext.Validate(context)

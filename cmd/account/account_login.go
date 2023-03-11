@@ -41,7 +41,7 @@ var loginCmd = &cobra.Command{
 		}
 
 		if companyId := services.Conf.GetAccountCompanyId(); companyId > 0 {
-			err = changeAPIMembership(client, companyId, cmd.Context())
+			err = changeAPIMembership(cmd.Context(), client, companyId)
 
 			if err != nil {
 				return fmt.Errorf("cannot change company member ship: %w", err)
@@ -110,7 +110,7 @@ func emptyValidator(s string) error {
 	return nil
 }
 
-func changeAPIMembership(client *accountApi.Client, companyID int, ctx context.Context) error {
+func changeAPIMembership(ctx context.Context, client *accountApi.Client, companyID int) error {
 	if companyID == 0 || client.GetActiveCompanyID() == companyID {
 		logging.FromContext(ctx).Debugf("Client is on correct membership skip")
 		return nil
@@ -119,7 +119,7 @@ func changeAPIMembership(client *accountApi.Client, companyID int, ctx context.C
 	for _, membership := range client.GetMemberships() {
 		if membership.Company.Id == companyID {
 			logging.FromContext(ctx).Debugf("Changing member ship from %s (%d) to %s (%d)", client.ActiveMembership.Company.Name, client.ActiveMembership.Company.Id, membership.Company.Name, membership.Company.Id)
-			return client.ChangeActiveMembership(membership, ctx)
+			return client.ChangeActiveMembership(ctx, membership)
 		}
 	}
 

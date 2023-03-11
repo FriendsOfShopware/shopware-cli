@@ -65,7 +65,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 		}
 
 		if increaseVersionBeforeUpload {
-			if err := increaseExtensionVersion(ext, cmd.Context()); err != nil {
+			if err := increaseExtensionVersion(cmd.Context(), ext); err != nil {
 				return err
 			}
 
@@ -221,7 +221,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 	},
 }
 
-func increaseExtensionVersion(ext extension.Extension, ctx context.Context) error {
+func increaseExtensionVersion(ctx context.Context, ext extension.Extension) error {
 	if ext.GetType() == "app" {
 		manifestPath := fmt.Sprintf("%s/manifest.xml", ext.GetPath())
 		file, err := os.Open(manifestPath)

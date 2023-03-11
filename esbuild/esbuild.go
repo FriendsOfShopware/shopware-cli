@@ -58,7 +58,7 @@ func NewAssetCompileOptionsStorefront(name, path, extType string) AssetCompileOp
 	}
 }
 
-func getEsbuildOptions(options AssetCompileOptions, ctx context.Context) (*api.BuildOptions, error) {
+func getEsbuildOptions(ctx context.Context, options AssetCompileOptions) (*api.BuildOptions, error) {
 	entryPoint := filepath.Join(options.Path, options.EntrypointDir, "main.js")
 
 	if _, err := os.Stat(entryPoint); os.IsNotExist(err) {
@@ -95,8 +95,8 @@ func getEsbuildOptions(options AssetCompileOptions, ctx context.Context) (*api.B
 	return &bundlerOptions, nil
 }
 
-func Context(options AssetCompileOptions, ctx context.Context) (api.BuildContext, *api.ContextError) {
-	bundlerOptions, err := getEsbuildOptions(options, ctx)
+func Context(ctx context.Context, options AssetCompileOptions) (api.BuildContext, *api.ContextError) {
+	bundlerOptions, err := getEsbuildOptions(ctx, options)
 	if err != nil {
 		panic(err)
 	}
@@ -104,12 +104,12 @@ func Context(options AssetCompileOptions, ctx context.Context) (api.BuildContext
 	return api.Context(*bundlerOptions)
 }
 
-func CompileExtensionAsset(options AssetCompileOptions, ctx context.Context) (*AssetCompileResult, error) {
+func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*AssetCompileResult, error) {
 	technicalName := strings.ReplaceAll(ToSnakeCase(options.Name), "_", "-")
 	jsFile := filepath.Join(options.Path, options.OutputDir, "js", technicalName+".js")
 	cssFile := filepath.Join(options.Path, options.OutputDir, "css", technicalName+".css")
 
-	bundlerOptions, err := getEsbuildOptions(options, ctx)
+	bundlerOptions, err := getEsbuildOptions(ctx, options)
 	if err != nil {
 		return nil, err
 	}

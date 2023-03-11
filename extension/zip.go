@@ -205,7 +205,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	minVersion, err := lookupForMinMatchingVersion(ext, ctx)
+	minVersion, err := lookupForMinMatchingVersion(ctx, ext)
 	if err != nil {
 		return fmt.Errorf("lookup for min matching version: %w", err)
 	}
@@ -367,7 +367,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 	return composer, nil
 }
 
-func lookupForMinMatchingVersion(ext Extension, ctx context.Context) (string, error) {
+func lookupForMinMatchingVersion(ctx context.Context, ext Extension) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", nil)
 	if err != nil {
 		return "", fmt.Errorf("create composer version request: %w", err)

@@ -39,7 +39,7 @@ var extensionValidateCmd = &cobra.Command{
 			return fmt.Errorf("cannot open extension: %w", err)
 		}
 
-		context := extension.RunValidation(ext, cmd.Context())
+		context := extension.RunValidation(cmd.Context(), ext)
 
 		if context.HasErrors() || context.HasWarnings() {
 			table := tablewriter.NewWriter(os.Stdout)

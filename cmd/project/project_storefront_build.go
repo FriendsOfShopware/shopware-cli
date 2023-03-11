@@ -17,7 +17,7 @@ var projectStorefrontBuildCmd = &cobra.Command{
 			return err
 		}
 
-		return buildStorefront(projectRoot, forceNpmInstall, cmd.Context())
+		return buildStorefront(cmd.Context(), projectRoot, forceNpmInstall)
 	},
 }
 

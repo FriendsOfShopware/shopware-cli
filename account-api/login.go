@@ -65,7 +65,7 @@ func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	memberships, err := fetchMemberships(token, ctx)
+	memberships, err := fetchMemberships(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 	return client, nil
 }
 
-func fetchMemberships(token token, ctx context.Context) ([]Membership, error) {
+func fetchMemberships(ctx context.Context, token token) ([]Membership, error) {
 	r, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil)
 	r.Header.Set("x-shopware-token", token.Token)
 
@@ -208,7 +208,7 @@ type changeMembershipRequest struct {
 	} `json:"membership"`
 }
 
-func (c *Client) ChangeActiveMembership(selected Membership, ctx context.Context) error {
+func (c *Client) ChangeActiveMembership(ctx context.Context, selected Membership) error {
 	s, err := json.Marshal(changeMembershipRequest{SelectedMembership: struct {
 		Id int `json:"id"`
 	}(struct{ Id int }{Id: selected.Id})})

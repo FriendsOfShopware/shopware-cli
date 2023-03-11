@@ -17,7 +17,7 @@ var projectAdminBuildCmd = &cobra.Command{
 
 		forceNpmInstall, _ := cmd.PersistentFlags().GetBool("npm-install")
 
-		return buildAdministration(projectRoot, forceNpmInstall, cmd.Context())
+		return buildAdministration(cmd.Context(), projectRoot, forceNpmInstall)
 	},
 }
 

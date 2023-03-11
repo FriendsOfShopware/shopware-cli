@@ -43,7 +43,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 			assetCfg.EnableESBuildForStorefront = extCfg.Build.Zip.Assets.EnableESBuildForStorefront
 		}
 
-		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg, cmd.Context())
+		err := extension.BuildAssetsForExtensions(cmd.Context(), os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg)
 		if err != nil {
 			return fmt.Errorf("cannot build assets: %w", err)
 		}
