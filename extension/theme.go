@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func validateTheme(ctx *validationContext) {
+func validateTheme(ctx *ValidationContext) {
 	themeJSONPath := fmt.Sprintf("%s/src/Resources/theme.json", ctx.Extension.GetPath())
 
 	if _, err := os.Stat(themeJSONPath); !os.IsNotExist(err) {

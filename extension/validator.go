@@ -9,42 +9,42 @@ import (
 	"golang.org/x/net/context"
 )
 
-type validationContext struct {
+type ValidationContext struct {
 	Extension Extension
 	ctx       context.Context
 	errors    []string
 	warnings  []string
 }
 
-func newValidationContext(ext Extension, ctx context.Context) *validationContext {
-	return &validationContext{Extension: ext, ctx: ctx}
+func newValidationContext(ext Extension, ctx context.Context) *ValidationContext {
+	return &ValidationContext{Extension: ext, ctx: ctx}
 }
 
-func (c *validationContext) AddError(message string) {
+func (c *ValidationContext) AddError(message string) {
 	c.errors = append(c.errors, message)
 }
 
-func (c *validationContext) HasErrors() bool {
+func (c *ValidationContext) HasErrors() bool {
 	return len(c.errors) > 0
 }
 
-func (c *validationContext) Errors() []string {
+func (c *ValidationContext) Errors() []string {
 	return c.errors
 }
 
-func (c *validationContext) AddWarning(message string) {
+func (c *ValidationContext) AddWarning(message string) {
 	c.warnings = append(c.warnings, message)
 }
 
-func (c *validationContext) HasWarnings() bool {
+func (c *ValidationContext) HasWarnings() bool {
 	return len(c.warnings) > 0
 }
 
-func (c *validationContext) Warnings() []string {
+func (c *ValidationContext) Warnings() []string {
 	return c.warnings
 }
 
-func RunValidation(ext Extension, ctx context.Context) *validationContext {
+func RunValidation(ext Extension, ctx context.Context) *ValidationContext {
 	context := newValidationContext(ext, ctx)
 
 	runDefaultValidate(context)
@@ -53,7 +53,7 @@ func RunValidation(ext Extension, ctx context.Context) *validationContext {
 	return context
 }
 
-func runDefaultValidate(context *validationContext) {
+func runDefaultValidate(context *ValidationContext) {
 	_, versionErr := context.Extension.GetVersion()
 	name, nameErr := context.Extension.GetName()
 	_, shopwareVersionErr := context.Extension.GetShopwareVersionConstraint()

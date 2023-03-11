@@ -273,7 +273,7 @@ func (a App) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (a App) Validate(ctx *validationContext) {
+func (a App) Validate(ctx *ValidationContext) {
 	validateTheme(ctx)
 
 	appIcon := a.manifest.Meta.Icon

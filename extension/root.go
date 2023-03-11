@@ -80,5 +80,5 @@ type Extension interface {
 	GetPath() string
 	GetChangelog() (*extensionTranslated, error)
 	GetMetaData() *extensionMetadata
-	Validate(context *validationContext)
+	Validate(context *ValidationContext)
 }

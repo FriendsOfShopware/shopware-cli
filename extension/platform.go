@@ -148,7 +148,7 @@ func (p PlatformPlugin) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (p PlatformPlugin) Validate(ctx *validationContext) {
+func (p PlatformPlugin) Validate(ctx *ValidationContext) {
 	if len(p.composer.Name) == 0 {
 		ctx.AddError("Key `name` is required")
 	}
@@ -233,7 +233,7 @@ type phpSyntaxCheckerResult struct {
 	Errors []string `json:"errors"`
 }
 
-func validatePHPFiles(ctx *validationContext) {
+func validatePHPFiles(ctx *ValidationContext) {
 	var b bytes.Buffer
 	bufferW := bufio.NewWriter(&b)
 

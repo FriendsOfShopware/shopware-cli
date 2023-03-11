@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (c *Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
+func (c *Client) GetMyProfile(ctx context.Context) (*MyProfile, error) {
 	errorFormat := "GetMyProfile: %v"
 
 	request, err := c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil)
@@ -32,7 +32,7 @@ func (c *Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	var profile myProfile
+	var profile MyProfile
 	if err := json.Unmarshal(data, &profile); err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
@@ -40,7 +40,7 @@ func (c *Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
 	return &profile, nil
 }
 
-type myProfile struct {
+type MyProfile struct {
 	Id           int    `json:"id"`
 	Email        string `json:"email"`
 	CreationDate string `json:"creationDate"`
