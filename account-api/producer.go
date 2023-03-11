@@ -53,7 +53,7 @@ type companyAllocation struct {
 	ProducerID        int  `json:"producerId"`
 }
 
-func (e ProducerEndpoint) Profile(ctx context.Context) (*producer, error) {
+func (e ProducerEndpoint) Profile(ctx context.Context) (*Producer, error) {
 	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/producers?companyId=%d", ApiUrl, e.c.GetActiveCompanyID()), nil)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (e ProducerEndpoint) Profile(ctx context.Context) (*producer, error) {
 		return nil, err
 	}
 
-	var producers []producer
+	var producers []Producer
 	if err := json.Unmarshal(body, &producers); err != nil {
 		return nil, fmt.Errorf("my_profile: %v", err)
 	}
@@ -76,7 +76,7 @@ func (e ProducerEndpoint) Profile(ctx context.Context) (*producer, error) {
 	return nil, fmt.Errorf("cannot find a profile")
 }
 
-type producer struct {
+type Producer struct {
 	Id       int    `json:"id"`
 	Prefix   string `json:"prefix"`
 	Contract struct {
