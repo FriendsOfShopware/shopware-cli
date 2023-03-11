@@ -28,7 +28,7 @@ jobs:
       - name: Check for Updates
         run: nix run github:Mic92/nix-update -- shopware-cli --url https://github.com/FriendsOfShopware/shopware-cli --flake
 
-      - uses: EndBug/add-and-commit@v4
+      - uses: EndBug/add-and-commit@v9
         with:
           add: "."
           author_name: Frosh Automation
