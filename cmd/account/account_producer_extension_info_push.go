@@ -8,10 +8,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/yuin/goldmark"
-	goldmarkExtension "github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer/html"
 
 	accountApi "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
@@ -307,16 +303,7 @@ func parseInlineablePath(path, extensionDir string) (string, error) {
 		return string(content), nil
 	}
 
-	md := goldmark.New(
-		goldmark.WithExtensions(goldmarkExtension.GFM),
-		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
-		),
-		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithXHTML(),
-		),
-	)
+	md := extension.GetConfiguredGoldMark()
 
 	var buf bytes.Buffer
 	err = md.Convert(content, &buf)
