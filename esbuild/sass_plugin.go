@@ -70,7 +70,7 @@ const (
 	InternalMixinsScssPath    = "file://internal//mixins.scss"
 )
 
-func (s scssImporter) CanonicalizeURL(url string) (string, error) {
+func (scssImporter) CanonicalizeURL(url string) (string, error) {
 	if url == "~scss/variables" {
 		return InternalVariablesScssPath, nil
 	}
