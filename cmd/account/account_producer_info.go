@@ -14,7 +14,6 @@ var accountProducerInfoCmd = &cobra.Command{
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}

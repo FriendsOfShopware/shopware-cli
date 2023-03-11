@@ -43,7 +43,6 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 	}
 
 	jsonFile, err := os.ReadFile(composerJsonFile)
-
 	if err != nil {
 		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
@@ -109,7 +108,6 @@ func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, er
 	}
 
 	shopwareConstraint, err := version.NewConstraint(shopwareConstraintString)
-
 	if err != nil {
 		return nil, err
 	}
@@ -246,13 +244,11 @@ func validatePHPFiles(ctx *validationContext) {
 
 		if strings.HasSuffix(name, ".php") {
 			zipFile, err := phpZip.Create(strings.TrimPrefix(path, ctx.Extension.GetPath()))
-
 			if err != nil {
 				return err
 			}
 
 			file, err := os.Open(path)
-
 			if err != nil {
 				return err
 			}
@@ -277,7 +273,6 @@ func validatePHPFiles(ctx *validationContext) {
 	multipartWriter := multipart.NewWriter(body)
 
 	part, err := multipartWriter.CreateFormFile("file", "file.zip")
-
 	if err != nil {
 		ctx.AddError(fmt.Sprintf("Could not create form file: %s", err.Error()))
 		return
@@ -293,7 +288,6 @@ func validatePHPFiles(ctx *validationContext) {
 	_ = multipartWriter.Close()
 
 	constraint, err := ctx.Extension.GetShopwareVersionConstraint()
-
 	if err != nil {
 		ctx.AddError(fmt.Sprintf("Could not parse shopware version constraint: %s", err.Error()))
 		return
@@ -308,7 +302,6 @@ func validatePHPFiles(ctx *validationContext) {
 	logging.FromContext(ctx.ctx).Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
 
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, fmt.Sprintf("https://php-syntax-checker.fos.gg/?version=%s", phpVersion), body)
-
 	if err != nil {
 		ctx.AddWarning(fmt.Sprintf("Could not create request to validate php files: %s", err.Error()))
 		return
@@ -317,7 +310,6 @@ func validatePHPFiles(ctx *validationContext) {
 	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 
 	resp, err := http.DefaultClient.Do(req)
-
 	if err != nil {
 		ctx.AddWarning(fmt.Sprintf("Could not validate php files: %s", err.Error()))
 		return
@@ -347,7 +339,6 @@ func getPhpVersion(constraint *version.Constraints) (string, error) {
 	r, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", nil)
 
 	resp, err := http.DefaultClient.Do(r)
-
 	if err != nil {
 		return "", err
 	}
@@ -364,7 +355,6 @@ func getPhpVersion(constraint *version.Constraints) (string, error) {
 
 	for shopwareVersion, phpVersion := range shopwareToPHPVersion {
 		shopwareVersionConstraint, err := version.NewVersion(shopwareVersion)
-
 		if err != nil {
 			continue
 		}

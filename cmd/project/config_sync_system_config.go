@@ -19,7 +19,6 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
 	salesChannelResponse, resp, err := client.Repository.SalesChannel.SearchAll(ctx, c)
-
 	if err != nil {
 		return err
 	}
@@ -46,7 +45,6 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 		}
 
 		currentConfig, err := readSystemConfig(ctx, client, config.SalesChannel)
-
 		if err != nil {
 			return err
 		}
@@ -90,7 +88,6 @@ func (SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 	c := adminSdk.Criteria{}
 	c.Includes = map[string][]string{"sales_channel": {"id", "name"}}
 	salesChannelResponse, resp, err := client.Repository.SalesChannel.SearchAll(ctx, c)
-
 	if err != nil {
 		return err
 	}

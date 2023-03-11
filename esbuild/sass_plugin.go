@@ -17,7 +17,6 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 		Name: "scss",
 		Setup: func(build api.PluginBuild) {
 			dartSassBinary, err := downloadDartSass(ctx)
-
 			if err != nil {
 				logging.FromContext(ctx).Fatalln(err)
 			}
@@ -29,7 +28,6 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 				Timeout:                  0,
 				LogEventHandler:          nil,
 			})
-
 			if err != nil {
 				logging.FromContext(ctx).Fatalln(err)
 			}
@@ -50,7 +48,6 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 						},
 						ImportResolver: scssImporter{ctx: ctx},
 					})
-
 					if err != nil {
 						return api.OnLoadResult{}, err
 					}
@@ -68,8 +65,10 @@ type scssImporter struct {
 	ctx context.Context
 }
 
-const InternalVariablesScssPath = "file://internal//variables.scss"
-const InternalMixinsScssPath = "file://internal//mixins.scss"
+const (
+	InternalVariablesScssPath = "file://internal//variables.scss"
+	InternalMixinsScssPath    = "file://internal//mixins.scss"
+)
 
 func (s scssImporter) CanonicalizeURL(url string) (string, error) {
 	if url == "~scss/variables" {

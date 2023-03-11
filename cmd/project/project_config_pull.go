@@ -38,7 +38,6 @@ var projectConfigPullCmd = &cobra.Command{
 		}
 
 		content, err := yaml.Marshal(cfg)
-
 		if err != nil {
 			return err
 		}

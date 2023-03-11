@@ -30,13 +30,11 @@ var projectAdminApiCmd = &cobra.Command{
 		}
 
 		client, err := shop.NewShopClient(cobraCmd.Context(), cfg)
-
 		if err != nil {
 			return err
 		}
 
 		token, err := client.Token().Token()
-
 		if err != nil {
 			return err
 		}

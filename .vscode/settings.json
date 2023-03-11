@@ -1,0 +1,12 @@
+{
+    "go.formatTool": "gofumpt",
+    "go.useLanguageServer": true,
+    "gopls": {
+        "formatting.gofumpt": true,
+    },
+    "go.diagnostic.vulncheck": "Imports",
+    "go.inlayHints.functionTypeParameters": true,
+    "go.inlayHints.assignVariableTypes": true,
+    "go.inlayHints.compositeLiteralFields": true,
+    "go.inlayHints.constantValues": true
+}

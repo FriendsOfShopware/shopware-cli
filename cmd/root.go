@@ -13,8 +13,10 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-var cfgFile string
-var version = "dev"
+var (
+	cfgFile string
+	version = "dev"
+)
 
 var rootCmd = &cobra.Command{
 	Use:     "shopware-cli",

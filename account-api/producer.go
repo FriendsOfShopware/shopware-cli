@@ -60,7 +60,6 @@ func (e producerEndpoint) Profile(ctx context.Context) (*producer, error) {
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +126,6 @@ func (e producerEndpoint) Extensions(ctx context.Context, criteria *ListExtensio
 	form := url.Values{}
 	form.Set("producerId", strconv.FormatInt(int64(e.GetId()), 10))
 	err := encoder.Encode(criteria, form)
-
 	if err != nil {
 		return nil, fmt.Errorf("list_extensions: %v", err)
 	}
@@ -138,7 +136,6 @@ func (e producerEndpoint) Extensions(ctx context.Context, criteria *ListExtensio
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +154,6 @@ func (e producerEndpoint) GetExtensionByName(ctx context.Context, name string) (
 	}
 
 	extensions, err := e.Extensions(ctx, &criteria)
-
 	if err != nil {
 		return nil, err
 	}
@@ -176,13 +172,11 @@ func (e producerEndpoint) GetExtensionById(ctx context.Context, id int) (*Extens
 
 	// Create it
 	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
-
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
@@ -345,7 +339,6 @@ const (
 
 func (e producerEndpoint) CreateExtension(ctx context.Context, newExtension CreateExtensionRequest) (*Extension, error) {
 	requestBody, err := json.Marshal(newExtension)
-
 	if err != nil {
 		return nil, err
 	}
@@ -380,14 +373,12 @@ func (e producerEndpoint) CreateExtension(ctx context.Context, newExtension Crea
 
 func (e producerEndpoint) UpdateExtension(ctx context.Context, extension *Extension) error {
 	requestBody, err := json.Marshal(extension)
-
 	if err != nil {
 		return err
 	}
 
 	// Patch the name
 	r, err := e.c.NewAuthenticatedRequest(ctx, "PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody))
-
 	if err != nil {
 		return err
 	}
@@ -399,7 +390,6 @@ func (e producerEndpoint) UpdateExtension(ctx context.Context, extension *Extens
 
 func (e producerEndpoint) DeleteExtension(ctx context.Context, id int) error {
 	r, err := e.c.NewAuthenticatedRequest(ctx, "DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
-
 	if err != nil {
 		return err
 	}
@@ -412,13 +402,11 @@ func (e producerEndpoint) DeleteExtension(ctx context.Context, id int) error {
 func (e producerEndpoint) GetSoftwareVersions(ctx context.Context, generation string) (*SoftwareVersionList, error) {
 	errorFormat := "shopware_versions: %v"
 	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/pluginstatics/softwareVersions?filter=[{\"property\":\"pluginGeneration\",\"value\":\"%s\"},{\"property\":\"includeNonPublic\",\"value\":\"1\"}]", ApiUrl, generation), nil)
-
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
@@ -565,13 +553,11 @@ type ExtensionGeneralInformation struct {
 
 func (e producerEndpoint) GetExtensionGeneralInfo(ctx context.Context) (*ExtensionGeneralInformation, error) {
 	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/pluginstatics/all", ApiUrl), nil)
-
 	if err != nil {
 		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)
 	}
 
 	body, err := e.c.doRequest(r)
-
 	if err != nil {
 		return nil, fmt.Errorf("GetExtensionGeneralInfo: %v", err)
 	}

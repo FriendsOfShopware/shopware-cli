@@ -44,7 +44,6 @@ var extensionAssetBundleCmd = &cobra.Command{
 		}
 
 		err := extension.BuildAssetsForExtensions(os.Getenv("SHOPWARE_PROJECT_ROOT"), validatedExtensions, assetCfg, cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot build assets: %w", err)
 		}

@@ -18,7 +18,6 @@ func (ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
 	themes, resp, err := client.Repository.Theme.SearchAll(ctx, criteria)
-
 	if err != nil {
 		return err
 	}
@@ -27,7 +26,6 @@ func (ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 
 	for _, t := range themes.Data {
 		remoteConfigs, resp, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
-
 		if err != nil {
 			return err
 		}
@@ -69,7 +67,6 @@ func (ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 	criteria := adminSdk.Criteria{}
 	criteria.Includes = map[string][]string{"theme": {"id", "name"}}
 	themes, resp, err := client.Repository.Theme.SearchAll(ctx, criteria)
-
 	if err != nil {
 		return err
 	}
@@ -83,7 +80,6 @@ func (ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 		}
 
 		themeConfig, resp, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
-
 		if err != nil {
 			return err
 		}

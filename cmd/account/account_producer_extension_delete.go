@@ -20,7 +20,6 @@ var accountCompanyProducerExtensionDeleteCmd = &cobra.Command{
 		}
 
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}

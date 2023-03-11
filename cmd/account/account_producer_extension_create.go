@@ -23,7 +23,6 @@ var accountCompanyProducerExtensionCreateCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}

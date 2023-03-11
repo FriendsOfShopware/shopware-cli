@@ -242,10 +242,10 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	err = os.WriteFile(composerJSONPath, newContent, 0644) //nolint:gosec
+	err = os.WriteFile(composerJSONPath, newContent, 0o644) //nolint:gosec
 	if err != nil {
 		// Revert on failure
-		_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+		_ = os.WriteFile(composerJSONPath, content, 0o644) //nolint:gosec
 		return fmt.Errorf(errorFormat, err)
 	}
 
@@ -256,11 +256,11 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 	err = composerInstallCmd.Run()
 	if err != nil {
 		// Revert on failure
-		_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+		_ = os.WriteFile(composerJSONPath, content, 0o644) //nolint:gosec
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	_ = os.WriteFile(composerJSONPath, content, 0644) //nolint:gosec
+	_ = os.WriteFile(composerJSONPath, content, 0o644) //nolint:gosec
 
 	return nil
 }

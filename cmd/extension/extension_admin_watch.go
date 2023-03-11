@@ -22,19 +22,23 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-var hostRegExp = regexp.MustCompile(`(?m)host:\s'.*,`)
-var portRegExp = regexp.MustCompile(`(?m)port:\s.*,`)
-var schemeRegExp = regexp.MustCompile(`(?m)scheme:\s.*,`)
-var schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
-var uriRegExp = regexp.MustCompile(`(?m)uri:\s.*,`)
-var assetPathRegExp = regexp.MustCompile(`(?m)assetPath:\s.*`)
-var assetRegExp = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
+var (
+	hostRegExp              = regexp.MustCompile(`(?m)host:\s'.*,`)
+	portRegExp              = regexp.MustCompile(`(?m)port:\s.*,`)
+	schemeRegExp            = regexp.MustCompile(`(?m)scheme:\s.*,`)
+	schemeAndHttpHostRegExp = regexp.MustCompile(`(?m)schemeAndHttpHost:\s.*,`)
+	uriRegExp               = regexp.MustCompile(`(?m)uri:\s.*,`)
+	assetPathRegExp         = regexp.MustCompile(`(?m)assetPath:\s.*`)
+	assetRegExp             = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
+)
 
 //go:embed static/live-reload.js
 var liveReloadJS []byte
 
-var adminWatchListen = ""
-var adminWatchURL = ""
+var (
+	adminWatchListen = ""
+	adminWatchURL    = ""
+)
 
 var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
@@ -42,7 +46,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ext, err := extension.GetExtensionByFolder(args[0])
-
 		if err != nil {
 			return err
 		}
@@ -58,7 +61,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 		}
 
 		browserUrl, err := url.Parse(adminWatchURL)
-
 		if err != nil {
 			return err
 		}
@@ -81,13 +83,11 @@ var extensionAdminWatchCmd = &cobra.Command{
 		esbuildServer, err := esbuildContext.Serve(api.ServeOptions{
 			Host: "127.0.0.1",
 		})
-
 		if err != nil {
 			return err
 		}
 
 		targetShopUrl, err := url.Parse(strings.TrimSuffix(args[1], "/"))
-
 		if err != nil {
 			return err
 		}
@@ -129,7 +129,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 			// Modify admin url index page to load anything from our watcher
 			if req.URL.Path == targetShopUrl.Path+"/admin" {
 				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
-
 				if err != nil {
 					logging.FromContext(cmd.Context()).Errorf("proxy failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -137,7 +136,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 				}
 
 				body, err := io.ReadAll(resp.Body)
-
 				if err != nil {
 					logging.FromContext(cmd.Context()).Errorf("proxy reading failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -169,7 +167,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 					s = strings.TrimSuffix(s, "\"")
 
 					parsedUrl, err := url.Parse(s)
-
 					if err != nil {
 						logging.FromContext(cmd.Context()).Infof("cannot parse url: %s, err: %s", s, err.Error())
 						return org
@@ -202,7 +199,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 				proxyReq.Header.Set("Authorization", req.Header.Get("Authorization"))
 
 				resp, err := http.DefaultClient.Do(proxyReq)
-
 				if err != nil {
 					logging.FromContext(cmd.Context()).Errorf("proxy failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -210,7 +206,6 @@ var extensionAdminWatchCmd = &cobra.Command{
 				}
 
 				body, err := io.ReadAll(resp.Body)
-
 				if err != nil {
 					logging.FromContext(cmd.Context()).Errorf("proxy reading failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)

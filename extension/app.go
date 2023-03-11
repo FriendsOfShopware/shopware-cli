@@ -205,7 +205,6 @@ func newApp(path string) (*App, error) {
 	}
 
 	appFile, err := os.ReadFile(appFileName)
-
 	if err != nil {
 		return nil, fmt.Errorf("newApp: %v", err)
 	}
@@ -239,7 +238,6 @@ func (a App) GetLicense() (string, error) {
 
 func (App) GetShopwareVersionConstraint() (*version.Constraints, error) {
 	v, err := version.NewConstraint("~6.4")
-
 	if err != nil {
 		return nil, err
 	}

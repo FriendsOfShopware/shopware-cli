@@ -19,13 +19,11 @@ func (EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config 
 			criteria["filter"] = entity.Exists
 
 			searchPayload, err := json.Marshal(criteria)
-
 			if err != nil {
 				return err
 			}
 
 			r, err := client.NewRequest(ctx, "POST", fmt.Sprintf("/api/search-ids/%s", entity.Entity), bytes.NewReader(searchPayload))
-
 			if err != nil {
 				return err
 			}
@@ -35,7 +33,6 @@ func (EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config 
 
 			var res criteriaApiResponse
 			resp, err := client.Do(ctx.Context, r, &res)
-
 			if err != nil {
 				return err
 			}

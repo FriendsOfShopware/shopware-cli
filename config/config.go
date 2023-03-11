@@ -10,8 +10,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var state *configState
-var environmentConfigErrorFormat = "could not set config value %s to %q config was loaded from the environment variables"
+var (
+	state                        *configState
+	environmentConfigErrorFormat = "could not set config value %s to %q config was loaded from the environment variables"
+)
 
 type configState struct {
 	mu            sync.RWMutex
@@ -71,7 +73,6 @@ func InitConfig(configPath string) error {
 		state.cfgPath = configPath
 	} else {
 		configDir, err := os.UserConfigDir()
-
 		if err != nil {
 			return err
 		}
@@ -97,7 +98,6 @@ func InitConfig(configPath string) error {
 	}
 
 	content, err := os.ReadFile(state.cfgPath)
-
 	if err != nil {
 		return err
 	}

@@ -36,7 +36,6 @@ var loginCmd = &cobra.Command{
 		}
 
 		client, err := accountApi.NewApi(cmd.Context(), accountApi.LoginRequest{Email: email, Password: password})
-
 		if err != nil {
 			return fmt.Errorf("login failed with error: %w", err)
 		}
@@ -57,7 +56,6 @@ var loginCmd = &cobra.Command{
 		}
 
 		profile, err := client.GetMyProfile(cmd.Context())
-
 		if err != nil {
 			return err
 		}

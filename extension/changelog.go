@@ -15,7 +15,6 @@ import (
 
 func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, error) {
 	files, err := filepath.Glob(fmt.Sprintf("%s/CHANGELOG*.md", path))
-
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +29,6 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 		}
 
 		content, err := os.ReadFile(file)
-
 		if err != nil {
 			return nil, fmt.Errorf("parseMarkdownChangelogInPath: %v", err)
 		}
@@ -69,7 +67,6 @@ func parseMarkdownChangelog(content string) (map[string]string, error) {
 		var buf bytes.Buffer
 
 		err := GetConfiguredGoldMark().Convert([]byte(changelog), &buf)
-
 		if err != nil {
 			return nil, err
 		}

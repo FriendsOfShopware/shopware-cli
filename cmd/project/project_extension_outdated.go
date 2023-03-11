@@ -44,7 +44,6 @@ var projectExtensionOutdatedCmd = &cobra.Command{
 
 		if outputAsJson {
 			content, err := json.Marshal(extensions)
-
 			if err != nil {
 				return err
 			}
