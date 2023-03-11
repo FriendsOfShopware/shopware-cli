@@ -68,9 +68,7 @@ var projectExtensionOutdatedCmd = &cobra.Command{
 
 		table.Render()
 
-		os.Exit(1)
-
-		return nil
+		return fmt.Errorf("there are %d outdated extensions", len(extensions))
 	},
 }
 

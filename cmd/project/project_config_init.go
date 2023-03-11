@@ -37,7 +37,7 @@ var projectConfigInitCmd = &cobra.Command{
 
 		if err != nil {
 			logging.FromContext(cmd.Context()).Fatalf("Prompt failed %v\n", err)
-			os.Exit(1)
+			return err
 		}
 
 		if content, err = yaml.Marshal(config); err != nil {

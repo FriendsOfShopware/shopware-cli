@@ -3,7 +3,6 @@ package account
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -22,7 +21,11 @@ var loginCmd = &cobra.Command{
 		newCredentials := false
 
 		if len(email) == 0 || len(password) == 0 {
-			email, password = askUserForEmailAndPassword()
+			email, password, err := askUserForEmailAndPassword()
+			if err != nil {
+				return err
+			}
+
 			newCredentials = true
 
 			if err := services.Conf.SetAccountEmail(email); err != nil {
@@ -75,7 +78,7 @@ func init() {
 	accountRootCmd.AddCommand(loginCmd)
 }
 
-func askUserForEmailAndPassword() (string, string) {
+func askUserForEmailAndPassword() (string, string, error) {
 	emailPrompt := promptui.Prompt{
 		Label:    "Email",
 		Validate: emptyValidator,
@@ -83,8 +86,7 @@ func askUserForEmailAndPassword() (string, string) {
 
 	email, err := emailPrompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		os.Exit(1)
+		return "", "", fmt.Errorf("prompt failed %w", err)
 	}
 
 	passwordPrompt := promptui.Prompt{
@@ -95,11 +97,10 @@ func askUserForEmailAndPassword() (string, string) {
 
 	password, err := passwordPrompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		os.Exit(1)
+		return "", "", fmt.Errorf("prompt failed %w", err)
 	}
 
-	return email, password
+	return email, password, nil
 }
 
 func emptyValidator(s string) error {
