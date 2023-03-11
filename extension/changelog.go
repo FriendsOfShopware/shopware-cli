@@ -1,10 +1,16 @@
 package extension
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/yuin/goldmark"
+	goldmarkExtension "github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
 )
 
 func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, error) {
@@ -29,13 +35,17 @@ func parseMarkdownChangelogInPath(path string) (map[string]map[string]string, er
 			return nil, fmt.Errorf("parseMarkdownChangelogInPath: %v", err)
 		}
 
-		changelogs[language] = parseMarkdownChangelog(string(content))
+		changelogs[language], err = parseMarkdownChangelog(string(content))
+
+		if err != nil {
+			return nil, fmt.Errorf("parseMarkdownChangelogInPath: %v", err)
+		}
 	}
 
 	return changelogs, nil
 }
 
-func parseMarkdownChangelog(content string) map[string]string {
+func parseMarkdownChangelog(content string) (map[string]string, error) {
 	versions := make(map[string]string)
 	currentVersion := ""
 	versionText := ""
@@ -48,14 +58,26 @@ func parseMarkdownChangelog(content string) map[string]string {
 
 			currentVersion = strings.Trim(strings.TrimPrefix(line, "#"), " ")
 			versionText = ""
-		} else if strings.HasPrefix(line, "-") || strings.HasPrefix(line, "*") {
-			versionText = strings.Trim(versionText+line[1:]+"<br>", " ")
+		} else {
+			versionText = strings.Trim(versionText+"\n"+line, " ")
 		}
 	}
 
 	versions[currentVersion] = versionText
 
-	return versions
+	for key, changelog := range versions {
+		var buf bytes.Buffer
+
+		err := GetConfiguredGoldMark().Convert([]byte(changelog), &buf)
+
+		if err != nil {
+			return nil, err
+		}
+
+		versions[key] = buf.String()
+	}
+
+	return versions, nil
 }
 
 func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error) {
@@ -90,4 +112,17 @@ func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error
 	}
 
 	return &extensionTranslated{German: changelogDeVersion, English: changelogEnVersion}, nil
+}
+
+func GetConfiguredGoldMark() goldmark.Markdown {
+	return goldmark.New(
+		goldmark.WithExtensions(goldmarkExtension.GFM),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithXHTML(),
+		),
+	)
 }
