@@ -7,10 +7,10 @@ import (
 )
 
 type merchantEndpoint struct {
-	c Client
+	c *Client
 }
 
-func (c Client) Merchant() *merchantEndpoint {
+func (c *Client) Merchant() *merchantEndpoint {
 	return &merchantEndpoint{c: c}
 }
 

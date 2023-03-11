@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (c Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
+func (c *Client) GetMyProfile(ctx context.Context) (*myProfile, error) {
 	errorFormat := "GetMyProfile: %v"
 
 	request, err := c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/account/%d", ApiUrl, c.Token.UserAccountID), nil)

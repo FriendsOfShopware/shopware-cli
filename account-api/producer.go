@@ -13,7 +13,7 @@ import (
 )
 
 type producerEndpoint struct {
-	c          Client
+	c          *Client
 	producerId int
 }
 
@@ -21,7 +21,7 @@ func (e producerEndpoint) GetId() int {
 	return e.producerId
 }
 
-func (c Client) Producer(ctx context.Context) (*producerEndpoint, error) {
+func (c *Client) Producer(ctx context.Context) (*producerEndpoint, error) {
 	r, err := c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/companies/%d/allocations", ApiUrl, c.GetActiveCompanyID()), nil)
 	if err != nil {
 		return nil, err

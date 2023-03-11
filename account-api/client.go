@@ -18,7 +18,7 @@ type Client struct {
 	Memberships      []Membership `json:"memberships"`
 }
 
-func (c Client) NewAuthenticatedRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
+func (c *Client) NewAuthenticatedRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
 	logging.FromContext(ctx).Debugf("%s: %s", method, path)
 	r, err := http.NewRequestWithContext(ctx, method, path, body)
 	if err != nil {
@@ -32,7 +32,7 @@ func (c Client) NewAuthenticatedRequest(ctx context.Context, method, path string
 	return r, nil
 }
 
-func (Client) doRequest(request *http.Request) ([]byte, error) {
+func (*Client) doRequest(request *http.Request) ([]byte, error) {
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
@@ -52,23 +52,23 @@ func (Client) doRequest(request *http.Request) ([]byte, error) {
 	return data, nil
 }
 
-func (c Client) GetActiveCompanyID() int {
+func (c *Client) GetActiveCompanyID() int {
 	return c.Token.UserID
 }
 
-func (c Client) GetUserID() int {
+func (c *Client) GetUserID() int {
 	return c.Token.UserAccountID
 }
 
-func (c Client) GetActiveMembership() Membership {
+func (c *Client) GetActiveMembership() Membership {
 	return c.ActiveMembership
 }
 
-func (c Client) GetMemberships() []Membership {
+func (c *Client) GetMemberships() []Membership {
 	return c.Memberships
 }
 
-func (c Client) isTokenValid() bool {
+func (c *Client) isTokenValid() bool {
 	loc, err := time.LoadLocation(c.Token.Expire.Timezone)
 	if err != nil {
 		return false

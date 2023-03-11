@@ -8,5 +8,8 @@
     "go.inlayHints.functionTypeParameters": true,
     "go.inlayHints.assignVariableTypes": true,
     "go.inlayHints.compositeLiteralFields": true,
-    "go.inlayHints.constantValues": true
+    "go.inlayHints.constantValues": true,
+    "files.exclude": {
+        ".devenv": true
+    }
 }

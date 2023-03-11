@@ -24,11 +24,11 @@ func (c *validationContext) AddError(message string) {
 	c.errors = append(c.errors, message)
 }
 
-func (c validationContext) HasErrors() bool {
+func (c *validationContext) HasErrors() bool {
 	return len(c.errors) > 0
 }
 
-func (c validationContext) Errors() []string {
+func (c *validationContext) Errors() []string {
 	return c.errors
 }
 
@@ -36,11 +36,11 @@ func (c *validationContext) AddWarning(message string) {
 	c.warnings = append(c.warnings, message)
 }
 
-func (c validationContext) HasWarnings() bool {
+func (c *validationContext) HasWarnings() bool {
 	return len(c.warnings) > 0
 }
 
-func (c validationContext) Warnings() []string {
+func (c *validationContext) Warnings() []string {
 	return c.warnings
 }
 

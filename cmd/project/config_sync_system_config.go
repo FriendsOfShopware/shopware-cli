@@ -109,7 +109,8 @@ func (SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 		if sc.Id == "" {
 			sysConfigs, err = readSystemConfig(ctx, client, nil)
 		} else {
-			cfg.SalesChannel = &sc.Name
+			scName := sc.Name
+			cfg.SalesChannel = &scName
 
 			sysConfigs, err = readSystemConfig(ctx, client, &sc.Id)
 		}
