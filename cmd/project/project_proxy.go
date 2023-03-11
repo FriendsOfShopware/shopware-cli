@@ -24,7 +24,6 @@ var projectProxyCmd = &cobra.Command{
 		}
 
 		cloudflareInstalled, err := exec.LookPath("cloudflared")
-
 		if err != nil {
 			message := "Cloudflare Tunnel is not installed. Please use your system package manager to install it\n"
 

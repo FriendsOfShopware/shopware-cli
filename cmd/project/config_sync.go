@@ -18,7 +18,6 @@ func readSystemConfig(ctx adminSdk.ApiContext, client *adminSdk.Client, salesCha
 	}
 
 	results, resp, err := client.Repository.SystemConfig.SearchAll(ctx, c)
-
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +48,11 @@ type ThemeSyncOperation struct {
 	Settings map[string]adminSdk.ThemeConfigValue
 }
 
-type Operation map[string]adminSdk.SyncOperation
-type SystemConfig map[*string]map[string]interface{}
-type ThemeSettings []ThemeSyncOperation
+type (
+	Operation     map[string]adminSdk.SyncOperation
+	SystemConfig  map[*string]map[string]interface{}
+	ThemeSettings []ThemeSyncOperation
+)
 
 func (o ConfigSyncOperation) HasChanges() bool {
 	return o.Operations.HasChanges() || o.SystemSettings.HasChanges() || o.ThemeSettings.HasChanges()

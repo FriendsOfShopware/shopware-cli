@@ -38,13 +38,11 @@ func GetExtensionByZip(filePath string) (Extension, error) {
 	}
 
 	content, err := os.ReadFile(filePath)
-
 	if err != nil {
 		return nil, err
 	}
 
 	file, err := zip.NewReader(bytes.NewReader(content), int64(len(content)))
-
 	if err != nil {
 		return nil, err
 	}

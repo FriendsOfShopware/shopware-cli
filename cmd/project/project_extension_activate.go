@@ -28,7 +28,6 @@ var projectExtensionActivateCmd = &cobra.Command{
 		}
 
 		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
-
 		if err != nil {
 			return err
 		}

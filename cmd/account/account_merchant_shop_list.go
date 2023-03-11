@@ -17,7 +17,6 @@ var accountCompanyMerchantShopListCmd = &cobra.Command{
 		table.SetHeader([]string{"ID", "Domain", "Usage"})
 
 		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
-
 		if err != nil {
 			return err
 		}

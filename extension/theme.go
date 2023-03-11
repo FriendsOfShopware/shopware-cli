@@ -11,7 +11,6 @@ func validateTheme(ctx *validationContext) {
 
 	if _, err := os.Stat(themeJSONPath); !os.IsNotExist(err) {
 		content, err := os.ReadFile(themeJSONPath)
-
 		if err != nil {
 			ctx.AddError("Invalid theme.json")
 			return

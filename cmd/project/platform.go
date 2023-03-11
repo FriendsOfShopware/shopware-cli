@@ -28,7 +28,6 @@ func findClosestShopwareProject() (string, error) {
 		for _, file := range files {
 			if _, err := os.Stat(file); err == nil {
 				content, err := os.ReadFile(file)
-
 				if err != nil {
 					return "", err
 				}

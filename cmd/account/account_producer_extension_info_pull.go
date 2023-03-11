@@ -37,13 +37,11 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		}
 
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		storeExt, err := p.GetExtensionByName(cmd.Context(), zipName)
-
 		if err != nil {
 			return fmt.Errorf("cannot get store extension: %w", err)
 		}
@@ -96,7 +94,6 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		}
 
 		storeImages, err := p.GetExtensionImages(cmd.Context(), storeExt.Id)
-
 		if err != nil {
 			return fmt.Errorf("cannot get extension images: %w", err)
 		}

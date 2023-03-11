@@ -36,14 +36,12 @@ var projectExtensionListCmd = &cobra.Command{
 		}
 
 		extensions, _, err := client.ExtensionManager.ListAvailableExtensions(adminSdk.NewApiContext(cmd.Context()))
-
 		if err != nil {
 			return err
 		}
 
 		if outputAsJson {
 			content, err := json.Marshal(extensions)
-
 			if err != nil {
 				return err
 			}

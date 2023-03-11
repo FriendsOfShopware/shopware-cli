@@ -97,7 +97,6 @@ func getEsbuildOptions(options AssetCompileOptions, ctx context.Context) (*api.B
 
 func Context(options AssetCompileOptions, ctx context.Context) (api.BuildContext, *api.ContextError) {
 	bundlerOptions, err := getEsbuildOptions(options, ctx)
-
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +110,6 @@ func CompileExtensionAsset(options AssetCompileOptions, ctx context.Context) (*A
 	cssFile := filepath.Join(options.Path, options.OutputDir, "css", technicalName+".css")
 
 	bundlerOptions, err := getEsbuildOptions(options, ctx)
-
 	if err != nil {
 		return nil, err
 	}

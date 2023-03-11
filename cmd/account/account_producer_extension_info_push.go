@@ -47,13 +47,11 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 		}
 
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
 
 		storeExt, err := p.GetExtensionByName(cmd.Context(), zipName)
-
 		if err != nil {
 			return fmt.Errorf("cannot get store extension: %w", err)
 		}
@@ -98,7 +96,6 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 
 				for _, image := range images {
 					err := p.DeleteExtensionImages(cmd.Context(), storeExt.Id, image.Id)
-
 					if err != nil {
 						return fmt.Errorf("cannot extension image: %w", err)
 					}
@@ -106,7 +103,6 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 
 				for _, configImage := range *extCfg.Store.Images {
 					apiImage, err := p.AddExtensionImage(cmd.Context(), storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
-
 					if err != nil {
 						return fmt.Errorf("cannot upload image to extension: %w", err)
 					}

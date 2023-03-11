@@ -18,7 +18,6 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 		completions := make([]string, 0)
 
 		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
-
 		if err != nil {
 			return completions, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -31,7 +30,6 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		shops, err := services.AccountClient.Merchant().Shops(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get shops: %w", err)
 		}
@@ -43,14 +41,12 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 		}
 
 		token, err := services.AccountClient.Merchant().GetComposerToken(cmd.Context(), shop.Id)
-
 		if err != nil {
 			return err
 		}
 
 		if token == "" {
 			generatedToken, err := services.AccountClient.Merchant().GenerateComposerToken(cmd.Context(), shop.Id)
-
 			if err != nil {
 				return err
 			}

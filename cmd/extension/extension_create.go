@@ -89,7 +89,7 @@ var extensionCreateCmd = &cobra.Command{
 			Default:  extensionConfig.ManufacturerLink,
 		})
 
-		err = os.MkdirAll(fmt.Sprintf("%s/src/Resources/config", pluginPath), 0755)
+		err = os.MkdirAll(fmt.Sprintf("%s/src/Resources/config", pluginPath), 0o755)
 		if err != nil {
 			return err
 		}
@@ -185,7 +185,7 @@ func createComposerJson(composerFile string, extensionConfig config.ExtensionCon
 		return err
 	}
 
-	return os.WriteFile(composerFile, jsonContent, 0600)
+	return os.WriteFile(composerFile, jsonContent, 0o600)
 }
 
 func makeDefaultServices(pluginPath string) error {
@@ -200,7 +200,7 @@ func makeDefaultServices(pluginPath string) error {
 `
 
 	servicesFilename := fmt.Sprintf("%s/src/Resources/config/services.xml", pluginPath)
-	return os.WriteFile(servicesFilename, []byte(xml), 0600)
+	return os.WriteFile(servicesFilename, []byte(xml), 0o600)
 }
 
 func makeChangelog(pluginPath string) error {
@@ -221,7 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `
 
 	changelogFilename := fmt.Sprintf("%s/CHANGELOG_en-GB.md", pluginPath)
-	return os.WriteFile(changelogFilename, []byte(changelogContent), 0600)
+	return os.WriteFile(changelogFilename, []byte(changelogContent), 0o600)
 }
 
 func makeBootstrap(pluginPath string, extensionConfig config.ExtensionConfig) error {
@@ -237,7 +237,7 @@ class %s extends Plugin
 `
 	bootStrapFilename := fmt.Sprintf("%s/src/%s.php", pluginPath, extensionConfig.Name)
 	fileContent := fmt.Sprintf(fileContentTemplate, extensionConfig.Namespace, extensionConfig.Name)
-	return os.WriteFile(bootStrapFilename, []byte(fileContent), 0600)
+	return os.WriteFile(bootStrapFilename, []byte(fileContent), 0o600)
 }
 
 type composerExtra struct {

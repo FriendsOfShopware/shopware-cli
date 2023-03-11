@@ -109,7 +109,6 @@ func ReadExtensionConfig(dir string) (*Config, error) {
 	}
 
 	fileHandle, err := os.ReadFile(fileName)
-
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}

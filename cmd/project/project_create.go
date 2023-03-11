@@ -27,7 +27,6 @@ var projectCreateCmd = &cobra.Command{
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 1 {
 			filteredVersions, err := getFilteredInstallVersions(cmd.Context())
-
 			if err != nil {
 				return []string{}, cobra.ShellCompDirectiveNoFileComp
 			}
@@ -56,7 +55,6 @@ var projectCreateCmd = &cobra.Command{
 		logging.FromContext(cmd.Context()).Infof("Using Symfony Flex to create a new Shopware 6 project")
 
 		filteredVersions, err := getFilteredInstallVersions(cmd.Context())
-
 		if err != nil {
 			return err
 		}
@@ -93,7 +91,6 @@ var projectCreateCmd = &cobra.Command{
 		logging.FromContext(cmd.Context()).Infof("Setting up Shopware %s", chooseVersion)
 
 		composerJson, err := generateComposerJson(chooseVersion, strings.Contains(chooseVersion, "rc"))
-
 		if err != nil {
 			return err
 		}
@@ -132,7 +129,6 @@ var projectCreateCmd = &cobra.Command{
 
 func getFilteredInstallVersions(ctx context.Context) ([]*version.Version, error) {
 	releases, err := fetchAvailableShopwareVersions(ctx)
-
 	if err != nil {
 		return nil, err
 	}
@@ -159,13 +155,11 @@ func init() {
 
 func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
 	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://releases.shopware.com/changelog/index.json", nil)
-
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(r)
-
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +167,6 @@ func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
 	defer resp.Body.Close()
 
 	content, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +249,6 @@ func generateComposerJson(version string, rc bool) (string, error) {
         }
     }
 }`)
-
 	if err != nil {
 		return "", err
 	}

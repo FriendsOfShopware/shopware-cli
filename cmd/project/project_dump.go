@@ -33,7 +33,6 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
 		db, err := sql.Open("mysql", cfg.ConnectionString())
-
 		if err != nil {
 			return err
 		}
@@ -51,7 +50,6 @@ var projectDatabaseDumpCmd = &cobra.Command{
 
 		logger, _ := zap.NewProduction()
 		dumper, err := database.NewMySQLDumper(db, logger, service, opt...)
-
 		if err != nil {
 			return err
 		}

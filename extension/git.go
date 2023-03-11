@@ -12,7 +12,6 @@ func gitTagOrBranchOfFolder(source string) (string, error) {
 	tagCmd := exec.Command("git", "-C", source, "tag", "--sort=-creatordate")
 
 	stdout, err := tagCmd.Output()
-
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +35,6 @@ func gitTagOrBranchOfFolder(source string) (string, error) {
 
 func GitCopyFolder(source, target string) (string, error) {
 	tag, err := gitTagOrBranchOfFolder(source)
-
 	if err != nil {
 		return "", fmt.Errorf("GitCopyFolder: cannot find checkout tag or branch: %v", err)
 	}

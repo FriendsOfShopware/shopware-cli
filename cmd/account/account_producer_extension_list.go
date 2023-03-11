@@ -16,7 +16,6 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 	Short: "Lists all your extensions",
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		p, err := services.AccountClient.Producer(cmd.Context())
-
 		if err != nil {
 			return fmt.Errorf("cannot get producer endpoint: %w", err)
 		}
@@ -32,7 +31,6 @@ var accountCompanyProducerExtensionListCmd = &cobra.Command{
 		}
 
 		extensions, err := p.Extensions(cmd.Context(), &criteria)
-
 		if err != nil {
 			return err
 		}

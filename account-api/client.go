@@ -34,7 +34,6 @@ func (c Client) NewAuthenticatedRequest(ctx context.Context, method, path string
 
 func (Client) doRequest(request *http.Request) ([]byte, error) {
 	resp, err := http.DefaultClient.Do(request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +87,6 @@ const CacheFileName = "shopware-api-client-token.json"
 
 func getApiTokenCacheFilePath() (string, error) {
 	cacheDir, err := os.UserCacheDir()
-
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +96,6 @@ func getApiTokenCacheFilePath() (string, error) {
 
 func createApiFromTokenCache(ctx context.Context) (*Client, error) {
 	tokenFilePath, err := getApiTokenCacheFilePath()
-
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +105,6 @@ func createApiFromTokenCache(ctx context.Context) (*Client, error) {
 	}
 
 	content, err := os.ReadFile(tokenFilePath)
-
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +128,11 @@ func createApiFromTokenCache(ctx context.Context) (*Client, error) {
 
 func saveApiTokenToTokenCache(client *Client) error {
 	tokenFilePath, err := getApiTokenCacheFilePath()
-
 	if err != nil {
 		return err
 	}
 
 	content, err := json.Marshal(client)
-
 	if err != nil {
 		return err
 	}
@@ -154,7 +148,6 @@ func saveApiTokenToTokenCache(client *Client) error {
 
 func InvalidateTokenCache() error {
 	tokenFilePath, err := getApiTokenCacheFilePath()
-
 	if err != nil {
 		return err
 	}
