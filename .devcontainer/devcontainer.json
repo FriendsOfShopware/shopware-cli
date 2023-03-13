@@ -6,5 +6,5 @@
       "extensions": ["mkhl.direnv", "golang.Go"]
     }
   },
-  "updateContentCommand": "devenv ci"
+  "updateContentCommand": "direnv reload"
 }
