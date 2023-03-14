@@ -16,11 +16,13 @@ require (
 	github.com/otiai10/copy v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.2
-	github.com/vulcand/oxy/v2 v2.0.0-20230227135449-a0e9f7ff1040
+	github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4
 	github.com/yuin/goldmark v1.5.4
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+replace github.com/doutorfinancas/go-mad => github.com/shyim/go-mad v0.0.0-20230314174655-ee8e989b28ef
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -47,5 +49,5 @@ require (
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.29.0 // indirect
+	google.golang.org/protobuf v1.29.1 // indirect
 )
