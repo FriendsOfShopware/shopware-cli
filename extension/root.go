@@ -3,6 +3,7 @@ package extension
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -80,5 +81,5 @@ type Extension interface {
 	GetPath() string
 	GetChangelog() (*extensionTranslated, error)
 	GetMetaData() *extensionMetadata
-	Validate(context *ValidationContext)
+	Validate(context.Context, *ValidationContext)
 }

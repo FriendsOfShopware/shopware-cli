@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"os"
@@ -273,7 +274,7 @@ func (a App) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (a App) Validate(ctx *ValidationContext) {
+func (a App) Validate(_ context.Context, ctx *ValidationContext) {
 	validateTheme(ctx)
 
 	appIcon := a.manifest.Meta.Icon

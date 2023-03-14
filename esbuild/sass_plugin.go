@@ -46,7 +46,7 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 						IncludePaths: []string{
 							filepath.Dir(args.Path),
 						},
-						ImportResolver: scssImporter{ctx: ctx},
+						ImportResolver: scssImporter{},
 					})
 					if err != nil {
 						return api.OnLoadResult{}, err
@@ -61,9 +61,7 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 	}
 }
 
-type scssImporter struct {
-	ctx context.Context
-}
+type scssImporter struct{}
 
 const (
 	InternalVariablesScssPath = "file://internal//variables.scss"
@@ -90,8 +88,6 @@ func (s scssImporter) Load(canonicalizedURL string) (string, error) {
 	if canonicalizedURL == InternalMixinsScssPath {
 		return string(scssMixins), nil
 	}
-
-	logging.FromContext(s.ctx).Infof("Load: %s", canonicalizedURL)
 
 	return "", nil
 }

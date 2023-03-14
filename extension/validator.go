@@ -11,13 +11,12 @@ import (
 
 type ValidationContext struct {
 	Extension Extension
-	ctx       context.Context
 	errors    []string
 	warnings  []string
 }
 
-func newValidationContext(ctx context.Context, ext Extension) *ValidationContext {
-	return &ValidationContext{Extension: ext, ctx: ctx}
+func newValidationContext(ext Extension) *ValidationContext {
+	return &ValidationContext{Extension: ext}
 }
 
 func (c *ValidationContext) AddError(message string) {
@@ -45,10 +44,10 @@ func (c *ValidationContext) Warnings() []string {
 }
 
 func RunValidation(ctx context.Context, ext Extension) *ValidationContext {
-	context := newValidationContext(ctx, ext)
+	context := newValidationContext(ext)
 
 	runDefaultValidate(context)
-	ext.Validate(context)
+	ext.Validate(ctx, context)
 
 	return context
 }

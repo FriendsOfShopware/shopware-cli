@@ -148,7 +148,7 @@ func (p PlatformPlugin) GetMetaData() *extensionMetadata {
 	}
 }
 
-func (p PlatformPlugin) Validate(ctx *ValidationContext) {
+func (p PlatformPlugin) Validate(c context.Context, ctx *ValidationContext) {
 	if len(p.composer.Name) == 0 {
 		ctx.AddError("Key `name` is required")
 	}
@@ -226,14 +226,14 @@ func (p PlatformPlugin) Validate(ctx *ValidationContext) {
 	}
 
 	validateTheme(ctx)
-	validatePHPFiles(ctx)
+	validatePHPFiles(c, ctx)
 }
 
 type phpSyntaxCheckerResult struct {
 	Errors []string `json:"errors"`
 }
 
-func validatePHPFiles(ctx *ValidationContext) {
+func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 	var b bytes.Buffer
 	bufferW := bufio.NewWriter(&b)
 
@@ -299,7 +299,7 @@ func validatePHPFiles(ctx *ValidationContext) {
 		return
 	}
 
-	logging.FromContext(ctx.ctx).Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
+	logging.FromContext(c).Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
 
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, fmt.Sprintf("https://php-syntax-checker.fos.gg/?version=%s", phpVersion), body)
 	if err != nil {

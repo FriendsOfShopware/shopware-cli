@@ -16,7 +16,6 @@ linters:
     - misspell
     - nakedret
     - noctx
-    - rowserrcheck
     - staticcheck
     - typecheck
     - unconvert
@@ -25,13 +24,11 @@ linters:
     - whitespace
     - asciicheck
     - godot
-#    - stylecheck
     - gocyclo
     - gocritic
     - errcheck
     - thelper
     - tparallel
-    - wastedassign
     - predeclared
     - nilerr
     - makezero
@@ -41,30 +38,19 @@ linters:
     - tenv
     - depguard
     - gofumpt
-  # Fails with go 1.18 until https://github.com/golangci/golangci-lint/issues/2649 is resolved
-  #    - nolintlint
-
-  # don't enable:
-  # - ireturn
-  # - gocognit
-  # - gochecknoglobals
-  # - goerr113
-  # - interfacer
-  # - maligned
-  # - nestif
-  # - prealloc
-  # - revive
-  # - wsl
-  # - testpackage
-  # - depguard
-  # - dogsled
-  # - dupl
-  # - errcheck
-  # - funlen
-  # - golint
-  # - gomnd
-  # - lll
-  # - varnamelen
+    - bidichk
+    - containedctx
+    - decorder
+    - dogsled
+    - dupword
+    - durationcheck
+    - errname
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - goconst
+    - godot
+    - godox
+    - nilnil
 
 linters-settings:
   golint:

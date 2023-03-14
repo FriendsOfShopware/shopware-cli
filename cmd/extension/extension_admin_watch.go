@@ -257,7 +257,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
 				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/__internal-admin-proxy/live-reload.js"}}
 
-				newJson, _ := json.Marshal(bundleInfo)
+				newJson, err := json.Marshal(bundleInfo)
+				if err != nil {
+					logging.FromContext(cmd.Context()).Errorf("could not encode bundle info %v", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 
 				w.Header().Set("content-type", "application/json")
 				if _, err := w.Write(newJson); err != nil {
