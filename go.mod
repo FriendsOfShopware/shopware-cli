@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v7 v7.1.0
-	github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800
+	github.com/doutorfinancas/go-mad v0.0.0-20230315095242-976ea39645c3
 	github.com/evanw/esbuild v0.17.11
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230308203554-93ab0d3fd064
 	github.com/google/uuid v1.3.0
@@ -21,8 +21,6 @@ require (
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v3 v3.0.1
 )
-
-replace github.com/doutorfinancas/go-mad => github.com/shyim/go-mad v0.0.0-20230314174655-ee8e989b28ef
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
