@@ -21,7 +21,8 @@ var loginCmd = &cobra.Command{
 		newCredentials := false
 
 		if len(email) == 0 || len(password) == 0 {
-			email, password, err := askUserForEmailAndPassword()
+			var err error
+			email, password, err = askUserForEmailAndPassword()
 			if err != nil {
 				return err
 			}

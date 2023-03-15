@@ -149,10 +149,16 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			}
 		}
 
+		extType := "extension"
+
+		if storeExt.ProductType != nil {
+			extType = storeExt.ProductType.Name
+		}
+
 		newCfg := extension.Config{Store: extension.ConfigStore{
 			Icon:                                iconConfigPath,
 			DefaultLocale:                       &storeExt.StandardLocale.Name,
-			Type:                                &storeExt.ProductType.Name,
+			Type:                                &extType,
 			AutomaticBugfixVersionCompatibility: &storeExt.AutomaticBugfixVersionCompatibility,
 			Availabilities:                      &availabilities,
 			Localizations:                       &localizations,
