@@ -4,7 +4,7 @@
 
   outputs = { self, nixpkgs }:
     let
-      version = "0.1.57";
+      version = "0.1.58";
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
@@ -51,7 +51,7 @@
 
             nativeBuildInputs = [ pkgs.installShellFiles pkgs.makeWrapper ];
 
-            vendorSha256 = "sha256-4s+kIJMUNva+u9dPfhi8iS7ELd+jFwxlLSY8tKfG+Ac=";
+            vendorSha256 = "sha256-BQo+RlscyT4cEPcCYCfC8iwlZ91s0qfaRX3EinHNvrc=";
 
             postInstall = ''
               export HOME="$(mktemp -d)"

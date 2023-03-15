@@ -43,6 +43,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		opt = append(opt, database.OptionValue("set-charset", "utf8mb4"))
 		opt = append(opt, database.OptionValue("dump-trigger", ""))
 		opt = append(opt, database.OptionValue("skip-definer", ""))
+		opt = append(opt, database.OptionValue("trigger-delimiter", "//"))
 
 		if skipLockTables {
 			opt = append(opt, database.OptionValue("skip-lock-tables", "1"))

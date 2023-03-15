@@ -31,6 +31,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800 h1:B0hq7hol4JxQSGxE2Mbl2u8OsaXrTDdxeJ9CFBM9/SE=
 github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800/go.mod h1:vzCojJS7hewjeum3mKHtqOhbppBggLF/1WCs1XbxKNI=
+github.com/doutorfinancas/go-mad v0.0.0-20230315095242-976ea39645c3 h1:iLgfTJAi0373IBOUUIShfWY/Ii30w2lVBKO1Hk9KMZY=
+github.com/doutorfinancas/go-mad v0.0.0-20230315095242-976ea39645c3/go.mod h1:oihUJ3xIYR0sTMi4ZNesVVg4on94X5BjZwiYSwu4olk=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evanw/esbuild v0.17.11 h1:iELpc7FOeTXNEDcweBJbB4K/lvMSPDQHbutLYgKX03g=
