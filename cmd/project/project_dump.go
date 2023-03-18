@@ -1,6 +1,7 @@
 package project
 
 import (
+	"compress/gzip"
 	"database/sql"
 	"io"
 	"os"
@@ -29,6 +30,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		clean, _ := cmd.Flags().GetBool("clean")
 		skipLockTables, _ := cmd.Flags().GetBool("skip-lock-tables")
 		anonymize, _ := cmd.Flags().GetBool("anonymize")
+		gzipEnabled, _ := cmd.Flags().GetBool("gzip")
 
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
@@ -150,13 +152,27 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return dErr
 		}
 
+		if gzipEnabled {
+			output += ".gz"
+		}
+
 		var w io.Writer
 		if w, err = os.Create(output); err != nil {
 			return err
 		}
 
+		if gzipEnabled {
+			w = gzip.NewWriter(w)
+		}
+
 		if err = dumper.Dump(w); err != nil {
 			return err
+		}
+
+		if gzipEnabled {
+			if err = w.(*gzip.Writer).Close(); err != nil {
+				return err
+			}
 		}
 
 		logging.FromContext(cmd.Context()).Infof("Successfully created the dump %s", output)
@@ -175,4 +191,5 @@ func init() {
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")
 	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
 	projectDatabaseDumpCmd.Flags().Bool("anonymize", false, "Anonymize customer data")
+	projectDatabaseDumpCmd.Flags().Bool("gzip", false, "Gzip the whole dump")
 }
