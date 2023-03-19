@@ -69,11 +69,11 @@ const (
 )
 
 func (scssImporter) CanonicalizeURL(url string) (string, error) {
-	if url == "~scss/variables" {
+	if url == "~scss/variables" || url == "~scss/variables.scss" {
 		return InternalVariablesScssPath, nil
 	}
 
-	if url == "~scss/mixins" {
+	if url == "~scss/mixins" || url == "~scss/mixins.scss" {
 		return InternalMixinsScssPath, nil
 	}
 
