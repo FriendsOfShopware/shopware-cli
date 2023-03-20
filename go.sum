@@ -33,6 +33,8 @@ github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800 h1:B0hq7hol4
 github.com/doutorfinancas/go-mad v0.0.0-20221115152854-f38f7c284800/go.mod h1:vzCojJS7hewjeum3mKHtqOhbppBggLF/1WCs1XbxKNI=
 github.com/doutorfinancas/go-mad v0.0.0-20230315095242-976ea39645c3 h1:iLgfTJAi0373IBOUUIShfWY/Ii30w2lVBKO1Hk9KMZY=
 github.com/doutorfinancas/go-mad v0.0.0-20230315095242-976ea39645c3/go.mod h1:oihUJ3xIYR0sTMi4ZNesVVg4on94X5BjZwiYSwu4olk=
+github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36 h1:LCI507bL6j6h3BdDyItt1nVnnTNuyKv/J9CwlDTI44I=
+github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36/go.mod h1:xTNzJsUi9SSYnYOhW4YTsZADT/VeQUHQb+MrquIdSTg=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evanw/esbuild v0.17.11 h1:iELpc7FOeTXNEDcweBJbB4K/lvMSPDQHbutLYgKX03g=
@@ -43,6 +45,8 @@ github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnX
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230308203554-93ab0d3fd064 h1:Llb+qw+/4lFfbdTqWB3hswYOwWMvEvxd68KLB2VNkYE=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230308203554-93ab0d3fd064/go.mod h1:focrVpEngoAoT8CJ5dU2yxHVC70K19jwyh4Hdhs3+OM=
+github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d h1:xxDxNtRoJSBqyS5dBtrIhRBEAP/JlXJX1QZFXZvubPo=
+github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d/go.mod h1:laOcjFSr38HrAKq1lOONAc2oRePiqFz2DCFpiYonook=
 github.com/go-sql-driver/mysql v1.7.0 h1:ueSltNNllEqE3qcWBTD0iQd3IpL/6U+mJxLkazJ7YPc=
 github.com/go-sql-driver/mysql v1.7.0/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 github.com/gobwas/glob v0.2.3 h1:A4xDbljILXROh+kObIiy5kIaPYD8e96x1tgBhUI5J+Y=
