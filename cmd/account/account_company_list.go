@@ -22,7 +22,7 @@ var accountCompanyListCmd = &cobra.Command{
 			table.Append([]string{
 				strconv.FormatInt(int64(membership.Company.Id), 10),
 				membership.Company.Name,
-				strconv.FormatInt(int64(membership.Company.CustomerNumber), 10),
+				membership.Company.CustomerNumber,
 				strings.Join(membership.GetRoles(), ", "),
 			})
 		}

@@ -89,7 +89,7 @@ type MyProfile struct {
 		Company struct {
 			Id             int    `json:"id"`
 			Name           string `json:"name"`
-			CustomerNumber int    `json:"customerNumber"`
+			CustomerNumber string `json:"customerNumber"`
 		} `json:"company"`
 		Roles []struct {
 			Id           int         `json:"id"`
