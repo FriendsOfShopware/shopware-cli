@@ -80,7 +80,7 @@ func (scssImporter) CanonicalizeURL(url string) (string, error) {
 	return "", nil
 }
 
-func (s scssImporter) Load(canonicalizedURL string) (string, error) {
+func (scssImporter) Load(canonicalizedURL string) (string, error) {
 	if canonicalizedURL == InternalVariablesScssPath {
 		return string(scssVariables), nil
 	}
