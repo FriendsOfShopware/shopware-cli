@@ -48,7 +48,11 @@ func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("Cannot close response body: %v", err)
+		}
+	}()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -226,7 +230,11 @@ func (c *Client) ChangeActiveMembership(ctx context.Context, selected Membership
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("ChangeActiveMembership: %v", err)
+		}
+	}()
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode == 200 {

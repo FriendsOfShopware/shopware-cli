@@ -229,7 +229,11 @@ func increaseExtensionVersion(ctx context.Context, ext extension.Extension) erro
 			return fmt.Errorf("cannot read manifest file: %w", err)
 		}
 
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				logging.FromContext(ctx).Errorf("increaseExtensionVersion: %v", err)
+			}
+		}()
 
 		var buf bytes.Buffer
 		decoder := xml.NewDecoder(file)

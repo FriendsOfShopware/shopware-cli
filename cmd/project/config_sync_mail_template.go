@@ -177,7 +177,9 @@ func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*a
 	collection, resp, err := client.Repository.MailTemplate.SearchAll(ctx, criteria)
 
 	if err == nil {
-		defer resp.Body.Close()
+		if err := resp.Body.Close(); err != nil {
+			return nil, err
+		}
 	}
 
 	return collection, err

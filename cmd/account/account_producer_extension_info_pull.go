@@ -205,7 +205,12 @@ func downloadFileTo(ctx context.Context, url string, target string) error {
 	if err != nil {
 		return fmt.Errorf("download file: %w", err)
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("downloadFileTo: %v", err)
+		}
+	}()
 
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {

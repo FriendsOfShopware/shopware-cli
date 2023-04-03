@@ -22,7 +22,9 @@ func readSystemConfig(ctx adminSdk.ApiContext, client *adminSdk.Client, salesCha
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	if err := resp.Body.Close(); err != nil {
+		return nil, err
+	}
 
 	return results, nil
 }
