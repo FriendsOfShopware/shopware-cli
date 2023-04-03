@@ -164,7 +164,11 @@ func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("fetchAvailableShopwareVersions: %v", err)
+		}
+	}()
 
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {

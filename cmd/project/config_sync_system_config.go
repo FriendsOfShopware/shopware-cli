@@ -23,7 +23,11 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx.Context).Errorf("SystemConfigSync/Push: %v", err)
+		}
+	}()
 
 	for _, config := range config.Sync.Config {
 		if config.SalesChannel != nil && len(*config.SalesChannel) != 32 {
@@ -92,7 +96,11 @@ func (SystemConfigSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx.Context).Errorf("SystemConfigSync/Pull: %v", err)
+		}
+	}()
 
 	salesChannelList := make([]adminSdk.SalesChannel, 0)
 	salesChannelList = append(salesChannelList, adminSdk.SalesChannel{Id: ""})

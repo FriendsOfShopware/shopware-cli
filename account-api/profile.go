@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 func (c *Client) GetMyProfile(ctx context.Context) (*MyProfile, error) {
@@ -21,7 +23,11 @@ func (c *Client) GetMyProfile(ctx context.Context) (*MyProfile, error) {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("GetMyProfile: %v", err)
+		}
+	}()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {

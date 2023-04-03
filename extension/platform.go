@@ -293,7 +293,7 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 		return
 	}
 
-	phpVersion, err := getPhpVersion(constraint)
+	phpVersion, err := getPhpVersion(c, constraint)
 	if err != nil {
 		ctx.AddWarning(fmt.Sprintf("Could not find min php version for plugin: %s", err.Error()))
 		return
@@ -315,7 +315,11 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 		return
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(c).Errorf("validatePHPFiles: %v", err)
+		}
+	}()
 
 	if resp.StatusCode == http.StatusOK {
 		return
@@ -335,7 +339,7 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 	}
 }
 
-func getPhpVersion(constraint *version.Constraints) (string, error) {
+func getPhpVersion(ctx context.Context, constraint *version.Constraints) (string, error) {
 	r, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", nil)
 
 	resp, err := http.DefaultClient.Do(r)
@@ -343,7 +347,11 @@ func getPhpVersion(constraint *version.Constraints) (string, error) {
 		return "", err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("getPhpVersion: %v", err)
+		}
+	}()
 
 	var shopwareToPHPVersion map[string]string
 

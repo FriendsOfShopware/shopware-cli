@@ -7,6 +7,7 @@ import (
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -37,7 +38,11 @@ func (EntitySync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config 
 				return err
 			}
 
-			defer resp.Body.Close()
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					logging.FromContext(ctx.Context).Errorf("Push: %v", err)
+				}
+			}()
 
 			if res.Total > 0 {
 				continue

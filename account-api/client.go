@@ -38,10 +38,14 @@ func (*Client) doRequest(request *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
+		_ = resp.Body.Close()
+
+		return nil, fmt.Errorf("doRequest: %v", err)
+	}
+
+	if err := resp.Body.Close(); err != nil {
 		return nil, fmt.Errorf("doRequest: %v", err)
 	}
 

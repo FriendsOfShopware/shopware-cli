@@ -113,11 +113,17 @@ func CreateZip(baseFolder, zipFile string) error {
 	if err != nil {
 		return fmt.Errorf("create zipfile: %w", err)
 	}
-	defer outFile.Close()
+
+	defer func() {
+		_ = outFile.Close()
+	}()
 
 	// Create a new zip archive.
 	w := zip.NewWriter(outFile)
-	defer w.Close()
+
+	defer func() {
+		_ = w.Close()
+	}()
 
 	return AddZipFiles(w, baseFolder, "")
 }
@@ -377,7 +383,11 @@ func lookupForMinMatchingVersion(ctx context.Context, ext Extension) (string, er
 	if err != nil {
 		return "", fmt.Errorf("fetch composer versions: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx).Errorf("lookupForMinMatchingVersion: %v", err)
+		}
+	}()
 
 	versionString, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -450,7 +460,9 @@ func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
 		return fmt.Errorf("cannot read manifest file: %w", err)
 	}
 
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	var buf bytes.Buffer
 	decoder := xml.NewDecoder(file)

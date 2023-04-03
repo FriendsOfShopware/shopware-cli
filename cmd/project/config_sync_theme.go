@@ -5,6 +5,7 @@ import (
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -22,7 +23,11 @@ func (ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx.Context).Errorf("ThemeSync/Push: %v", err)
+		}
+	}()
 
 	for _, t := range themes.Data {
 		remoteConfigs, resp, err := client.ThemeManager.GetConfiguration(ctx, t.Id)
@@ -30,7 +35,11 @@ func (ThemeSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 			return err
 		}
 
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				logging.FromContext(ctx.Context).Errorf("ThemeSync/Push: %v", err)
+			}
+		}()
 
 		for _, localThemeConfig := range config.Sync.Theme {
 			if localThemeConfig.Name == t.Name {
@@ -71,7 +80,11 @@ func (ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.FromContext(ctx.Context).Errorf("ThemeSync/Pull: %v", err)
+		}
+	}()
 
 	for _, t := range themes.Data {
 		cfg := shop.ThemeConfig{
@@ -84,7 +97,11 @@ func (ThemeSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *
 			return err
 		}
 
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				logging.FromContext(ctx.Context).Errorf("ThemeSync/Pull: %v", err)
+			}
+		}()
 
 		cfg.Settings = *themeConfig.CurrentFields
 		config.Sync.Theme = append(config.Sync.Theme, cfg)
