@@ -69,20 +69,20 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 	// Install shared node_modules between admin and storefront
 	for _, entry := range cfgs {
 		// Install also shared node_modules
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources/app")); err != nil {
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
+			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources", "app")); err != nil {
 				return err
 			}
 		}
 
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/administration/package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources/app/administration/")); err != nil {
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
+			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources", "app", "administration")); err != nil {
 				return err
 			}
 		}
 
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources/app/storefront/package.json")); err == nil {
-			err := npmInstall(filepath.Join(entry.BasePath, "Resources/app/storefront/"))
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
+			err := npmInstall(filepath.Join(entry.BasePath, "Resources", "app", "storefront"))
 			if err != nil {
 				return err
 			}
