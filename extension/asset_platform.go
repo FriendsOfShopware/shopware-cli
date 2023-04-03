@@ -46,7 +46,7 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 
 	var err error
 	if shopwareRoot == "" && !buildWithoutShopwareSource {
-		shopwareRoot, err = setupShopwareInTemp(extensions[0])
+		shopwareRoot, err = setupShopwareInTemp(ctx, extensions[0])
 
 		if err != nil {
 			return err
@@ -337,8 +337,8 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 	return cfg
 }
 
-func setupShopwareInTemp(ext Extension) (string, error) {
-	constraint, err := ext.GetShopwareVersionConstraint()
+func setupShopwareInTemp(ctx context.Context, ext Extension) (string, error) {
+	minVersion, err := lookupForMinMatchingVersion(ctx, ext)
 	if err != nil {
 		return "", err
 	}
@@ -350,9 +350,13 @@ func setupShopwareInTemp(ext Extension) (string, error) {
 
 	cloneBranch := "6.4"
 
-	if constraint.Check(version.Must(version.NewVersion("6.5.0"))) {
+	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
+
+	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
 		cloneBranch = "trunk"
 	}
+
+	logging.FromContext(ctx).Infof("Cloning shopware with branch: %s into %s", cloneBranch, dir)
 
 	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/platform.git", "--depth=1", "-b", cloneBranch, dir)
 	gitCheckoutCmd.Stdout = os.Stdout
