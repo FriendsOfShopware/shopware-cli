@@ -149,25 +149,25 @@ func (p PlatformPlugin) GetMetaData() *extensionMetadata {
 }
 
 func (p PlatformPlugin) Validate(c context.Context, ctx *ValidationContext) {
-	if len(p.composer.Name) == 0 {
+	if p.composer.Name == "" {
 		ctx.AddError("Key `name` is required")
 	}
 
-	if len(p.composer.Type) == 0 {
+	if p.composer.Type == "" {
 		ctx.AddError("Key `type` is required")
 	} else if p.composer.Type != "shopware-platform-plugin" {
 		ctx.AddError("The composer type must be shopware-platform-plugin")
 	}
 
-	if len(p.composer.Description) == 0 {
+	if p.composer.Description == "" {
 		ctx.AddError("Key `description` is required")
 	}
 
-	if len(p.composer.License) == 0 {
+	if p.composer.License == "" {
 		ctx.AddError("Key `license` is required")
 	}
 
-	if len(p.composer.Version) == 0 {
+	if p.composer.Version == "" {
 		ctx.AddError("Key `version` is required")
 	}
 
@@ -216,7 +216,7 @@ func (p PlatformPlugin) Validate(c context.Context, ctx *ValidationContext) {
 
 	pluginIcon := p.composer.Extra.PluginIcon
 
-	if len(pluginIcon) == 0 {
+	if pluginIcon == "" {
 		pluginIcon = "src/Resources/config/plugin.png"
 	}
 
@@ -340,7 +340,7 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 }
 
 func getPhpVersion(ctx context.Context, constraint *version.Constraints) (string, error) {
-	r, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", nil)
+	r, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", http.NoBody)
 
 	resp, err := http.DefaultClient.Do(r)
 	if err != nil {

@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -69,7 +70,7 @@ func (MailTemplateSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 							localCustomFields, _ := json.Marshal(configTranslation.CustomFields)
 							remoteCustomFields, _ := json.Marshal(translation.CustomFields)
 
-							if string(localCustomFields) != string(remoteCustomFields) {
+							if !bytes.Equal(localCustomFields, remoteCustomFields) {
 								translationUpdate["customFields"] = configTranslation.CustomFields
 							}
 

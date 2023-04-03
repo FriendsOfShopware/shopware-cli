@@ -89,13 +89,13 @@ func (s SystemConfig) ToJson() string {
 		if key == nil {
 			k = `"null"`
 		} else {
-			k = fmt.Sprintf(`"%s"`, *key)
+			k = fmt.Sprintf(`%q`, *key)
 		}
 
 		text += fmt.Sprintf(`%s: %s,`, k, content)
 	}
 
-	if len(text) == 0 {
+	if text == "" {
 		return "{}"
 	}
 

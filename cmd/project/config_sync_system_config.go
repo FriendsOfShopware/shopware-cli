@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bytes"
 	"encoding/json"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
@@ -69,7 +70,7 @@ func (SystemConfigSync) Push(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 					encodedSource, _ := json.Marshal(existingConfig.ConfigurationValue)
 					encodedTarget, _ := json.Marshal(newV)
 
-					if string(encodedSource) != string(encodedTarget) {
+					if !bytes.Equal(encodedSource, encodedTarget) {
 						operation.SystemSettings[config.SalesChannel][newK] = newV
 					}
 

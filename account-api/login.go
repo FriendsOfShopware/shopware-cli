@@ -96,7 +96,7 @@ func NewApi(ctx context.Context, config AccountConfig) (*Client, error) {
 }
 
 func fetchMemberships(ctx context.Context, token token) ([]Membership, error) {
-	r, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), nil)
+	r, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/account/%d/memberships", ApiUrl, token.UserAccountID), http.NoBody)
 	r.Header.Set("x-shopware-token", token.Token)
 
 	if err != nil {

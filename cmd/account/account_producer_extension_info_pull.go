@@ -196,7 +196,7 @@ func init() {
 }
 
 func downloadFileTo(ctx context.Context, url string, target string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
