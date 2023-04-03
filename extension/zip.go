@@ -336,7 +336,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 		packageName := fmt.Sprintf("shopware/%s", component)
 
 		if _, ok := require.(map[string]interface{})[packageName]; ok {
-			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("https://swagger.docs.fos.gg/composer/%s/%s.json", minVersion, component), nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("https://swagger.docs.fos.gg/composer/%s/%s.json", minVersion, component), http.NoBody)
 			if err != nil {
 				return nil, fmt.Errorf("create component request: %w", err)
 			}
@@ -375,7 +375,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 }
 
 func lookupForMinMatchingVersion(ctx context.Context, ext Extension) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", http.NoBody)
 	if err != nil {
 		return "", fmt.Errorf("create composer version request: %w", err)
 	}
