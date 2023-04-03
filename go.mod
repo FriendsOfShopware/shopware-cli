@@ -1,12 +1,12 @@
 module github.com/FriendsOfShopware/shopware-cli
 
-go 1.19
+go 1.20
 
 require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
-	github.com/evanw/esbuild v0.17.14
+	github.com/evanw/esbuild v0.17.15
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
@@ -42,10 +42,10 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.29.1 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 )
