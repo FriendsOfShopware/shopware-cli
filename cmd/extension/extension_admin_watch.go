@@ -120,7 +120,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			if strings.HasPrefix(req.URL.Path, assetPrefix) {
 				newFilePath := strings.TrimPrefix(req.URL.Path, assetPrefix)
 
-				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(filepath.Join(ext.GetPath(), "Resources/app/administration/src"))), "static", newFilePath)
+				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(filepath.Join(ext.GetPath(), "Resources", "app", "administration", "src"))), "static", newFilePath)
 
 				http.ServeFile(w, req, expectedLocation)
 				return
