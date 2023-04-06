@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v7 v7.1.0
+	github.com/caarlos0/env/v8 v8.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
 	github.com/evanw/esbuild v0.17.15
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
@@ -13,8 +14,8 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/otiai10/copy v1.9.0
-	github.com/spf13/cobra v1.6.1
+	github.com/otiai10/copy v1.10.0
+	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
 	github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4
 	github.com/yuin/goldmark v1.5.4
@@ -43,9 +44,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.8.0
+	golang.org/x/net v0.9.0
 	golang.org/x/oauth2 v0.6.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
