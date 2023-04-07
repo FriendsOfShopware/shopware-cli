@@ -24,6 +24,7 @@ var (
 	defaultNotAllowedPaths = []string{
 		".travis.yml",
 		".gitlab-ci.yml",
+		".gitignore",
 		"bitbucket-pipelines.yml",
 		"build.sh",
 		".editorconfig",
