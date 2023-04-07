@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/caarlos0/env/v7"
+	"github.com/caarlos0/env/v8"
 	"gopkg.in/yaml.v3"
 )
 
