@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
 
       - name: Install Nix
         uses: cachix/install-nix-action@v20
@@ -40,5 +40,3 @@ jobs:
           author_name: Frosh Automation
           author_email: ci@fos.gg
           message: "chore: Update vendor sha"
-        env:
-          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
