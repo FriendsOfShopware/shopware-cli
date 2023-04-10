@@ -35,6 +35,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evanw/esbuild v0.17.15 h1:SyCbMVh61kWVC9klvH/iugLzvG/JDwA5hEpnBRx+Lro=
 github.com/evanw/esbuild v0.17.15/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
+github.com/evanw/esbuild v0.17.16 h1:Fd5Ugun51MfOAq8tviGkVIADL8tSOtAAVaUGjODHBBo=
+github.com/evanw/esbuild v0.17.16/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d h1:xxDxNtRoJSBqyS5dBtrIhRBEAP/JlXJX1QZFXZvubPo=
