@@ -6,7 +6,7 @@ require (
 	github.com/bep/godartsass v0.16.0
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
-	github.com/evanw/esbuild v0.17.16
+	github.com/evanw/esbuild v0.17.17
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
@@ -16,7 +16,7 @@ require (
 	github.com/otiai10/copy v1.10.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
-	github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4
+	github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822
 	github.com/yuin/goldmark v1.5.4
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v3 v3.0.1

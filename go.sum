@@ -37,6 +37,8 @@ github.com/evanw/esbuild v0.17.15 h1:SyCbMVh61kWVC9klvH/iugLzvG/JDwA5hEpnBRx+Lro
 github.com/evanw/esbuild v0.17.15/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/evanw/esbuild v0.17.16 h1:Fd5Ugun51MfOAq8tviGkVIADL8tSOtAAVaUGjODHBBo=
 github.com/evanw/esbuild v0.17.16/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
+github.com/evanw/esbuild v0.17.17 h1:jjPdS8T9YDm0T1q69XdlkWHi8IDACGv9xNE2WhZ6YGc=
+github.com/evanw/esbuild v0.17.17/go.mod h1:iINY06rn799hi48UqEnaQvVfZWe6W9bET78LbvN8VWk=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d h1:xxDxNtRoJSBqyS5dBtrIhRBEAP/JlXJX1QZFXZvubPo=
@@ -122,6 +124,8 @@ github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4 h1:qPndsD+SUQPIVm7xBHovuK1ndp4EhvZ46vTVEJjzPJY=
 github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4/go.mod h1:A2voDnpONyqdplUDK0lt5y4XHLiBXPBw7iQES8+ZWRw=
+github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822 h1:DXLWOIMPcQV+bxCFhBYSY5AIGP4DGvXH6qkwsg82YYY=
+github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822/go.mod h1:A2voDnpONyqdplUDK0lt5y4XHLiBXPBw7iQES8+ZWRw=
 github.com/yuin/goldmark v1.5.4 h1:2uY/xC0roWy8IBEGLgB1ywIoEJFGmRrX21YQcvGZzjU=
 github.com/yuin/goldmark v1.5.4/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
