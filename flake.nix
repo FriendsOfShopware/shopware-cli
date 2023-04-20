@@ -15,9 +15,9 @@
           pkgs = nixpkgsFor.${system};
         in
         rec {
-          dart-sass-embedded = pkgs.stdenv.mkDerivation rec {
+          dart-sass-embedded = pkgs.stdenvNoCC.mkDerivation rec {
             pname = "dart-sass-embedded";
-            version = "1.58.3";
+            version = "1.62.0";
 
             dontConfigure = true;
             dontBuild = true;
@@ -28,13 +28,15 @@
               url = {
                 "x86_64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-x64.tar.gz";
                 "aarch64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-arm64.tar.gz";
+                "x86_64-darwin" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-macos-x64.tar.gz";
                 "aarch64-darwin" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-macos-arm64.tar.gz";
-              }."${pkgs.system}";
+              }."${system}";
               hash = {
-                "x86_64-linux" = "sha256-hFhg6FzfJ2ti41YwqvtiDkJ12khWUL5fVKAn/cGlLo8=";
-                "aarch64-linux" = "sha256-bYjpOvhjJPXneHc87ZPcsxZpQsOgvZqrknJFyFc67jg=";
-                "aarch64-darwin" = "sha256-AihqDuPmDGrjXZV4hYZh//TjWh4L6m5Xqs/18bVgaQw=";
-              }."${pkgs.system}";
+                "x86_64-linux" = "sha256-szSKhLnUan1dNjwkDbcZHVyML81MtGTQ2d9KA41eQo4=";
+                "aarch64-linux" = "sha256-W8kmTvZhLEQes0LCA/udzsYpbGIAe68qqNDtTdovIRA=";
+                "x86_64-darwin" = "sha256-LS2kd8mkEtdFMkeT3qEDpd08Ie2Dy+7uaY/0/wuHGLU=";
+                "aarch64-darwin" = "sha256-LEd7QZDPFkqBzBUxXEpBFyCpHYtoHIvHsKwmK1XbHro=";
+              }."${system}";
             };
 
             installPhase = ''
