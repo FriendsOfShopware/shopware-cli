@@ -177,17 +177,15 @@ func updateStoreInfo(ext *accountApi.Extension, zipExt extension.Extension, cfg 
 	}
 
 	if cfg.Store.Categories != nil {
-		newCategories := make([]accountApi.StoreCategory, 0)
-
-		for _, category := range info.Categories {
+		for _, category := range info.FutureCategories {
 			for _, configCategory := range *cfg.Store.Categories {
 				if category.Name == configCategory {
-					newCategories = append(newCategories, category)
+					selectCategory := category
+					ext.Category = &selectCategory
+					break
 				}
 			}
 		}
-
-		ext.Categories = newCategories
 	}
 
 	if cfg.Store.Type != nil {
