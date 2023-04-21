@@ -277,6 +277,7 @@ type Extension struct {
 	Variants                            []interface{}      `json:"variants"`
 	StoreAvailabilities                 []StoreAvailablity `json:"storeAvailabilities"`
 	Categories                          []StoreCategory    `json:"categories"`
+	Category                            *StoreCategory     `json:"selectedFutureCategory"`
 	Addons                              []interface{}      `json:"addons"`
 	LastChange                          string             `json:"lastChange"`
 	CreationDate                        string             `json:"creationDate"`
@@ -485,8 +486,9 @@ type StoreFaq struct {
 }
 
 type ExtensionGeneralInformation struct {
-	Categories []StoreCategory `json:"categories"`
-	Addons     []struct {
+	Categories       []StoreCategory `json:"categories"`
+	FutureCategories []StoreCategory `json:"futureCategories"`
+	Addons           []struct {
 		Id             int    `json:"id"`
 		Name           string `json:"name"`
 		Description    string `json:"description"`

@@ -81,8 +81,13 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			}
 		}
 
-		for _, category := range storeExt.Categories {
-			categoryList = append(categoryList, category.Name)
+		if storeExt.Category != nil {
+			categoryList = append(categoryList, storeExt.Category.Name)
+		} else {
+			for _, category := range storeExt.Categories {
+				categoryList = append(categoryList, category.Name)
+				break
+			}
 		}
 
 		for _, localization := range storeExt.Localizations {
