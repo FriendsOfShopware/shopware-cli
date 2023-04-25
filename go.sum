@@ -130,6 +130,8 @@ github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4 h1:qPndsD+SUQPIVm7x
 github.com/vulcand/oxy/v2 v2.0.0-20230313084420-cf79b1f5ecf4/go.mod h1:A2voDnpONyqdplUDK0lt5y4XHLiBXPBw7iQES8+ZWRw=
 github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822 h1:DXLWOIMPcQV+bxCFhBYSY5AIGP4DGvXH6qkwsg82YYY=
 github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822/go.mod h1:A2voDnpONyqdplUDK0lt5y4XHLiBXPBw7iQES8+ZWRw=
+github.com/vulcand/oxy/v2 v2.0.0-20230425133249-2b165e0b426b h1:Vv2lpxhxIssRpDV1+hmGvhXhaez7YaumznMse2FUeUE=
+github.com/vulcand/oxy/v2 v2.0.0-20230425133249-2b165e0b426b/go.mod h1:A2voDnpONyqdplUDK0lt5y4XHLiBXPBw7iQES8+ZWRw=
 github.com/yuin/goldmark v1.5.4 h1:2uY/xC0roWy8IBEGLgB1ywIoEJFGmRrX21YQcvGZzjU=
 github.com/yuin/goldmark v1.5.4/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
