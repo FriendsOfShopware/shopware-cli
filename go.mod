@@ -16,7 +16,7 @@ require (
 	github.com/otiai10/copy v1.11.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
-	github.com/vulcand/oxy/v2 v2.0.0-20230417082832-03de175b3822
+	github.com/vulcand/oxy/v2 v2.0.0-20230425133249-2b165e0b426b
 	github.com/yuin/goldmark v1.5.4
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v3 v3.0.1
