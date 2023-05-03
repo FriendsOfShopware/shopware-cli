@@ -4,7 +4,7 @@
 
   outputs = { self, nixpkgs }:
     let
-      version = "0.1.59";
+      version = "0.1.61";
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
@@ -15,37 +15,6 @@
           pkgs = nixpkgsFor.${system};
         in
         rec {
-          dart-sass-embedded = pkgs.stdenvNoCC.mkDerivation rec {
-            pname = "dart-sass-embedded";
-            version = "1.62.0";
-
-            dontConfigure = true;
-            dontBuild = true;
-
-            nativeBuildInputs = [ ] ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.autoPatchelfHook;
-
-            src = pkgs.fetchurl {
-              url = {
-                "x86_64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-x64.tar.gz";
-                "aarch64-linux" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-linux-arm64.tar.gz";
-                "x86_64-darwin" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-macos-x64.tar.gz";
-                "aarch64-darwin" = "https://github.com/sass/dart-sass-embedded/releases/download/${version}/sass_embedded-${version}-macos-arm64.tar.gz";
-              }."${system}";
-              hash = {
-                "x86_64-linux" = "sha256-szSKhLnUan1dNjwkDbcZHVyML81MtGTQ2d9KA41eQo4=";
-                "aarch64-linux" = "sha256-W8kmTvZhLEQes0LCA/udzsYpbGIAe68qqNDtTdovIRA=";
-                "x86_64-darwin" = "sha256-LS2kd8mkEtdFMkeT3qEDpd08Ie2Dy+7uaY/0/wuHGLU=";
-                "aarch64-darwin" = "sha256-LEd7QZDPFkqBzBUxXEpBFyCpHYtoHIvHsKwmK1XbHro=";
-              }."${system}";
-            };
-
-            installPhase = ''
-              mkdir -p $out/bin
-              cp -r * $out
-              ln -s $out/dart-sass-embedded $out/bin/dart-sass-embedded
-            '';
-          };
-
           shopware-cli = pkgs.buildGoModule {
             pname = "shopware-cli";
             inherit version;
@@ -65,7 +34,7 @@
 
             postFixup = ''
               wrapProgram $out/bin/shopware-cli \
-                --prefix PATH : ${dart-sass-embedded}/bin
+                --prefix PATH : ${pkgs.dart-sass-embedded}/bin
             '';
 
             CGO_ENABLED = 0;
