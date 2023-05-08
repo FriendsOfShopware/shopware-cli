@@ -48,10 +48,18 @@ sudo apk add --no-cache shopware-cli
 
 Download the .deb, .rpm or .apk packages from the [releases](https://github.com/FriendsOfShopware/shopware-cli/releases/) page and install them with the appropriate tools.
 
-### Nix with flakes
+### Nix
 
 ```shell
-nix profile install github:FriendsOfShopware/shopware-cli
+nix-env -iA nixpkgs.shopware-cli
+```
+
+### Devenv
+
+```nix
+{ pkgs, ... }: {
+  packages = [ pkgs.shopware-cli ];
+}
 ```
 
 ### GitHub Codespaces
