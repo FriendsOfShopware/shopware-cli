@@ -454,16 +454,8 @@ type StoreCategory struct {
 	Visible     bool        `json:"visible"`
 	Suggested   bool        `json:"suggested"`
 	Applicable  bool        `json:"applicable"`
-	Details     []struct {
-		Id          int    `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		Locale      struct {
-			Id   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"locale"`
-	} `json:"details"`
-	Active bool `json:"active"`
+	Details     interface{} `json:"details"`
+	Active      bool        `json:"active"`
 }
 
 type StoreTag struct {
@@ -488,14 +480,8 @@ type StoreFaq struct {
 type ExtensionGeneralInformation struct {
 	Categories       []StoreCategory `json:"categories"`
 	FutureCategories []StoreCategory `json:"futureCategories"`
-	Addons           []struct {
-		Id             int    `json:"id"`
-		Name           string `json:"name"`
-		Description    string `json:"description"`
-		AddedProvision int    `json:"addedProvision"`
-		Public         bool   `json:"public"`
-	} `json:"addons"`
-	Generations []struct {
+	Addons           interface{}     `json:"addons"`
+	Generations      []struct {
 		Id          int    `json:"id"`
 		Name        string `json:"name"`
 		Description string `json:"description"`
@@ -526,31 +512,13 @@ type ExtensionGeneralInformation struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"licenses"`
-	StoreAvailabilities []StoreAvailablity `json:"storeAvailabilities"`
-	PriceModels         []struct {
-		Id                       interface{} `json:"id"`
-		Price                    int         `json:"price,omitempty"`
-		Subscription             bool        `json:"subscription,omitempty"`
-		Type                     string      `json:"type"`
-		Discount                 int         `json:"discount,omitempty"`
-		BookingKey               string      `json:"bookingKey"`
-		BookingText              string      `json:"bookingText"`
-		DiscountAppliesForMonths interface{} `json:"discountAppliesForMonths"`
-		Duration                 string      `json:"duration,omitempty"`
-		TrialPhaseIncluded       bool        `json:"trialPhaseIncluded,omitempty"`
-	} `json:"priceModels"`
-	SoftwareVersions SoftwareVersionList `json:"softwareVersions"`
-	DemoTypes        []struct {
-		Id          int    `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	} `json:"demoTypes"`
-	Localizations        []Locale           `json:"localizations"`
-	ProductTypes         []StoreProductType `json:"productTypes"`
-	ReleaseRequestStatus []struct {
-		Id   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"releaseRequestStatus"`
+	StoreAvailabilities  []StoreAvailablity  `json:"storeAvailabilities"`
+	PriceModels          []interface{}       `json:"priceModels"`
+	SoftwareVersions     SoftwareVersionList `json:"softwareVersions"`
+	DemoTypes            interface{}         `json:"demoTypes"`
+	Localizations        []Locale            `json:"localizations"`
+	ProductTypes         []StoreProductType  `json:"productTypes"`
+	ReleaseRequestStatus interface{}         `json:"releaseRequestStatus"`
 }
 
 func (e ProducerEndpoint) GetExtensionGeneralInfo(ctx context.Context) (*ExtensionGeneralInformation, error) {
