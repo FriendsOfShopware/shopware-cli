@@ -29,6 +29,7 @@ require (
 
 require (
 	github.com/NYTimes/gziphandler v1.1.1
+	github.com/RaveNoX/go-jsonmerge v1.0.0
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cli/safeexec v1.0.1 // indirect
@@ -36,6 +37,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/imdario/mergo v0.3.15
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jaswdr/faker v1.16.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
