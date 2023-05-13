@@ -5,13 +5,12 @@ import (
 	"strings"
 )
 
-var (
-	matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
-	matchAllCap   = regexp.MustCompile("([a-z0-9])([A-Z])")
-)
+var matchLetter = regexp.MustCompile(`[A-Z]`)
 
-func ToSnakeCase(str string) string {
-	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
-	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
-	return strings.ToLower(snake)
+// @see https://github.com/symfony/symfony/blob/6.3/src/Symfony/Component/Serializer/NameConverter/CamelCaseToSnakeCaseNameConverter.php#L31
+func toSnakeCase(str string) string {
+	converted := matchLetter.ReplaceAllStringFunc(str, func(match string) string {
+		return "_" + strings.ToLower(match)
+	})
+	return converted[1:]
 }
