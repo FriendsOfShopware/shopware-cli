@@ -81,5 +81,6 @@ type Extension interface {
 	GetPath() string
 	GetChangelog() (*extensionTranslated, error)
 	GetMetaData() *extensionMetadata
+	GetExtensionConfig() *Config
 	Validate(context.Context, *ValidationContext)
 }

@@ -24,6 +24,7 @@ import (
 type PlatformPlugin struct {
 	path     string
 	composer platformComposerJson
+	config   *Config
 }
 
 // GetRootDir returns the src directory of the plugin.
@@ -54,9 +55,15 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
 
+	cfg, err := readExtensionConfig(path)
+	if err != nil {
+		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
+	}
+
 	extension := PlatformPlugin{
 		composer: composerJson,
 		path:     path,
+		config:   cfg,
 	}
 
 	return &extension, nil
@@ -98,6 +105,10 @@ func (p PlatformPlugin) GetName() (string, error) {
 	parts := strings.Split(p.composer.Extra.ShopwarePluginClass, "\\")
 
 	return parts[len(parts)-1], nil
+}
+
+func (p PlatformPlugin) GetExtensionConfig() *Config {
+	return p.config
 }
 
 func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, error) {

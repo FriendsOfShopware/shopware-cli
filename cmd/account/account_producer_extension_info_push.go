@@ -75,10 +75,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 			return fmt.Errorf("cannot get general info: %w", err)
 		}
 
-		extCfg, err := extension.ReadExtensionConfig(zipExt.GetPath())
-		if err != nil {
-			return fmt.Errorf("cannot read extension config: %w", err)
-		}
+		extCfg := zipExt.GetExtensionConfig()
 
 		if extCfg != nil {
 			if extCfg.Store.Icon != nil {

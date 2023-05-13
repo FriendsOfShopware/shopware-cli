@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionPrepareCmd = &cobra.Command{
@@ -25,12 +24,7 @@ var extensionPrepareCmd = &cobra.Command{
 			return fmt.Errorf("detect extension type: %w", err)
 		}
 
-		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
-		if err != nil {
-			logging.FromContext(cmd.Context()).Warnf("error reading config: %v", err)
-		}
-
-		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext, extCfg)
+		err = extension.PrepareFolderForZipping(cmd.Context(), path+"/", ext, ext.GetExtensionConfig())
 		if err != nil {
 			return fmt.Errorf("prepare zip: %w", err)
 		}
