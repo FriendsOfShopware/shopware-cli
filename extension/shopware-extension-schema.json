@@ -22,6 +22,10 @@
             "title": "build",
             "additionalProperties": false,
             "properties": {
+                "shopwareVersionConstraint": {
+                    "type": "string",
+                    "description": "Overrides the shopware version constraint in the composer.json/manifest.xml file."
+                },
                 "extraBundles": {
                     "type": "array",
                     "items": {

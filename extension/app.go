@@ -248,7 +248,16 @@ func (a App) GetExtensionConfig() *Config {
 	return a.config
 }
 
-func (App) GetShopwareVersionConstraint() (*version.Constraints, error) {
+func (a App) GetShopwareVersionConstraint() (*version.Constraints, error) {
+	if a.config.Build.ShopwareVersionConstraint != "" {
+		v, err := version.NewConstraint(a.config.Build.ShopwareVersionConstraint)
+		if err != nil {
+			return nil, err
+		}
+
+		return &v, err
+	}
+
 	v, err := version.NewConstraint("~6.4")
 	if err != nil {
 		return nil, err

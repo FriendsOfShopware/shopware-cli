@@ -112,6 +112,15 @@ func (p PlatformPlugin) GetExtensionConfig() *Config {
 }
 
 func (p PlatformPlugin) GetShopwareVersionConstraint() (*version.Constraints, error) {
+	if p.config.Build.ShopwareVersionConstraint != "" {
+		constraint, err := version.NewConstraint(p.config.Build.ShopwareVersionConstraint)
+		if err != nil {
+			return nil, err
+		}
+
+		return &constraint, nil
+	}
+
 	shopwareConstraintString, ok := p.composer.Require["shopware/core"]
 
 	if !ok {
