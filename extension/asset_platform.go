@@ -28,9 +28,10 @@ const (
 type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
 	EnableESBuildForStorefront bool
+	CleanupNodeModules         bool
 }
 
-func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error {
+func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error { // nolint:gocyclo
 	cfgs := buildAssetConfigFromExtensions(ctx, extensions, shopwareRoot)
 
 	if len(cfgs) == 1 {
@@ -52,12 +53,7 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 			return err
 		}
 
-		defer func(path string) {
-			err := os.RemoveAll(path)
-			if err != nil {
-				logging.FromContext(ctx).Infoln(err)
-			}
-		}(shopwareRoot)
+		defer deletePath(ctx, shopwareRoot)
 	}
 
 	if !buildWithoutShopwareSource {
@@ -70,21 +66,36 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 	for _, entry := range cfgs {
 		// Install also shared node_modules
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources", "app")); err != nil {
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app")
+			if err := npmInstall(npmPath); err != nil {
 				return err
+			}
+
+			if assetConfig.CleanupNodeModules {
+				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
 			}
 		}
 
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
-			if err := npmInstallIfMissing(filepath.Join(entry.BasePath, "Resources", "app", "administration")); err != nil {
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "administration")
+			if err := npmInstall(npmPath); err != nil {
 				return err
+			}
+
+			if assetConfig.CleanupNodeModules {
+				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
 			}
 		}
 
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
-			err := npmInstall(filepath.Join(entry.BasePath, "Resources", "app", "storefront"))
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "storefront")
+			err := npmInstall(npmPath)
 			if err != nil {
 				return err
+			}
+
+			if assetConfig.CleanupNodeModules {
+				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
 			}
 		}
 	}
@@ -110,6 +121,12 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 				"build",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
 			)
+
+			if assetConfig.CleanupNodeModules {
+				defer deletePath(ctx, path.Join(administrationRoot, "node_modules"))
+				defer deletePath(ctx, path.Join(administrationRoot, "twigVuePlugin"))
+			}
+
 			if err != nil {
 				return err
 			}
@@ -136,6 +153,11 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 				"production",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
 			)
+
+			if assetConfig.CleanupNodeModules {
+				defer deletePath(ctx, path.Join(storefrontRoot, "node_modules"))
+			}
+
 			if err != nil {
 				return err
 			}
@@ -143,6 +165,13 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 	}
 
 	return nil
+}
+
+func deletePath(ctx context.Context, path string) {
+	if err := os.RemoveAll(path); err != nil {
+		logging.FromContext(ctx).Errorf("Failed to remove path %s: %s", path, err.Error())
+		return
+	}
 }
 
 func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string) error {
@@ -163,21 +192,13 @@ func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string
 }
 
 func npmInstall(path string) error {
-	npmInstallCmd := exec.Command("npm", "--prefix", path, "install") //nolint:gosec
+	npmInstallCmd := exec.Command("npm", "--prefix", path, "install", "--no-audit", "--prefer-offline") //nolint:gosec
 	npmInstallCmd.Stdout = os.Stdout
 	npmInstallCmd.Stderr = os.Stderr
 	npmInstallCmd.Env = append(os.Environ(), "PUPPETEER_SKIP_DOWNLOAD=1")
 
 	if err := npmInstallCmd.Run(); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func npmInstallIfMissing(path string) error {
-	if _, err := os.Stat(filepath.Join(path, "node_modules")); os.IsNotExist(err) {
-		return npmInstall(path)
 	}
 
 	return nil
@@ -250,12 +271,12 @@ func buildAssetConfigFromExtensions(ctx context.Context, extensions []Extension,
 
 	var basePath string
 	if shopwareRoot == "" {
-		basePath = "src/Storefront"
+		basePath = "src/Storefront/"
 	} else {
 		basePath = strings.TrimLeft(
 			strings.Replace(PlatformPath(shopwareRoot, "Storefront", ""), shopwareRoot, "", 1),
 			"/",
-		)
+		) + "/"
 	}
 
 	entryPath := "Resources/app/storefront/src/main.js"
