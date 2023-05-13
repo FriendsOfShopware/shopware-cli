@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 
 	cp "github.com/otiai10/copy"
@@ -23,7 +24,7 @@ var extensionZipCmd = &cobra.Command{
 	Short: "Zip a Extension",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path, err := filepath.Abs(args[0])
+		extPath, err := filepath.Abs(args[0])
 		if err != nil {
 			return err
 		}
@@ -33,7 +34,7 @@ var extensionZipCmd = &cobra.Command{
 			branch = args[1]
 		}
 
-		ext, err := extension.GetExtensionByFolder(path)
+		ext, err := extension.GetExtensionByFolder(extPath)
 		if err != nil {
 			return fmt.Errorf("detect extension type: %w", err)
 		}
@@ -86,12 +87,12 @@ var extensionZipCmd = &cobra.Command{
 
 		// Extract files using strategy
 		if disableGit {
-			err = cp.Copy(path, extDir, copyOptions())
+			err = cp.Copy(extPath, extDir, copyOptions())
 			if err != nil {
 				return fmt.Errorf("copy files: %w", err)
 			}
 		} else {
-			tag, err = extension.GitCopyFolder(path, extDir)
+			tag, err = extension.GitCopyFolder(extPath, extDir)
 			if err != nil {
 				return fmt.Errorf("copy via git: %w", err)
 			}
@@ -156,6 +157,18 @@ var extensionZipCmd = &cobra.Command{
 			fileName = fmt.Sprintf("%s.zip", name)
 		}
 
+		outputDir, _ := cmd.Flags().GetString("output-directory")
+
+		if len(outputDir) > 0 {
+			if _, err := os.Stat(outputDir); os.IsNotExist(err) {
+				if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+					return fmt.Errorf("create output directory: %w", err)
+				}
+			}
+
+			fileName = path.Join(outputDir, fileName)
+		}
+
 		if err := executeHooks(ext, extCfg.Build.Zip.Pack.BeforeHooks, extDir); err != nil {
 			return fmt.Errorf("before hooks pack: %w", err)
 		}
@@ -174,6 +187,7 @@ func init() {
 	extensionRootCmd.AddCommand(extensionZipCmd)
 	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
 	extensionZipCmd.Flags().BoolVar(&extensionReleaseMode, "release", false, "Release mode (remove app secrets)")
+	extensionZipCmd.Flags().String("output-directory", "", "Output directory for the zip file")
 }
 
 func executeHooks(ext extension.Extension, hooks []string, extDir string) error {
