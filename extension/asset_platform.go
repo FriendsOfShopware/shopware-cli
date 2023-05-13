@@ -231,7 +231,7 @@ func buildAssetConfigFromExtensions(ctx context.Context, extensions []Extension,
 
 		list[extName] = createConfigFromPath(extName, extension.GetRootDir())
 
-		extCfg, err := ReadExtensionConfig(extPath)
+		extCfg, err := readExtensionConfig(extPath)
 		if err != nil {
 			logging.FromContext(ctx).Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
 			continue

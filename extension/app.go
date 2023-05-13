@@ -188,6 +188,7 @@ func getTranslatedTextFromXmlNode(node translatedXmlNode, keys []string) string 
 type App struct {
 	path     string
 	manifest appManifest
+	config   *Config
 }
 
 func (a App) GetRootDir() string {
@@ -217,9 +218,15 @@ func newApp(path string) (*App, error) {
 		return nil, fmt.Errorf("newApp: %v", err)
 	}
 
+	cfg, err := readExtensionConfig(path)
+	if err != nil {
+		return nil, fmt.Errorf("newApp: %v", err)
+	}
+
 	app := App{
 		path:     path,
 		manifest: manifest,
+		config:   cfg,
 	}
 
 	return &app, nil
@@ -235,6 +242,10 @@ func (a App) GetVersion() (*version.Version, error) {
 
 func (a App) GetLicense() (string, error) {
 	return a.manifest.Meta.License, nil
+}
+
+func (a App) GetExtensionConfig() *Config {
+	return a.config
 }
 
 func (App) GetShopwareVersionConstraint() (*version.Constraints, error) {

@@ -59,7 +59,7 @@ var projectExtensionUploadCmd = &cobra.Command{
 			return err
 		}
 
-		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
+		extCfg := ext.GetExtensionConfig()
 		if err != nil {
 			logging.FromContext(cmd.Context()).Fatalln(fmt.Errorf("update: %v", err))
 		}

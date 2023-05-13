@@ -10,6 +10,10 @@
     "go.inlayHints.compositeLiteralFields": true,
     "go.inlayHints.constantValues": true,
     "files.exclude": {
-        ".devenv": true
-    }
+        ".devenv": true,
+        ".direnv": true,
+        ".idea": true
+    },
+    "go.toolsManagement.autoUpdate": false,
+    "go.toolsManagement.checkForUpdates": "off"
 }

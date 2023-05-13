@@ -38,10 +38,7 @@ var extensionZipCmd = &cobra.Command{
 			return fmt.Errorf("detect extension type: %w", err)
 		}
 
-		extCfg, err := extension.ReadExtensionConfig(ext.GetPath())
-		if err != nil {
-			logging.FromContext(cmd.Context()).Fatalln(fmt.Errorf("update: %v", err))
-		}
+		extCfg := ext.GetExtensionConfig()
 
 		name, err := ext.GetName()
 		if err != nil {

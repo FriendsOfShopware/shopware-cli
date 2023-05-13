@@ -34,10 +34,7 @@ var extensionAssetBundleCmd = &cobra.Command{
 		}
 
 		if len(args) == 1 {
-			extCfg, err := extension.ReadExtensionConfig(validatedExtensions[0].GetPath())
-			if err != nil {
-				return fmt.Errorf("cannot read extension config: %w", err)
-			}
+			extCfg := validatedExtensions[0].GetExtensionConfig()
 
 			assetCfg.EnableESBuildForAdmin = extCfg.Build.Zip.Assets.EnableESBuildForAdmin
 			assetCfg.EnableESBuildForStorefront = extCfg.Build.Zip.Assets.EnableESBuildForStorefront
