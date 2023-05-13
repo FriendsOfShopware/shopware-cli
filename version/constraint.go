@@ -23,7 +23,10 @@ type constraintFunc func(v, c *Version) bool
 
 var constraintOperators map[string]constraintFunc
 
-var constraintRegexp *regexp.Regexp
+var (
+	constraintRegexp              *regexp.Regexp
+	constraintAndNormalizerRegexp = regexp.MustCompile(`(?m)\s+`)
+)
 
 func init() {
 	constraintOperators = map[string]constraintFunc{
@@ -65,6 +68,9 @@ func NewConstraint(cs string) (Constraints, error) {
 	ors := strings.Split(cs, "||")
 	or := make([][]*Constraint, len(ors))
 	for k, v := range ors {
+		// Normalize spaces between constraints to comma to parse easier and condions
+		v = constraintAndNormalizerRegexp.ReplaceAllString(strings.Trim(v, " "), ",")
+
 		vs := strings.Split(v, ",")
 		result := make([]*Constraint, len(vs))
 		for i, single := range vs {
