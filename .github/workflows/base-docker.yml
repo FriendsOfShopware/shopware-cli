@@ -28,6 +28,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}
+          tags: "ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
