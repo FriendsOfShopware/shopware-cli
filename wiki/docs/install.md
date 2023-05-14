@@ -105,6 +105,16 @@ docker run \
     extension build FroshPlatformAdminer
 ```
 
+You can verify the image with cosign:
+
+```
+cosign verify ghcr.io/friendsofshopware/shopware-cli \
+  --certificate-identity 'https://github.com/FriendsOfShopware/shopware-cli/.github/workflows/release.yml@refs/tags/0.1.69' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+```
+
+Hint: You have to adjust the version inside the `certificate-identity`
+
 ## Compiling from source
 
 If you just want to build from source for whatever reason, follow these steps:
