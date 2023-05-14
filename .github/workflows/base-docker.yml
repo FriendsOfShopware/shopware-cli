@@ -8,11 +8,11 @@ on:
       - 'Dockerfile.base'
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ["8.2", "8.1"]
+        php-version: ["8.2", "8.1", "7.4", "7.2"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -20,8 +20,11 @@ jobs:
       - name: Login into Github Docker Registery
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build Image
-        run: docker build -t ghcr.io/friendsofshopware/shopware-cli-base:phpv${{ matrix.php-version }} -f Dockerfile.base --build-arg="PHP_VERSION=${{ matrix.php-version }}" .
-
-      - name: Push Image
-        run: docker push ghcr.io/friendsofshopware/shopware-cli-base:phpv${{ matrix.php-version }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
