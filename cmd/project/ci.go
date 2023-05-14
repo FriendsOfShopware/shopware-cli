@@ -12,6 +12,7 @@ import (
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/imdario/mergo"
 	"github.com/spf13/cobra"
 )
@@ -19,6 +20,7 @@ import (
 // cleanupPaths are paths that are not nesscarry for the production build.
 var cleanupPaths = []string{
 	"vendor/shopware/storefront/Resources/app/storefront/vendor/bootstrap/dist",
+	"vendor/shopware/storefront/Resources/app/storefront/test",
 	"vendor/shopware/storefront/Test",
 	"vendor/shopware/core/Framework/Test",
 	"vendor/shopware/core/Content/Test",
@@ -31,6 +33,13 @@ var projectCI = &cobra.Command{
 	Use:   "ci",
 	Short: "Build Shopware in the CI",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		shopCfg, err := shop.ReadConfig(projectConfigPath, true)
+		if err != nil {
+			return err
+		}
+
+		cleanupPaths = append(cleanupPaths, shopCfg.Build.CleanupPaths...)
+
 		logging.FromContext(cmd.Context()).Infof("Installing dependencies using Composer")
 
 		composer := exec.CommandContext(cmd.Context(), "composer", "install", "--no-dev", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative")
@@ -48,8 +57,7 @@ var projectCI = &cobra.Command{
 
 		assetCfg := extension.AssetBuildConfig{EnableESBuildForAdmin: false, EnableESBuildForStorefront: false, CleanupNodeModules: true}
 
-		err := extension.BuildAssetsForExtensions(cmd.Context(), args[0], extensions, assetCfg)
-		if err != nil {
+		if err := extension.BuildAssetsForExtensions(cmd.Context(), args[0], extensions, assetCfg); err != nil {
 			return err
 		}
 
@@ -82,6 +90,26 @@ var projectCI = &cobra.Command{
 
 		if err := exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "--version").Run(); err != nil { //nolint: gosec
 			return fmt.Errorf("failed to warmup container cache (php bin/ci --version): %w", err)
+		}
+
+		if !shopCfg.Build.UsesExternalCDN {
+			logging.FromContext(cmd.Context()).Infof("Copying extension assets to final public/bundles folder")
+
+			if err := exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "asset:install").Run(); err != nil { //nolint: gosec
+				return fmt.Errorf("failed to install assets (php bin/ci asset:install): %w", err)
+			}
+
+			logging.FromContext(cmd.Context()).Infof("Deleting assets of extensions")
+
+			for _, ext := range extensions {
+				if err := os.RemoveAll(path.Join(ext.GetRootDir(), "Resources", "public")); err != nil {
+					return err
+				}
+			}
+
+			if err := os.RemoveAll(path.Join(args[0], "vendor", "shopware", "administration", "Resources", "public")); err != nil {
+				return err
+			}
 		}
 
 		return nil

@@ -13,9 +13,15 @@ import (
 
 type Config struct {
 	URL        string          `yaml:"url"`
+	Build      *ConfigBuild    `yaml:"build,omitempty"`
 	AdminApi   *ConfigAdminApi `yaml:"admin_api,omitempty"`
 	ConfigDump *ConfigDump     `yaml:"dump,omitempty"`
 	Sync       *ConfigSync     `yaml:"sync,omitempty"`
+}
+
+type ConfigBuild struct {
+	UsesExternalCDN bool     `yaml:"uses_external_cdn,omitempty"`
+	CleanupPaths    []string `yaml:"cleanup_paths,omitempty"`
 }
 
 type ConfigAdminApi struct {
@@ -70,12 +76,16 @@ type MailTemplateTranslation struct {
 	CustomFields interface{} `yaml:"custom_fields"`
 }
 
-func ReadConfig(fileName string) (*Config, error) {
+func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 	config := &Config{}
 
 	_, err := os.Stat(fileName)
 
 	if os.IsNotExist(err) {
+		if allowFallback {
+			return fillEmptyConfig(config), nil
+		}
+
 		return nil, fmt.Errorf("cannot find .shopware-project.yml, use shopware-cli project config init to create one")
 	}
 
@@ -94,7 +104,15 @@ func ReadConfig(fileName string) (*Config, error) {
 		return nil, fmt.Errorf("ReadConfig: %v", err)
 	}
 
-	return config, nil
+	return fillEmptyConfig(config), nil
+}
+
+func fillEmptyConfig(c *Config) *Config {
+	if c.Build == nil {
+		c.Build = &ConfigBuild{}
+	}
+
+	return c
 }
 
 func NewUuid() string {

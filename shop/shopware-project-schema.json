@@ -1,9 +1,9 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "shopware-cli",
-    "$ref": "#/definitions/Config",
     "description": "shopware cli project configuration definition file",
-    "definitions": {
+    "$ref": "#/definitions/Config",
+    "$defs": {
         "Config": {
             "type": "object",
             "title": ".shopware-project.yml",
@@ -21,6 +21,23 @@
                 },
                 "sync": {
                     "$ref": "#/definitions/Sync"
+                }
+            }
+        },
+        "Build": {
+            "type": "object",
+            "title": "Project Build Settings",
+            "additionalProperties": false,
+            "properties": {
+                "uses_external_cdn": {
+                    "type": "boolean",
+                    "description": "When enabled, it does not delete the public folder of extensions",
+                    "default": false
+                },
+                "cleanup_paths": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Paths to delete for the final build"
                 }
             }
         },
