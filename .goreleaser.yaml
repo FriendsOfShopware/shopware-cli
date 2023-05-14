@@ -142,14 +142,21 @@ docker_manifests:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-amd64"
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-arm64"
 
+sboms:
+  - artifacts: archive
+  - id: source
+    artifacts: source
+
 docker_signs:
-  - artifacts: all
+  - cmd: cosign
+    env:
+    - COSIGN_EXPERIMENTAL=1
+    artifacts: all
+    output: true
     args:
-    - "sign"
-    - "env://COSIGN_PRIVATE_KEY"
-    - "${artifact}"
+    - 'sign'
+    - '${artifact}'
     - "--yes"
-    stdin: '{{ .Env.COSIGN_PASSWORD }}'
 
 checksum:
   name_template: 'checksums.txt'
