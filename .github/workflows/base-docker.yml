@@ -28,6 +28,9 @@ jobs:
         with:
           context: .
           push: true
+          file: Dockerfile.base
           tags: "ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}"
+          build-args: |
+            PHP_VERSION=${{ matrix.php-version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
