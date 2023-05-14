@@ -4,11 +4,11 @@ FROM php:${PHP_VERSION}-cli
 
 LABEL org.opencontainers.image.source https://github.com/FriendsOfShopware/shopware-cli
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer/composer:2-bin / /usr/bin/composer
 
 RUN apt-get update \
     && apt-get install -y git unzip \
-    && install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis pcov imagick xsl calendar
+    && install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis imagick xsl calendar amqp
 
 RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
     && . /root/.bashrc \
