@@ -88,17 +88,19 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Warmup container cache")
 
-		if err := exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "--version").Run(); err != nil { //nolint: gosec
+		if err := runTransparentCommand(exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "--version")); err != nil { //nolint: gosec
 			return fmt.Errorf("failed to warmup container cache (php bin/ci --version): %w", err)
 		}
 
-		if !shopCfg.Build.UsesExternalCDN {
+		if !shopCfg.Build.DisableAssetCopy {
 			logging.FromContext(cmd.Context()).Infof("Copying extension assets to final public/bundles folder")
 
-			if err := exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "asset:install").Run(); err != nil { //nolint: gosec
+			if err := runTransparentCommand(exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "asset:install")); err != nil { //nolint: gosec
 				return fmt.Errorf("failed to install assets (php bin/ci asset:install): %w", err)
 			}
+		}
 
+		if shopCfg.Build.RemoveExtensionAssets {
 			logging.FromContext(cmd.Context()).Infof("Deleting assets of extensions")
 
 			for _, ext := range extensions {
@@ -118,6 +120,14 @@ var projectCI = &cobra.Command{
 
 func init() {
 	projectRootCmd.AddCommand(projectCI)
+}
+
+func runTransparentCommand(cmd *exec.Cmd) error {
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = append(os.Environ(), "APP_SECRET=test", "LOCK_DSN=flock")
+
+	return cmd.Run()
 }
 
 func cleanupTcpdf(folder string) error {

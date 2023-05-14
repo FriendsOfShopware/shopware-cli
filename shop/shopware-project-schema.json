@@ -3,7 +3,7 @@
     "title": "shopware-cli",
     "description": "shopware cli project configuration definition file",
     "$ref": "#/definitions/Config",
-    "$defs": {
+    "definitions": {
         "Config": {
             "type": "object",
             "title": ".shopware-project.yml",
@@ -29,9 +29,14 @@
             "title": "Project Build Settings",
             "additionalProperties": false,
             "properties": {
-                "uses_external_cdn": {
+                "disable_asset_copy": {
                     "type": "boolean",
-                    "description": "When enabled, it does not delete the public folder of extensions",
+                    "description": "When enabled, the assets will not be copied to the public folder",
+                    "default": false
+                },
+                "remove_extension_assets": {
+                    "type": "boolean",
+                    "description": "When enabled, the assets of extensions will be removed from the extension public folder",
                     "default": false
                 },
                 "cleanup_paths": {

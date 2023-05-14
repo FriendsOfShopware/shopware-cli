@@ -20,8 +20,9 @@ type Config struct {
 }
 
 type ConfigBuild struct {
-	UsesExternalCDN bool     `yaml:"uses_external_cdn,omitempty"`
-	CleanupPaths    []string `yaml:"cleanup_paths,omitempty"`
+	DisableAssetCopy      bool     `yaml:"disable_asset_copy,omitempty"`
+	RemoveExtensionAssets bool     `yaml:"remove_extension_assets,omitempty"`
+	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
 }
 
 type ConfigAdminApi struct {
