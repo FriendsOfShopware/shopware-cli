@@ -22,5 +22,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 
+ENV LOCK_DSN=flock
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]
