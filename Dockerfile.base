@@ -4,7 +4,7 @@ FROM php:${PHP_VERSION}-cli
 
 LABEL org.opencontainers.image.source https://github.com/FriendsOfShopware/shopware-cli
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
-COPY --from=composer/composer:2-bin / /usr/bin/composer
+COPY --from=composer/composer:2-bin /composer /usr/bin/composer
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y git unzip \
