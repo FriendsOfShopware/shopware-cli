@@ -7,8 +7,11 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 COPY --from=composer/composer:2-bin / /usr/bin/composer
 
 RUN apt-get update \
-    && apt-get install -y git unzip \
-    && install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis imagick xsl calendar amqp
+    && apt-get install --no-install-recommends -y git unzip \
+    && IPE_GD_WITHOUTAVIF=1 install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis imagick xsl calendar amqp \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
     && . /root/.bashrc \
