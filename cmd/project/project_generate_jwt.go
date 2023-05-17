@@ -48,11 +48,11 @@ var projectNewJWTCmd = &cobra.Command{
 			}
 		}
 
-		if err := os.WriteFile(filepath.Join(jwtFolder, "private.pem"), privateKey, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(jwtFolder, "private.pem"), privateKey, 0o600); err != nil {
 			return err
 		}
 
-		if err := os.WriteFile(filepath.Join(jwtFolder, "public.pem"), publicKey, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(jwtFolder, "public.pem"), publicKey, 0o600); err != nil {
 			return err
 		}
 
