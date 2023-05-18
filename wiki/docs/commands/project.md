@@ -174,3 +174,31 @@ Pushes the local configuration to the external system
 Parameters:
 
 * `--auto-approve` - Skips the manual confirmation
+
+## shopware-cli project ci
+
+Builds a Shopware project with assets, composer etc
+
+Arguments:
+
+- project path
+
+What that command does:
+
+- Installs all composer dependencies
+- Builds all storefront and admin assets of all extensions
+- Strips unused files from the vendor folder
+
+The steps can be configured using a `.shopware-project.yaml` see [Schema](../shopware-project-yml-schema.md) for more information.
+
+## shopware-cli project generate-jwt
+
+Generates a JWT token for the given path
+
+Arguments:
+
+- project path (optional)
+
+Parameters:
+
+* `--env` - Print the JWT key as environment variable
