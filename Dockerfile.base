@@ -18,7 +18,9 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
     && nvm install 16 \
     && nvm install 18 \
     && nvm alias default 18 \
-    && nvm use default
+    && nvm use default \
+    && npm config set update-notifier false \
+    && npm config set audit false
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 
