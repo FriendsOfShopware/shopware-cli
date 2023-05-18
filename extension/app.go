@@ -288,8 +288,8 @@ func (a App) GetMetaData() *extensionMetadata {
 			English: getTranslatedTextFromXmlNode(a.manifest.Meta.Label, english),
 		},
 		Description: extensionTranslated{
-			German:  getTranslatedTextFromXmlNode(a.manifest.Meta.Label, german),
-			English: getTranslatedTextFromXmlNode(a.manifest.Meta.Label, english),
+			German:  getTranslatedTextFromXmlNode(a.manifest.Meta.Description, german),
+			English: getTranslatedTextFromXmlNode(a.manifest.Meta.Description, english),
 		},
 	}
 }
