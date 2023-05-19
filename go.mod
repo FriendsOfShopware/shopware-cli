@@ -11,11 +11,11 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/microcosm-cc/bluemonday v1.0.23
+	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.11.0
 	github.com/spf13/cobra v1.7.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/vulcand/oxy/v2 v2.0.0-20230427132221-be5cf38f3c1c
 	github.com/yuin/goldmark v1.5.4
 	go.uber.org/zap v1.24.0
