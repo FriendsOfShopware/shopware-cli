@@ -19,13 +19,14 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
     && nvm install 18 \
     && nvm alias default 18 \
     && nvm use default \
-    && npm config set update-notifier false --location=global \
-    && npm config set audit false --location=global \
-    && npm config set fund false --location=global 
+    && npm config set update-notifier false \
+    && npm config set audit false \
+    && npm config set fund false \
+    && npm config set loglevel warn \
+    && nvm cache clear \
+    && rm -rf /root/.npm
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-ENV LOCK_DSN=flock
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]
