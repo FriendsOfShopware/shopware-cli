@@ -147,6 +147,17 @@ sboms:
   - id: source
     artifacts: source
 
+signs:
+  - cmd: cosign
+    env:
+      - COSIGN_EXPERIMENTAL=1
+    artifacts: all
+    output: true
+    args:
+    - "sign-blob"
+    - '${artifact}'
+    - "--yes"
+
 docker_signs:
   - cmd: cosign
     env:
