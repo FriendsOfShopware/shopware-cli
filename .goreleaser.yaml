@@ -155,6 +155,7 @@ signs:
     output: true
     args:
     - "sign-blob"
+    - "--output-signature=${signature}"
     - '${artifact}'
     - "--yes"
 
