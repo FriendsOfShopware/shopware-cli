@@ -55,10 +55,6 @@ linters:
 linters-settings:
   golint:
     min-confidence: 0
-  depguard:
-    list-type: denylist
-    packages:
-      - github.com/pkg/errors
   gci:
     sections:
       - Standard
