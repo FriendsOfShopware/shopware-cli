@@ -21,6 +21,9 @@
                 },
                 "sync": {
                     "$ref": "#/definitions/Sync"
+                },
+                "build": {
+                    "$ref": "#/definitions/Build"
                 }
             }
         },
@@ -36,7 +39,7 @@
                 },
                 "remove_extension_assets": {
                     "type": "boolean",
-                    "description": "When enabled, the assets of extensions will be removed from the extension public folder",
+                    "description": "When enabled, the assets of extensions will be removed from the extension public folder. (Requires Shopware 6.5.2.0)",
                     "default": false
                 },
                 "cleanup_paths": {
