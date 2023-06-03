@@ -44,6 +44,12 @@ curl -1sLf \
 sudo apk add --no-cache shopware-cli
 ```
 
+### Archlinux User Repository (AUR)
+
+```bash
+yay -S shopware-cli-bin
+```
+
 ### Manually: deb,rpm apt packages
 
 Download the .deb, .rpm or .apk packages from the [releases](https://github.com/FriendsOfShopware/shopware-cli/releases/) page and install them with the appropriate tools.

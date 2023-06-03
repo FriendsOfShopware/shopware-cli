@@ -184,13 +184,43 @@ changelog:
       - '^test:'
       - '^Merge pull request:'
 
+aurs:
+  - homepage: https://sw-cli.fos.gg
+    description: A cli which contains handy helpful commands for daily Shopware tasks
+    license: MIT
+    maintainers:
+      - "Soner Sayakci <hi@shyim.de>"
+      - "Max <max@swk-web.com>"
+    private_key: '{{ .Env.AUR_KEY }}'
+    commit_author:
+      name: Frosh Automation
+      email: ci@fos.gg
+    git_url: 'ssh://aur@aur.archlinux.org/shopware-cli-bin.git'
+    depends:
+      - "git"
+    optdepends:
+      - 'dart-sass-embedded: For building admin SCSS using esbuild'
+    package: |-
+      install -Dm755 "./${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+
+      # license
+      install -Dm644 "./LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+      # completions
+      mkdir -p "${pkgdir}/usr/share/bash-completion/completions/"
+      mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
+      mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d/"
+      install -Dm644 "./completions/${pkgname}.bash" "${pkgdir}/usr/share/bash-completion/completions/${pkgname}"
+      install -Dm644 "./completions/${pkgname}.zsh" "${pkgdir}/usr/share/zsh/site-functions/_${pkgname}"
+      install -Dm644 "./completions/${pkgname}.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/${pkgname}.fish"
+
 nfpms:
   -
     package_name: shopware-cli
     vendor: FriendsOfShopware
     homepage: https://github.com/FriendsOfShopware/shopware-cli/
     maintainer: Shyim <github@shyim.de>
-    description: A Shopware CLI
+    description: A cli which contains handy helpful commands for daily Shopware tasks
     license: MIT
     contents:
       - src: ./completions/shopware-cli.bash
