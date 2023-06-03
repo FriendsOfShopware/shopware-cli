@@ -152,7 +152,7 @@ signs:
     certificate: "${artifact}.pem"
     env:
       - COSIGN_EXPERIMENTAL=1
-    artifacts: all
+    artifacts: checksum
     args:
     - "sign-blob"
     - "--output-certificate=${certificate}"
