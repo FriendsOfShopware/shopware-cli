@@ -32,8 +32,9 @@ var cleanupPaths = []string{
 var projectCI = &cobra.Command{
 	Use:   "ci",
 	Short: "Build Shopware in the CI",
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		shopCfg, err := shop.ReadConfig(projectConfigPath, true)
+		shopCfg, err := shop.ReadConfig(filepath.Join(args[0], ".shopware-project.yml"), true)
 		if err != nil {
 			return err
 		}
@@ -104,12 +105,32 @@ var projectCI = &cobra.Command{
 			logging.FromContext(cmd.Context()).Infof("Deleting assets of extensions")
 
 			for _, ext := range extensions {
+				if _, err := os.Stat(path.Join(ext.GetRootDir(), "Resources", "public", "administration", "css")); err == nil {
+					if err := os.WriteFile(path.Join(ext.GetRootDir(), "Resources", ".administration-css"), []byte{}, os.ModePerm); err != nil {
+						return err
+					}
+				}
+
+				if _, err := os.Stat(path.Join(ext.GetRootDir(), "Resources", "public", "administration", "js")); err == nil {
+					if err := os.WriteFile(path.Join(ext.GetRootDir(), "Resources", ".administration-js"), []byte{}, os.ModePerm); err != nil {
+						return err
+					}
+				}
+
 				if err := os.RemoveAll(path.Join(ext.GetRootDir(), "Resources", "public")); err != nil {
 					return err
 				}
 			}
 
 			if err := os.RemoveAll(path.Join(args[0], "vendor", "shopware", "administration", "Resources", "public")); err != nil {
+				return err
+			}
+
+			if err := os.WriteFile(path.Join(args[0], "vendor", "shopware", "administration", "Resources", ".administration-js"), []byte{}, os.ModePerm); err != nil {
+				return err
+			}
+
+			if err := os.WriteFile(path.Join(args[0], "vendor", "shopware", "administration", "Resources", ".administration-css"), []byte{}, os.ModePerm); err != nil {
 				return err
 			}
 		}
