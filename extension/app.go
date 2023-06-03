@@ -167,6 +167,7 @@ type appManifestMeta struct {
 	License                 string            `xml:"license"`
 	Icon                    string            `xml:"icon"`
 	Privacy                 string            `xml:"privacy"`
+	Compatibility           string            `xml:"compatibility"`
 	PrivacyPolicyExtensions []struct {
 		Text string `xml:",chardata"`
 		Lang string `xml:"lang,attr"`
@@ -256,6 +257,15 @@ func (a App) GetShopwareVersionConstraint() (*version.Constraints, error) {
 		}
 
 		return &v, err
+	}
+
+	if a.manifest.Meta.Compatibility != "" {
+		v, err := version.NewConstraint(a.manifest.Meta.Compatibility)
+		if err != nil {
+			return nil, err
+		}
+
+		return &v, nil
 	}
 
 	v, err := version.NewConstraint("~6.4")

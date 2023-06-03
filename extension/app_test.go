@@ -23,6 +23,22 @@ const testAppManifest = `<?xml version="1.0" encoding="UTF-8"?>
 	</meta>
 </manifest>`
 
+const testAppManifestCompatibility = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+	<meta>
+		<name>MyExampleApp</name>
+		<label>Label</label>
+		<label lang="de-DE">Name</label>
+		<description>A description</description>
+		<description lang="de-DE">Eine Beschreibung</description>
+		<compatibility>~6.5.0</compatibility>
+		<author>Your Company Ltd.</author>
+		<copyright>(c) by Your Company Ltd.</copyright>
+		<version>1.0.0</version>
+		<license>MIT</license>
+	</meta>
+</manifest>`
+
 const testAppManifestIcon = `<?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
 	<meta>
@@ -96,4 +112,34 @@ func TestIconExistsDifferentPath(t *testing.T) {
 	app.Validate(getTestContext(), ctx)
 
 	assert.Equal(t, 0, len(ctx.errors))
+}
+
+func TestNoCompatibilityGiven(t *testing.T) {
+	appPath := t.TempDir()
+
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifest), os.ModePerm))
+
+	app, err := newApp(appPath)
+
+	assert.NoError(t, err)
+
+	compatibility, err := app.GetShopwareVersionConstraint()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "~6.4", compatibility.String())
+}
+
+func TestCompatibilityGiven(t *testing.T) {
+	appPath := t.TempDir()
+
+	assert.NoError(t, os.WriteFile(path.Join(appPath, "manifest.xml"), []byte(testAppManifestCompatibility), os.ModePerm))
+
+	app, err := newApp(appPath)
+
+	assert.NoError(t, err)
+
+	compatibility, err := app.GetShopwareVersionConstraint()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "~6.5.0", compatibility.String())
 }
