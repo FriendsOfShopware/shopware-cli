@@ -149,12 +149,13 @@ sboms:
 
 signs:
   - cmd: cosign
+    certificate: "${artifact}.pem"
     env:
       - COSIGN_EXPERIMENTAL=1
     artifacts: all
-    output: true
     args:
     - "sign-blob"
+    - "--output-certificate=${certificate}"
     - "--output-signature=${signature}"
     - '${artifact}'
     - "--yes"
@@ -164,7 +165,6 @@ docker_signs:
     env:
     - COSIGN_EXPERIMENTAL=1
     artifacts: all
-    output: true
     args:
     - 'sign'
     - '${artifact}'
