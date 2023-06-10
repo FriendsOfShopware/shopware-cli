@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 	"github.com/evanw/esbuild/pkg/api"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
@@ -80,14 +80,23 @@ func (scssImporter) CanonicalizeURL(url string) (string, error) {
 	return "", nil
 }
 
-func (scssImporter) Load(canonicalizedURL string) (string, error) {
+func (scssImporter) Load(canonicalizedURL string) (godartsass.Import, error) {
 	if canonicalizedURL == InternalVariablesScssPath {
-		return string(scssVariables), nil
+		return godartsass.Import{
+			Content:      string(scssVariables),
+			SourceSyntax: godartsass.SourceSyntaxSCSS,
+		}, nil
 	}
 
 	if canonicalizedURL == InternalMixinsScssPath {
-		return string(scssMixins), nil
+		return godartsass.Import{
+			Content:      string(scssMixins),
+			SourceSyntax: godartsass.SourceSyntaxSCSS,
+		}, nil
 	}
 
-	return "", nil
+	return godartsass.Import{
+		Content:      "",
+		SourceSyntax: godartsass.SourceSyntaxSCSS,
+	}, nil
 }

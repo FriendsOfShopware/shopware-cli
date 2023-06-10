@@ -17,7 +17,7 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-const dartSassVersion = "1.57.1"
+const dartSassVersion = "1.63.3"
 
 //go:embed static/variables.scss
 var scssVariables []byte
@@ -26,7 +26,7 @@ var scssVariables []byte
 var scssMixins []byte
 
 func downloadDartSass(ctx context.Context) (string, error) {
-	if path, err := exec.LookPath("dart-sass-embedded"); err == nil {
+	if path, err := exec.LookPath("dart-sass"); err == nil {
 		return path, nil
 	}
 
@@ -35,9 +35,9 @@ func downloadDartSass(ctx context.Context) (string, error) {
 		cacheDir = "/tmp"
 	}
 
-	cacheDir += "/dart-sass-embedded-" + dartSassVersion
+	cacheDir += "/dart-sass-" + dartSassVersion
 
-	expectedPath := fmt.Sprintf("%s/dart-sass-embedded", cacheDir)
+	expectedPath := fmt.Sprintf("%s/sass", cacheDir)
 
 	if _, err := os.Stat(expectedPath); err == nil {
 		return expectedPath, nil
@@ -67,7 +67,7 @@ func downloadDartSass(ctx context.Context) (string, error) {
 		osType = "macos"
 	}
 
-	request, _ := http.NewRequestWithContext(context.Background(), "GET", fmt.Sprintf("https://github.com/sass/dart-sass-embedded/releases/download/%s/sass_embedded-%s-%s-%s.tar.gz", dartSassVersion, dartSassVersion, osType, arch), nil)
+	request, _ := http.NewRequestWithContext(context.Background(), "GET", fmt.Sprintf("https://github.com/sass/dart-sass/releases/download/%s/dart-sass-%s-%s-%s.tar.gz", dartSassVersion, dartSassVersion, osType, arch), nil)
 
 	tarFile, err := http.DefaultClient.Do(request)
 	if err != nil {
@@ -75,6 +75,10 @@ func downloadDartSass(ctx context.Context) (string, error) {
 	}
 
 	defer tarFile.Body.Close()
+
+	if tarFile.StatusCode != 200 {
+		return "", fmt.Errorf("cannot download dart-sass: %s", tarFile.Request.URL)
+	}
 
 	uncompressedStream, err := gzip.NewReader(tarFile.Body)
 	if err != nil {
@@ -90,7 +94,7 @@ func downloadDartSass(ctx context.Context) (string, error) {
 			break
 		}
 
-		name := strings.TrimPrefix(header.Name, "sass_embedded/")
+		name := strings.TrimPrefix(header.Name, "dart-sass/")
 		folder := filepath.Join(cacheDir, filepath.Dir(name))
 		file := filepath.Join(cacheDir, name)
 

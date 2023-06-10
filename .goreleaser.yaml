@@ -199,8 +199,6 @@ aurs:
     git_url: 'ssh://aur@aur.archlinux.org/shopware-cli-bin.git'
     depends:
       - "git"
-    optdepends:
-      - 'dart-sass-embedded: For building admin SCSS using esbuild'
     package: |-
       install -Dm755 "./shopware-cli" "${pkgdir}/usr/bin/shopware-cli"
 
@@ -251,6 +249,7 @@ brews:
     test: |
       system "#{bin}/shopware-cli --version"
     dependencies:
+    - name: node-sass
     - name: git
       type: optional
     - name: node
