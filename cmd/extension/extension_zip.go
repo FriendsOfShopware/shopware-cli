@@ -92,10 +92,14 @@ var extensionZipCmd = &cobra.Command{
 				return fmt.Errorf("copy files: %w", err)
 			}
 		} else {
-			tag, err = extension.GitCopyFolder(extPath, extDir)
+			gitCommit, _ := cmd.Flags().GetString("git-commit")
+
+			tag, err = extension.GitCopyFolder(extPath, extDir, gitCommit)
 			if err != nil {
 				return fmt.Errorf("copy via git: %w", err)
 			}
+
+			logging.FromContext(cmd.Context()).Infof("Checking out %s using Git", tag)
 		}
 
 		// User input wins
@@ -130,6 +134,7 @@ var extensionZipCmd = &cobra.Command{
 			assetBuildConfig := extension.AssetBuildConfig{
 				EnableESBuildForAdmin:      extCfg.Build.Zip.Assets.EnableESBuildForAdmin,
 				EnableESBuildForStorefront: extCfg.Build.Zip.Assets.EnableESBuildForStorefront,
+				CleanupNodeModules:         true,
 			}
 
 			if err := extension.BuildAssetsForExtensions(cmd.Context(), os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}, assetBuildConfig); err != nil {
@@ -188,6 +193,7 @@ func init() {
 	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
 	extensionZipCmd.Flags().BoolVar(&extensionReleaseMode, "release", false, "Release mode (remove app secrets)")
 	extensionZipCmd.Flags().String("output-directory", "", "Output directory for the zip file")
+	extensionZipCmd.Flags().String("git-commit", "", "Commit Hash / Tag to use")
 }
 
 func executeHooks(ext extension.Extension, hooks []string, extDir string) error {
