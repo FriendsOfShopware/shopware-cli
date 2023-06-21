@@ -79,6 +79,17 @@ nix-env -iA nixpkgs.shopware-cli
 }
 ```
 
+### GitHub Action
+
+using Shopware CLI Action
+
+```yaml
+- name: Install shopware-cli
+  uses: FriendsOfShopware/shopware-cli-action@v1
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ### go install
 
 ```bash
