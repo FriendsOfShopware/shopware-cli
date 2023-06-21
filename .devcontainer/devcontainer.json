@@ -1,8 +1,8 @@
 {
-  "overrideCommand": false,
+  "image": "mcr.microsoft.com/devcontainers/go:latest",
   "customizations": {
     "vscode": {
-      "extensions": ["mkhl.direnv", "golang.Go"]
+      "extensions": ["golang.Go"]
     }
   }
 }
