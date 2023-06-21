@@ -6,14 +6,14 @@ require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
-	github.com/evanw/esbuild v0.18.4
+	github.com/evanw/esbuild v0.18.6
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/otiai10/copy v1.11.0
+	github.com/otiai10/copy v1.12.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vulcand/oxy/v2 v2.0.0-20230427132221-be5cf38f3c1c
@@ -36,7 +36,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
-	github.com/imdario/mergo v0.3.16
+	github.com/imdario/mergo v1.0.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jaswdr/faker v1.18.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
