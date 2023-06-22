@@ -192,7 +192,7 @@ func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string
 }
 
 func npmInstall(path string) error {
-	npmInstallCmd := exec.Command("npm", "--prefix", path, "install", "--no-audit", "--prefer-offline") //nolint:gosec
+	npmInstallCmd := exec.Command("npm", "--prefix", path, "install", "--no-audit", "--no-fund", "--prefer-offline") //nolint:gosec
 	npmInstallCmd.Stdout = os.Stdout
 	npmInstallCmd.Stderr = os.Stderr
 	npmInstallCmd.Env = append(os.Environ(), "PUPPETEER_SKIP_DOWNLOAD=1")
