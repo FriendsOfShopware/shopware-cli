@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"dario.cat/mergo"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/imdario/mergo"
 	"github.com/spf13/cobra"
 )
 
