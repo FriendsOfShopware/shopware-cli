@@ -29,6 +29,8 @@ type AssetBuildConfig struct {
 	EnableESBuildForAdmin      bool
 	EnableESBuildForStorefront bool
 	CleanupNodeModules         bool
+	DisableAdminBuild          bool
+	DisableStorefrontBuild     bool
 }
 
 func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error { // nolint:gocyclo
@@ -100,7 +102,7 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 		}
 	}
 
-	if cfgs.RequiresAdminBuild() {
+	if !assetConfig.DisableAdminBuild && cfgs.RequiresAdminBuild() {
 		if assetConfig.EnableESBuildForAdmin {
 			for _, extension := range extensions {
 				name, _ := extension.GetName()
@@ -133,7 +135,7 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 		}
 	}
 
-	if cfgs.RequiresStorefrontBuild() {
+	if !assetConfig.DisableStorefrontBuild && cfgs.RequiresStorefrontBuild() {
 		if assetConfig.EnableESBuildForStorefront {
 			for _, extension := range extensions {
 				name, _ := extension.GetName()

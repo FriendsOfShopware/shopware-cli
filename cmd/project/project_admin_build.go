@@ -1,27 +1,40 @@
 package project
 
 import (
+	"os/exec"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/spf13/cobra"
 )
 
 var projectAdminBuildCmd = &cobra.Command{
-	Use:   "admin-build",
+	Use:   "admin-build [project-dir]",
 	Short: "Builds the Administration",
-	RunE: func(cmd *cobra.Command, _ []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var projectRoot string
 		var err error
 
-		if projectRoot, err = findClosestShopwareProject(); err != nil {
+		if len(args) == 1 {
+			projectRoot = args[0]
+		} else if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
 		}
 
-		forceNpmInstall, _ := cmd.PersistentFlags().GetBool("npm-install")
+		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		return buildAdministration(cmd.Context(), projectRoot, forceNpmInstall)
+		extensions := extension.FindExtensionsFromProject(cmd.Context(), projectRoot)
+
+		assetCfg := extension.AssetBuildConfig{DisableStorefrontBuild: true}
+
+		if err := extension.BuildAssetsForExtensions(cmd.Context(), projectRoot, extensions, assetCfg); err != nil {
+			return err
+		}
+
+		return runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "assets:install"), projectRoot))
 	},
 }
 
 func init() {
 	projectRootCmd.AddCommand(projectAdminBuildCmd)
-	projectAdminBuildCmd.PersistentFlags().Bool("npm-install", false, "Run npm install")
 }
