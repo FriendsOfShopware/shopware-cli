@@ -87,7 +87,7 @@ func buildStorefront(ctx context.Context, projectRoot string, forceNpmInstall bo
 
 	if forceNpmInstall || os.IsNotExist(err) {
 		logging.FromContext(ctx).Infof("Installing npm dependencies in %s", storefrontRoot)
-		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", storefrontRoot, "--no-save"); err != nil {
+		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", storefrontRoot, "--no-save", "--no-fund", "--no-audit", "--prefer-offline"); err != nil {
 			return installErr
 		}
 	}
@@ -139,7 +139,7 @@ func buildAdministration(ctx context.Context, projectRoot string, forceNpmInstal
 
 	if forceNpmInstall || os.IsNotExist(err) {
 		logging.FromContext(ctx).Infof("Installing npm dependencies in %s", adminRoot)
-		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", adminRoot, "--no-save"); err != nil {
+		if installErr := runSimpleCommand(projectRoot, "npm", "install", "--prefix", adminRoot, "--no-save", "--no-fund", "--no-audit"); err != nil {
 			return installErr
 		}
 	}
@@ -184,13 +184,13 @@ func setupExtensionNodeModules(ctx context.Context, projectRoot string, forceNpm
 		_, storefrontPathNodeModules := os.Stat(fmt.Sprintf("%s/%s/%s/node_modules", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)))
 
 		if ext.Administration.EntryFilePath != nil && adminPathPackage == nil && (os.IsNotExist(adminPathNodeModules) || forceNpmInstall) {
-			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Administration.Path)), "--no-save"); err != nil {
+			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Administration.Path)), "--no-save", "--no-fund", "--no-audit", "--prefer-offline"); err != nil {
 				return err
 			}
 		}
 
 		if ext.Storefront.EntryFilePath != nil && storefrontPathPackage == nil && (os.IsNotExist(storefrontPathNodeModules) || forceNpmInstall) {
-			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)), "--no-save"); err != nil {
+			if err := runSimpleCommand(projectRoot, "npm", "install", "--prefix", fmt.Sprintf("%s/%s/%s", projectRoot, ext.BasePath, filepath.Dir(ext.Storefront.Path)), "--no-save", "--no-fund", "--no-audit", "--prefer-offline"); err != nil {
 				return err
 			}
 		}
