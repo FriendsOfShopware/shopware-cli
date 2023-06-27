@@ -14,6 +14,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.12.0
+	github.com/sashabaranov/go-openai v1.12.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vulcand/oxy/v2 v2.0.0-20230427132221-be5cf38f3c1c
@@ -24,6 +25,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 

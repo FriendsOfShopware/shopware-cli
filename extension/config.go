@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/changelog"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -88,8 +90,9 @@ type ConfigStoreImagePreview struct {
 }
 
 type Config struct {
-	Store ConfigStore `yaml:"store"`
-	Build ConfigBuild `yaml:"build"`
+	Store     ConfigStore      `yaml:"store"`
+	Build     ConfigBuild      `yaml:"build"`
+	Changelog changelog.Config `yaml:"changelog"`
 }
 
 func readExtensionConfig(dir string) (*Config, error) {
