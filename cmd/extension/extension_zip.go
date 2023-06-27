@@ -152,7 +152,7 @@ var extensionZipCmd = &cobra.Command{
 		}
 
 		if extensionReleaseMode {
-			if err := extension.PrepareExtensionForRelease(extDir, ext); err != nil {
+			if err := extension.PrepareExtensionForRelease(cmd.Context(), extPath, extDir, ext); err != nil {
 				return fmt.Errorf("prepare for release: %w", err)
 			}
 		}

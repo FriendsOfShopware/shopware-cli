@@ -12,9 +12,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/FriendsOfShopware/shopware-cli/internal/changelog"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
@@ -448,7 +451,23 @@ func getMinMatchingVersion(constraint *version.Constraints, versions []string) (
 }
 
 // PrepareExtensionForRelease Remove secret from the manifest.
-func PrepareExtensionForRelease(extensionRoot string, ext Extension) error {
+// sourceRoot is the original folder (contains also .git).
+func PrepareExtensionForRelease(ctx context.Context, sourceRoot, extensionRoot string, ext Extension) error {
+	if ext.GetExtensionConfig().Changelog.Enabled {
+		v, _ := ext.GetVersion()
+
+		content, err := changelog.GenerateChangelog(ctx, sourceRoot, ext.GetExtensionConfig().Changelog)
+		if err != nil {
+			return err
+		}
+
+		changelogFile := fmt.Sprintf("# %s\n%s", v.String(), content)
+
+		if err := os.WriteFile(path.Join(extensionRoot, "CHANGELOG_en-GB.md"), []byte(changelogFile), os.ModePerm); err != nil {
+			return err
+		}
+	}
+
 	if ext.GetType() == "plugin" {
 		return nil
 	}
