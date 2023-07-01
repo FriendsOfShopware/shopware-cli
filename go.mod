@@ -5,8 +5,9 @@ go 1.20
 require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/caarlos0/env/v8 v8.0.0
+	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
-	github.com/evanw/esbuild v0.18.6
+	github.com/evanw/esbuild v0.18.11
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
