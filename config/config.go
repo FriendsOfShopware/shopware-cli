@@ -2,12 +2,11 @@ package config
 
 import (
 	"fmt"
+	"github.com/caarlos0/env/v9"
+	"gopkg.in/yaml.v3"
 	"os"
 	"strconv"
 	"sync"
-
-	"github.com/caarlos0/env/v8"
-	"gopkg.in/yaml.v3"
 )
 
 var (

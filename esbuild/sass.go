@@ -17,7 +17,7 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-const dartSassVersion = "1.63.4"
+const dartSassVersion = "1.63.6"
 
 //go:embed static/variables.scss
 var scssVariables []byte
@@ -77,7 +77,7 @@ func downloadDartSass(ctx context.Context) (string, error) {
 	defer tarFile.Body.Close()
 
 	if tarFile.StatusCode != 200 {
-		return "", fmt.Errorf("cannot download dart-sass: %s", tarFile.Request.URL)
+		return "", fmt.Errorf("cannot download dart-sass: %s with http code %s", tarFile.Request.URL, tarFile.Status)
 	}
 
 	uncompressedStream, err := gzip.NewReader(tarFile.Body)
@@ -95,6 +95,11 @@ func downloadDartSass(ctx context.Context) (string, error) {
 		}
 
 		name := strings.TrimPrefix(header.Name, "dart-sass/")
+
+		if strings.Contains(name, "..") {
+			continue
+		}
+
 		folder := filepath.Join(cacheDir, filepath.Dir(name))
 		file := filepath.Join(cacheDir, name)
 
