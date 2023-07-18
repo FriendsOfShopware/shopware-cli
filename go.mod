@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/microcosm-cc/bluemonday v1.0.24
+	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.12.0
 	github.com/sashabaranov/go-openai v1.14.0
