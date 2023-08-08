@@ -34,6 +34,18 @@ var projectCI = &cobra.Command{
 	Short: "Build Shopware in the CI",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		args[0], err = filepath.Abs(args[0])
+		if err != nil {
+			return err
+		}
+
+		if os.Getenv("APP_ENV") == "" {
+			if err := os.Setenv("APP_ENV", "prod"); err != nil {
+				return err
+			}
+		}
+
 		shopCfg, err := shop.ReadConfig(filepath.Join(args[0], ".shopware-project.yml"), true)
 		if err != nil {
 			return err
@@ -161,10 +173,6 @@ func runTransparentCommand(cmd *exec.Cmd) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = append(os.Environ(), "APP_SECRET=test", "LOCK_DSN=flock")
-
-	if os.Getenv("APP_ENV") == "" {
-		cmd.Env = append(cmd.Env, "APP_ENV=prod")
-	}
 
 	return cmd.Run()
 }
