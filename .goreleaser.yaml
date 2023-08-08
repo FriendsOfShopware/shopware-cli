@@ -95,6 +95,7 @@ dockers:
     goarch: arm64
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-arm64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-arm64"
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.1"
       - "--platform=linux/arm64"
