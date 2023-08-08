@@ -97,8 +97,11 @@ var projectCI = &cobra.Command{
 			logging.FromContext(cmd.Context()).Infof("Copying extension assets to final public/bundles folder")
 
 			// Delete asset manifest to force a new build
-			if err := os.Remove(path.Join(args[0], "public", "asset-manifest.json")); err != nil {
-				return err
+			manifestPath := path.Join(args[0], "public", "asset-manifest.json")
+			if _, err := os.Stat(manifestPath); err == nil {
+				if err := os.Remove(manifestPath); err != nil {
+					return err
+				}
 			}
 
 			if err := runTransparentCommand(exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "asset:install")); err != nil { //nolint: gosec
