@@ -50,6 +50,7 @@ dockers:
     goarch: amd64
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.2"
       - "--platform=linux/amd64"
@@ -58,6 +59,7 @@ dockers:
     goarch: amd64
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-amd64"
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.1"
       - "--platform=linux/amd64"
@@ -84,6 +86,7 @@ dockers:
     goarch: arm64
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.2"
       - "--platform=linux/arm64"
@@ -113,6 +116,7 @@ dockers:
       - "--platform=linux/arm64"
 
 docker_manifests:
+  # GHCR
   - name_template: ghcr.io/friendsofshopware/shopware-cli:latest
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
@@ -142,6 +146,27 @@ docker_manifests:
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-amd64"
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-arm64"
+
+  # Docker Hub
+  - name_template: friendsofshopware/shopware-cli:latest
+    image_templates:
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+
+  - name_template: friendsofshopware/shopware-cli:{{ .Tag }}
+    image_templates:
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+
+  - name_template: friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2
+    image_templates:
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+
+  - name_template: friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1
+    image_templates:
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-arm64"
 
 sboms:
   - artifacts: archive
