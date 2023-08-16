@@ -24,6 +24,10 @@ Builds the Storefront with all installed extensions
 
 Starts the Shopware worker in background and tails the log
 
+Parameters:
+
+* `--queue`: Queue names to start. F.e: `--queue "default,high,low"`
+
 Arguments:
 
 * Worker amount - `shopware-cli project worker 5` starts 5 workers
