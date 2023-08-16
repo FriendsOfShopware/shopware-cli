@@ -45,7 +45,7 @@ var projectWorkerCmd = &cobra.Command{
 		consumeArgs := []string{"bin/console", "messenger:consume"}
 
 		if queuesToConsume == "" {
-			if is, _ := shop.IsShopwareVersion(projectRoot, "6.5"); is {
+			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
 				consumeArgs = append(consumeArgs, "async", "failed")
 			}
 		} else {
