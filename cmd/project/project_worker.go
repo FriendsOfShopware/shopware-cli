@@ -2,10 +2,12 @@ package project
 
 import (
 	"context"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -22,6 +24,9 @@ var projectWorkerCmd = &cobra.Command{
 		var err error
 		workerAmount := 1
 
+		isVerbose, _ := cobraCmd.Flags().GetBool("verbose")
+		queuesToConsume, _ := cobraCmd.Flags().GetString("queue")
+
 		if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
 		}
@@ -37,12 +42,26 @@ var projectWorkerCmd = &cobra.Command{
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancelCtx, cancel)
 
+		consumeArgs := []string{"bin/console", "messenger:consume"}
+
+		if queuesToConsume == "" {
+			if is, _ := shop.IsShopwareVersion(projectRoot, "6.5"); is {
+				consumeArgs = append(consumeArgs, "async", "failed")
+			}
+		} else {
+			consumeArgs = append(consumeArgs, strings.Split(queuesToConsume, ",")...)
+		}
+
+		if isVerbose {
+			consumeArgs = append(consumeArgs, "-vvv")
+		}
+
 		var wg sync.WaitGroup
 		for a := 0; a < workerAmount; a++ {
 			wg.Add(1)
 			go func(ctx context.Context) {
 				for {
-					cmd := exec.CommandContext(cancelCtx, "php", "bin/console", "messenger:consume", "-vvv")
+					cmd := exec.CommandContext(cancelCtx, "php", consumeArgs...)
 					cmd.Dir = projectRoot
 					cmd.Stdout = os.Stdout
 					cmd.Stderr = os.Stderr
@@ -62,6 +81,8 @@ var projectWorkerCmd = &cobra.Command{
 
 func init() {
 	projectRootCmd.AddCommand(projectWorkerCmd)
+	projectWorkerCmd.PersistentFlags().Bool("verbose", false, "Enable verbose output")
+	projectWorkerCmd.PersistentFlags().String("queue", "", "Queues to consume")
 }
 
 func cancelOnTermination(ctx context.Context, cancel context.CancelFunc) {
