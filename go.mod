@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vulcand/oxy/v2 v2.0.0-20230427132221-be5cf38f3c1c
-	github.com/yuin/goldmark v1.5.5
+	github.com/yuin/goldmark v1.5.6
 	go.uber.org/zap v1.25.0
 	gopkg.in/yaml.v3 v3.0.1
 )
