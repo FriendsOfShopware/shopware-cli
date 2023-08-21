@@ -2,411 +2,83 @@
  title: 'Schema of .shopware-project.yml' 
 ---
 
-# Objects
-* [`.shopware-project.yml`](#reference-config) (root object)
-* [`Admin API credentials`](#reference-adminapi)
-* [`Entity Sync Filter`](#reference-entitysyncfilterinner)
-* [`MySQL dump configuration`](#reference-dump)
-* [`Sync Settings`](#reference-sync)
-    * [`Entity Sync`](#reference-entitysyncitem)
-    * [`Mail Template Sync`](#reference-mailtemplateitem)
-        * [`Mail Template Single Translation`](#reference-mailtemplateitemtranslation)
-    * [`System Config Sync`](#reference-syncconfigitem)
-    * [`Theme Config Sync`](#reference-themeconfigitem)
-
-
----------------------------------------
-<a name="reference-config"></a>
-## .shopware-project.yml
-
-**`.shopware-project.yml` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**url**|`string`|URL to Shopware instance|No|
-|**admin_api**|`AdminApi`||No|
-|**dump**|`Dump`||No|
-|**sync**|`Sync`||No|
-
-Additional properties are not allowed.
-
-### Config.url
-
-URL to Shopware instance
-
-* **Type**: `string`
-* **Required**: No
-
-### Config.admin_api
-
-* **Type**: `AdminApi`
-* **Required**: No
-
-### Config.dump
-
-* **Type**: `Dump`
-* **Required**: No
-
-### Config.sync
-
-* **Type**: `Sync`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-adminapi"></a>
-## Admin API credentials
-
-**`Admin API credentials` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**client_id**|`string`|Client ID of integration|No|
-|**client_secret**|`string`|Client Secret of integration|No|
-|**username**|`string`|Username of admin user|No|
-|**password**|`string`|Password of admin user|No|
-|**disable_ssl_check**|`boolean`|Disable SSL check for API requests|No, default: `false`|
-
-Additional properties are not allowed.
-
-### AdminApi.client_id
-
-Client ID of integration
-
-* **Type**: `string`
-* **Required**: No
-
-### AdminApi.client_secret
-
-Client Secret of integration
-
-* **Type**: `string`
-* **Required**: No
-
-### AdminApi.username
-
-Username of admin user
-
-* **Type**: `string`
-* **Required**: No
-
-### AdminApi.password
-
-Password of admin user
-
-* **Type**: `string`
-* **Required**: No
-
-### AdminApi.disable_ssl_check
-
-Disable SSL check for API requests
-
-* **Type**: `boolean`
-* **Required**: No, default: `false`
-
-
-
-
----------------------------------------
-<a name="reference-entitysyncitem"></a>
-## Entity Sync
-
-**`Entity Sync` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**entity**|`string`|| &#10003; Yes|
-|**exists**|`EntitySyncFilter` `[]`||No|
-|**payload**|`object`|API payload| &#10003; Yes|
-
-Additional properties are not allowed.
-
-### EntitySyncItem.entity
-
-* **Type**: `string`
-* **Required**:  &#10003; Yes
-
-### EntitySyncItem.exists
-
-* **Type**: `EntitySyncFilter` `[]`
-* **Required**: No
-
-### EntitySyncItem.payload
-
-API payload
-
-* **Type**: `object`
-* **Required**:  &#10003; Yes
-
-
-
-
----------------------------------------
-<a name="reference-entitysyncfilterinner"></a>
-## Entity Sync Filter
-
-**`Entity Sync Filter` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**type**|`string`|filter type| &#10003; Yes|
-|**field**|`string`|field| &#10003; Yes|
-|**value**|`["string", "integer", "array", "boolean", "null"]`|value|No|
-|**operator**|`string`||No|
-
-Additional properties are not allowed.
-
-### EntitySyncFilterInner.type
-
-filter type
-
-* **Type**: `string`
-* **Required**:  &#10003; Yes
-* **Allowed values**:
-    * `"equals"`
-    * `"multi"`
-    * `"contains"`
-    * `"prefix"`
-    * `"suffix"`
-    * `"not"`
-    * `"range"`
-    * `"until"`
-    * `"equalsAll"`
-    * `"equalsAny"`
-
-### EntitySyncFilterInner.field
-
-field
-
-* **Type**: `string`
-* **Required**:  &#10003; Yes
-
-### EntitySyncFilterInner.value
-
-value
-
-* **Type**: `["string", "integer", "array", "boolean", "null"]`
-* **Required**: No
-
-### EntitySyncFilterInner.operator
-
-* **Type**: `string`
-* **Required**: No
-* **Allowed values**:
-    * `"AND"`
-    * `"OR"`
-    * `"XOR"`
-
-
-
-
----------------------------------------
-<a name="reference-mailtemplateitemtranslation"></a>
-## Mail Template Single Translation
-
-**`Mail Template Single Translation` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**language**|`string`||No|
-|**sender_name**|`string`||No|
-|**subject**|`string`||No|
-|**html**|`string`||No|
-|**plain**|`string`||No|
-|**custom_fields**|`["object", "null"]`||No|
-
-Additional properties are not allowed.
-
-### MailTemplateItemTranslation.language
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItemTranslation.sender_name
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItemTranslation.subject
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItemTranslation.html
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItemTranslation.plain
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItemTranslation.custom_fields
-
-* **Type**: `["object", "null"]`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-mailtemplateitem"></a>
-## Mail Template Sync
-
-**`Mail Template Sync` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**id**|`string`||No|
-|**translations**|`MailTemplateItemTranslation` `[]`||No|
-
-Additional properties are not allowed.
-
-### MailTemplateItem.id
-
-* **Type**: `string`
-* **Required**: No
-
-### MailTemplateItem.translations
-
-* **Type**: `MailTemplateItemTranslation` `[]`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-dump"></a>
-## MySQL dump configuration
-
-**`MySQL dump configuration` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**rewrite**|`object`||No|
-|**nodata**|`string` `[]`||No|
-|**ignore**|`string` `[]`||No|
-|**where**|`object`||No|
-
-Additional properties are not allowed.
-
-### Dump.rewrite
-
-* **Type**: `object`
-* **Required**: No
-
-### Dump.nodata
-
-* **Type**: `string` `[]`
-* **Required**: No
-
-### Dump.ignore
-
-* **Type**: `string` `[]`
-* **Required**: No
-
-### Dump.where
-
-* **Type**: `object`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-shopware-cli"></a>
-## shopware-cli
-
-shopware cli project configuration definition file
-
-
-
----------------------------------------
-<a name="reference-sync"></a>
-## Sync Settings
-
-**`Sync Settings` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**config**|`SyncConfigItem` `[]`||No|
-|**theme**|`ThemeConfigItem` `[]`||No|
-|**mail_template**|`MailTemplateItem` `[]`||No|
-|**entity**|`EntitySyncItem` `[]`||No|
-
-Additional properties are not allowed.
-
-### Sync.config
-
-* **Type**: `SyncConfigItem` `[]`
-* **Required**: No
-
-### Sync.theme
-
-* **Type**: `ThemeConfigItem` `[]`
-* **Required**: No
-
-### Sync.mail_template
-
-* **Type**: `MailTemplateItem` `[]`
-* **Required**: No
-
-### Sync.entity
-
-* **Type**: `EntitySyncItem` `[]`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-syncconfigitem"></a>
-## System Config Sync
-
-**`System Config Sync` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**sales_channel**|`string`||No|
-|**settings**|`object`|| &#10003; Yes|
-
-Additional properties are not allowed.
-
-### SyncConfigItem.sales_channel
-
-* **Type**: `string`
-* **Required**: No
-
-### SyncConfigItem.settings
-
-* **Type**: `object`
-* **Required**:  &#10003; Yes
-
-
-
-
----------------------------------------
-<a name="reference-themeconfigitem"></a>
-## Theme Config Sync
-
-**`Theme Config Sync` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**name**|`string`||No|
-|**settings**|`object`||No|
-
-Additional properties are not allowed.
-
-### ThemeConfigItem.name
-
-* **Type**: `string`
-* **Required**: No
-
-### ThemeConfigItem.settings
-
-* **Type**: `object`
-* **Required**: No
+Any configuration field is optional. When you create a `.shopware-project.yml`, you get also IDE autocompletion for all fields.
+
+
+```yaml
+# .shopware-project.yml
+
+# URL to Shopware instance, required for admin api calls (clear cache, sync stuff)
+url: 'http://localhost'
+admin_api:
+    # For integration use this both fields
+    client_id:
+    client_secret:
+    # For normal user use this both fields
+    username:
+    password:
+    # When your server don't have a valid SSL certificate, you can disable the SSL check
+    disable_ssl_check: false
+
+# used only for project ci command
+build:
+  # deletes all public source folders of all extensions, can be only used when /bundles is served from local and not external CDN
+  remove_extension_assets: false
+  # skips the bin/console asset:install part
+  disable_asset_copy: false
+  # delete additional paths after build
+  cleanup_paths:
+    - path
+
+# used for mysql dump creation
+dump:
+    # rewrite columns
+    rewrite:
+        table:
+            column: "'new-value'"
+            column2: "faker.Internet().Email()" # Uses faker data. See https://github.com/jaswdr/faker
+    # ignore table content
+    nodata:
+        - this-table-is-dumped-without-rows
+    # ignore complete tables
+    ignore:
+        - this-table-is-not-dumped
+    # add where conditions to tables
+    where:
+        my_table: "id > 10"
+
+# you can use shopware-cli project config pull, to get your current shop state
+sync:
+    # Sync system config to your remote shop using admin-api
+    config:
+        # can be also null for default value
+        - sales_channel: yourSalesChannelid
+          settings:
+            my_config: myValue
+    # Sync theme config to your remote shop using admin-api
+    theme:
+        - name: ThemeName
+          settings:
+            my_config: myValue
+
+    mail_template:
+        - id: mailTemplateId
+          translations:
+            - language: de-DE
+              sender_name: 'Sender Name'
+              subject: 'Subject'
+              html: relativeFilePath
+              plain: relativeFilePath
+              custom_fields: null
+    entity:
+        - entity: tax
+          # optional: build a criteria to check that the entity already exists. when exists this will be skipped
+          exists:
+            - type: equals
+              field: name
+              value: 'Tax'
+          # actual api payload to create something
+          payload:
+            name: 'Tax'
+            taxRate: 19
+```
