@@ -96,6 +96,16 @@ using Shopware CLI Action
 go install github.com/FriendsOfShopware/shopware-cli@latest
 ```
 
+### ddev
+
+Add a file `.ddev\web-build\Dockerfile.shopware-cli`
+
+```bash
+# .ddev/.web-build/Dockerfile.shopware-cli
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh' | sudo -E bash \
+  && apt install shopware-cli
+```
+
 ## manually
 
 Download the pre-compiled binaries from the [releases](https://github.com/FriendsOfShopware/shopware-cli/releases/) page and copy them to the desired location.
