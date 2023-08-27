@@ -11,7 +11,8 @@ RUN apt-get update \
     && IPE_GD_WITHOUTAVIF=1 install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis imagick xsl calendar amqp \
     && apt-get autoremove -y \
     && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo 'memory_limit=512M' > /usr/local/etc/php/conf.d/docker.ini
 
 RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
     && . /root/.bashrc \
