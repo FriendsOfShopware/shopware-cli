@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
-	"github.com/FriendsOfShopware/shopware-cli/config"
+	"github.com/FriendsOfShopware/shopware-cli/internal/config"
 )
 
 var accountRootCmd = &cobra.Command{

@@ -11,7 +11,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/FriendsOfShopware/shopware-cli/config"
+	"github.com/FriendsOfShopware/shopware-cli/internal/config"
 )
 
 var extensionCreateCmd = &cobra.Command{

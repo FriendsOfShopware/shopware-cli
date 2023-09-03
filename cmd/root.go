@@ -9,7 +9,7 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/cmd/account"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/extension"
 	"github.com/FriendsOfShopware/shopware-cli/cmd/project"
-	"github.com/FriendsOfShopware/shopware-cli/config"
+	"github.com/FriendsOfShopware/shopware-cli/internal/config"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
