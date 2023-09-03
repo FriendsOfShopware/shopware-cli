@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FriendsOfShopware/shopware-cli/curl"
+	"github.com/FriendsOfShopware/shopware-cli/internal/curl"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
@@ -62,7 +62,7 @@ var projectAdminApiCmd = &cobra.Command{
 
 		fullURL := shopURL.ResolveReference(apiPath)
 
-		commandConfig := []curl.CurlConfig{
+		commandConfig := []curl.Config{
 			curl.Url(fullURL),
 			curl.Method(args[0]),
 			curl.BearerToken(token.AccessToken),
