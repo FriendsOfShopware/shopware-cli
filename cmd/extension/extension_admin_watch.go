@@ -17,8 +17,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vulcand/oxy/v2/forward"
 
-	"github.com/FriendsOfShopware/shopware-cli/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/internal/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
