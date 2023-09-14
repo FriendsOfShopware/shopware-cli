@@ -17,7 +17,7 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-const dartSassVersion = "1.63.6"
+const dartSassVersion = "1.67.0"
 
 //go:embed static/variables.scss
 var scssVariables []byte
