@@ -2,7 +2,7 @@ package project
 
 import (
 	"context"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/spf13/cobra"
 
@@ -26,6 +28,7 @@ var projectWorkerCmd = &cobra.Command{
 
 		isVerbose, _ := cobraCmd.Flags().GetBool("verbose")
 		queuesToConsume, _ := cobraCmd.Flags().GetString("queue")
+		memoryLimit, _ := cobraCmd.Flags().GetString("memory-limit")
 
 		if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
@@ -39,10 +42,14 @@ var projectWorkerCmd = &cobra.Command{
 			}
 		}
 
+		if memoryLimit == "" {
+			memoryLimit = "512M"
+		}
+
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancelCtx, cancel)
 
-		consumeArgs := []string{"bin/console", "messenger:consume"}
+		consumeArgs := []string{"bin/console", "messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit)}
 
 		if queuesToConsume == "" {
 			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
@@ -83,6 +90,7 @@ func init() {
 	projectRootCmd.AddCommand(projectWorkerCmd)
 	projectWorkerCmd.PersistentFlags().Bool("verbose", false, "Enable verbose output")
 	projectWorkerCmd.PersistentFlags().String("queue", "", "Queues to consume")
+	projectWorkerCmd.PersistentFlags().String("memory-limit", "", "Memory Limit")
 }
 
 func cancelOnTermination(ctx context.Context, cancel context.CancelFunc) {
