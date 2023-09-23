@@ -73,7 +73,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		// Install also shared node_modules
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
 			npmPath := filepath.Join(entry.BasePath, "Resources", "app")
-			if err := npmInstall(npmPath); err != nil {
+			if err := installDependencies(npmPath); err != nil {
 				return err
 			}
 
@@ -84,7 +84,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
 			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "administration")
-			if err := npmInstall(npmPath); err != nil {
+			if err := installDependencies(npmPath); err != nil {
 				return err
 			}
 
@@ -95,7 +95,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
 			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "storefront")
-			err := npmInstall(npmPath)
+			err := installDependencies(npmPath)
 			if err != nil {
 				return err
 			}
@@ -122,7 +122,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 		} else {
 			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
-			err := npmInstallAndBuild(
+			err := npmRunBuild(
 				administrationRoot,
 				"build",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
@@ -154,7 +154,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 		} else {
 			storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
-			err := npmInstallAndBuild(
+			err := npmRunBuild(
 				storefrontRoot,
 				"production",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
@@ -180,8 +180,8 @@ func deletePath(ctx context.Context, path string) {
 	}
 }
 
-func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string) error {
-	if err := npmInstall(path); err != nil {
+func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error {
+	if err := installDependencies(path); err != nil {
 		return err
 	}
 
@@ -198,14 +198,26 @@ func npmInstallAndBuild(path string, buildCmd string, buildEnvVariables []string
 	return nil
 }
 
-func npmInstall(path string) error {
-	npmInstallCmd := exec.Command("npm", "--prefix", path, "install", "--no-audit", "--no-fund", "--prefer-offline") //nolint:gosec
-	npmInstallCmd.Stdout = os.Stdout
-	npmInstallCmd.Stderr = os.Stderr
-	npmInstallCmd.Env = os.Environ()
-	npmInstallCmd.Env = append(npmInstallCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1")
+func getInstallCommand(path string) *exec.Cmd {
+	if _, err := os.Stat(filepath.Join(path, "pnpm-lock.yaml")); err == nil {
+		return exec.Command("pnpm", "--prefix", path, "install")
+	}
 
-	if err := npmInstallCmd.Run(); err != nil {
+	if _, err := os.Stat(filepath.Join(path, "yarn.lock")); err == nil {
+		return exec.Command("yarn", "--prefix", path, "install")
+	}
+
+	return exec.Command("npm", "--prefix", path, "install", "--no-audit", "--no-fund", "--prefer-offline")
+}
+
+func installDependencies(path string) error {
+	InstallCmd := getInstallCommand(path)
+	InstallCmd.Stdout = os.Stdout
+	InstallCmd.Stderr = os.Stderr
+	InstallCmd.Env = os.Environ()
+	InstallCmd.Env = append(InstallCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1")
+
+	if err := InstallCmd.Run(); err != nil {
 		return err
 	}
 
