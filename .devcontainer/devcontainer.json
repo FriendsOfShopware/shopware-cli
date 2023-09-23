@@ -1,6 +1,7 @@
 {
   "image": "mcr.microsoft.com/devcontainers/go:latest",
   "features": {
+    "ghcr.io/guiyomh/features/golangci-lint:0": {},
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/shyim/devcontainers-features/php:0.0.3": {
       "version": "8.2"

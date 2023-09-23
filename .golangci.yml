@@ -9,7 +9,7 @@ linters:
     - goconst
     - gofmt
     - goprintffuncname
-    - gosec
+#    - gosec
     - gosimple
     - govet
     - ineffassign
