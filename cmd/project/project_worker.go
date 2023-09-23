@@ -29,6 +29,7 @@ var projectWorkerCmd = &cobra.Command{
 		isVerbose, _ := cobraCmd.Flags().GetBool("verbose")
 		queuesToConsume, _ := cobraCmd.Flags().GetString("queue")
 		memoryLimit, _ := cobraCmd.Flags().GetString("memory-limit")
+		timeLimit, _ := cobraCmd.Flags().GetString("time-limit")
 
 		if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
@@ -46,10 +47,14 @@ var projectWorkerCmd = &cobra.Command{
 			memoryLimit = "512M"
 		}
 
+		if timeLimit == "" {
+			timeLimit = "120"
+		}
+
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancelCtx, cancel)
 
-		consumeArgs := []string{"bin/console", "messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit)}
+		consumeArgs := []string{"bin/console", "messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit), fmt.Sprintf("--time-limit=%s", timeLimit)}
 
 		if queuesToConsume == "" {
 			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
@@ -91,6 +96,7 @@ func init() {
 	projectWorkerCmd.PersistentFlags().Bool("verbose", false, "Enable verbose output")
 	projectWorkerCmd.PersistentFlags().String("queue", "", "Queues to consume")
 	projectWorkerCmd.PersistentFlags().String("memory-limit", "", "Memory Limit")
+	projectWorkerCmd.PersistentFlags().String("time-limit", "", "Time Limit")
 }
 
 func cancelOnTermination(ctx context.Context, cancel context.CancelFunc) {

@@ -27,6 +27,8 @@ Starts the Shopware worker in background and tails the log
 Parameters:
 
 * `--queue`: Queue names to start. F.e: `--queue "default,high,low"`
+* `--time-limit`: Limit the execution time of each worker in seconds
+* `--memory-limit`: Limit the max memory usage of each worker before restart
 
 Arguments:
 
