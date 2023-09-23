@@ -26,6 +26,9 @@ build:
   remove_extension_assets: false
   # skips the bin/console asset:install part
   disable_asset_copy: false
+  # when enabled src/Resources/app/{storefront/administration} folder will be preserved and not deleted.
+  # If your plugin requires, you should move the files out of src/Resources which needs to be accessed by php and js
+  keep_extension_source: false
   # delete additional paths after build
   cleanup_paths:
     - path

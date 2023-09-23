@@ -79,9 +79,11 @@ var projectCI = &cobra.Command{
 			return err
 		}
 
-		for _, ext := range extensions {
-			if err := cleanupAdministrationFiles(cmd.Context(), ext.GetRootDir()); err != nil {
-				return err
+		if !shopCfg.Build.KeepExtensionSource {
+			for _, ext := range extensions {
+				if err := cleanupAdministrationFiles(cmd.Context(), ext.GetRootDir()); err != nil {
+					return err
+				}
 			}
 		}
 

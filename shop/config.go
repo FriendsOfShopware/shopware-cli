@@ -22,6 +22,7 @@ type Config struct {
 type ConfigBuild struct {
 	DisableAssetCopy      bool     `yaml:"disable_asset_copy,omitempty"`
 	RemoveExtensionAssets bool     `yaml:"remove_extension_assets,omitempty"`
+	KeepExtensionSource   bool     `yaml:"keep_extension_source,omitempty"`
 	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
 }
 
