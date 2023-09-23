@@ -1,492 +1,506 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "shopware-cli",
-    "$ref": "#/definitions/Config",
-    "description": "shopware cli extension configuration definition file",
-    "definitions": {
-        "Config": {
-            "type": "object",
-            "title": ".shopware-extension.yml",
-            "additionalProperties": false,
-            "properties": {
-                "build": {
-                    "$ref": "#/definitions/Build"
-                },
-                "store": {
-                    "$ref": "#/definitions/Store"
-                },
-                "changelog": {
-                    "$ref": "#/definitions/Changelog"
-                }
-            }
-        },
-        "Changelog": {
-            "type": "object",
-            "title": "changelog",
-            "additionalProperties": false,
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enables the changelog generation.",
-                },
-                "ai_enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enables the changelog generation with OpenAI (Requires OPENAI_TOKEN environment variable)."
-                },
-                "pattern": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Limit with RegEx which commits should be considered for the changelog generation."
-                },
-                "template": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Allows to override the Go template which renders the Changelog."
-                },
-                "variables": {
-                    "type": "object",
-                    "description": "Allows to write RegEx groups into variables which can be used in the template."
-                }
-            }
-        },
-        "Build": {
-            "type": "object",
-            "title": "build",
-            "additionalProperties": false,
-            "properties": {
-                "shopwareVersionConstraint": {
-                    "type": "string",
-                    "description": "Overrides the shopware version constraint in the composer.json/manifest.xml file."
-                },
-                "extraBundles": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": ["path"],
-                        "properties": {
-                            "name": {
-                                "type": "string"
-                            },
-                            "path": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "zip": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "composer": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean",
-                                    "default": true
-                                },
-                                "before_hooks": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                },
-                                "after_hooks": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                },
-                                "excluded_packages": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                }
-                            }
-                        },
-                        "assets": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean",
-                                    "default": true
-                                },
-                                "before_hooks": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                },
-                                "after_hooks": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                },
-                                "enable_es_build_for_admin": {
-                                    "type": "boolean",
-                                    "default": false
-                                },
-                                "enable_es_build_for_storefront": {
-                                    "type": "boolean",
-                                    "default": false
-                                }
-                            }
-                        },
-                        "pack": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "before_hooks": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                },
-                                "excludes": {
-                                    "type": "object",
-                                    "additionalProperties": false,
-                                    "minProperties": 1,
-                                    "properties": {
-                                        "paths": {
-                                            "type": "array",
-                                            "items": {"type": "string"}
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "Store": {
-            "type": "object",
-            "title": "store",
-            "additionalProperties": false,
-            "properties": {
-                "icon": {
-                    "type": "string",
-                    "description": "Specifies the Path to the icon (128x128 px) for store."
-                },
-                "availabilities": {
-                    "type": "array",
-                    "description": "Specifies the visibility in stores.",
-                    "uniqueItems": true,
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "German",
-                            "International"
-                        ]
-                    }
-                },
-                "localizations": {
-                    "type": "array",
-                    "description": "Specifies the languages the extension is translated.",
-                    "uniqueItems": true,
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "de_DE",
-                            "en_GB",
-                            "es_ES",
-                            "fi_FI",
-                            "fr_FR",
-                            "it_IT",
-                            "nb_NO",
-                            "nl_NL",
-                            "pl_PL",
-                            "sv_SE",
-                            "bg_BG",
-                            "cs_CZ",
-                            "pt_PT",
-                            "hy",
-                            "de_CH",
-                            "tr",
-                            "da_DK",
-                            "ru_RU"
-                        ]
-                    }
-                },
-                "categories": {
-                    "type": "array",
-                    "description": "Specifies the categories in which the extension can be found.",
-                    "uniqueItems": true,
-                    "maxItems": 1,
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "Administration",
-                            "SEOOptimierung",
-                            "Bonitaetsprüfung",
-                            "Rechtssicherheit",
-                            "Auswertung",
-                            "KommentarFeedback",
-                            "Tracking",
-                            "Integration",
-                            "PreissuchmaschinenPortale",
-                            "Warenwirtschaft",
-                            "Versand",
-                            "Bezahlung",
-                            "StorefrontDetailanpassungen",
-                            "Sprache",
-                            "Suche",
-                            "HeaderFooter",
-                            "Detailseite",
-                            "MenueKategorien",
-                            "Bestellprozess",
-                            "KundenkontoPersonalisierung",
-                            "Sonderfunktionen",
-                            "Themes",
-                            "Branche",
-                            "Home+Furnishings",
-                            "FashionBekleidung",
-                            "GartenNatur",
-                            "KosmetikGesundheit",
-                            "EssenTrinken",
-                            "KinderPartyGeschenke",
-                            "SportLifestyleReisen",
-                            "TechnikIT",
-                            "IndustrieGroßhandel",
-                            "MigrationTools",
-                            "Einkaufswelten",
-                            "ConversionOptimierung",
-                            "Extensions",
-                            "MarketingTools",
-                            "B2BExtensions",
-                            "Blog",
-                            "emailMarketing",
-                            "promotionsAndVoucher",
-                            "loyalityAndRewards",
-                            "recommendations",
-                            "otherMarketingCommercials",
-                            "socialCommerce",
-                            "middlewareAndConnectors",
-                            "pim",
-                            "dam",
-                            "cms",
-                            "crm",
-                            "personalization"
-                        ]
-                    }
-                },
-                "default_locale": {
-                    "type": "string",
-                    "enum": [
-                        "en_GB",
-                        "de_DE"
-                    ]
-                },
-                "type": {
-                    "type": "string",
-                    "description": "Specifies the type of this extension.",
-                    "enum": [
-                        "extension",
-                        "theme"
-                    ]
-                },
-                "automatic_bugfix_version_compatibility": {
-                    "type": "boolean",
-                    "description": "Specifies whether the extension should automatically be set compatible with Shopware bugfix versions."
-                },
-                "videos": {
-                    "type": "object",
-                    "description": "Specifies the links of YouTube-Videos to show or describe the extension.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "array",
-                            "maxItems": 2,
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "en": {
-                            "type": "array",
-                            "maxItems": 2,
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "tags": {
-                    "type": "object",
-                    "description": "Specifies the tags of the extension.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 5
-                        },
-                        "en": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 5
-                        }
-                    }
-                },
-                "highlights": {
-                    "type": "object",
-                    "description": "Specifies the highlights of the extension.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 5
-                        },
-                        "en": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 5
-                        }
-                    }
-                },
-                "features": {
-                    "type": "object",
-                    "description": "Specifies the features of the extension.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 15
-                        },
-                        "en": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "maxItems": 15
-                        }
-                    }
-                },
-                "faq": {
-                    "type": "object",
-                    "description": "Specifies Frequently Asked Questions for the extension.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/StoreInfoFaqQuestion"
-                            }
-                        },
-                        "en": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/StoreInfoFaqQuestion"
-                            }
-                        }
-                    }
-                },
-                "description": {
-                    "type": "object",
-                    "description": "Specifies the description of the extension in store.",
-                    "additionalProperties": false,
-                    "minProperties": 1,
-                    "properties": {
-                        "de": {
-                            "type": "string",
-                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
-                        },
-                        "en": {
-                            "type": "string",
-                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
-                        }
-                    }
-                },
-                "installation_manual": {
-                    "type": "object",
-                    "description": "Installation manual of the extension in store.",
-                    "additionalProperties": false,
-                    "properties": {
-                        "de": {
-                            "type": "string",
-                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
-                        },
-                        "en": {
-                            "type": "string",
-                            "description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
-                        }
-                    }
-                },
-                "images": {
-                    "type": "array",
-                    "description": "Specifies images for the extension in the store.",
-                    "minItems": 1,
-                    "items": {
-                        "type": "object",
-                        "required": ["file", "priority"],
-                        "additionalProperties": false,
-                        "properties": {
-                            "file": {
-                                "type": "string",
-                                "description": "File path to image relative from root of the extension"
-                            },
-                            "activate": {
-                                "type": "object",
-                                "description": "Specifies whether the image is active in the language.",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "en": {
-                                        "type": "boolean"
-                                    },
-                                    "de": {
-                                        "type": "boolean"
-                                    }
-                                }
-                            },
-                            "preview": {
-                                "type": "object",
-                                "description": "Specifies whether the image is a preview in the language.",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "en": {
-                                        "type": "boolean"
-                                    },
-                                    "de": {
-                                        "type": "boolean"
-                                    }
-                                }
-                            },
-                            "priority": {
-                                "description": "Specifies the order of the image ascending the given priority.",
-                                "type": "integer",
-                                "minimum": 0
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "StoreInfoFaqQuestion": {
-            "type": "object",
-            "title": "StoreInfoFaqQuestion",
-            "additionalProperties": false,
-            "required": [
-                "question",
-                "answer"
-            ],
-            "properties": {
-                "question": {
-                    "type": "string"
-                },
-                "answer": {
-                    "type": "string"
-                }
-            }
-        }
-    }
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "shopware-cli",
+	"$ref": "#/definitions/Config",
+	"description": "shopware cli extension configuration definition file",
+	"definitions": {
+		"Config": {
+			"type": "object",
+			"title": ".shopware-extension.yml",
+			"additionalProperties": false,
+			"properties": {
+				"build": {
+					"$ref": "#/definitions/Build"
+				},
+				"store": {
+					"$ref": "#/definitions/Store"
+				},
+				"changelog": {
+					"$ref": "#/definitions/Changelog"
+				}
+			}
+		},
+		"Changelog": {
+			"type": "object",
+			"title": "changelog",
+			"additionalProperties": false,
+			"properties": {
+				"enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enables the changelog generation."
+				},
+				"ai_enabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enables the changelog generation with OpenAI (Requires OPENAI_TOKEN environment variable)."
+				},
+				"pattern": {
+					"type": "string",
+					"default": "",
+					"description": "Limit with RegEx which commits should be considered for the changelog generation."
+				},
+				"template": {
+					"type": "string",
+					"default": "",
+					"description": "Allows to override the Go template which renders the Changelog."
+				},
+				"variables": {
+					"type": "object",
+					"description": "Allows to write RegEx groups into variables which can be used in the template."
+				}
+			}
+		},
+		"Build": {
+			"type": "object",
+			"title": "build",
+			"additionalProperties": false,
+			"properties": {
+				"shopwareVersionConstraint": {
+					"type": "string",
+					"description": "Overrides the shopware version constraint in the composer.json/manifest.xml file."
+				},
+				"extraBundles": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["path"],
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"path": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"zip": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"composer": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": "boolean",
+									"default": true
+								},
+								"before_hooks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"after_hooks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"excluded_packages": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"assets": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": "boolean",
+									"default": true
+								},
+								"before_hooks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"after_hooks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"enable_es_build_for_admin": {
+									"type": "boolean",
+									"default": false
+								},
+								"enable_es_build_for_storefront": {
+									"type": "boolean",
+									"default": false
+								}
+							}
+						},
+						"pack": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"before_hooks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"excludes": {
+									"type": "object",
+									"additionalProperties": false,
+									"minProperties": 1,
+									"properties": {
+										"paths": {
+											"type": "array",
+											"items": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"Store": {
+			"type": "object",
+			"title": "store",
+			"additionalProperties": false,
+			"properties": {
+				"icon": {
+					"type": "string",
+					"description": "Specifies the Path to the icon (128x128 px) for store."
+				},
+				"availabilities": {
+					"type": "array",
+					"description": "Specifies the visibility in stores.",
+					"uniqueItems": true,
+					"items": {
+						"type": "string",
+						"enum": [
+							"German",
+							"International"
+						]
+					}
+				},
+				"localizations": {
+					"type": "array",
+					"description": "Specifies the languages the extension is translated.",
+					"uniqueItems": true,
+					"items": {
+						"type": "string",
+						"enum": [
+							"de_DE",
+							"en_GB",
+							"es_ES",
+							"fi_FI",
+							"fr_FR",
+							"it_IT",
+							"nb_NO",
+							"nl_NL",
+							"pl_PL",
+							"sv_SE",
+							"bg_BG",
+							"cs_CZ",
+							"pt_PT",
+							"hy",
+							"de_CH",
+							"tr",
+							"da_DK",
+							"ru_RU"
+						]
+					}
+				},
+				"categories": {
+					"type": "array",
+					"description": "Specifies the categories in which the extension can be found.",
+					"uniqueItems": true,
+					"maxItems": 1,
+					"items": {
+						"type": "string",
+						"enum": [
+							"Administration",
+							"SEOOptimierung",
+							"Bonitaetsprüfung",
+							"Rechtssicherheit",
+							"Auswertung",
+							"KommentarFeedback",
+							"Tracking",
+							"Integration",
+							"PreissuchmaschinenPortale",
+							"Warenwirtschaft",
+							"Versand",
+							"Bezahlung",
+							"StorefrontDetailanpassungen",
+							"Sprache",
+							"Suche",
+							"HeaderFooter",
+							"Detailseite",
+							"MenueKategorien",
+							"Bestellprozess",
+							"KundenkontoPersonalisierung",
+							"Sonderfunktionen",
+							"Themes",
+							"Branche",
+							"Home+Furnishings",
+							"FashionBekleidung",
+							"GartenNatur",
+							"KosmetikGesundheit",
+							"EssenTrinken",
+							"KinderPartyGeschenke",
+							"SportLifestyleReisen",
+							"TechnikIT",
+							"IndustrieGroßhandel",
+							"MigrationTools",
+							"Einkaufswelten",
+							"ConversionOptimierung",
+							"Extensions",
+							"MarketingTools",
+							"B2BExtensions",
+							"Blog",
+							"emailMarketing",
+							"promotionsAndVoucher",
+							"loyalityAndRewards",
+							"recommendations",
+							"otherMarketingCommercials",
+							"socialCommerce",
+							"middlewareAndConnectors",
+							"pim",
+							"dam",
+							"cms",
+							"crm",
+							"personalization"
+						]
+					}
+				},
+				"default_locale": {
+					"type": "string",
+					"enum": [
+						"en_GB",
+						"de_DE"
+					]
+				},
+				"type": {
+					"type": "string",
+					"description": "Specifies the type of this extension.",
+					"enum": [
+						"extension",
+						"theme"
+					]
+				},
+				"automatic_bugfix_version_compatibility": {
+					"type": "boolean",
+					"description": "Specifies whether the extension should automatically be set compatible with Shopware bugfix versions."
+				},
+				"videos": {
+					"type": "object",
+					"description": "Specifies the links of YouTube-Videos to show or describe the extension.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "array",
+							"maxItems": 2,
+							"items": {
+								"type": "string"
+							}
+						},
+						"en": {
+							"type": "array",
+							"maxItems": 2,
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"tags": {
+					"type": "object",
+					"description": "Specifies the tags of the extension.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 5
+						},
+						"en": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 5
+						}
+					}
+				},
+				"highlights": {
+					"type": "object",
+					"description": "Specifies the highlights of the extension.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 5
+						},
+						"en": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 5
+						}
+					}
+				},
+				"features": {
+					"type": "object",
+					"description": "Specifies the features of the extension.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 15
+						},
+						"en": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"maxItems": 15
+						}
+					}
+				},
+				"faq": {
+					"type": "object",
+					"description": "Specifies Frequently Asked Questions for the extension.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/StoreInfoFaqQuestion"
+							}
+						},
+						"en": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/StoreInfoFaqQuestion"
+							}
+						}
+					}
+				},
+				"description": {
+					"type": "object",
+					"description": "Specifies the description of the extension in store.",
+					"additionalProperties": false,
+					"minProperties": 1,
+					"properties": {
+						"de": {
+							"type": "string",
+							"description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
+						},
+						"en": {
+							"type": "string",
+							"description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
+						}
+					}
+				},
+				"installation_manual": {
+					"type": "object",
+					"description": "Installation manual of the extension in store.",
+					"additionalProperties": false,
+					"properties": {
+						"de": {
+							"type": "string",
+							"description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_de.md`"
+						},
+						"en": {
+							"type": "string",
+							"description": "Use string or set path to a file with prefix `file:` containing the description, f.e. `file:src/store/manual_en.md`"
+						}
+					}
+				},
+				"images": {
+					"type": "array",
+					"description": "Specifies images for the extension in the store.",
+					"minItems": 1,
+					"items": {
+						"type": "object",
+						"required": ["file", "priority"],
+						"additionalProperties": false,
+						"properties": {
+							"file": {
+								"type": "string",
+								"description": "File path to image relative from root of the extension"
+							},
+							"activate": {
+								"type": "object",
+								"description": "Specifies whether the image is active in the language.",
+								"additionalProperties": false,
+								"properties": {
+									"en": {
+										"type": "boolean"
+									},
+									"de": {
+										"type": "boolean"
+									}
+								}
+							},
+							"preview": {
+								"type": "object",
+								"description": "Specifies whether the image is a preview in the language.",
+								"additionalProperties": false,
+								"properties": {
+									"en": {
+										"type": "boolean"
+									},
+									"de": {
+										"type": "boolean"
+									}
+								}
+							},
+							"priority": {
+								"description": "Specifies the order of the image ascending the given priority.",
+								"type": "integer",
+								"minimum": 0
+							}
+						}
+					}
+				}
+			}
+		},
+		"StoreInfoFaqQuestion": {
+			"type": "object",
+			"title": "StoreInfoFaqQuestion",
+			"additionalProperties": false,
+			"required": [
+				"question",
+				"answer"
+			],
+			"properties": {
+				"question": {
+					"type": "string"
+				},
+				"answer": {
+					"type": "string"
+				}
+			}
+		}
+	}
 }
