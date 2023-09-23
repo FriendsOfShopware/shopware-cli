@@ -3,11 +3,71 @@ package extension
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
+	"github.com/FriendsOfShopware/shopware-cli/version"
 )
+
+func GetShopwareProjectConstraint(project string) (*version.Constraints, error) {
+	composerJson, err := os.ReadFile(path.Join(project, "composer.json"))
+	var composer rootComposerJson
+
+	err = json.Unmarshal(composerJson, &composer)
+	if err != nil {
+		return nil, err
+	}
+
+	constraint, ok := composer.Require["shopware/core"]
+
+	if !ok {
+		return nil, fmt.Errorf("cannot find shopware/core in composer.json")
+	}
+
+	c, err := version.NewConstraint(constraint)
+	if err != nil {
+		return nil, err
+	}
+
+	return &c, nil
+}
+
+func FindAssetSourcesOfProject(ctx context.Context, project string) []asset.Source {
+	extensions := FindExtensionsFromProject(ctx, project)
+	sources := ConvertExtensionsToSources(ctx, extensions)
+
+	composerJson, err := os.ReadFile(path.Join(project, "composer.json"))
+	if err != nil {
+		logging.FromContext(ctx).Errorf("Cannot read composer.json: %s", err.Error())
+	}
+
+	var composer rootComposerJson
+
+	err = json.Unmarshal(composerJson, &composer)
+	if err != nil {
+		logging.FromContext(ctx).Errorf("Cannot parse composer.json: %s", err.Error())
+		return sources
+	}
+
+	for bundlePath, bundle := range composer.Extra.Bundles {
+		name := bundle.Name
+
+		if name == "" {
+			name = filepath.Base(bundlePath)
+		}
+
+		sources = append(sources, asset.Source{
+			Name: name,
+			Path: path.Join(project, bundlePath),
+		})
+	}
+
+	return sources
+}
 
 func FindExtensionsFromProject(ctx context.Context, project string) []Extension {
 	extensions := make(map[string]Extension)
@@ -122,4 +182,15 @@ type composerLock struct {
 		Version     string `json:"version"`
 		PackageType string `json:"type"`
 	} `json:"packages"`
+}
+
+type rootComposerJson struct {
+	Require map[string]string `json:"require"`
+	Extra   struct {
+		Bundles map[string]rootShopwareBundle `json:"shopware-bundles"`
+	}
+}
+
+type rootShopwareBundle struct {
+	Name string `json:"name"`
 }

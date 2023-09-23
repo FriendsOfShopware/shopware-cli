@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"github.com/FriendsOfShopware/shopware-cli/internal/esbuild"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
@@ -31,10 +32,12 @@ type AssetBuildConfig struct {
 	CleanupNodeModules         bool
 	DisableAdminBuild          bool
 	DisableStorefrontBuild     bool
+	ShopwareRoot               string
+	ShopwareVersion            *version.Constraints
 }
 
-func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensions []Extension, assetConfig AssetBuildConfig) error { // nolint:gocyclo
-	cfgs := buildAssetConfigFromExtensions(ctx, extensions, shopwareRoot)
+func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
+	cfgs := buildAssetConfigFromExtensions(ctx, sources, assetConfig.ShopwareRoot)
 
 	if len(cfgs) == 1 {
 		return nil
@@ -47,9 +50,10 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 
 	buildWithoutShopwareSource := assetConfig.EnableESBuildForStorefront && assetConfig.EnableESBuildForAdmin
 
+	shopwareRoot := assetConfig.ShopwareRoot
 	var err error
 	if shopwareRoot == "" && !buildWithoutShopwareSource {
-		shopwareRoot, err = setupShopwareInTemp(ctx, extensions[0])
+		shopwareRoot, err = setupShopwareInTemp(ctx, assetConfig.ShopwareVersion)
 
 		if err != nil {
 			return err
@@ -104,13 +108,13 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 
 	if !assetConfig.DisableAdminBuild && cfgs.RequiresAdminBuild() {
 		if assetConfig.EnableESBuildForAdmin {
-			for _, extension := range extensions {
-				name, _ := extension.GetName()
-				if !cfgs.Has(name) {
+			for _, source := range sources {
+				if !cfgs.Has(source.Name) {
 					continue
 				}
 
-				options := esbuild.NewAssetCompileOptionsAdmin(name, extension.GetPath(), extension.GetType())
+				// @todo: fix me later
+				options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path, "")
 
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
@@ -137,13 +141,13 @@ func BuildAssetsForExtensions(ctx context.Context, shopwareRoot string, extensio
 
 	if !assetConfig.DisableStorefrontBuild && cfgs.RequiresStorefrontBuild() {
 		if assetConfig.EnableESBuildForStorefront {
-			for _, extension := range extensions {
-				name, _ := extension.GetName()
-				if !cfgs.Has(name) {
+			for _, source := range sources {
+				if !cfgs.Has(source.Name) {
 					continue
 				}
 
-				options := esbuild.NewAssetCompileOptionsStorefront(name, extension.GetPath(), extension.GetType())
+				// @todo: fix me later
+				options := esbuild.NewAssetCompileOptionsStorefront(source.Name, source.Path, "")
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
 				}
@@ -237,40 +241,11 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(ctx context.Context, extensions []Extension, shopwareRoot string) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source, shopwareRoot string) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
-	for _, extension := range extensions {
-		extName, err := extension.GetName()
-		if err != nil {
-			logging.FromContext(ctx).Errorf("Skipping extension %s as it has a invalid name", extension.GetPath())
-			continue
-		}
-
-		extPath := extension.GetPath()
-
-		if _, err := os.Stat(path.Join(extension.GetRootDir(), "Resources")); os.IsNotExist(err) {
-			logging.FromContext(ctx).Infof("Skipping building of assets for extension %s as it doesnt contain assets", extName)
-			continue
-		}
-
-		list[extName] = createConfigFromPath(extName, extension.GetRootDir())
-
-		extCfg, err := readExtensionConfig(extPath)
-		if err != nil {
-			logging.FromContext(ctx).Errorf("Skipping extension additional bundles %s as it has a invalid config", extPath)
-			continue
-		}
-
-		for _, bundle := range extCfg.Build.ExtraBundles {
-			bundleName := bundle.Name
-
-			if bundleName == "" {
-				bundleName = filepath.Base(bundle.Path)
-			}
-
-			list[bundleName] = createConfigFromPath(bundleName, path.Join(extension.GetRootDir(), bundle.Path))
-		}
+	for _, source := range sources {
+		list[source.Name] = createConfigFromPath(source.Name, source.Path)
 	}
 
 	var basePath string
@@ -362,8 +337,8 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 	return cfg
 }
 
-func setupShopwareInTemp(ctx context.Context, ext Extension) (string, error) {
-	minVersion, err := lookupForMinMatchingVersion(ctx, ext)
+func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version.Constraints) (string, error) {
+	minVersion, err := lookupForMinMatchingVersion(ctx, shopwareVersionConstraint)
 	if err != nil {
 		return "", err
 	}
