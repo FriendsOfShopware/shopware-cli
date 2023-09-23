@@ -14,6 +14,7 @@ import (
 const (
 	TypePlatformApp    = "app"
 	TypePlatformPlugin = "plugin"
+	TypeShopwareBundle = "shopware-bundle"
 )
 
 func GetExtensionByFolder(path string) (Extension, error) {
@@ -29,7 +30,14 @@ func GetExtensionByFolder(path string) (Extension, error) {
 		return nil, fmt.Errorf("unknown extension type")
 	}
 
-	return newPlatformPlugin(path)
+	var ext Extension
+
+	ext, err := newPlatformPlugin(path)
+	if err != nil {
+		ext, err = newShopwareBundle(path)
+	}
+
+	return ext, err
 }
 
 func GetExtensionByZip(filePath string) (Extension, error) {

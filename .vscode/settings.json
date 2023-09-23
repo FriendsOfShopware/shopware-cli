@@ -15,5 +15,8 @@
         ".idea": true
     },
     "go.toolsManagement.autoUpdate": false,
-    "go.toolsManagement.checkForUpdates": "off"
+    "go.toolsManagement.checkForUpdates": "off",
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/FriendsOfShopware/shopware-cli/main/extension/shopware-extension-schema.json": "file:///workspaces/shopware-cli/.shopware-extension.yml"
+    }
 }

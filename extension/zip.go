@@ -214,7 +214,12 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	minVersion, err := lookupForMinMatchingVersion(ctx, ext)
+	minShopwareVersionConstraint, err := ext.GetShopwareVersionConstraint()
+	if err != nil {
+		return fmt.Errorf(errorFormat, err)
+	}
+
+	minVersion, err := lookupForMinMatchingVersion(ctx, minShopwareVersionConstraint)
 	if err != nil {
 		return fmt.Errorf("lookup for min matching version: %w", err)
 	}
@@ -376,7 +381,7 @@ func addComposerReplacements(ctx context.Context, composer map[string]interface{
 	return composer, nil
 }
 
-func lookupForMinMatchingVersion(ctx context.Context, ext Extension) (string, error) {
+func lookupForMinMatchingVersion(ctx context.Context, versionConstraint *version.Constraints) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://swagger.docs.fos.gg/composer/versions.json", http.NoBody)
 	if err != nil {
 		return "", fmt.Errorf("create composer version request: %w", err)
@@ -401,11 +406,6 @@ func lookupForMinMatchingVersion(ctx context.Context, ext Extension) (string, er
 	err = json.Unmarshal(versionString, &versions)
 	if err != nil {
 		return "", fmt.Errorf("unmarshal composer versions: %w", err)
-	}
-
-	versionConstraint, err := ext.GetShopwareVersionConstraint()
-	if err != nil {
-		return "", fmt.Errorf("get shopware version constraint: %w", err)
 	}
 
 	return getMinMatchingVersion(versionConstraint, versions)

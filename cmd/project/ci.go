@@ -57,6 +57,7 @@ var projectCI = &cobra.Command{
 
 		composer := exec.CommandContext(cmd.Context(), "composer", "install", "--no-dev", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative")
 		composer.Dir = args[0]
+		composer.Stdin = os.Stdin
 		composer.Stdout = os.Stdout
 		composer.Stderr = os.Stderr
 
@@ -66,11 +67,23 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		extensions := extension.FindExtensionsFromProject(cmd.Context(), args[0])
+		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0])
+		constraint, err := extension.GetShopwareProjectConstraint(args[0])
+		if err != nil {
+			return err
+		}
 
-		assetCfg := extension.AssetBuildConfig{EnableESBuildForAdmin: false, EnableESBuildForStorefront: false, CleanupNodeModules: true}
+		fmt.Println(sources)
 
-		if err := extension.BuildAssetsForExtensions(cmd.Context(), args[0], extensions, assetCfg); err != nil {
+		assetCfg := extension.AssetBuildConfig{
+			EnableESBuildForAdmin:      false,
+			EnableESBuildForStorefront: false,
+			CleanupNodeModules:         true,
+			ShopwareRoot:               args[0],
+			ShopwareVersion:            constraint,
+		}
+
+		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {
 			return err
 		}
 
@@ -80,8 +93,8 @@ var projectCI = &cobra.Command{
 		}
 
 		if !shopCfg.Build.KeepExtensionSource {
-			for _, ext := range extensions {
-				if err := cleanupAdministrationFiles(cmd.Context(), ext.GetRootDir()); err != nil {
+			for _, source := range sources {
+				if err := cleanupAdministrationFiles(cmd.Context(), source.Path); err != nil {
 					return err
 				}
 			}
@@ -126,20 +139,20 @@ var projectCI = &cobra.Command{
 		if shopCfg.Build.RemoveExtensionAssets {
 			logging.FromContext(cmd.Context()).Infof("Deleting assets of extensions")
 
-			for _, ext := range extensions {
-				if _, err := os.Stat(path.Join(ext.GetRootDir(), "Resources", "public", "administration", "css")); err == nil {
-					if err := os.WriteFile(path.Join(ext.GetRootDir(), "Resources", ".administration-css"), []byte{}, os.ModePerm); err != nil {
+			for _, source := range sources {
+				if _, err := os.Stat(path.Join(source.Path, "Resources", "public", "administration", "css")); err == nil {
+					if err := os.WriteFile(path.Join(source.Path, "Resources", ".administration-css"), []byte{}, os.ModePerm); err != nil {
 						return err
 					}
 				}
 
-				if _, err := os.Stat(path.Join(ext.GetRootDir(), "Resources", "public", "administration", "js")); err == nil {
-					if err := os.WriteFile(path.Join(ext.GetRootDir(), "Resources", ".administration-js"), []byte{}, os.ModePerm); err != nil {
+				if _, err := os.Stat(path.Join(source.Path, "Resources", "public", "administration", "js")); err == nil {
+					if err := os.WriteFile(path.Join(source.Path, "Resources", ".administration-js"), []byte{}, os.ModePerm); err != nil {
 						return err
 					}
 				}
 
-				if err := os.RemoveAll(path.Join(ext.GetRootDir(), "Resources", "public")); err != nil {
+				if err := os.RemoveAll(path.Join(source.Path, "Resources", "public")); err != nil {
 					return err
 				}
 			}

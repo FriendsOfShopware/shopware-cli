@@ -23,11 +23,19 @@ var projectStorefrontBuildCmd = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		extensions := extension.FindExtensionsFromProject(cmd.Context(), projectRoot)
+		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0])
+		constraint, err := extension.GetShopwareProjectConstraint(args[0])
+		if err != nil {
+			return err
+		}
 
-		assetCfg := extension.AssetBuildConfig{DisableAdminBuild: true}
+		assetCfg := extension.AssetBuildConfig{
+			DisableAdminBuild: true,
+			ShopwareRoot:      projectRoot,
+			ShopwareVersion:   constraint,
+		}
 
-		if err := extension.BuildAssetsForExtensions(cmd.Context(), projectRoot, extensions, assetCfg); err != nil {
+		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {
 			return err
 		}
 

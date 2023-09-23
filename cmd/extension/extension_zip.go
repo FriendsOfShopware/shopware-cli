@@ -131,13 +131,20 @@ var extensionZipCmd = &cobra.Command{
 				return err
 			}
 
+			shopwareConstraint, err := tempExt.GetShopwareVersionConstraint()
+			if err != nil {
+				return fmt.Errorf("get shopware version constraint: %w", err)
+			}
+
 			assetBuildConfig := extension.AssetBuildConfig{
 				EnableESBuildForAdmin:      extCfg.Build.Zip.Assets.EnableESBuildForAdmin,
 				EnableESBuildForStorefront: extCfg.Build.Zip.Assets.EnableESBuildForStorefront,
 				CleanupNodeModules:         true,
+				ShopwareRoot:               os.Getenv("SHOPWARE_PROJECT_ROOT"),
+				ShopwareVersion:            shopwareConstraint,
 			}
 
-			if err := extension.BuildAssetsForExtensions(cmd.Context(), os.Getenv("SHOPWARE_PROJECT_ROOT"), []extension.Extension{tempExt}, assetBuildConfig); err != nil {
+			if err := extension.BuildAssetsForExtensions(cmd.Context(), extension.ConvertExtensionsToSources(cmd.Context(), []extension.Extension{tempExt}), assetBuildConfig); err != nil {
 				return fmt.Errorf("building assets: %w", err)
 			}
 
