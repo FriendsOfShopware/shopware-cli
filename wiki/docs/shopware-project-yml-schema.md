@@ -32,6 +32,8 @@ build:
   # delete additional paths after build
   cleanup_paths:
     - path
+  # change the browserslist of the storefront build, see https://browsersl.ist for the syntax as string (example: defaults, not dead)
+  browserslist: ''
 
 # used for mysql dump creation
 dump:
