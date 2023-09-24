@@ -200,24 +200,29 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 
 func getInstallCommand(path string) *exec.Cmd {
 	if _, err := os.Stat(filepath.Join(path, "pnpm-lock.yaml")); err == nil {
-		return exec.Command("pnpm", "--prefix", path, "install")
+		return exec.Command("pnpm", "install")
 	}
 
 	if _, err := os.Stat(filepath.Join(path, "yarn.lock")); err == nil {
-		return exec.Command("yarn", "--prefix", path, "install")
+		return exec.Command("yarn", "install")
 	}
 
-	return exec.Command("npm", "--prefix", path, "install", "--no-audit", "--no-fund", "--prefer-offline")
+	if _, err := os.Stat(filepath.Join(path, "bun.lockdb")); err == nil {
+		return exec.Command("bun", "install")
+	}
+
+	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
 }
 
 func installDependencies(path string) error {
-	InstallCmd := getInstallCommand(path)
-	InstallCmd.Stdout = os.Stdout
-	InstallCmd.Stderr = os.Stderr
-	InstallCmd.Env = os.Environ()
-	InstallCmd.Env = append(InstallCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1")
+	installCmd := getInstallCommand(path)
+	installCmd.Dir = path
+	installCmd.Stdout = os.Stdout
+	installCmd.Stderr = os.Stderr
+	installCmd.Env = os.Environ()
+	installCmd.Env = append(installCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1")
 
-	if err := InstallCmd.Run(); err != nil {
+	if err := installCmd.Run(); err != nil {
 		return err
 	}
 
