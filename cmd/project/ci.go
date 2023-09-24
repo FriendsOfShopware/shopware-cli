@@ -73,8 +73,6 @@ var projectCI = &cobra.Command{
 			return err
 		}
 
-		fmt.Println(sources)
-
 		assetCfg := extension.AssetBuildConfig{
 			EnableESBuildForAdmin:      false,
 			EnableESBuildForStorefront: false,
