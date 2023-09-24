@@ -67,7 +67,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 
 		name, _ := ext.GetName()
 
-		options := esbuild.NewAssetCompileOptionsAdmin(name, ext.GetPath(), ext.GetType())
+		options := esbuild.NewAssetCompileOptionsAdmin(name, ext.GetPath())
 		options.ProductionMode = false
 
 		esbuildContext, esBuildError := esbuild.Context(cmd.Context(), options)

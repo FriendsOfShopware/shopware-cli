@@ -26,34 +26,22 @@ type AssetCompileOptions struct {
 	Path           string
 }
 
-func NewAssetCompileOptionsAdmin(name, path, extType string) AssetCompileOptions {
-	root := "src/"
-
-	if extType == "app" {
-		root = ""
-	}
-
+func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
 	return AssetCompileOptions{
 		Name:           name,
 		Path:           path,
-		EntrypointDir:  root + "Resources/app/administration/src",
-		OutputDir:      root + "Resources/public/administration",
+		EntrypointDir:  "Resources/app/administration/src",
+		OutputDir:      "Resources/public/administration",
 		ProductionMode: true,
 	}
 }
 
-func NewAssetCompileOptionsStorefront(name, path, extType string) AssetCompileOptions {
-	root := "src/"
-
-	if extType == "app" {
-		root = ""
-	}
-
+func NewAssetCompileOptionsStorefront(name, path string) AssetCompileOptions {
 	return AssetCompileOptions{
 		Name:           name,
 		Path:           path,
-		EntrypointDir:  root + "Resources/app/storefront/src",
-		OutputDir:      root + "Resources/app/storefront/dist/storefront",
+		EntrypointDir:  "Resources/app/storefront/src",
+		OutputDir:      "Resources/app/storefront/dist/storefront",
 		ProductionMode: true,
 	}
 }

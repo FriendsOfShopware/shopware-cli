@@ -26,17 +26,19 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 
 		extConfig := ext.GetExtensionConfig()
 
-		for _, bundle := range extConfig.Build.ExtraBundles {
-			bundleName := bundle.Name
+		if extConfig != nil {
+			for _, bundle := range extConfig.Build.ExtraBundles {
+				bundleName := bundle.Name
 
-			if bundleName == "" {
-				bundleName = filepath.Base(bundle.Path)
+				if bundleName == "" {
+					bundleName = filepath.Base(bundle.Path)
+				}
+
+				sources = append(sources, asset.Source{
+					Name: bundleName,
+					Path: path.Join(ext.GetRootDir(), bundle.Path),
+				})
 			}
-
-			sources = append(sources, asset.Source{
-				Name: bundleName,
-				Path: path.Join(ext.GetRootDir(), bundle.Path),
-			})
 		}
 	}
 
