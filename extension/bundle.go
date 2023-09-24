@@ -71,7 +71,7 @@ type shopwareBundleComposerJsonExtra struct {
 
 // GetRootDir returns the src directory of the bundle.
 func (p ShopwareBundle) GetRootDir() string {
-	return p.path
+	return path.Join(p.path, "src")
 }
 
 // GetResourcesDir returns the resources directory of the shopware bundle.
