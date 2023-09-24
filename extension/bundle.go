@@ -34,6 +34,14 @@ func newShopwareBundle(path string) (*ShopwareBundle, error) {
 		return nil, fmt.Errorf("newShopwareBundle: %v", err)
 	}
 
+	if composerJson.Type != "shopware-bundle" {
+		return nil, fmt.Errorf("newShopwareBundle: composer.json type is not shopware-bundle")
+	}
+
+	if composerJson.Extra.BundleName == "" {
+		return nil, fmt.Errorf("composer.json does not contain shopware-bundle-name in extra")
+	}
+
 	cfg, err := readExtensionConfig(path)
 	if err != nil {
 		return nil, fmt.Errorf("newShopwareBundle: %v", err)
@@ -50,6 +58,7 @@ func newShopwareBundle(path string) (*ShopwareBundle, error) {
 
 type shopwareBundleComposerJson struct {
 	Name    string                          `json:"name"`
+	Type    string                          `json:"type"`
 	License string                          `json:"license"`
 	Version string                          `json:"version"`
 	Require map[string]string               `json:"require"`
@@ -71,10 +80,6 @@ func (p ShopwareBundle) GetResourcesDir() string {
 }
 
 func (p ShopwareBundle) GetName() (string, error) {
-	if p.composer.Extra.BundleName == "" {
-		return "", fmt.Errorf("composer.json does not contain shopware-bundle-name in extra")
-	}
-
 	return p.composer.Extra.BundleName, nil
 }
 

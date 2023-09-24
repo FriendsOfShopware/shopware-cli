@@ -15,6 +15,10 @@ const (
 	TypePlatformApp    = "app"
 	TypePlatformPlugin = "plugin"
 	TypeShopwareBundle = "shopware-bundle"
+
+	ComposerTypePlugin = "shopware-platform-plugin"
+	ComposerTypeApp    = "shopware-app"
+	ComposerTypeBundle = "shopware-bundle"
 )
 
 func GetExtensionByFolder(path string) (Extension, error) {

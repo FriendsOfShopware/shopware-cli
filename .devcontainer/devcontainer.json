@@ -13,11 +13,12 @@
   "customizations": {
     "vscode": {
       "extensions": [
-		"golang.go-nightly",
-		"github.vscode-github-actions",
-		"redhat.vscode-yaml",
-		"liuchao.go-struct-tag"
-	]
+        "golang.go-nightly",
+        "github.vscode-github-actions",
+        "redhat.vscode-yaml",
+        "liuchao.go-struct-tag",
+        "redhat.vscode-yaml"
+      ]
     }
   }
 }

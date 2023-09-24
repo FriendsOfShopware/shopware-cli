@@ -44,4 +44,3 @@ func findClosestShopwareProject() (string, error) {
 
 	return "", fmt.Errorf("cannot find Shopware project in current directory")
 }
-

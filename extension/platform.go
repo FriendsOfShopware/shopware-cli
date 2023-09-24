@@ -55,7 +55,7 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 		return nil, fmt.Errorf("newPlatformPlugin: %v", err)
 	}
 
-	if composerJson.Type != "shopware-platform-plugin" {
+	if composerJson.Type != ComposerTypePlugin {
 		return nil, fmt.Errorf("newPlatformPlugin: composer.json is not type of shopware-platform-plugin")
 	}
 
@@ -179,7 +179,7 @@ func (p PlatformPlugin) Validate(c context.Context, ctx *ValidationContext) {
 
 	if p.composer.Type == "" {
 		ctx.AddError("Key `type` is required")
-	} else if p.composer.Type != "shopware-platform-plugin" {
+	} else if p.composer.Type != ComposerTypePlugin {
 		ctx.AddError("The composer type must be shopware-platform-plugin")
 	}
 

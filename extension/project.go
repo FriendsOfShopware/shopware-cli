@@ -15,6 +15,10 @@ import (
 
 func GetShopwareProjectConstraint(project string) (*version.Constraints, error) {
 	composerJson, err := os.ReadFile(path.Join(project, "composer.json"))
+	if err != nil {
+		return nil, err
+	}
+
 	var composer rootComposerJson
 
 	err = json.Unmarshal(composerJson, &composer)
@@ -134,17 +138,25 @@ func addExtensionsByComposer(project string) []Extension {
 	}
 
 	var composer composerLock
-	err = json.Unmarshal(lock, &composer)
-
-	if err != nil {
+	if err := json.Unmarshal(lock, &composer); err != nil {
 		return list
 	}
 
 	for _, pkg := range composer.Packages {
-		if pkg.PackageType == "shopware-platform-plugin" {
+		if pkg.PackageType == ComposerTypePlugin || pkg.PackageType == ComposerTypeBundle || pkg.PackageType == ComposerTypeApp {
 			ext, err := GetExtensionByFolder(path.Join(project, "vendor", pkg.Name))
 			if err != nil {
 				continue
+			}
+
+			// The extension in the vendor folder has maybe not filled the version in this composer.json. Let's overwrite it with the version from composer.lock
+			switch pkg.PackageType {
+			case ComposerTypePlugin:
+				ext.(*PlatformPlugin).composer.Version = pkg.Version
+			case ComposerTypeApp:
+				ext.(*App).manifest.Meta.Version = pkg.Version
+			case ComposerTypeBundle:
+				ext.(*ShopwareBundle).composer.Version = pkg.Version
 			}
 
 			list = append(list, ext)
