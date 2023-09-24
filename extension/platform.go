@@ -56,7 +56,7 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 	}
 
 	if composerJson.Type != "shopware-platform-plugin" {
-		return nil, fmt.Errorf("newPlatformPlugin: composer.json is not type of shopware-platform-plugin", err)
+		return nil, fmt.Errorf("newPlatformPlugin: composer.json is not type of shopware-platform-plugin")
 	}
 
 	cfg, err := readExtensionConfig(path)

@@ -37,7 +37,7 @@ type AssetBuildConfig struct {
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
-	cfgs := buildAssetConfigFromExtensions(ctx, sources, assetConfig.ShopwareRoot)
+	cfgs := buildAssetConfigFromExtensions(sources, assetConfig.ShopwareRoot)
 
 	if len(cfgs) == 1 {
 		return nil
@@ -114,7 +114,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				}
 
 				// @todo: fix me later
-				options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path, "")
+				options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
 
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
@@ -147,7 +147,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				}
 
 				// @todo: fix me later
-				options := esbuild.NewAssetCompileOptionsStorefront(source.Name, source.Path, "")
+				options := esbuild.NewAssetCompileOptionsStorefront(source.Name, source.Path)
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
 				}
@@ -241,10 +241,20 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source, shopwareRoot string) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(sources []asset.Source, shopwareRoot string) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, source := range sources {
+		if source.Name == "" {
+			continue
+		}
+
+		resourcesDir := path.Join(source.Path, "Resources", "app")
+
+		if _, err := os.Stat(resourcesDir); os.IsNotExist(err) {
+			continue
+		}
+
 		list[source.Name] = createConfigFromPath(source.Name, source.Path)
 	}
 
