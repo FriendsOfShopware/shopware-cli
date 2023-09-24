@@ -303,7 +303,7 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 
 		logging.FromContext(ctx).Infof("Migrating generated snippet file for %s", folder)
 
-		snippetFolder := path.Join(adminFolder, "src", "snippet")
+		snippetFolder := path.Join(adminFolder, "src", "app", "snippet")
 		if err := os.MkdirAll(snippetFolder, os.ModePerm); err != nil {
 			return err
 		}

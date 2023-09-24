@@ -64,6 +64,8 @@ func FindAssetSourcesOfProject(ctx context.Context, project string) []asset.Sour
 			name = filepath.Base(bundlePath)
 		}
 
+		logging.FromContext(ctx).Infof("Found bundle in project: %s (path: %s)", name, bundlePath)
+
 		sources = append(sources, asset.Source{
 			Name: name,
 			Path: path.Join(project, bundlePath),
