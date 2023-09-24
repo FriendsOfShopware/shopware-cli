@@ -34,6 +34,7 @@ type AssetBuildConfig struct {
 	DisableStorefrontBuild     bool
 	ShopwareRoot               string
 	ShopwareVersion            *version.Constraints
+	Browserslist               string
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
@@ -113,7 +114,6 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 					continue
 				}
 
-				// @todo: fix me later
 				options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
 
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
@@ -146,7 +146,6 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 					continue
 				}
 
-				// @todo: fix me later
 				options := esbuild.NewAssetCompileOptionsStorefront(source.Name, source.Path)
 				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 					return err
@@ -154,10 +153,29 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 		} else {
 			storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
+
+			envList := []string{
+				fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot),
+				fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot),
+			}
+
+			if assetConfig.Browserslist != "" {
+				npx := exec.CommandContext(ctx, "npx", "--yes", "update-browserslist-db", "--quiet")
+				npx.Stdout = os.Stdout
+				npx.Stderr = os.Stderr
+				npx.Dir = storefrontRoot
+
+				if err := npx.Run(); err != nil {
+					return err
+				}
+
+				envList = append(envList, fmt.Sprintf("BROWSERSLIST=%s", assetConfig.Browserslist))
+			}
+
 			err := npmRunBuild(
 				storefrontRoot,
 				"production",
-				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot)},
+				envList,
 			)
 
 			if assetConfig.CleanupNodeModules {

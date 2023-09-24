@@ -79,6 +79,7 @@ var projectCI = &cobra.Command{
 			CleanupNodeModules:         true,
 			ShopwareRoot:               args[0],
 			ShopwareVersion:            constraint,
+			Browserslist:               shopCfg.Build.Browserslist,
 		}
 
 		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {

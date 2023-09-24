@@ -46,6 +46,10 @@
                     "type": "array",
                     "items": {"type": "string"},
                     "description": "Paths to delete for the final build"
+                },
+                "browserslist": {
+                    "type": "string",
+                    "description": "Browserslist configuration for the Storefront build"
                 }
             }
         },
