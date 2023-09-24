@@ -66,7 +66,13 @@ func GetExtensionByZip(filePath string) (Extension, error) {
 		return nil, err
 	}
 
-	extName := strings.Split(file.File[0].Name, "/")[0]
+	fileName := file.File[0].Name
+
+	if strings.Contains(fileName, "..") {
+		return nil, fmt.Errorf("invalid zip file")
+	}
+
+	extName := strings.Split(fileName, "/")[0]
 	return GetExtensionByFolder(fmt.Sprintf("%s/%s", dir, extName))
 }
 
