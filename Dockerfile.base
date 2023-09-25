@@ -25,7 +25,10 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
     && npm config set fund false \
     && npm config set loglevel warn \
     && nvm cache clear \
-    && rm -rf /root/.npm
+    && rm -rf /root/.npm \
+    && npm install --global yarn bun \
+    && curl -fsSL https://get.pnpm.io/install.sh | SHELL="$(which bash)" sh - \
+    && npm cache clean --force
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 
