@@ -23,8 +23,8 @@ var projectStorefrontBuildCmd = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0])
-		constraint, err := extension.GetShopwareProjectConstraint(args[0])
+		sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot)
+		constraint, err := extension.GetShopwareProjectConstraint(projectRoot)
 		if err != nil {
 			return err
 		}
