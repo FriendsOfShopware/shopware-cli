@@ -7,24 +7,23 @@ on:
     paths:
       - 'Dockerfile.base'
 
+env:
+  DOCKER_BUILDKIT: 1
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build PHP ${{ matrix.php-version }} for ${{ matrix.arch }}
+    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || 'buildjet-2vcpu-ubuntu-2204-arm' }}
     strategy:
       matrix:
         php-version: ["8.2", "8.1", "7.4", "7.2"]
+        arch: [ "amd64", "arm64" ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Login into Github Docker Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -32,9 +31,24 @@ jobs:
           context: .
           push: true
           file: Dockerfile.base
-          platforms: linux/amd64,linux/arm64
-          tags: "ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}"
+          platforms: linux/${{ matrix.arch }}
+          tags: "ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}-${{ matrix.arch }}"
           build-args: |
             PHP_VERSION=${{ matrix.php-version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
+    
+  merge:
+    name: Merge Image (${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.2", "8.1", "7.4", "7.2"]
+    steps:
+      - name: Login into Github Docker Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - run: docker manifest create ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }} --amend ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}-amd64 --amend ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}-arm64
+
+      - run: docker manifest push ghcr.io/friendsofshopware/shopware-cli-base:${{ matrix.php-version }}
