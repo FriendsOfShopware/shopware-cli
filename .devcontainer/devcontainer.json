@@ -5,7 +5,7 @@
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     },
-    "ghcr.io/shyim/devcontainers-features/php:0.0.3": {
+    "ghcr.io/shyim/devcontainers-features/php:0.1.0": {
       "version": "8.2"
     },
     "ghcr.io/shyim/devcontainers-features/bun:0": {}
