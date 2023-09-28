@@ -99,5 +99,5 @@ url: 'http://localhost'
 admin_api:
     # there are two valid environment variable syntax
     client_id: ${SHOPWARE_CLI_CLIENT_ID}
-    client_secret: $SHOPWARE_CLI_CLIENT_ID
+    client_secret: $SHOPWARE_CLI_CLIENT_SECRET
 ```
