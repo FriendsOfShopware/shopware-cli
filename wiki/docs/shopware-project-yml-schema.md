@@ -87,3 +87,17 @@ sync:
             name: 'Tax'
             taxRate: 19
 ```
+
+### Environment Variables
+
+You can use environment variables in your `.shopware-project.yml` file. This is useful for example when you want to use the same configuration for multiple projects or environments. This can also be useful to apply secrets without committing them in the config directly.
+
+```yaml
+# .shopware-project.yml
+
+url: 'http://localhost'
+admin_api:
+    # there are two valid environment variable syntax
+    client_id: ${SHOPWARE_CLI_CLIENT_ID}
+    client_secret: $SHOPWARE_CLI_CLIENT_ID
+```
