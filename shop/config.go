@@ -101,7 +101,8 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 		return nil, fmt.Errorf("ReadConfig: %v", err)
 	}
 
-	err = yaml.Unmarshal(fileHandle, &config)
+	substitutedConfig := os.ExpandEnv(string(fileHandle))
+	err = yaml.Unmarshal([]byte(substitutedConfig), &config)
 
 	if err != nil {
 		return nil, fmt.Errorf("ReadConfig: %v", err)
