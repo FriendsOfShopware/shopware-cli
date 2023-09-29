@@ -3,6 +3,7 @@ package project
 import (
 	"compress/gzip"
 	"database/sql"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
+	"github.com/klauspost/compress/zstd"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -31,6 +33,11 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		skipLockTables, _ := cmd.Flags().GetBool("skip-lock-tables")
 		anonymize, _ := cmd.Flags().GetBool("anonymize")
 		gzipEnabled, _ := cmd.Flags().GetBool("gzip")
+		zstdEnabled, _ := cmd.Flags().GetBool("zstd")
+
+		if gzipEnabled && zstdEnabled {
+			return fmt.Errorf("only one compression method can be used at same time")
+		}
 
 		cfg := database.NewConfig(username, password, host, port, args[0])
 
@@ -156,6 +163,10 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			output += ".gz"
 		}
 
+		if zstdEnabled {
+			output += ".zstd"
+		}
+
 		var w io.Writer
 		if w, err = os.Create(output); err != nil {
 			return err
@@ -163,6 +174,14 @@ var projectDatabaseDumpCmd = &cobra.Command{
 
 		if gzipEnabled {
 			w = gzip.NewWriter(w)
+		}
+
+		if zstdEnabled {
+			w, err = zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if err = dumper.Dump(w); err != nil {
@@ -192,4 +211,5 @@ func init() {
 	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
 	projectDatabaseDumpCmd.Flags().Bool("anonymize", false, "Anonymize customer data")
 	projectDatabaseDumpCmd.Flags().Bool("gzip", false, "Gzip the whole dump")
+	projectDatabaseDumpCmd.Flags().Bool("zstd", false, "Zstd the whole dump")
 }
