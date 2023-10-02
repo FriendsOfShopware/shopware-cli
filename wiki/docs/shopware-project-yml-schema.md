@@ -7,7 +7,6 @@ Any configuration field is optional. When you create a `.shopware-project.yml`, 
 
 ```yaml
 # .shopware-project.yml
-
 # URL to Shopware instance, required for admin api calls (clear cache, sync stuff)
 url: 'http://localhost'
 admin_api:
@@ -86,6 +85,55 @@ sync:
           payload:
             name: 'Tax'
             taxRate: 19
+```
+
+## Advanced usage
+
+### Configuration inheritance
+
+You can extend another `.shopware-project.yml` file to reuse or override configurations. This is useful when you have multiple projects with the same configuration. You can also use this to create a base configuration for your stages or teams and extend it for your own needs.
+This also can be used to toggle specific plugin configurations for different stages e.g. enabling/disabling the Paypal sandbox mode depending on the environment.
+
+Parent `.shopware-project.yml`:
+
+```yaml
+url: 'http://localhost'
+admin_api:
+  # For integration use this both fields
+  client_id: 'client id'
+  client_secret: 'client secret'
+```
+
+Child `.shopware-project.dev.yml`:
+
+```yaml
+extends: 'path/to/parent/.shopware-project.yml'
+url: 'http://dev.localhost.test'
+sync:
+  config:
+    - settings:
+        SwagPayPal.settings.sandbox: true
+```
+
+Child `.shopware-project.prod.yml`:
+
+```yaml
+extends: 'path/to/parent/.shopware-project.yml'
+url: 'http://prod.localhost.test'
+sync:
+  config:
+    - settings:
+        SwagPayPal.settings.sandbox: false
+```
+
+You would apply them using the `--project-config` option:
+
+```bash
+# for development
+shopware-cli project --project-config='.shopware-project.dev.yml' config push
+
+# for production
+shopware-cli project --project-config='.shopware-project.prod.yml' config push
 ```
 
 ### Environment Variables
