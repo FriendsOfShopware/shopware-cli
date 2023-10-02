@@ -7,6 +7,7 @@ Any configuration field is optional. When you create a `.shopware-project.yml`, 
 
 ```yaml
 # .shopware-project.yml
+
 # URL to Shopware instance, required for admin api calls (clear cache, sync stuff)
 url: 'http://localhost'
 admin_api:
@@ -89,12 +90,12 @@ sync:
 
 ## Advanced usage
 
-### Configuration inheritance
+### Configuration includes
 
-You can extend another `.shopware-project.yml` file to reuse or override configurations. This is useful when you have multiple projects with the same configuration. You can also use this to create a base configuration for your stages or teams and extend it for your own needs.
+You can include one or more `.shopware-project.yml` files to reuse or override configurations. This is useful when you have multiple projects with the same configuration. You can also use this to create a base configuration for your stages or teams and extend it for your own needs.
 This also can be used to toggle specific plugin configurations for different stages e.g. enabling/disabling the Paypal sandbox mode depending on the environment.
 
-Parent `.shopware-project.yml`:
+Parent `.shopware-project.base.yml`:
 
 ```yaml
 url: 'http://localhost'
@@ -107,7 +108,8 @@ admin_api:
 Child `.shopware-project.dev.yml`:
 
 ```yaml
-extends: 'path/to/parent/.shopware-project.yml'
+include:
+  - '.shopware-project.base.yml'
 url: 'http://dev.localhost.test'
 sync:
   config:
@@ -118,7 +120,8 @@ sync:
 Child `.shopware-project.prod.yml`:
 
 ```yaml
-extends: 'path/to/parent/.shopware-project.yml'
+include:
+  - '.shopware-project.base.yml'
 url: 'http://prod.localhost.test'
 sync:
   config:

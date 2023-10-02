@@ -13,12 +13,12 @@ import (
 )
 
 type Config struct {
-	BaseConfig string          `yaml:"extends,omitempty"`
-	URL        string          `yaml:"url"`
-	Build      *ConfigBuild    `yaml:"build,omitempty"`
-	AdminApi   *ConfigAdminApi `yaml:"admin_api,omitempty"`
-	ConfigDump *ConfigDump     `yaml:"dump,omitempty"`
-	Sync       *ConfigSync     `yaml:"sync,omitempty"`
+	AdditionalConfigs []string        `yaml:"include,omitempty"`
+	URL               string          `yaml:"url"`
+	Build             *ConfigBuild    `yaml:"build,omitempty"`
+	AdminApi          *ConfigAdminApi `yaml:"admin_api,omitempty"`
+	ConfigDump        *ConfigDump     `yaml:"dump,omitempty"`
+	Sync              *ConfigSync     `yaml:"sync,omitempty"`
 }
 
 type ConfigBuild struct {
@@ -106,18 +106,20 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 	substitutedConfig := os.ExpandEnv(string(fileHandle))
 	err = yaml.Unmarshal([]byte(substitutedConfig), &config)
 
-	if config.BaseConfig != "" {
-		baseConfig, err := ReadConfig(config.BaseConfig, false)
-		if err != nil {
-			return nil, fmt.Errorf("error while reading base config: %s", err.Error())
-		}
+	if len(config.AdditionalConfigs) > 0 {
+		for _, additionalConfigFile := range config.AdditionalConfigs {
+			additionalConfig, err := ReadConfig(additionalConfigFile, allowFallback)
+			if err != nil {
+				return nil, fmt.Errorf("error while reading included config: %s", err.Error())
+			}
 
-		err = mergo.Merge(baseConfig, config, mergo.WithOverride)
-		if err != nil {
-			return nil, fmt.Errorf("error while merging base config: %s", err.Error())
-		}
+			err = mergo.Merge(additionalConfig, config, mergo.WithOverride, mergo.WithSliceDeepCopy)
+			if err != nil {
+				return nil, fmt.Errorf("error while merging included config: %s", err.Error())
+			}
 
-		config = baseConfig
+			config = additionalConfig
+		}
 	}
 
 	if err != nil {
