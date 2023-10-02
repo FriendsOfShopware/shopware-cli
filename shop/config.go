@@ -1,6 +1,7 @@
 package shop
 
 import (
+	"dario.cat/mergo"
 	"fmt"
 	"os"
 	"strings"
@@ -12,6 +13,7 @@ import (
 )
 
 type Config struct {
+	BaseConfig string          `yaml:"extends,omitempty"`
 	URL        string          `yaml:"url"`
 	Build      *ConfigBuild    `yaml:"build,omitempty"`
 	AdminApi   *ConfigAdminApi `yaml:"admin_api,omitempty"`
@@ -89,7 +91,7 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 			return fillEmptyConfig(config), nil
 		}
 
-		return nil, fmt.Errorf("cannot find .shopware-project.yml, use shopware-cli project config init to create one")
+		return nil, fmt.Errorf("cannot find configuration %s, use shopware-cli project config init to create one", fileName)
 	}
 
 	if err != nil {
@@ -103,6 +105,20 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 
 	substitutedConfig := os.ExpandEnv(string(fileHandle))
 	err = yaml.Unmarshal([]byte(substitutedConfig), &config)
+
+	if config.BaseConfig != "" {
+		baseConfig, err := ReadConfig(config.BaseConfig, false)
+		if err != nil {
+			return nil, fmt.Errorf("error while reading base config: %s", err.Error())
+		}
+
+		err = mergo.Merge(baseConfig, config, mergo.WithOverride)
+		if err != nil {
+			return nil, fmt.Errorf("error while merging base config: %s", err.Error())
+		}
+
+		config = baseConfig
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf("ReadConfig: %v", err)
