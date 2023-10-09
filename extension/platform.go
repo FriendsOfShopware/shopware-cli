@@ -1,22 +1,17 @@
 package extension
 
 import (
-	"archive/zip"
-	"bufio"
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"io/fs"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/phplint"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
@@ -253,64 +248,7 @@ func (p PlatformPlugin) Validate(c context.Context, ctx *ValidationContext) {
 	validatePHPFiles(c, ctx)
 }
 
-type phpSyntaxCheckerResult struct {
-	Errors []string `json:"errors"`
-}
-
 func validatePHPFiles(c context.Context, ctx *ValidationContext) {
-	var b bytes.Buffer
-	bufferW := bufio.NewWriter(&b)
-
-	phpZip := zip.NewWriter(bufferW)
-
-	_ = filepath.Walk(ctx.Extension.GetPath(), func(path string, info fs.FileInfo, err error) error {
-		name := filepath.Base(path)
-
-		if strings.HasSuffix(name, ".php") {
-			zipFile, err := phpZip.Create(strings.TrimPrefix(path, ctx.Extension.GetPath()))
-			if err != nil {
-				return err
-			}
-
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-
-			_, err = io.Copy(zipFile, file)
-
-			if err != nil {
-				return err
-			}
-
-			_ = file.Close()
-		}
-
-		return nil
-	})
-
-	_ = phpZip.Close()
-
-	_ = bufferW.Flush()
-
-	body := new(bytes.Buffer)
-	multipartWriter := multipart.NewWriter(body)
-
-	part, err := multipartWriter.CreateFormFile("file", "file.zip")
-	if err != nil {
-		ctx.AddError(fmt.Sprintf("Could not create form file: %s", err.Error()))
-		return
-	}
-
-	_, err = part.Write(b.Bytes())
-
-	if err != nil {
-		ctx.AddError(fmt.Sprintf("Could not write zip file to multipart form: %s", err.Error()))
-		return
-	}
-
-	_ = multipartWriter.Close()
-
 	constraint, err := ctx.Extension.GetShopwareVersionConstraint()
 	if err != nil {
 		ctx.AddError(fmt.Sprintf("Could not parse shopware version constraint: %s", err.Error()))
@@ -323,43 +261,14 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 		return
 	}
 
-	logging.FromContext(c).Infof("Using php version %s for syntax check with https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda", phpVersion)
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, fmt.Sprintf("https://php-syntax-checker.fos.gg/?version=%s", phpVersion), body)
+	errors, err := phplint.LintFolder(c, phpVersion, ctx.Extension.GetRootDir())
 	if err != nil {
-		ctx.AddWarning(fmt.Sprintf("Could not create request to validate php files: %s", err.Error()))
+		ctx.AddWarning(fmt.Sprintf("Could not lint php files: %s", err.Error()))
 		return
 	}
 
-	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		ctx.AddWarning(fmt.Sprintf("Could not validate php files: %s", err.Error()))
-		return
-	}
-
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			logging.FromContext(c).Errorf("validatePHPFiles: %v", err)
-		}
-	}()
-
-	if resp.StatusCode == http.StatusOK {
-		return
-	}
-
-	var result phpSyntaxCheckerResult
-
-	err = json.NewDecoder(resp.Body).Decode(&result)
-
-	if err != nil {
-		ctx.AddWarning(fmt.Sprintf("cannot decode php syntax checker response: %s", err.Error()))
-		return
-	}
-
-	for _, error := range result.Errors {
-		ctx.AddError(error)
+	for _, error := range errors {
+		ctx.AddError(fmt.Sprintf("%s: %s", error.File, error.Message))
 	}
 }
 
