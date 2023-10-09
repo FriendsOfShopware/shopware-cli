@@ -2,7 +2,6 @@ package phplint
 
 import (
 	"context"
-	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
