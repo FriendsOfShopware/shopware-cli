@@ -2,6 +2,7 @@ package phplint
 
 import (
 	"context"
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -45,7 +46,7 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 		return nil
 	})
 
-	errors := make(chan *LintError, len(paths))
+	errorsChain := make(chan *LintError, len(paths))
 
 	for _, file := range paths {
 		go func(file string) {
@@ -60,20 +61,20 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 
 			if _, err := runtime.InstantiateModule(ctx, wasmCompiled, config); err != nil {
 				if exitErr, ok := err.(*sys.ExitError); ok && exitErr.ExitCode() != 0 {
-					errors <- &LintError{
+					errorsChain <- &LintError{
 						File:    file,
 						Message: stderr.String(),
 					}
 				} else if !ok {
-					errors <- &LintError{
+					errorsChain <- &LintError{
 						File:    file,
 						Message: err.Error(),
 					}
 				} else {
-					errors <- nil
+					errorsChain <- nil
 				}
 			} else {
-				errors <- nil
+				errorsChain <- nil
 			}
 		}(file)
 	}
@@ -81,7 +82,7 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 	listOfErrors := make(LintErrors, 0)
 
 	for i := 0; i < len(paths); i++ {
-		err := <-errors
+		err := <-errorsChain
 		if err != nil {
 			listOfErrors = append(listOfErrors, *err)
 		}

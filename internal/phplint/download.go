@@ -44,7 +44,9 @@ func findPHPWasmFile(ctx context.Context, phpVersion string) ([]byte, error) {
 	}
 
 	if _, err := os.Stat(path.Dir(expectedPathLocation)); os.IsNotExist(err) {
-		os.MkdirAll(path.Dir(expectedPathLocation), os.ModePerm)
+		if err := os.MkdirAll(path.Dir(expectedPathLocation), os.ModePerm); err != nil {
+			return nil, fmt.Errorf("cannot create directory %s: %v", path.Dir(expectedPathLocation), err)
+		}
 	}
 
 	data, err := io.ReadAll(resp.Body)
