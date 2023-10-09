@@ -5,7 +5,7 @@ weight: 20
 
 ## shopware-cli extension validate
 
-Validate extension for store compliance. The PHP code will be sent to an [external service](https://github.com/FriendsOfShopware/aws-php-syntax-checker-lambda) to verify the PHP syntax.
+Validate extension for store compliance. Supported PHP Versions are: 7.3, 7.4, 8.1, 8.2
 
 Parameters:
 
