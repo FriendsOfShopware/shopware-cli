@@ -95,6 +95,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
+github.com/tetratelabs/wazero v1.5.0 h1:Yz3fZHivfDiZFUXnWMPUoiW7s8tC1sjdBtlJn08qYa0=
+github.com/tetratelabs/wazero v1.5.0/go.mod h1:0U0G41+ochRKoPKCJlh0jMg1CHkyfK8kDqiirMmKY8A=
 github.com/vulcand/oxy/v2 v2.0.0 h1:V+scHhd2xBjO8ojBRgxCM+OdZxRA/YTs8M70w5tdNy8=
 github.com/vulcand/oxy/v2 v2.0.0/go.mod h1:uIAz3sYafO7i+V3SC8oDlMn/lt1i9aWcyXuXqVswKzE=
 github.com/yuin/goldmark v1.5.6 h1:COmQAWTCcGetChm3Ig7G/t8AFAN00t+o8Mt4cf7JpwA=
