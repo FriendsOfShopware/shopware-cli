@@ -261,13 +261,13 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 		return
 	}
 
-	errors, err := phplint.LintFolder(c, phpVersion, ctx.Extension.GetRootDir())
+	phpErrors, err := phplint.LintFolder(c, phpVersion, ctx.Extension.GetRootDir())
 	if err != nil {
 		ctx.AddWarning(fmt.Sprintf("Could not lint php files: %s", err.Error()))
 		return
 	}
 
-	for _, error := range errors {
+	for _, error := range phpErrors {
 		ctx.AddError(fmt.Sprintf("%s: %s", error.File, error.Message))
 	}
 }
