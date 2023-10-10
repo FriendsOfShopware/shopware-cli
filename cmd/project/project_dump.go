@@ -164,7 +164,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		}
 
 		if zstdEnabled {
-			output += ".zstd"
+			output += ".zst"
 		}
 
 		var w io.Writer
