@@ -261,6 +261,11 @@ func validatePHPFiles(c context.Context, ctx *ValidationContext) {
 		return
 	}
 
+	if phpVersion == "7.2" {
+		phpVersion = "7.3"
+		logging.FromContext(c).Infof("PHP 7.2 is not supported for PHP linting, using 7.3 now")
+	}
+
 	phpErrors, err := phplint.LintFolder(c, phpVersion, ctx.Extension.GetRootDir())
 	if err != nil {
 		ctx.AddWarning(fmt.Sprintf("Could not lint php files: %s", err.Error()))
