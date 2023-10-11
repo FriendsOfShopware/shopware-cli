@@ -19,6 +19,7 @@ require (
 	github.com/sashabaranov/go-openai v1.15.4
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
+	github.com/tetratelabs/wazero v1.5.0
 	github.com/vulcand/oxy/v2 v2.0.0
 	github.com/yuin/goldmark v1.5.6
 	go.uber.org/zap v1.26.0
@@ -28,7 +29,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/tetratelabs/wazero v1.5.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 )
 
@@ -47,7 +47,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.16.0
+	golang.org/x/net v0.17.0
 	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
