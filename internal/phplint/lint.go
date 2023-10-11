@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/tetratelabs/wazero"
@@ -24,12 +25,14 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 		return nil, err
 	}
 
-	runtime, err := getWazeroRuntime(ctx)
+	wasmRuntime, err := getWazeroRuntime(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	wasmCompiled, _ := runtime.CompileModule(ctx, wasmFile)
+	defer wasmRuntime.Close(ctx)
+
+	wasmCompiled, _ := wasmRuntime.CompileModule(ctx, wasmFile)
 
 	dirFs := os.DirFS(folder)
 
@@ -47,6 +50,8 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 
 	errorsChain := make(chan *LintError, len(paths))
 
+	runtime.GOMAXPROCS(2)
+
 	for _, file := range paths {
 		go func(file string) {
 			file, _ = filepath.Rel(folder, file)
@@ -58,7 +63,7 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 				WithArgs("php", "-l", file).
 				WithFS(dirFs)
 
-			if _, err := runtime.InstantiateModule(ctx, wasmCompiled, config); err != nil {
+			if wasmModule, err := wasmRuntime.InstantiateModule(ctx, wasmCompiled, config); err != nil {
 				if exitErr, ok := err.(*sys.ExitError); ok && exitErr.ExitCode() != 0 {
 					errorsChain <- &LintError{
 						File:    file,
@@ -72,7 +77,12 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 				} else {
 					errorsChain <- nil
 				}
+
+				if wasmModule != nil {
+					wasmModule.Close(ctx)
+				}
 			} else {
+				wasmModule.Close(ctx)
 				errorsChain <- nil
 			}
 		}(file)
