@@ -13,10 +13,10 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/schema v1.2.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/microcosm-cc/bluemonday v1.0.25
+	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.15.4
+	github.com/sashabaranov/go-openai v1.16.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tetratelabs/wazero v1.5.0
@@ -42,7 +42,7 @@ require (
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jaswdr/faker v1.19.0 // indirect
-	github.com/klauspost/compress v1.17.0
+	github.com/klauspost/compress v1.17.1
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
