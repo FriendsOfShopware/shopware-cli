@@ -366,7 +366,7 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 		Views: []string{
 			"Resources/views",
 		},
-		TechnicalName: strings.ReplaceAll(ToSnakeCase(entryPointName), "_", "-"),
+		TechnicalName: esbuild.ToKebabCase(entryPointName),
 		Administration: ExtensionAssetConfigAdmin{
 			Path:          "Resources/app/administration/src",
 			EntryFilePath: entryFilePathAdmin,

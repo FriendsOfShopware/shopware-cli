@@ -93,7 +93,7 @@ func Context(ctx context.Context, options AssetCompileOptions) (api.BuildContext
 }
 
 func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*AssetCompileResult, error) {
-	technicalName := strings.ReplaceAll(toSnakeCase(options.Name), "_", "-")
+	technicalName := ToKebabCase(options.Name)
 	jsFile := filepath.Join(options.Path, options.OutputDir, "js", technicalName+".js")
 	cssFile := filepath.Join(options.Path, options.OutputDir, "css", technicalName+".css")
 
