@@ -11,7 +11,7 @@ import (
 )
 
 var extensionChangelogCmd = &cobra.Command{
-	Use:   "changelog [path]",
+	Use:   "get-changelog [path]",
 	Short: "Get the changelog",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
