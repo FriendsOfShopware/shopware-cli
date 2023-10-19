@@ -456,6 +456,8 @@ func PrepareExtensionForRelease(ctx context.Context, sourceRoot, extensionRoot s
 	if ext.GetExtensionConfig().Changelog.Enabled {
 		v, _ := ext.GetVersion()
 
+		logging.FromContext(ctx).Infof("Generated changelog for version %s", v.String())
+
 		content, err := changelog.GenerateChangelog(ctx, sourceRoot, ext.GetExtensionConfig().Changelog)
 		if err != nil {
 			return err
