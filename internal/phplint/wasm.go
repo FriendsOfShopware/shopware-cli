@@ -4,12 +4,13 @@ import (
 	"context"
 	"path"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/system"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
 
 func getWazeroRuntime(ctx context.Context) (wazero.Runtime, error) {
-	cache, err := wazero.NewCompilationCacheWithDir(path.Join(getShopwareCliCacheDir(), "wasm", "cache"))
+	cache, err := wazero.NewCompilationCacheWithDir(path.Join(system.GetShopwareCliCacheDir(), "wasm", "cache"))
 	if err != nil {
 		return nil, err
 	}

@@ -8,22 +8,20 @@ import (
 	"os"
 	"path"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/system"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-func getShopwareCliCacheDir() string {
-	cacheDir, _ := os.UserCacheDir()
-
-	return path.Join(cacheDir, "shopware-cli")
-}
-
 func findPHPWasmFile(ctx context.Context, phpVersion string) ([]byte, error) {
 	expectedFile := "php-" + phpVersion + ".wasm"
-	expectedPathLocation := path.Join(getShopwareCliCacheDir(), "wasm", "php", expectedFile)
+	expectedPathLocation := path.Join(system.GetShopwareCliCacheDir(), "wasm", "php", expectedFile)
 
 	if _, err := os.Stat(expectedPathLocation); err == nil {
+		logging.FromContext(ctx).Infof("Using existing PHP %s wasm build from %s", phpVersion, expectedPathLocation)
 		return os.ReadFile(expectedPathLocation)
 	}
+
+	logging.FromContext(ctx).Infof("Downloading PHP %s wasm build", phpVersion)
 
 	downloadUrl := "https://github.com/FriendsOfShopware/php-cli-wasm-binaries/releases/download/1.0.0/" + expectedFile
 

@@ -10,14 +10,16 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/system"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-const dartSassVersion = "1.67.0"
+const dartSassVersion = "1.69.4"
 
 //go:embed static/variables.scss
 var scssVariables []byte
@@ -30,14 +32,9 @@ func downloadDartSass(ctx context.Context) (string, error) {
 		return path, nil
 	}
 
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		cacheDir = "/tmp"
-	}
+	cacheDir := path.Join(system.GetShopwareCliCacheDir(), "dart-sass", dartSassVersion)
 
-	cacheDir += "/dart-sass-" + dartSassVersion
-
-	expectedPath := fmt.Sprintf("%s/sass", cacheDir)
+	expectedPath := path.Join(cacheDir, "sass")
 
 	if _, err := os.Stat(expectedPath); err == nil {
 		return expectedPath, nil
