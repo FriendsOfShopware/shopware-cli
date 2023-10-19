@@ -2,305 +2,162 @@
  title: 'Schema of .shopware-extension.yml' 
 ---
 
-# Objects
-* [`.shopware-extension.yml`](#reference-config) (root object)
-* [`build`](#reference-build)
-* [`store`](#reference-store)
-* [`StoreInfoFaqQuestion`](#reference-storeinfofaqquestion)
-
-
----------------------------------------
-<a name="reference-config"></a>
-## .shopware-extension.yml
-
-**`.shopware-extension.yml` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**build**|`Build`||No|
-|**store**|`Store`||No|
-
-Additional properties are not allowed.
-
-### Config.build
-
-* **Type**: `Build`
-* **Required**: No
-
-### Config.store
-
-* **Type**: `Store`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-build"></a>
-## build
-
-**`build` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**extraBundles**|`object` `[]`||No|
-|**zip**|`object`||No|
-
-Additional properties are not allowed.
-
-### Build.extraBundles
-
-* **Type**: `object` `[]`
-* **Required**: No
-
-### Build.zip
-
-* **Type**: `object`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-shopware-cli"></a>
-## shopware-cli
-
-shopware cli extension configuration definition file
-
-
-
----------------------------------------
-<a name="reference-store"></a>
-## store
-
-**`store` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**icon**|`string`|Specifies the Path to the icon (128x128 px) for store.|No|
-|**availabilities**|`string` `[]`|Specifies the visibility in stores.|No|
-|**localizations**|`string` `[]`|Specifies the languages the extension is translated.|No|
-|**categories**|`string` `[*-2]`|Specifies the categories in which the extension can be found.|No|
-|**default_locale**|`string`||No|
-|**type**|`string`|Specifies the type of this extension.|No|
-|**automatic_bugfix_version_compatibility**|`boolean`|Specifies whether the extension should automatically be set compatible with Shopware bugfix versions.|No|
-|**videos**|`object`|Specifies the links of YouTube-Videos to show or describe the extension.|No|
-|**tags**|`object`|Specifies the tags of the extension.|No|
-|**highlights**|`object`|Specifies the highlights of the extension.|No|
-|**features**|`object`|Specifies the features of the extension.|No|
-|**faq**|`object`|Specifies Frequently Asked Questions for the extension.|No|
-|**description**|`object`|Specifies the description of the extension in store.|No|
-|**installation_manual**|`object`|Installation manual of the extension in store.|No|
-|**images**|`object` `[1-*]`|Specifies images for the extension in the store.|No|
-
-Additional properties are not allowed.
-
-### Store.icon
-
-Specifies the Path to the icon (128x128 px) for store.
-
-* **Type**: `string`
-* **Required**: No
-
-### Store.availabilities
-
-Specifies the visibility in stores.
-
-* **Type**: `string` `[]`
-    * Each element in the array must be unique.
-    * Each element in the array must be one of the following values:
-        * `German`
-        * `International`
-* **Required**: No
-
-### Store.localizations
-
-Specifies the languages the extension is translated.
-
-* **Type**: `string` `[]`
-    * Each element in the array must be unique.
-    * Each element in the array must be one of the following values:
-        * `de_DE`
-        * `en_GB`
-        * `es_ES`
-        * `fi_FI`
-        * `fr_FR`
-        * `it_IT`
-        * `nb_NO`
-        * `nl_NL`
-        * `pl_PL`
-        * `sv_SE`
-        * `bg_BG`
-        * `cs_CZ`
-        * `pt_PT`
-        * `hy`
-        * `de_CH`
-        * `tr`
-        * `da_DK`
-        * `ru_RU`
-* **Required**: No
-
-### Store.categories
-
-Specifies the categories in which the extension can be found.
-
-* **Type**: `string` `[*-2]`
-    * Each element in the array must be unique.
-    * Each element in the array must be one of the following values:
-        * `Administration`
-        * `BackendBearbeitung`
-        * `System`
-        * `SEOOptimierung`
-        * `Bonitaetsprüfung`
-        * `Rechtssicherheit`
-        * `MobileAdministration`
-        * `Auswertung`
-        * `KommentarFeedback`
-        * `Tracking`
-        * `MobileAuswertung`
-        * `Integration`
-        * `Shopsystem`
-        * `PreissuchmaschinenPortale`
-        * `Warenwirtschaft`
-        * `Versand`
-        * `Bezahlung`
-        * `StorefrontDetailanpassungen`
-        * `Sprache`
-        * `Suche`
-        * `HeaderFooter`
-        * `Produktdarstellung`
-        * `UebergreifendeDarstellung`
-        * `Detailseite`
-        * `MenueKategorien`
-        * `Bestellprozess`
-        * `KundenkontoPersonalisierung`
-        * `IconsButons`
-        * `Schriftarten`
-        * `WidgetsSnippets`
-        * `Sonderfunktionen`
-        * `Themes`
-        * `Branche`
-        * `Home+Furnishings`
-        * `FashionBekleidung`
-        * `GartenNatur`
-        * `KosmetikGesundheit`
-        * `EssenTrinken`
-        * `KinderPartyGeschenke`
-        * `SportLifestyleReisen`
-        * `TechnikIT`
-        * `IndustrieGroßhandel`
-        * `MigrationTools`
-        * `Einkaufswelten`
-        * `ConversionOptimierung`
-        * `Extensions`
-        * `MarketingTools`
-        * `B2BExtensions`
-        * `Blog`
-* **Required**: No
-
-### Store.default_locale
-
-* **Type**: `string`
-* **Required**: No
-* **Allowed values**:
-    * `"en_GB"`
-    * `"de_DE"`
-
-### Store.type
-
-Specifies the type of this extension.
-
-* **Type**: `string`
-* **Required**: No
-* **Allowed values**:
-    * `"extension"`
-    * `"theme"`
-
-### Store.automatic_bugfix_version_compatibility
-
-Specifies whether the extension should automatically be set compatible with Shopware bugfix versions.
-
-* **Type**: `boolean`
-* **Required**: No
-
-### Store.videos
-
-Specifies the links of YouTube-Videos to show or describe the extension.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.tags
-
-Specifies the tags of the extension.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.highlights
-
-Specifies the highlights of the extension.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.features
-
-Specifies the features of the extension.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.faq
-
-Specifies Frequently Asked Questions for the extension.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.description
-
-Specifies the description of the extension in store.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.installation_manual
-
-Installation manual of the extension in store.
-
-* **Type**: `object`
-* **Required**: No
-
-### Store.images
-
-Specifies images for the extension in the store.
-
-* **Type**: `object` `[1-*]`
-* **Required**: No
-
-
-
-
----------------------------------------
-<a name="reference-storeinfofaqquestion"></a>
-## StoreInfoFaqQuestion
-
-**`StoreInfoFaqQuestion` Properties**
-
-|   |Type|Description|Required|
-|---|---|---|---|
-|**question**|`string`|| &#10003; Yes|
-|**answer**|`string`|| &#10003; Yes|
-
-Additional properties are not allowed.
-
-### StoreInfoFaqQuestion.question
-
-* **Type**: `string`
-* **Required**:  &#10003; Yes
-
-### StoreInfoFaqQuestion.answer
-
-* **Type**: `string`
-* **Required**:  &#10003; Yes
+Any configuration field is optional. When you create a `.shopware-extension.yml`, you get also IDE autocompletion for all fields.
+
+
+```yaml
+# .shopware-project.yml
+build:
+    # override the auto detection of the shopware constraint
+    shopwareVersionConstraint: `~6.5.0`
+
+    # build additional bundles for assets
+    extraBundles:
+        # when only path passed the folder name will be used as bundle name
+        - path: MySecondBundle
+        # or specify it explicitly
+        - name: DifferentName
+          path: Bundle
+    zip:
+        composer:
+            # disable composer install, enabled by default
+            enabled: true
+
+            # run commands before composer install or after
+            before_hooks:
+                - echo "Before"
+            after_hooks:
+                - echo "After"
+
+            # exclude packages from installing into the vendor folder of the plugin
+            excluded_packages:
+                - symfony/filesystem
+        assets:
+            # disable building assets, builds by default
+            enabled: true
+
+            # run commands before asset building or after
+            before_hooks:
+                - echo "Before"
+            after_hooks:
+                - echo "After"
+
+            # use bundled esbuild instead of default compile
+            enable_es_build_for_admin: false
+
+            # use bundled esbuild instead of default compile
+            enable_es_build_for_storefront: false
+
+        pack:
+            # run commands before packing the zip
+            before_hooks:
+                - echo "Before"
+
+            # paths to skip for zipping
+            excludes:
+                - .idea
+
+store:
+    # override default icon path
+    icon: icon.png
+
+    # store availabilities
+    availabilities:
+        - German
+        - International
+
+    # store localizations, see json schema for all names
+    localizations:
+        - de_DE
+        - en_GB
+
+    # default locale
+    default_locale: en_GB
+
+    # store category, see json schema for all names
+    categories:
+        - Administration
+
+    # type: extension or theme
+    type: extension
+
+    # auto mark patch versions as compatible
+    automatic_bugfix_version_compatibility: true
+
+    videos:
+        en:
+            - https://yotuube.com/...
+        de:
+            - ....
+
+    tags:
+        en:
+            - tag
+        de:
+            - ...
+
+    highlights:
+        en:
+            - tag
+        de:
+            - ...
+
+    features:
+        en:
+            - tag
+        de:
+            - ...
+
+    faq:
+        - question: Can do the extension this ?
+          answer: Yes, we can ....
+
+
+    description:
+        # inline
+        en: |
+            Write inline
+        # embedd an html or markdown file
+        de: file:src/Resources/store/description.md
+
+    installation_manual:
+        # inline
+        en: |
+            Write inline
+        # embedd an html or markdown file
+        de: file:src/Resources/store/manual.md
+
+    images:
+        - file: src/Resources/store/images/1.png
+          # toggle visibility in that language
+          activate:
+            en: true
+            de: true
+          # preview image in that language
+          preview:
+            en: true
+            de: true
+          # sorting of the images
+          priority: 1
+
+changelog:
+    # enable automatic changelog generation
+    enabled: false
+
+    # use openai to generate a better changelog based on commit messages. Requires OPENAI_TOKEN set
+    ai_enabled: false
+
+    # limit with regex which commits should be considered
+    pattern: ''
+
+    # allows to override the changelog generation template
+    template: |
+        {{range .Commits}}- [{{ .Message }}]({{ $.Config.VCSURL }}/{{ .Hash }})
+        {{end}}
+
+    # Allows to write RegEx groups into variables which can be used in the template
+    variables:
+        # extract the ticket number into variable.
+        # can be then used in the template with {{ .Variables.ticket }}
+        ticket: ^(NEXT-[0-9]+)
+```
