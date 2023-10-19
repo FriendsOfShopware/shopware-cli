@@ -6,7 +6,7 @@ Any configuration field is optional. When you create a `.shopware-extension.yml`
 
 
 ```yaml
-# .shopware-project.yml
+# .shopware-extension.yml
 build:
     # override the auto detection of the shopware constraint
     shopwareVersionConstraint: `~6.5.0`
