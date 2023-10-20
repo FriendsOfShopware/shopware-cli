@@ -55,7 +55,8 @@ build:
 
             # paths to skip for zipping
             excludes:
-                - .idea
+                paths:
+                    - .idea
 
 store:
     # override default icon path
