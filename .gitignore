@@ -11,6 +11,7 @@ dist/
 /*.zip
 /FroshTools
 /result
+/project
 dump.sql*
 
 # Devenv

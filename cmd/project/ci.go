@@ -74,12 +74,13 @@ var projectCI = &cobra.Command{
 		}
 
 		assetCfg := extension.AssetBuildConfig{
-			EnableESBuildForAdmin:      false,
-			EnableESBuildForStorefront: false,
-			CleanupNodeModules:         true,
-			ShopwareRoot:               args[0],
-			ShopwareVersion:            constraint,
-			Browserslist:               shopCfg.Build.Browserslist,
+			EnableESBuildForAdmin:        false,
+			EnableESBuildForStorefront:   false,
+			CleanupNodeModules:           true,
+			ShopwareRoot:                 args[0],
+			ShopwareVersion:              constraint,
+			Browserslist:                 shopCfg.Build.Browserslist,
+			SkipExtensionsWithBuildFiles: true,
 		}
 
 		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {
