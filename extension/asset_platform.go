@@ -27,18 +27,19 @@ const (
 )
 
 type AssetBuildConfig struct {
-	EnableESBuildForAdmin      bool
-	EnableESBuildForStorefront bool
-	CleanupNodeModules         bool
-	DisableAdminBuild          bool
-	DisableStorefrontBuild     bool
-	ShopwareRoot               string
-	ShopwareVersion            *version.Constraints
-	Browserslist               string
+	EnableESBuildForAdmin        bool
+	EnableESBuildForStorefront   bool
+	CleanupNodeModules           bool
+	DisableAdminBuild            bool
+	DisableStorefrontBuild       bool
+	ShopwareRoot                 string
+	ShopwareVersion              *version.Constraints
+	Browserslist                 string
+	SkipExtensionsWithBuildFiles bool
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
-	cfgs := buildAssetConfigFromExtensions(sources, assetConfig.ShopwareRoot)
+	cfgs := buildAssetConfigFromExtensions(ctx, sources, assetConfig)
 
 	if len(cfgs) == 1 {
 		return nil
@@ -276,7 +277,7 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(sources []asset.Source, shopwareRoot string) ExtensionAssetConfig {
+func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source, assetCfg AssetBuildConfig) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, source := range sources {
@@ -290,15 +291,29 @@ func buildAssetConfigFromExtensions(sources []asset.Source, shopwareRoot string)
 			continue
 		}
 
-		list[source.Name] = createConfigFromPath(source.Name, source.Path)
+		sourceConfig := createConfigFromPath(source.Name, source.Path)
+
+		if assetCfg.SkipExtensionsWithBuildFiles {
+			expectedAdminCompiledFile := path.Join(source.Path, "Resources", "public", "administration", "js", esbuild.ToKebabCase(source.Name)+".js")
+
+			if _, err := os.Stat(expectedAdminCompiledFile); err == nil {
+				// clear out the entrypoint, so the admin does not build it
+				sourceConfig.Administration.EntryFilePath = nil
+				sourceConfig.Administration.Webpack = nil
+
+				logging.FromContext(ctx).Infof("Skipping building administration assets for \"%s\" as compiled files are present", source.Name)
+			}
+		}
+
+		list[source.Name] = sourceConfig
 	}
 
 	var basePath string
-	if shopwareRoot == "" {
+	if assetCfg.ShopwareRoot == "" {
 		basePath = "src/Storefront/"
 	} else {
 		basePath = strings.TrimLeft(
-			strings.Replace(PlatformPath(shopwareRoot, "Storefront", ""), shopwareRoot, "", 1),
+			strings.Replace(PlatformPath(assetCfg.ShopwareRoot, "Storefront", ""), assetCfg.ShopwareRoot, "", 1),
 			"/",
 		) + "/"
 	}

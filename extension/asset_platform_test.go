@@ -26,7 +26,7 @@ func TestGenerateConfigWithAdminAndStorefrontFiles(t *testing.T) {
 	assert.NoError(t, os.MkdirAll(path.Join(dir, "Resources", "app", "storefront", "src"), os.ModePerm))
 	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "src", "main.js"), []byte("test"), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]asset.Source{{Name: "FroshTools", Path: dir}}, "")
+	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{{Name: "FroshTools", Path: dir}}, AssetBuildConfig{})
 
 	assert.True(t, config.Has("FroshTools"))
 	assert.True(t, config.RequiresAdminBuild())
@@ -56,7 +56,7 @@ func TestGenerateConfigWithTypeScript(t *testing.T) {
 	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "src", "main.ts"), []byte("test"), os.ModePerm))
 	assert.NoError(t, os.WriteFile(path.Join(dir, "Resources", "app", "storefront", "build", "webpack.config.js"), []byte("test"), os.ModePerm))
 
-	config := buildAssetConfigFromExtensions([]asset.Source{{Name: "FroshTools", Path: dir}}, "")
+	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{{Name: "FroshTools", Path: dir}}, AssetBuildConfig{})
 
 	assert.True(t, config.Has("FroshTools"))
 	assert.True(t, config.RequiresAdminBuild())
@@ -71,7 +71,7 @@ func TestGenerateConfigWithTypeScript(t *testing.T) {
 }
 
 func TestGenerateConfigAddsStorefrontAlwaysAsEntrypoint(t *testing.T) {
-	config := buildAssetConfigFromExtensions([]asset.Source{}, "")
+	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{}, AssetBuildConfig{})
 
 	assert.False(t, config.RequiresStorefrontBuild())
 	assert.False(t, config.RequiresAdminBuild())
@@ -80,7 +80,7 @@ func TestGenerateConfigAddsStorefrontAlwaysAsEntrypoint(t *testing.T) {
 func TestGenerateConfigDoesNotAddExtensionWithoutConfig(t *testing.T) {
 	dir := t.TempDir()
 
-	config := buildAssetConfigFromExtensions([]asset.Source{{Name: "FroshApp", Path: dir}}, "")
+	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{{Name: "FroshApp", Path: dir}}, AssetBuildConfig{})
 
 	assert.False(t, config.Has("FroshApp"))
 }
@@ -88,7 +88,7 @@ func TestGenerateConfigDoesNotAddExtensionWithoutConfig(t *testing.T) {
 func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
 	dir := t.TempDir()
 
-	config := buildAssetConfigFromExtensions([]asset.Source{{Name: "", Path: dir}}, "")
+	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{{Name: "", Path: dir}}, AssetBuildConfig{})
 
 	assert.Len(t, config, 1)
 }
