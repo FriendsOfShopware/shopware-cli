@@ -22,6 +22,8 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
+const schemeHostSeparator = "://"
+
 var (
 	hostRegExp              = regexp.MustCompile(`(?m)host:\s'.*,`)
 	portRegExp              = regexp.MustCompile(`(?m)port:\s.*,`)
@@ -147,9 +149,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 				bodyStr = hostRegExp.ReplaceAllString(bodyStr, "host: '"+browserUrl.Host+"',")
 				bodyStr = portRegExp.ReplaceAllString(bodyStr, "port: "+browserPort+",")
 				bodyStr = schemeRegExp.ReplaceAllString(bodyStr, "scheme: '"+browserUrl.Scheme+"',")
-				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: '"+browserUrl.Scheme+"://"+browserUrl.Host+"',")
-				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: '"+browserUrl.Scheme+"://"+browserUrl.Host+targetShopUrl.Path+"/admin',")
-				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: '"+browserUrl.Scheme+"://"+browserUrl.Host+targetShopUrl.Path+"'")
+				bodyStr = schemeAndHttpHostRegExp.ReplaceAllString(bodyStr, "schemeAndHttpHost: '"+browserUrl.Scheme+schemeHostSeparator+browserUrl.Host+"',")
+				bodyStr = uriRegExp.ReplaceAllString(bodyStr, "uri: '"+browserUrl.Scheme+schemeHostSeparator+browserUrl.Host+targetShopUrl.Path+"/admin',")
+				bodyStr = assetPathRegExp.ReplaceAllString(bodyStr, "assetPath: '"+browserUrl.Scheme+schemeHostSeparator+browserUrl.Host+targetShopUrl.Path+"'")
 
 				bodyStr = assetRegExp.ReplaceAllStringFunc(bodyStr, func(s string) string {
 					firstPart := ""
@@ -194,7 +196,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			if req.URL.Path == targetShopUrl.Path+"/api/_info/config" {
 				logging.FromContext(cmd.Context()).Debugf("intercept plugins call")
 
-				proxyReq, _ := http.NewRequest("GET", targetShopUrl.Scheme+"://"+targetShopUrl.Host+req.URL.Path, nil)
+				proxyReq, _ := http.NewRequest("GET", targetShopUrl.Scheme+schemeHostSeparator+targetShopUrl.Host+req.URL.Path, nil)
 
 				proxyReq.Header.Set("Authorization", req.Header.Get("Authorization"))
 
