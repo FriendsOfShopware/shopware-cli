@@ -1,0 +1,3 @@
+*.tpl eol=lf
+*.go eol=lf
+*.json eol=lf
