@@ -66,9 +66,18 @@ func FindAssetSourcesOfProject(ctx context.Context, project string) []asset.Sour
 
 		logging.FromContext(ctx).Infof("Found bundle in project: %s (path: %s)", name, bundlePath)
 
+		bundleConfig, err := readExtensionConfig(bundlePath)
+
+		if err != nil {
+			logging.FromContext(ctx).Errorf("Cannot read bundle config: %s", err.Error())
+			continue
+		}
+
 		sources = append(sources, asset.Source{
-			Name: name,
-			Path: path.Join(project, bundlePath),
+			Name:                        name,
+			Path:                        path.Join(project, bundlePath),
+			AdminEsbuildCompatible:      bundleConfig.Build.Zip.Assets.EnableESBuildForAdmin,
+			StorefrontEsbuildCompatible: bundleConfig.Build.Zip.Assets.EnableESBuildForStorefront,
 		})
 	}
 
