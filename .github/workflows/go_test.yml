@@ -1,4 +1,4 @@
-name: Run tests
+name: Tests
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: Tests on ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
