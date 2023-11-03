@@ -43,6 +43,34 @@ func TestESBuildAdmin(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestESBuildAdminWithSCSS(t *testing.T) {
+	dir := t.TempDir()
+
+	adminDir := path.Join(dir, "Resources", "app", "administration", "src")
+	_ = os.MkdirAll(adminDir, os.ModePerm)
+
+	_ = os.WriteFile(path.Join(adminDir, "main.js"), []byte("import './a.scss'"), os.ModePerm)
+	_ = os.WriteFile(path.Join(adminDir, "a.scss"), []byte(".a { .b { color: red } }"), os.ModePerm)
+
+	options := NewAssetCompileOptionsAdmin("Bla", dir)
+	_, err := CompileExtensionAsset(getTestContext(), options)
+
+	assert.NoError(t, err)
+
+	compiledFilePathJS := path.Join(dir, "Resources", "public", "administration", "js", "bla.js")
+	_, err = os.Stat(compiledFilePathJS)
+	assert.NoError(t, err)
+
+	compiledFilePathCSS := path.Join(dir, "Resources", "public", "administration", "css", "bla.css")
+	_, err = os.Stat(compiledFilePathCSS)
+	assert.NoError(t, err)
+
+	bytes, err := os.ReadFile(compiledFilePathCSS)
+	assert.NoError(t, err)
+
+	assert.Contains(t, string(bytes), ".a .b")
+}
+
 func TestESBuildAdminTypeScript(t *testing.T) {
 	dir := t.TempDir()
 

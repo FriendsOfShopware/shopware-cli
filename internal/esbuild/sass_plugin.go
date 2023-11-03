@@ -16,32 +16,24 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 	return api.Plugin{
 		Name: "scss",
 		Setup: func(build api.PluginBuild) {
-			setupDone := false
+			dartSassBinary, err := locateDartSass(ctx)
+			if err != nil {
+				logging.FromContext(ctx).Fatalln(err)
+			}
+
+			logging.FromContext(ctx).Infof("Using dart-sass binary %s", dartSassBinary)
+
+			start, err := godartsass.Start(godartsass.Options{
+				DartSassEmbeddedFilename: dartSassBinary,
+				Timeout:                  0,
+				LogEventHandler:          nil,
+			})
+			if err != nil {
+				logging.FromContext(ctx).Fatalln(err)
+			}
 
 			build.OnLoad(api.OnLoadOptions{Filter: `\.scss`},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					var start *godartsass.Transpiler
-
-					if !setupDone {
-						dartSassBinary, err := downloadDartSass(ctx)
-						if err != nil {
-							logging.FromContext(ctx).Fatalln(err)
-						}
-
-						logging.FromContext(ctx).Infof("Using dart-sass binary %s", dartSassBinary)
-
-						start, err = godartsass.Start(godartsass.Options{
-							DartSassEmbeddedFilename: dartSassBinary,
-							Timeout:                  0,
-							LogEventHandler:          nil,
-						})
-						if err != nil {
-							logging.FromContext(ctx).Fatalln(err)
-						}
-
-						setupDone = true
-					}
-
 					content, err := os.ReadFile(args.Path)
 					if err != nil {
 						return api.OnLoadResult{}, err
