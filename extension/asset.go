@@ -20,8 +20,10 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 		}
 
 		sources = append(sources, asset.Source{
-			Name: name,
-			Path: ext.GetRootDir(),
+			Name:                        name,
+			Path:                        ext.GetRootDir(),
+			AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
+			StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
 		})
 
 		extConfig := ext.GetExtensionConfig()
@@ -35,8 +37,10 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 				}
 
 				sources = append(sources, asset.Source{
-					Name: bundleName,
-					Path: path.Join(ext.GetRootDir(), bundle.Path),
+					Name:                        bundleName,
+					Path:                        path.Join(ext.GetRootDir(), bundle.Path),
+					AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
+					StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
 				})
 			}
 		}

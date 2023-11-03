@@ -9,7 +9,8 @@ import (
 
 func TestConvertPlugin(t *testing.T) {
 	plugin := PlatformPlugin{
-		path: t.TempDir(),
+		path:   t.TempDir(),
+		config: &Config{},
 		composer: platformComposerJson{
 			Extra: platformComposerJsonExtra{
 				ShopwarePluginClass: "FroshTools\\FroshTools",
@@ -28,7 +29,8 @@ func TestConvertPlugin(t *testing.T) {
 
 func TestConvertApp(t *testing.T) {
 	app := App{
-		path: t.TempDir(),
+		path:   t.TempDir(),
+		config: &Config{},
 		manifest: appManifest{
 			Meta: appManifestMeta{
 				Name: "TestApp",
