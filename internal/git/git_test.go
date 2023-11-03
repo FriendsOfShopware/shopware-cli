@@ -24,8 +24,8 @@ func TestNoTags(t *testing.T) {
 	tmpDir := t.TempDir()
 	prepareRepository(t, tmpDir)
 	_ = os.WriteFile(path.Join(tmpDir, "a"), []byte(""), os.ModePerm)
-	runCommand(t, tmpDir, "git", "add", "a")
-	runCommand(t, tmpDir, "git", "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
+	runCommand(t, tmpDir, "add", "a")
+	runCommand(t, tmpDir, "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
 
 	tag, err := getPreviousTag(context.Background(), tmpDir)
 	assert.NoError(t, err)
@@ -40,12 +40,12 @@ func TestWithOneTagAndCommit(t *testing.T) {
 	tmpDir := t.TempDir()
 	prepareRepository(t, tmpDir)
 	_ = os.WriteFile(path.Join(tmpDir, "a"), []byte(""), os.ModePerm)
-	runCommand(t, tmpDir, "git", "add", "a")
-	runCommand(t, tmpDir, "git", "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
-	runCommand(t, tmpDir, "git", "tag", "v1.0.0", "-m", "initial release")
+	runCommand(t, tmpDir, "add", "a")
+	runCommand(t, tmpDir, "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
+	runCommand(t, tmpDir, "tag", "v1.0.0", "-m", "initial release")
 	_ = os.WriteFile(path.Join(tmpDir, "b"), []byte(""), os.ModePerm)
-	runCommand(t, tmpDir, "git", "add", "b")
-	runCommand(t, tmpDir, "git", "commit", "-m", "second commit", "--no-verify", "--no-gpg-sign")
+	runCommand(t, tmpDir, "add", "b")
+	runCommand(t, tmpDir, "commit", "-m", "second commit", "--no-verify", "--no-gpg-sign")
 
 	tag, err := getPreviousTag(context.Background(), tmpDir)
 	assert.NoError(t, err)
@@ -65,19 +65,19 @@ func TestGetPublicVCSURL(t *testing.T) {
 	assert.Equal(t, "", url)
 	assert.Error(t, err)
 
-	runCommand(t, tmpDir, "git", "remote", "add", "origin", "https://github.com/FriendsOfShopware/FroshTools.git")
+	runCommand(t, tmpDir, "remote", "add", "origin", "https://github.com/FriendsOfShopware/FroshTools.git")
 
 	url, err = GetPublicVCSURL(context.Background(), tmpDir)
 	assert.Equal(t, "https://github.com/FriendsOfShopware/FroshTools/commit", url)
 	assert.NoError(t, err)
 
-	runCommand(t, tmpDir, "git", "remote", "set-url", "origin", "git@github.com:FriendsOfShopware/FroshTools.git")
+	runCommand(t, tmpDir, "remote", "set-url", "origin", "git@github.com:FriendsOfShopware/FroshTools.git")
 
 	url, err = GetPublicVCSURL(context.Background(), tmpDir)
 	assert.Equal(t, "https://github.com/FriendsOfShopware/FroshTools/commit", url)
 	assert.NoError(t, err)
 
-	runCommand(t, tmpDir, "git", "remote", "set-url", "origin", "https://gitlab.com/xxx")
+	runCommand(t, tmpDir, "remote", "set-url", "origin", "https://gitlab.com/xxx")
 	t.Setenv("CI_PROJECT_URL", "https://example.com/gitlab-org/gitlab-foss")
 
 	url, err = GetPublicVCSURL(context.Background(), tmpDir)
@@ -85,10 +85,10 @@ func TestGetPublicVCSURL(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func runCommand(t *testing.T, tmpDir, cmd string, args ...string) {
+func runCommand(t *testing.T, tmpDir string, args ...string) {
 	t.Helper()
 
-	c := exec.Command(cmd, args...)
+	c := exec.Command("git", args...)
 	c.Dir = tmpDir
 
 	out, err := c.CombinedOutput()
@@ -100,9 +100,9 @@ func runCommand(t *testing.T, tmpDir, cmd string, args ...string) {
 func prepareRepository(t *testing.T, tmpDir string) {
 	t.Helper()
 
-	runCommand(t, tmpDir, "git", "init")
-	runCommand(t, tmpDir, "git", "config", "commit.gpgsign", "false")
-	runCommand(t, tmpDir, "git", "config", "tag.gpgsign", "false")
-	runCommand(t, tmpDir, "git", "config", "user.name", "test")
-	runCommand(t, tmpDir, "git", "config", "user.email", "test@test.de")
+	runCommand(t, tmpDir, "init")
+	runCommand(t, tmpDir, "config", "commit.gpgsign", "false")
+	runCommand(t, tmpDir, "config", "tag.gpgsign", "false")
+	runCommand(t, tmpDir, "config", "user.name", "test")
+	runCommand(t, tmpDir, "config", "user.email", "test@test.de")
 }
