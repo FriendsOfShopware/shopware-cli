@@ -2,7 +2,9 @@ package git
 
 import (
 	"context"
+	"os"
 	"os/exec"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,7 +23,7 @@ func TestInvalidGitRepository(t *testing.T) {
 func TestNoTags(t *testing.T) {
 	tmpDir := t.TempDir()
 	prepareRepository(t, tmpDir)
-	runCommand(t, tmpDir, "touch", "a")
+	_ = os.WriteFile(path.Join(tmpDir, "a"), []byte(""), os.ModePerm)
 	runCommand(t, tmpDir, "git", "add", "a")
 	runCommand(t, tmpDir, "git", "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
 
@@ -37,11 +39,11 @@ func TestNoTags(t *testing.T) {
 func TestWithOneTagAndCommit(t *testing.T) {
 	tmpDir := t.TempDir()
 	prepareRepository(t, tmpDir)
-	runCommand(t, tmpDir, "touch", "a")
+	_ = os.WriteFile(path.Join(tmpDir, "a"), []byte(""), os.ModePerm)
 	runCommand(t, tmpDir, "git", "add", "a")
 	runCommand(t, tmpDir, "git", "commit", "-m", "initial commit", "--no-verify", "--no-gpg-sign")
 	runCommand(t, tmpDir, "git", "tag", "v1.0.0", "-m", "initial release")
-	runCommand(t, tmpDir, "touch", "b")
+	_ = os.WriteFile(path.Join(tmpDir, "b"), []byte(""), os.ModePerm)
 	runCommand(t, tmpDir, "git", "add", "b")
 	runCommand(t, tmpDir, "git", "commit", "-m", "second commit", "--no-verify", "--no-gpg-sign")
 
