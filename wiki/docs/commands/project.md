@@ -20,6 +20,10 @@ Builds the Administration with all installed extensions
 
 Builds the Storefront with all installed extensions
 
+Parameters:
+
+* `skip-theme-compile` - Skips the theme compilation
+
 ## shopware-cli project worker
 
 Starts the Shopware worker in background and tails the log

@@ -39,10 +39,16 @@ var projectStorefrontBuildCmd = &cobra.Command{
 			return err
 		}
 
+		skipThemeCompile, _ := cmd.PersistentFlags().GetBool("skip-theme-compile")
+		if skipThemeCompile {
+			return nil
+		}
+
 		return runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "theme:compile"), projectRoot))
 	},
 }
 
 func init() {
 	projectRootCmd.AddCommand(projectStorefrontBuildCmd)
+	projectStorefrontBuildCmd.PersistentFlags().Bool("skip-theme-compile", false, "Skip theme compilation")
 }
