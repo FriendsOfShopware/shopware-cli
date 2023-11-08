@@ -22,7 +22,7 @@ Builds the Storefront with all installed extensions
 
 Parameters:
 
-* `skip-theme-compile` - Skips the theme compilation
+* `--skip-theme-compile` - Skips the theme compilation
 
 ## shopware-cli project worker
 
