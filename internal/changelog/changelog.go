@@ -36,7 +36,10 @@ type Commit struct {
 // GenerateChangelog generates a changelog from the git repository.
 func GenerateChangelog(ctx context.Context, repository string, cfg Config) (string, error) {
 	var err error
-	cfg.VCSURL, err = git.GetPublicVCSURL(ctx, repository)
+
+	if strings.Contains(cfg.Template, "Config.VCSURL") {
+		cfg.VCSURL, err = git.GetPublicVCSURL(ctx, repository)
+	}
 
 	if err != nil {
 		return "", err
