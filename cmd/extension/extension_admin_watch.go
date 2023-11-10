@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"regexp"
 	"strings"
@@ -68,6 +69,14 @@ var extensionAdminWatchCmd = &cobra.Command{
 		for _, source := range sources {
 			options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
 			options.ProductionMode = false
+
+			_, jsEntryErr := os.Stat(path.Join(source.Path, options.EntrypointDir, "main.js"))
+			_, tsEntryErr := os.Stat(path.Join(source.Path, options.EntrypointDir, "main.ts"))
+
+			// does not have any admin js, skip it
+			if jsEntryErr != nil && tsEntryErr != nil {
+				continue
+			}
 
 			esbuildContext, err := esbuild.Context(cmd.Context(), options)
 
