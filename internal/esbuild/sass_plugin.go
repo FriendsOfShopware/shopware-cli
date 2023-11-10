@@ -21,8 +21,6 @@ func newScssPlugin(ctx context.Context) api.Plugin {
 				logging.FromContext(ctx).Fatalln(err)
 			}
 
-			logging.FromContext(ctx).Infof("Using dart-sass binary %s", dartSassBinary)
-
 			start, err := godartsass.Start(godartsass.Options{
 				DartSassEmbeddedFilename: dartSassBinary,
 				Timeout:                  0,

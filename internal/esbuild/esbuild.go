@@ -70,6 +70,7 @@ func getEsbuildOptions(ctx context.Context, options AssetCompileOptions) (*api.B
 		LogLevel:          api.LogLevelWarning,
 		Plugins:           []api.Plugin{newScssPlugin(ctx)},
 		Loader: map[string]api.Loader{
+			".html": api.LoaderText,
 			".twig": api.LoaderText,
 			".scss": api.LoaderCSS,
 			".css":  api.LoaderCSS,

@@ -4,10 +4,11 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"io"
 	"net/http"
 	"net/url"
-	"path/filepath"
+	"path"
 	"regexp"
 	"strings"
 	"time"
@@ -32,6 +33,9 @@ var (
 	uriRegExp               = regexp.MustCompile(`(?m)uri:\s.*,`)
 	assetPathRegExp         = regexp.MustCompile(`(?m)assetPath:\s.*`)
 	assetRegExp             = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
+
+	extensionAssetRegExp   = regexp.MustCompile(`(?m)/bundles/([a-z-]+)/static/(.*)$`)
+	extensionEsbuildRegExp = regexp.MustCompile(`(?m)/.shopware-cli/([a-z-]+)/(.*)$`)
 )
 
 //go:embed static/live-reload.js
@@ -45,11 +49,52 @@ var (
 var extensionAdminWatchCmd = &cobra.Command{
 	Use:   "admin-watch [path] [host]",
 	Short: "Builds assets for extensions",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ext, err := extension.GetExtensionByFolder(args[0])
-		if err != nil {
-			return err
+		var sources []asset.Source
+
+		for _, extensionPath := range args[:len(args)-1] {
+			ext, err := extension.GetExtensionByFolder(extensionPath)
+			if err != nil {
+				sources = append(sources, extension.FindAssetSourcesOfProject(cmd.Context(), extensionPath)...)
+				continue
+			}
+
+			sources = append(sources, extension.ConvertExtensionsToSources(cmd.Context(), []extension.Extension{ext})...)
+		}
+
+		esbuildInstances := make(map[string]adminWatchExtension)
+
+		for _, source := range sources {
+			options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
+			options.ProductionMode = false
+
+			esbuildContext, err := esbuild.Context(cmd.Context(), options)
+
+			if err != nil {
+				return err
+			}
+
+			if err := esbuildContext.Watch(api.WatchOptions{}); err != nil {
+				return err
+			}
+
+			watchServer, contextError := esbuildContext.Serve(api.ServeOptions{
+				Host: "127.0.0.1",
+			})
+
+			if contextError != nil {
+				return err
+			}
+
+			technicalName := esbuild.ToKebabCase(source.Name)
+			esbuildInstances[technicalName] = adminWatchExtension{
+				name:        source.Name,
+				assetName:   technicalName,
+				context:     esbuildContext,
+				watchServer: watchServer,
+				staticDir:   path.Join(source.Path, "Resources", "app", "static"),
+			}
 		}
 
 		listenSplit := strings.Split(adminWatchListen, ":")
@@ -67,29 +112,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			return err
 		}
 
-		name, _ := ext.GetName()
-
-		options := esbuild.NewAssetCompileOptionsAdmin(name, ext.GetPath())
-		options.ProductionMode = false
-
-		esbuildContext, esBuildError := esbuild.Context(cmd.Context(), options)
-
-		if esBuildError != nil && len(esBuildError.Errors) > 0 {
-			return err
-		}
-
-		if err := esbuildContext.Watch(api.WatchOptions{}); err != nil {
-			return err
-		}
-
-		esbuildServer, err := esbuildContext.Serve(api.ServeOptions{
-			Host: "127.0.0.1",
-		})
-		if err != nil {
-			return err
-		}
-
-		targetShopUrl, err := url.Parse(strings.TrimSuffix(args[1], "/"))
+		targetShopUrl, err := url.Parse(strings.TrimSuffix(args[len(args)-1], "/"))
 		if err != nil {
 			return err
 		}
@@ -117,20 +140,20 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			// Serve the local static folder to the cdn url
-			assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", strings.ToLower(name))
-			if strings.HasPrefix(req.URL.Path, assetPrefix) {
-				newFilePath := strings.TrimPrefix(req.URL.Path, assetPrefix)
+			assetMatching := extensionAssetRegExp.FindAllString(req.URL.Path, -1)
 
-				expectedLocation := filepath.Join(filepath.Dir(filepath.Dir(filepath.Join(ext.GetPath(), "Resources", "app", "administration", "src"))), "static", newFilePath)
+			if len(assetMatching) > 0 {
+				if ext, ok := esbuildInstances[assetMatching[0]]; ok {
+					assetPrefix := fmt.Sprintf(targetShopUrl.Path+"/bundles/%s/static/", ext.name)
 
-				http.ServeFile(w, req, expectedLocation)
-				return
+					http.ServeFile(w, req, path.Join(ext.staticDir, assetPrefix))
+					return
+				}
 			}
 
 			// Modify admin url index page to load anything from our watcher
 			if req.URL.Path == targetShopUrl.Path+"/admin" {
-				resp, err := http.Get(fmt.Sprintf("%s/admin", args[1]))
+				resp, err := http.Get(fmt.Sprintf("%s/admin", targetShopUrl.Scheme+schemeHostSeparator+targetShopUrl.Host))
 				if err != nil {
 					logging.FromContext(cmd.Context()).Errorf("proxy failed %v", err)
 					w.WriteHeader(http.StatusInternalServerError)
@@ -256,8 +279,16 @@ var extensionAdminWatchCmd = &cobra.Command{
 					bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: newCss, Js: newJS}
 				}
 
-				bundleInfo.Bundles[name] = adminBundlesInfoAsset{Css: []string{browserUrl.String() + "/extension.css"}, Js: []string{browserUrl.String() + "/extension.js"}}
-				bundleInfo.Bundles["live-reload"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/__internal-admin-proxy/live-reload.js"}}
+				for _, ext := range esbuildInstances {
+					bundleInfo.Bundles[ext.name] = adminBundlesInfoAsset{
+						Css:        []string{fmt.Sprintf("%s/.shopware-cli/%s/extension.css", browserUrl.String(), ext.assetName)},
+						Js:         []string{fmt.Sprintf("%s/.shopware-cli/%s/extension.js", browserUrl.String(), ext.assetName)},
+						LiveReload: true,
+						Name:       ext.assetName,
+					}
+				}
+
+				bundleInfo.Bundles["ShopwareCLI"] = adminBundlesInfoAsset{Css: []string{}, Js: []string{browserUrl.String() + "/__internal-admin-proxy/live-reload.js"}}
 
 				newJson, err := json.Marshal(bundleInfo)
 				if err != nil {
@@ -274,10 +305,17 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return
 			}
 
-			if req.URL.Path == "/extension.css" || req.URL.Path == "/extension.js" || req.URL.Path == "/esbuild" {
-				req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", esbuildServer.Host, esbuildServer.Port), Path: req.URL.Path}
-				fwd.ServeHTTP(w, req)
-				return
+			esbuildMatch := extensionEsbuildRegExp.FindStringSubmatch(req.URL.Path)
+
+			if len(esbuildMatch) > 0 {
+				if ext, ok := esbuildInstances[esbuildMatch[1]]; ok {
+					req.URL = &url.URL{Scheme: "http", Host: fmt.Sprintf("%s:%d", ext.watchServer.Host, ext.watchServer.Port), Path: "/" + esbuildMatch[2]}
+					req.Host = req.URL.Host
+					req.RequestURI = req.URL.Path
+
+					fwd.ServeHTTP(w, req)
+					return
+				}
 			}
 
 			// let us forward this request to another server
@@ -323,6 +361,16 @@ type adminBundlesInfo struct {
 }
 
 type adminBundlesInfoAsset struct {
-	Css []string `json:"css"`
-	Js  []string `json:"js"`
+	Css        []string `json:"css"`
+	Js         []string `json:"js"`
+	LiveReload bool     `json:"liveReload"`
+	Name       string   `json:"name"`
+}
+
+type adminWatchExtension struct {
+	name        string
+	assetName   string
+	context     api.BuildContext
+	watchServer api.ServeResult
+	staticDir   string
 }
