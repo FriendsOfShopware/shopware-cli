@@ -339,7 +339,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 			Handler:           wrapper(redirect),
 			ReadHeaderTimeout: time.Second,
 		}
-		logging.FromContext(cmd.Context()).Infof("Admin Watcher started at "+browserUrl.String()+"%s/admin", targetShopUrl.Path)
+		logging.FromContext(cmd.Context()).Infof("Admin Watcher started at %s%s/admin", browserUrl.String(), targetShopUrl.Path)
 		if err := s.ListenAndServe(); err != nil {
 			return err
 		}
