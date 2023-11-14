@@ -158,8 +158,16 @@ var projectExtensionUploadCmd = &cobra.Command{
 		}
 
 		if !shopInfo.IsCloudShop() || extensions.GetByName(name) == nil {
-			if _, err := client.ExtensionManager.UploadExtension(adminCtx, &buf); err != nil {
+			if uploadResponse, err := client.ExtensionManager.UploadExtension(adminCtx, &buf); err != nil {
 				return fmt.Errorf("cannot upload extension: %w", err)
+			} else if uploadResponse.StatusCode != 204 {
+				str, err := io.ReadAll(uploadResponse.Body)
+
+				if err != nil {
+					return fmt.Errorf("cannot upload extension update: %w", err)
+				}
+
+				return fmt.Errorf("cannot upload extension update: %s", string(str))
 			}
 
 			extensions, _, err = client.ExtensionManager.ListAvailableExtensions(adminCtx)
@@ -168,8 +176,16 @@ var projectExtensionUploadCmd = &cobra.Command{
 				return err
 			}
 		} else {
-			if _, err := client.ExtensionManager.UploadExtensionUpdateToCloud(adminCtx, name, &buf); err != nil {
+			if uploadResponse, err := client.ExtensionManager.UploadExtensionUpdateToCloud(adminCtx, name, &buf); err != nil {
 				return fmt.Errorf("cannot upload extension update: %w", err)
+			} else if uploadResponse.StatusCode != 204 {
+				str, err := io.ReadAll(uploadResponse.Body)
+
+				if err != nil {
+					return fmt.Errorf("cannot upload extension update: %w", err)
+				}
+
+				return fmt.Errorf("cannot upload extension update: %s", string(str))
 			}
 		}
 
