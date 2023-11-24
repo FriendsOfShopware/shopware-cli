@@ -7,7 +7,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y git unzip \
+    && apt-get install --no-install-recommends -y git unzip gettext-base \
     && IPE_GD_WITHOUTAVIF=1 install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis imagick xsl calendar amqp \
     && apt-get autoremove -y \
     && apt-get clean -y \
