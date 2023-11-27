@@ -8,7 +8,7 @@ require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230320131904-348560be9c36
-	github.com/evanw/esbuild v0.19.6
+	github.com/evanw/esbuild v0.19.8
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/schema v1.2.1
@@ -16,7 +16,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.17.8
+	github.com/sashabaranov/go-openai v1.17.9
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tetratelabs/wazero v1.5.0
