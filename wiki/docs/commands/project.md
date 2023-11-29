@@ -16,6 +16,10 @@ Arguments:
 
 Builds the Administration with all installed extensions
 
+Parameters:
+
+* `--skip-assets-install` - Skips the assets installation
+
 ## shopware-cli project storefront-build
 
 Builds the Storefront with all installed extensions
