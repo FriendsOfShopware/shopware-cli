@@ -46,7 +46,7 @@ var projectCI = &cobra.Command{
 			}
 		}
 
-		shopCfg, err := shop.ReadConfig(filepath.Join(args[0], ".shopware-project.yml"), true)
+		shopCfg, err := shop.ReadConfig(projectConfigPath, true)
 		if err != nil {
 			return err
 		}
