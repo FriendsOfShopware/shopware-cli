@@ -39,10 +39,16 @@ var projectAdminBuildCmd = &cobra.Command{
 			return err
 		}
 
+		skipAssetsInstall, _ := cmd.PersistentFlags().GetBool("skip-assets-install")
+		if skipAssetsInstall {
+			return nil
+		}
+
 		return runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "assets:install"), projectRoot))
 	},
 }
 
 func init() {
 	projectRootCmd.AddCommand(projectAdminBuildCmd)
+	projectAdminBuildCmd.PersistentFlags().Bool("skip-assets-install", false, "Skips the assets installation")
 }
