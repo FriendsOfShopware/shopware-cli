@@ -41,7 +41,7 @@ type AssetBuildConfig struct {
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
 	cfgs := buildAssetConfigFromExtensions(ctx, sources, assetConfig)
 
-	if len(cfgs) == 1 {
+	if len(cfgs) == 0 {
 		return nil
 	}
 
@@ -50,78 +50,44 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		return nil
 	}
 
-	buildWithoutShopwareSource := assetConfig.EnableESBuildForStorefront && assetConfig.EnableESBuildForAdmin
+	requiresShopwareSources := cfgs.RequiresShopwareRepository()
 
 	shopwareRoot := assetConfig.ShopwareRoot
 	var err error
-	if shopwareRoot == "" && !buildWithoutShopwareSource {
+	if shopwareRoot == "" && requiresShopwareSources {
 		shopwareRoot, err = setupShopwareInTemp(ctx, assetConfig.ShopwareVersion)
 
 		if err != nil {
 			return err
 		}
 
-		defer deletePath(ctx, shopwareRoot)
+		defer deletePaths(ctx, shopwareRoot)
 	}
 
-	if !buildWithoutShopwareSource {
-		if err := prepareShopwareForAsset(shopwareRoot, cfgs); err != nil {
-			return err
-		}
+	paths, err := installNodeModulesOfConfigs(cfgs)
+	if err != nil {
+		return err
 	}
 
-	// Install shared node_modules between admin and storefront
-	for _, entry := range cfgs {
-		// Install also shared node_modules
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app")
-			if err := installDependencies(npmPath); err != nil {
-				return err
-			}
-
-			if assetConfig.CleanupNodeModules {
-				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
-			}
-		}
-
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "administration")
-			if err := installDependencies(npmPath); err != nil {
-				return err
-			}
-
-			if assetConfig.CleanupNodeModules {
-				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
-			}
-		}
-
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "storefront")
-			err := installDependencies(npmPath)
-			if err != nil {
-				return err
-			}
-
-			if assetConfig.CleanupNodeModules {
-				defer deletePath(ctx, path.Join(npmPath, "node_modules"))
-			}
-		}
-	}
+	defer deletePaths(ctx, paths...)
 
 	if !assetConfig.DisableAdminBuild && cfgs.RequiresAdminBuild() {
-		if assetConfig.EnableESBuildForAdmin {
-			for _, source := range sources {
-				if !cfgs.Has(source.Name) {
-					continue
-				}
+		// Build all extensions compatible with esbuild first
+		for name, entry := range cfgs.FilterByAdmin(true) {
+			options := esbuild.NewAssetCompileOptionsAdmin(name, entry.BasePath)
 
-				options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
-
-				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
-					return err
-				}
+			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
+				return err
 			}
-		} else {
+		}
+
+		nonCompatibleExtensions := cfgs.FilterByAdmin(false)
+
+		if len(nonCompatibleExtensions) != 0 {
+			if err := prepareShopwareForAsset(shopwareRoot, nonCompatibleExtensions); err != nil {
+				return err
+			}
+
 			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
 			err := npmRunBuild(
 				administrationRoot,
@@ -130,8 +96,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			)
 
 			if assetConfig.CleanupNodeModules {
-				defer deletePath(ctx, path.Join(administrationRoot, "node_modules"))
-				defer deletePath(ctx, path.Join(administrationRoot, "twigVuePlugin"))
+				defer deletePaths(ctx, path.Join(administrationRoot, "node_modules"), path.Join(administrationRoot, "twigVuePlugin"))
 			}
 
 			if err != nil {
@@ -141,18 +106,48 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	}
 
 	if !assetConfig.DisableStorefrontBuild && cfgs.RequiresStorefrontBuild() {
-		if assetConfig.EnableESBuildForStorefront {
-			for _, source := range sources {
-				if !cfgs.Has(source.Name) {
-					continue
-				}
+		// Build all extensions compatible with esbuild first
+		for name, entry := range cfgs.FilterByStorefront(true) {
+			options := esbuild.NewAssetCompileOptionsStorefront(name, entry.BasePath)
 
-				options := esbuild.NewAssetCompileOptionsStorefront(source.Name, source.Path)
-				if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
-					return err
-				}
+			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
+				return err
 			}
-		} else {
+		}
+
+		nonCompatibleExtensions := cfgs.FilterByStorefront(false)
+
+		if len(nonCompatibleExtensions) != 0 {
+			// add the storefront itself as plugin into json
+			var basePath string
+			if shopwareRoot == "" {
+				basePath = "src/Storefront/"
+			} else {
+				basePath = strings.TrimLeft(
+					strings.Replace(PlatformPath(shopwareRoot, "Storefront", ""), shopwareRoot, "", 1),
+					"/",
+				) + "/"
+			}
+
+			entryPath := "Resources/app/storefront/src/main.js"
+			nonCompatibleExtensions["Storefront"] = ExtensionAssetConfigEntry{
+				BasePath:      basePath,
+				Views:         []string{"Resources/views"},
+				TechnicalName: "storefront",
+				Storefront: ExtensionAssetConfigStorefront{
+					Path:          "Resources/app/storefront/src",
+					EntryFilePath: &entryPath,
+					StyleFiles:    []string{},
+				},
+				Administration: ExtensionAssetConfigAdmin{
+					Path: "Resources/app/administration/src",
+				},
+			}
+
+			if err := prepareShopwareForAsset(shopwareRoot, nonCompatibleExtensions); err != nil {
+				return err
+			}
+
 			storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
 
 			envList := []string{
@@ -180,7 +175,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			)
 
 			if assetConfig.CleanupNodeModules {
-				defer deletePath(ctx, path.Join(storefrontRoot, "node_modules"))
+				defer deletePaths(ctx, path.Join(storefrontRoot, "node_modules"))
 			}
 
 			if err != nil {
@@ -192,10 +187,50 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	return nil
 }
 
-func deletePath(ctx context.Context, path string) {
-	if err := os.RemoveAll(path); err != nil {
-		logging.FromContext(ctx).Errorf("Failed to remove path %s: %s", path, err.Error())
-		return
+func installNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
+	paths := make([]string, 0)
+
+	// Install shared node_modules between admin and storefront
+	for _, entry := range cfgs {
+		// Install also shared node_modules
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app")
+			if err := installDependencies(npmPath); err != nil {
+				return nil, err
+			}
+
+			paths = append(paths, path.Join(npmPath, "node_modules"))
+		}
+
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "administration")
+			if err := installDependencies(npmPath); err != nil {
+				return nil, err
+			}
+
+			paths = append(paths, path.Join(npmPath, "node_modules"))
+		}
+
+		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
+			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "storefront")
+			err := installDependencies(npmPath)
+			if err != nil {
+				return nil, err
+			}
+
+			paths = append(paths, path.Join(npmPath, "node_modules"))
+		}
+	}
+
+	return paths, nil
+}
+
+func deletePaths(ctx context.Context, nodeModulesPaths ...string) {
+	for _, nodeModulesPath := range nodeModulesPaths {
+		if err := os.RemoveAll(nodeModulesPath); err != nil {
+			logging.FromContext(ctx).Errorf("Failed to remove path %s: %s", nodeModulesPath, err.Error())
+			return
+		}
 	}
 }
 
@@ -292,6 +327,8 @@ func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 		}
 
 		sourceConfig := createConfigFromPath(source.Name, source.Path)
+		sourceConfig.EnableESBuildForAdmin = source.AdminEsbuildCompatible
+		sourceConfig.EnableESBuildForStorefront = source.StorefrontEsbuildCompatible
 
 		if assetCfg.SkipExtensionsWithBuildFiles {
 			expectedAdminCompiledFile := path.Join(source.Path, "Resources", "public", "administration", "js", esbuild.ToKebabCase(source.Name)+".js")
@@ -306,31 +343,6 @@ func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 		}
 
 		list[source.Name] = sourceConfig
-	}
-
-	var basePath string
-	if assetCfg.ShopwareRoot == "" {
-		basePath = "src/Storefront/"
-	} else {
-		basePath = strings.TrimLeft(
-			strings.Replace(PlatformPath(assetCfg.ShopwareRoot, "Storefront", ""), assetCfg.ShopwareRoot, "", 1),
-			"/",
-		) + "/"
-	}
-
-	entryPath := "Resources/app/storefront/src/main.js"
-	list["Storefront"] = ExtensionAssetConfigEntry{
-		BasePath:      basePath,
-		Views:         []string{"Resources/views"},
-		TechnicalName: "storefront",
-		Storefront: ExtensionAssetConfigStorefront{
-			Path:          "Resources/app/storefront/src",
-			EntryFilePath: &entryPath,
-			StyleFiles:    []string{},
-		},
-		Administration: ExtensionAssetConfigAdmin{
-			Path: "Resources/app/administration/src",
-		},
 	}
 
 	return list
@@ -419,6 +431,8 @@ func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version
 
 	if shopware66Constraint.Check(version.Must(version.NewVersion(minVersion))) {
 		cloneBranch = "trunk"
+	} else if version.MustConstraints(version.NewConstraint("~6.5.0")).Check(version.Must(version.NewVersion(minVersion))) {
+		cloneBranch = "6.5.x"
 	}
 
 	logging.FromContext(ctx).Infof("Cloning shopware with branch: %s into %s", cloneBranch, dir)
@@ -443,6 +457,20 @@ func (c ExtensionAssetConfig) Has(name string) bool {
 	return ok
 }
 
+func (c ExtensionAssetConfig) RequiresShopwareRepository() bool {
+	for _, entry := range c {
+		if entry.Administration.EntryFilePath != nil && !entry.EnableESBuildForAdmin {
+			return true
+		}
+
+		if entry.Storefront.EntryFilePath != nil && !entry.EnableESBuildForStorefront {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (c ExtensionAssetConfig) RequiresAdminBuild() bool {
 	for _, entry := range c {
 		if entry.Administration.EntryFilePath != nil {
@@ -455,10 +483,6 @@ func (c ExtensionAssetConfig) RequiresAdminBuild() bool {
 
 func (c ExtensionAssetConfig) RequiresStorefrontBuild() bool {
 	for _, entry := range c {
-		if entry.TechnicalName == "storefront" {
-			continue
-		}
-
 		if entry.Storefront.EntryFilePath != nil {
 			return true
 		}
@@ -467,12 +491,38 @@ func (c ExtensionAssetConfig) RequiresStorefrontBuild() bool {
 	return false
 }
 
+func (c ExtensionAssetConfig) FilterByAdmin(esbuildEnabled bool) ExtensionAssetConfig {
+	filtered := make(ExtensionAssetConfig)
+
+	for name, entry := range c {
+		if entry.Administration.EntryFilePath != nil && entry.EnableESBuildForAdmin == esbuildEnabled {
+			filtered[name] = entry
+		}
+	}
+
+	return filtered
+}
+
+func (c ExtensionAssetConfig) FilterByStorefront(esbuildEnabled bool) ExtensionAssetConfig {
+	filtered := make(ExtensionAssetConfig)
+
+	for name, entry := range c {
+		if entry.Storefront.EntryFilePath != nil && entry.EnableESBuildForStorefront == esbuildEnabled {
+			filtered[name] = entry
+		}
+	}
+
+	return filtered
+}
+
 type ExtensionAssetConfigEntry struct {
-	BasePath       string                         `json:"basePath"`
-	Views          []string                       `json:"views"`
-	TechnicalName  string                         `json:"technicalName"`
-	Administration ExtensionAssetConfigAdmin      `json:"administration"`
-	Storefront     ExtensionAssetConfigStorefront `json:"storefront"`
+	BasePath                   string                         `json:"basePath"`
+	Views                      []string                       `json:"views"`
+	TechnicalName              string                         `json:"technicalName"`
+	Administration             ExtensionAssetConfigAdmin      `json:"administration"`
+	Storefront                 ExtensionAssetConfigStorefront `json:"storefront"`
+	EnableESBuildForAdmin      bool
+	EnableESBuildForStorefront bool
 }
 
 type ExtensionAssetConfigAdmin struct {
