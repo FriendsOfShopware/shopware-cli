@@ -90,5 +90,5 @@ func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
 
 	config := buildAssetConfigFromExtensions(getTestContext(), []asset.Source{{Name: "", Path: dir}}, AssetBuildConfig{})
 
-	assert.Len(t, config, 1)
+	assert.Len(t, config, 0)
 }
