@@ -74,8 +74,6 @@ var projectCI = &cobra.Command{
 		}
 
 		assetCfg := extension.AssetBuildConfig{
-			EnableESBuildForAdmin:        false,
-			EnableESBuildForStorefront:   false,
 			CleanupNodeModules:           true,
 			ShopwareRoot:                 args[0],
 			ShopwareVersion:              constraint,

@@ -27,8 +27,6 @@ const (
 )
 
 type AssetBuildConfig struct {
-	EnableESBuildForAdmin        bool
-	EnableESBuildForStorefront   bool
 	CleanupNodeModules           bool
 	DisableAdminBuild            bool
 	DisableStorefrontBuild       bool
