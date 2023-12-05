@@ -224,7 +224,7 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 		return fmt.Errorf("lookup for min matching version: %w", err)
 	}
 
-	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
+	shopware65Constraint, _ := version.NewConstraint(">=6.5.0")
 
 	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
 		logging.FromContext(ctx).Info("Shopware 6.5 detected, disabling composer replacements")
