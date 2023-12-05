@@ -198,7 +198,7 @@ func cleanupTcpdf(folder string, ctx context.Context) error {
 			return nil
 		}
 
-		return err;
+		return err
 	}
 
 	logging.FromContext(ctx).Infof("Remove unnecessary fonts from tcpdf")
