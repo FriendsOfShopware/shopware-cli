@@ -108,9 +108,7 @@ var projectCI = &cobra.Command{
 			}
 		}
 
-		logging.FromContext(cmd.Context()).Infof("Remove unnecessary fonts from tcpdf")
-
-		if err := cleanupTcpdf(args[0]); err != nil {
+		if err := cleanupTcpdf(args[0], cmd.Context()); err != nil {
 			return err
 		}
 
@@ -192,8 +190,20 @@ func runTransparentCommand(cmd *exec.Cmd) error {
 	return cmd.Run()
 }
 
-func cleanupTcpdf(folder string) error {
-	return filepath.WalkDir(path.Join(folder, "vendor", "tecnickcom/tcpdf/fonts"), func(path string, d os.DirEntry, err error) error {
+func cleanupTcpdf(folder string, ctx context.Context) error {
+	tcpdfPath := path.Join(folder, "vendor", "tecnickcom/tcpdf/fonts")
+
+	if _, err := os.Stat(tcpdfPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		return err;
+	}
+
+	logging.FromContext(ctx).Infof("Remove unnecessary fonts from tcpdf")
+
+	return filepath.WalkDir(tcpdfPath, func(path string, d os.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
