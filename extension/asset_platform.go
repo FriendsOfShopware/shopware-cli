@@ -411,10 +411,15 @@ func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version
 	cloneBranch := "6.4"
 
 	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
+	shopware66Constraint, _ := version.NewConstraint("~6.6.0")
 
 	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
-		cloneBranch = "trunk"
+		cloneBranch = "6.5"
 	}
+
+	if shopware66Constraint.Check(version.Must(version.NewVersion(minVersion))) {
+    	cloneBranch = "trunk"
+    }
 
 	logging.FromContext(ctx).Infof("Cloning shopware with branch: %s into %s", cloneBranch, dir)
 
