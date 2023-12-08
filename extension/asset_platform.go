@@ -414,7 +414,7 @@ func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version
 	shopware66Constraint, _ := version.NewConstraint("~6.6.0")
 
 	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
-		cloneBranch = "6.5"
+		cloneBranch = "6.5.x"
 	}
 
 	if shopware66Constraint.Check(version.Must(version.NewVersion(minVersion))) {
