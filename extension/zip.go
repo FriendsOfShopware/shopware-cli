@@ -37,6 +37,7 @@ var (
 		".sw-zip-blacklist",
 		".travis.yml",
 		"ISSUE_TEMPLATE.md",
+		"Makefile",
 		"Resources/store",
 		"bitbucket-pipelines.yml",
 		"build.sh",
