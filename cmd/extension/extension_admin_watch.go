@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"regexp"
 	"strings"
@@ -64,19 +63,21 @@ var extensionAdminWatchCmd = &cobra.Command{
 			sources = append(sources, extension.ConvertExtensionsToSources(cmd.Context(), []extension.Extension{ext})...)
 		}
 
+		cfgs := extension.BuildAssetConfigFromExtensions(cmd.Context(), sources, extension.AssetBuildConfig{}).FilterByAdmin()
+
+		if len(cfgs) == 0 {
+			return fmt.Errorf("found nothing to compile")
+		}
+
+		if _, err := extension.InstallNodeModulesOfConfigs(cfgs); err != nil {
+			return err
+		}
+
 		esbuildInstances := make(map[string]adminWatchExtension)
 
-		for _, source := range sources {
-			options := esbuild.NewAssetCompileOptionsAdmin(source.Name, source.Path)
+		for name, entry := range cfgs {
+			options := esbuild.NewAssetCompileOptionsAdmin(name, entry.BasePath)
 			options.ProductionMode = false
-
-			_, jsEntryErr := os.Stat(path.Join(source.Path, options.EntrypointDir, "main.js"))
-			_, tsEntryErr := os.Stat(path.Join(source.Path, options.EntrypointDir, "main.ts"))
-
-			// does not have any admin js, skip it
-			if jsEntryErr != nil && tsEntryErr != nil {
-				continue
-			}
 
 			esbuildContext, err := esbuild.Context(cmd.Context(), options)
 
@@ -96,13 +97,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 				return err
 			}
 
-			technicalName := esbuild.ToKebabCase(source.Name)
-			esbuildInstances[technicalName] = adminWatchExtension{
-				name:        source.Name,
-				assetName:   technicalName,
+			esbuildInstances[entry.TechnicalName] = adminWatchExtension{
+				name:        name,
+				assetName:   entry.TechnicalName,
 				context:     esbuildContext,
 				watchServer: watchServer,
-				staticDir:   path.Join(source.Path, "Resources", "app", "static"),
+				staticDir:   path.Join(entry.BasePath, "Resources", "app", "static"),
 			}
 		}
 

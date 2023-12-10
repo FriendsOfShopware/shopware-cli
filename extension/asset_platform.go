@@ -37,7 +37,7 @@ type AssetBuildConfig struct {
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
-	cfgs := buildAssetConfigFromExtensions(ctx, sources, assetConfig)
+	cfgs := BuildAssetConfigFromExtensions(ctx, sources, assetConfig)
 
 	if len(cfgs) == 0 {
 		return nil
@@ -62,7 +62,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		defer deletePaths(ctx, shopwareRoot)
 	}
 
-	paths, err := installNodeModulesOfConfigs(cfgs)
+	paths, err := InstallNodeModulesOfConfigs(cfgs)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 	if !assetConfig.DisableAdminBuild && cfgs.RequiresAdminBuild() {
 		// Build all extensions compatible with esbuild first
-		for name, entry := range cfgs.FilterByAdmin(true) {
+		for name, entry := range cfgs.FilterByAdminAndEsBuild(true) {
 			options := esbuild.NewAssetCompileOptionsAdmin(name, entry.BasePath)
 
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
@@ -79,7 +79,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 		}
 
-		nonCompatibleExtensions := cfgs.FilterByAdmin(false)
+		nonCompatibleExtensions := cfgs.FilterByAdminAndEsBuild(false)
 
 		if len(nonCompatibleExtensions) != 0 {
 			if err := prepareShopwareForAsset(shopwareRoot, nonCompatibleExtensions); err != nil {
@@ -105,7 +105,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 	if !assetConfig.DisableStorefrontBuild && cfgs.RequiresStorefrontBuild() {
 		// Build all extensions compatible with esbuild first
-		for name, entry := range cfgs.FilterByStorefront(true) {
+		for name, entry := range cfgs.FilterByStorefrontAndEsBuild(true) {
 			options := esbuild.NewAssetCompileOptionsStorefront(name, entry.BasePath)
 
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
@@ -113,7 +113,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 		}
 
-		nonCompatibleExtensions := cfgs.FilterByStorefront(false)
+		nonCompatibleExtensions := cfgs.FilterByStorefrontAndEsBuild(false)
 
 		if len(nonCompatibleExtensions) != 0 {
 			// add the storefront itself as plugin into json
@@ -185,7 +185,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	return nil
 }
 
-func installNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
+func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
 	paths := make([]string, 0)
 
 	// Install shared node_modules between admin and storefront
@@ -310,7 +310,7 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	return nil
 }
 
-func buildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source, assetCfg AssetBuildConfig) ExtensionAssetConfig {
+func BuildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source, assetCfg AssetBuildConfig) ExtensionAssetConfig {
 	list := make(ExtensionAssetConfig)
 
 	for _, source := range sources {
@@ -489,7 +489,19 @@ func (c ExtensionAssetConfig) RequiresStorefrontBuild() bool {
 	return false
 }
 
-func (c ExtensionAssetConfig) FilterByAdmin(esbuildEnabled bool) ExtensionAssetConfig {
+func (c ExtensionAssetConfig) FilterByAdmin() ExtensionAssetConfig {
+	filtered := make(ExtensionAssetConfig)
+
+	for name, entry := range c {
+		if entry.Administration.EntryFilePath != nil {
+			filtered[name] = entry
+		}
+	}
+
+	return filtered
+}
+
+func (c ExtensionAssetConfig) FilterByAdminAndEsBuild(esbuildEnabled bool) ExtensionAssetConfig {
 	filtered := make(ExtensionAssetConfig)
 
 	for name, entry := range c {
@@ -501,7 +513,7 @@ func (c ExtensionAssetConfig) FilterByAdmin(esbuildEnabled bool) ExtensionAssetC
 	return filtered
 }
 
-func (c ExtensionAssetConfig) FilterByStorefront(esbuildEnabled bool) ExtensionAssetConfig {
+func (c ExtensionAssetConfig) FilterByStorefrontAndEsBuild(esbuildEnabled bool) ExtensionAssetConfig {
 	filtered := make(ExtensionAssetConfig)
 
 	for name, entry := range c {
