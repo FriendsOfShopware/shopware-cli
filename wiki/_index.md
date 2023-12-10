@@ -5,6 +5,7 @@ linkTitle = "Shopware CLI"
 +++
 
 {{< blocks/cover title="A cli which contains handy helpful commands for daily Shopware tasks" image_anchor="top" height="full" color="blue" >}}
+<!--suppress HtmlUnknownTarget -->
 <div class="mx-auto">
 	<a class="btn btn-lg btn-primary mr-3 mb-4" href="{{< relref "/docs" >}}">
 		Learn More <i class="fas fa-arrow-alt-circle-right ml-2"></i>

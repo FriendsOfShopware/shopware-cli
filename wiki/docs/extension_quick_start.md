@@ -4,7 +4,7 @@ weight: 10
 ---
 
 In this Guide we will learn how Shopware CLI can make the extension deployment easier with the Shopware Store. 
-First you need to [install](../install) the CLI.
+First you need to [install](install.md) the CLI.
 
 ## Login into your Shopware Account
 
@@ -30,7 +30,7 @@ possible values are: `classic` (Shopware 5) `platform` (Shopware 6 Plugin system
 
 To edit the Store page locally, we need first to generate the local files based on the current store page. 
 For this we can use the command `shopware-cli account producer extension info pull <extension-folder>`.
-This command creates a `.shopware-extension.yml` config in the root folder with the current store page. The schema of the file can be found [here](../shopware-extension-yml-schema/). Editors supporting SchemaStore, should have autocomplete out of the box like Jetbrains products, VSCode.
+This command creates a `.shopware-extension.yml` config in the root folder with the current store page. The schema of the file can be found [here](shopware-extension-yml-schema.md). Editors supporting SchemaStore, should have autocomplete out of the box like Jetbrains products, VSCode.
 
 ## Uploading local Store Information to the Store
 

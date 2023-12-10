@@ -31,6 +31,8 @@ github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf h1:uHy2r98dl
 github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf/go.mod h1:yfWKFJm6NisKuie2cdH5zUttu4gZYHa/CY7CHpA3tMU=
 github.com/evanw/esbuild v0.19.8 h1:IJ1CRsv3i4dkjPLo6NEGTMI0DDba7jOlPc6JFzIxtl4=
 github.com/evanw/esbuild v0.19.8/go.mod h1:D2vIQZqV/vIf/VRHtViaUtViZmG7o+kKmlBfVQuRi48=
+github.com/evanw/esbuild v0.19.9 h1:Sj5b1Q+oFIX1yPfF9BNZpNSzAhoUP4h5rPWq/1RZFVE=
+github.com/evanw/esbuild v0.19.9/go.mod h1:D2vIQZqV/vIf/VRHtViaUtViZmG7o+kKmlBfVQuRi48=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20230318202833-6328f419267d h1:xxDxNtRoJSBqyS5dBtrIhRBEAP/JlXJX1QZFXZvubPo=

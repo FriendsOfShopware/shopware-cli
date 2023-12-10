@@ -2,7 +2,7 @@
     "go.formatTool": "gofmt",
     "go.useLanguageServer": true,
     "gopls": {
-        "formatting.gofumpt": true,
+        "formatting.gofumpt": true
     },
     "go.diagnostic.vulncheck": "Imports",
     "go.inlayHints.functionTypeParameters": true,

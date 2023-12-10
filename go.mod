@@ -8,7 +8,7 @@ require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf
-	github.com/evanw/esbuild v0.19.8
+	github.com/evanw/esbuild v0.19.9
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231202203025-ead6671a4bdf
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/schema v1.2.1
