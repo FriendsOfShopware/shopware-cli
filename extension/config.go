@@ -10,27 +10,27 @@ import (
 )
 
 type ConfigBuild struct {
-	ExtraBundles              []ConfigExtraBundle `yaml:"extraBundles"`
-	ShopwareVersionConstraint string              `yaml:"shopwareVersionConstraint"`
+	ExtraBundles              []ConfigExtraBundle `yaml:"extraBundles,omitempty"`
+	ShopwareVersionConstraint string              `yaml:"shopwareVersionConstraint,omitempty"`
 	Zip                       struct {
 		Composer struct {
 			Enabled          bool     `yaml:"enabled"`
-			BeforeHooks      []string `yaml:"before_hooks"`
-			AfterHooks       []string `yaml:"after_hooks"`
-			ExcludedPackages []string `yaml:"excluded_packages"`
+			BeforeHooks      []string `yaml:"before_hooks,omitempty"`
+			AfterHooks       []string `yaml:"after_hooks,omitempty"`
+			ExcludedPackages []string `yaml:"excluded_packages,omitempty"`
 		} `yaml:"composer"`
 		Assets struct {
 			Enabled                    bool     `yaml:"enabled"`
-			BeforeHooks                []string `yaml:"before_hooks"`
-			AfterHooks                 []string `yaml:"after_hooks"`
+			BeforeHooks                []string `yaml:"before_hooks,omitempty"`
+			AfterHooks                 []string `yaml:"after_hooks,omitempty"`
 			EnableESBuildForAdmin      bool     `yaml:"enable_es_build_for_admin"`
 			EnableESBuildForStorefront bool     `yaml:"enable_es_build_for_storefront"`
 		} `yaml:"assets"`
 		Pack struct {
 			Excludes struct {
-				Paths []string `yaml:"paths"`
+				Paths []string `yaml:"paths,omitempty"`
 			} `yaml:"excludes"`
-			BeforeHooks []string `yaml:"before_hooks"`
+			BeforeHooks []string `yaml:"before_hooks,omitempty"`
 		} `yaml:"pack"`
 	} `yaml:"zip"`
 }

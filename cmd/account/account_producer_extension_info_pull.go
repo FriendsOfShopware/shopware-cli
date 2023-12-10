@@ -118,10 +118,18 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			})
 		}
 
+		germanDescription := ""
+		englishDescription := ""
+		germanInstallationManual := ""
+		englishInstallationManual := ""
+
 		for _, info := range storeExt.Infos {
 			language := info.Locale.Name[0:2]
 
 			if language == "de" {
+				germanDescription = info.Description
+				germanInstallationManual = info.InstallationManual
+
 				for _, element := range info.Tags {
 					tagsDE = append(tagsDE, element.Name)
 				}
@@ -130,13 +138,20 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 					videosDE = append(videosDE, element.URL)
 				}
 
-				highlightsDE = append(highlightsDE, strings.Split(info.Highlights, "\n")...)
-				featuresDE = append(featuresDE, strings.Split(info.Features, "\n")...)
+				if info.Highlights != "" {
+					highlightsDE = append(highlightsDE, strings.Split(info.Highlights, "\n")...)
+				}
+				if info.Features != "" {
+					featuresDE = append(featuresDE, strings.Split(info.Features, "\n")...)
+				}
 
 				for _, element := range info.Faqs {
 					faqDE = append(faqDE, extension.ConfigStoreFaq{Question: element.Question, Answer: element.Answer})
 				}
 			} else {
+				englishDescription = info.Description
+				englishInstallationManual = info.InstallationManual
+
 				for _, element := range info.Tags {
 					tagsEN = append(tagsEN, element.Name)
 				}
@@ -145,8 +160,13 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 					videosEN = append(videosEN, element.URL)
 				}
 
-				highlightsEN = append(highlightsEN, strings.Split(info.Highlights, "\n")...)
-				featuresEN = append(featuresEN, strings.Split(info.Features, "\n")...)
+				if info.Highlights != "" {
+					highlightsEN = append(highlightsEN, strings.Split(info.Highlights, "\n")...)
+				}
+
+				if info.Features != "" {
+					featuresEN = append(featuresEN, strings.Split(info.Features, "\n")...)
+				}
 
 				for _, element := range info.Faqs {
 					faqEN = append(faqEN, extension.ConfigStoreFaq{Question: element.Question, Answer: element.Answer})
@@ -160,23 +180,23 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			extType = storeExt.ProductType.Name
 		}
 
-		newCfg := extension.Config{Store: extension.ConfigStore{
-			Icon:                                iconConfigPath,
-			DefaultLocale:                       &storeExt.StandardLocale.Name,
-			Type:                                &extType,
-			AutomaticBugfixVersionCompatibility: &storeExt.AutomaticBugfixVersionCompatibility,
-			Availabilities:                      &availabilities,
-			Localizations:                       &localizations,
-			Description:                         extension.ConfigTranslated[string]{German: &storeExt.Infos[0].Description, English: &storeExt.Infos[1].Description},
-			InstallationManual:                  extension.ConfigTranslated[string]{German: &storeExt.Infos[0].InstallationManual, English: &storeExt.Infos[1].InstallationManual},
-			Categories:                          &categoryList,
-			Tags:                                extension.ConfigTranslated[[]string]{German: &tagsDE, English: &tagsEN},
-			Videos:                              extension.ConfigTranslated[[]string]{German: &videosDE, English: &videosEN},
-			Highlights:                          extension.ConfigTranslated[[]string]{German: &highlightsDE, English: &highlightsEN},
-			Features:                            extension.ConfigTranslated[[]string]{German: &featuresDE, English: &featuresEN},
-			Faq:                                 extension.ConfigTranslated[[]extension.ConfigStoreFaq]{German: &faqDE, English: &faqEN},
-			Images:                              &images,
-		}}
+		newCfg := zipExt.GetExtensionConfig()
+
+		newCfg.Store.Icon = iconConfigPath
+		newCfg.Store.DefaultLocale = &storeExt.StandardLocale.Name
+		newCfg.Store.Type = &extType
+		newCfg.Store.AutomaticBugfixVersionCompatibility = &storeExt.AutomaticBugfixVersionCompatibility
+		newCfg.Store.Availabilities = &availabilities
+		newCfg.Store.Localizations = &localizations
+		newCfg.Store.Description = extension.ConfigTranslated[string]{German: &germanDescription, English: &englishDescription}
+		newCfg.Store.InstallationManual = extension.ConfigTranslated[string]{German: &germanInstallationManual, English: &englishInstallationManual}
+		newCfg.Store.Categories = &categoryList
+		newCfg.Store.Tags = extension.ConfigTranslated[[]string]{German: &tagsDE, English: &tagsEN}
+		newCfg.Store.Videos = extension.ConfigTranslated[[]string]{German: &videosDE, English: &videosEN}
+		newCfg.Store.Highlights = extension.ConfigTranslated[[]string]{German: &highlightsDE, English: &highlightsEN}
+		newCfg.Store.Features = extension.ConfigTranslated[[]string]{German: &featuresDE, English: &featuresEN}
+		newCfg.Store.Faq = extension.ConfigTranslated[[]extension.ConfigStoreFaq]{German: &faqDE, English: &faqEN}
+		newCfg.Store.Images = &images
 
 		content, err := yaml.Marshal(newCfg)
 		if err != nil {

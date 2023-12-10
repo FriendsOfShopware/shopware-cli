@@ -20,11 +20,11 @@ var defaultChangelogTpl string
 
 type Config struct {
 	Enabled   bool              `yaml:"enabled"`
-	Pattern   string            `yaml:"pattern"`
-	Template  string            `yaml:"template"`
-	Variables map[string]string `yaml:"variables"`
-	AiEnabled bool              `yaml:"ai_enabled"`
-	VCSURL    string
+	Pattern   string            `yaml:"pattern,omitempty"`
+	Template  string            `yaml:"template,omitempty"`
+	Variables map[string]string `yaml:"variables,omitempty"`
+	AiEnabled bool              `yaml:"ai_enabled,omitempty"`
+	VCSURL    string            `yaml:"-"`
 }
 
 type Commit struct {

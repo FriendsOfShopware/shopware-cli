@@ -36,7 +36,7 @@ var accountCompanyUseCmd = &cobra.Command{
 					return fmt.Errorf("cannot invalidate token cache: %w", err)
 				}
 
-				logging.FromContext(cmd.Context()).Infof("Successfully changed your company to %s (%d)", membership.Company.Name, membership.Company.CustomerNumber)
+				logging.FromContext(cmd.Context()).Infof("Successfully changed your company to %s (%s)", membership.Company.Name, membership.Company.CustomerNumber)
 				return nil
 			}
 		}
