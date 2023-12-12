@@ -62,7 +62,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		defer deletePaths(ctx, shopwareRoot)
 	}
 
-	paths, err := InstallNodeModulesOfConfigs(cfgs)
+	paths, err := InstallNodeModulesOfConfigs(cfgs, true)
 	if err != nil {
 		return err
 	}
@@ -185,7 +185,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	return nil
 }
 
-func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
+func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig, force bool) ([]string, error) {
 	paths := make([]string, 0)
 
 	// Install shared node_modules between admin and storefront
@@ -205,6 +205,11 @@ func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
 		for _, possibleNodePath := range possibleNodePaths {
 			if _, err := os.Stat(possibleNodePath); err == nil {
 				npmPath := filepath.Dir(possibleNodePath)
+
+				if _, err := os.Stat(filepath.Join(npmPath, "node_modules")); err == nil && !force {
+					continue
+				}
+
 				if err := installDependencies(npmPath); err != nil {
 					return nil, err
 				}
