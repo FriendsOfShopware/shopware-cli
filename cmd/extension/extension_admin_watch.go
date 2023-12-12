@@ -34,8 +34,8 @@ var (
 	assetPathRegExp         = regexp.MustCompile(`(?m)assetPath:\s.*`)
 	assetRegExp             = regexp.MustCompile(`(?m)(src|href|content)="(https?.*\/bundles.*)"`)
 
-	extensionAssetRegExp   = regexp.MustCompile(`(?m)/bundles/([a-z-]+)/static/(.*)$`)
-	extensionEsbuildRegExp = regexp.MustCompile(`(?m)/.shopware-cli/([a-z-]+)/(.*)$`)
+	extensionAssetRegExp   = regexp.MustCompile(`(?m)/bundles/([a-z0-9-]+)/static/(.*)$`)
+	extensionEsbuildRegExp = regexp.MustCompile(`(?m)/.shopware-cli/([a-z0-9-]+)/(.*)$`)
 )
 
 //go:embed static/live-reload.js
