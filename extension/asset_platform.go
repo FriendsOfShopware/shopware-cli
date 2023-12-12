@@ -190,33 +190,27 @@ func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig) ([]string, error) {
 
 	// Install shared node_modules between admin and storefront
 	for _, entry := range cfgs {
-		// Install also shared node_modules
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app")
-			if err := installDependencies(npmPath); err != nil {
-				return nil, err
-			}
+		possibleNodePaths := []string{
+			// shared between admin and storefront
+			filepath.Join(entry.BasePath, "Resources", "app", "package.json"),
+			// only admin
+			filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json"),
+			filepath.Join(entry.BasePath, "Resources", "app", "administration", "src", "package.json"),
 
-			paths = append(paths, path.Join(npmPath, "node_modules"))
+			// only storefront
+			filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"),
+			filepath.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"),
 		}
 
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "administration")
-			if err := installDependencies(npmPath); err != nil {
-				return nil, err
+		for _, possibleNodePath := range possibleNodePaths {
+			if _, err := os.Stat(possibleNodePath); err == nil {
+				npmPath := filepath.Dir(possibleNodePath)
+				if err := installDependencies(npmPath); err != nil {
+					return nil, err
+				}
+
+				paths = append(paths, path.Join(npmPath, "node_modules"))
 			}
-
-			paths = append(paths, path.Join(npmPath, "node_modules"))
-		}
-
-		if _, err := os.Stat(filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json")); err == nil {
-			npmPath := filepath.Join(entry.BasePath, "Resources", "app", "storefront")
-			err := installDependencies(npmPath)
-			if err != nil {
-				return nil, err
-			}
-
-			paths = append(paths, path.Join(npmPath, "node_modules"))
 		}
 	}
 
