@@ -409,10 +409,12 @@ func lookupForMinMatchingVersion(ctx context.Context, versionConstraint *version
 		return "", fmt.Errorf("unmarshal composer versions: %w", err)
 	}
 
-	return getMinMatchingVersion(versionConstraint, versions)
+	return getMinMatchingVersion(versionConstraint, versions), nil
 }
 
-func getMinMatchingVersion(constraint *version.Constraints, versions []string) (string, error) {
+const DevVersionNumber = "6.9.9.9"
+
+func getMinMatchingVersion(constraint *version.Constraints, versions []string) string {
 	vs := make([]*version.Version, 0)
 
 	for _, r := range versions {
@@ -440,15 +442,15 @@ func getMinMatchingVersion(constraint *version.Constraints, versions []string) (
 			continue
 		}
 
-		return matchingVersion.String(), nil
+		return matchingVersion.String()
 	}
 
 	// If there are no non-prerelease versions, return the first matching version
 	if len(matchingVersions) > 0 {
-		return matchingVersions[0].String(), nil
+		return matchingVersions[0].String()
 	}
 
-	return "", fmt.Errorf("no matching version found for constraint %s", constraint.String())
+	return DevVersionNumber
 }
 
 // PrepareExtensionForRelease Remove secret from the manifest.

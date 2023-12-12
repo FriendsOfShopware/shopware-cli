@@ -412,24 +412,15 @@ func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version
 		return "", err
 	}
 
-	cloneBranch := "6.4"
+	branch := "v" + minVersion
 
-	shopware65Constraint, _ := version.NewConstraint("~6.5.0")
-	shopware66Constraint, _ := version.NewConstraint("~6.6.0")
-
-	if shopware65Constraint.Check(version.Must(version.NewVersion(minVersion))) {
-		cloneBranch = "6.5.x"
+	if minVersion == DevVersionNumber || minVersion == "6.6.0.0" {
+		branch = "trunk"
 	}
 
-	if shopware66Constraint.Check(version.Must(version.NewVersion(minVersion))) {
-		cloneBranch = "trunk"
-	} else if version.MustConstraints(version.NewConstraint("~6.5.0")).Check(version.Must(version.NewVersion(minVersion))) {
-		cloneBranch = "6.5.x"
-	}
+	logging.FromContext(ctx).Infof("Cloning shopware with branch: %s into %s", branch, dir)
 
-	logging.FromContext(ctx).Infof("Cloning shopware with branch: %s into %s", cloneBranch, dir)
-
-	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/shopware.git", "--depth=1", "-b", cloneBranch, dir)
+	gitCheckoutCmd := exec.Command("git", "clone", "https://github.com/shopware/shopware.git", "--depth=1", "-b", branch, dir)
 	gitCheckoutCmd.Stdout = os.Stdout
 	gitCheckoutCmd.Stderr = os.Stderr
 	err = gitCheckoutCmd.Run()
