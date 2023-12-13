@@ -18,7 +18,8 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
     && . /root/.bashrc \
     && nvm install 16 \
     && nvm install 18 \
-    && nvm alias default 18 \
+    && nvm install 20 \
+    && nvm alias default 20 \
     && nvm use default \
     && npm config set update-notifier false \
     && npm config set audit false \
