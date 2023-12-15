@@ -271,7 +271,7 @@ func installDependencies(path string) error {
 	installCmd.Stdout = os.Stdout
 	installCmd.Stderr = os.Stderr
 	installCmd.Env = os.Environ()
-	installCmd.Env = append(installCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1")
+	installCmd.Env = append(installCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1", "npm_config_engine_strict=false", "npm_config_fund=false", "npm_config_audit=false", "npm_config_update_notifier=false")
 
 	if err := installCmd.Run(); err != nil {
 		return err
