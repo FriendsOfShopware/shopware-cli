@@ -2,6 +2,6 @@
 set -euo pipefail
 
 source /root/.bashrc
-nvm use "${NODE_VERSION:-18}" > /dev/null
+nvm use "${NODE_VERSION:-20}" > /dev/null
 
 exec "$@"
