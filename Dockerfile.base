@@ -18,8 +18,6 @@ RUN apt-get update \
 
 RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
     && . /root/.bashrc \
-    && nvm install 16 \
-    && nvm install 18 \
     && nvm install 20 \
     && nvm alias default 20 \
     && nvm use default \
