@@ -24,8 +24,12 @@ RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh |
     && nvm alias default 20 \
     && nvm use default \
     && nvm cache clear \
+    && export SHELL=bash \
+    && curl -fsSL https://get.pnpm.io/install.sh | sh - \
+    && export BUN_INSTALL=/usr/local \
+    && curl -fsSL https://bun.sh/install | bash \
     && rm -rf /root/.npm \
-    && npm install --global yarn bun pnpm \
+    && npm install --global yarn \
     && npm cache clean --force
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
