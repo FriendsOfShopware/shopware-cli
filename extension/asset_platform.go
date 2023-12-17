@@ -90,7 +90,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			err := npmRunBuild(
 				administrationRoot,
 				"build",
-				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1"},
+				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", "SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION=1"},
 			)
 
 			if assetConfig.CleanupNodeModules {
