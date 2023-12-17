@@ -9,8 +9,8 @@ require (
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf
 	github.com/evanw/esbuild v0.19.9
-	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231202203025-ead6671a4bdf
-	github.com/google/uuid v1.4.0
+	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231210091330-92f38f1ae77c
+	github.com/google/uuid v1.5.0
 	github.com/gorilla/schema v1.2.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/microcosm-cc/bluemonday v1.0.26
