@@ -193,13 +193,15 @@ func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig, force bool) ([]strin
 		possibleNodePaths := []string{
 			// shared between admin and storefront
 			filepath.Join(entry.BasePath, "Resources", "app", "package.json"),
-			// only admin
-			filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json"),
-			filepath.Join(entry.BasePath, "Resources", "app", "administration", "src", "package.json"),
+		}
 
-			// only storefront
-			filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"),
-			filepath.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"),
+		// only try administration and storefront node_modules folder when we have an entry file
+		if entry.Administration.EntryFilePath != nil {
+			possibleNodePaths = append(possibleNodePaths, filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json"), filepath.Join(entry.BasePath, "Resources", "app", "administration", "src", "package.json"))
+		}
+
+		if entry.Storefront.EntryFilePath != nil {
+			possibleNodePaths = append(possibleNodePaths, filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"), filepath.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"))
 		}
 
 		for _, possibleNodePath := range possibleNodePaths {
