@@ -87,6 +87,11 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 
 			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
+
+			if err := installDependencies(administrationRoot); err != nil {
+				return err
+			}
+
 			err := npmRunBuild(
 				administrationRoot,
 				"build",
@@ -153,17 +158,16 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot),
 			}
 
+			if err := patchPackageLockToRemoveCanIUsePackage(path.Join(storefrontRoot, "package-lock.json")); err != nil {
+				return err
+			}
+
 			if assetConfig.Browserslist != "" {
-				npx := exec.CommandContext(ctx, "npx", "--yes", "update-browserslist-db", "--quiet")
-				npx.Stdout = os.Stdout
-				npx.Stderr = os.Stderr
-				npx.Dir = storefrontRoot
-
-				if err := npx.Run(); err != nil {
-					return err
-				}
-
 				envList = append(envList, fmt.Sprintf("BROWSERSLIST=%s", assetConfig.Browserslist))
+			}
+
+			if err := installDependencies(storefrontRoot, "caniuse-lite"); err != nil {
+				return err
 			}
 
 			err := npmRunBuild(
@@ -234,10 +238,6 @@ func deletePaths(ctx context.Context, nodeModulesPaths ...string) {
 }
 
 func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error {
-	if err := installDependencies(path); err != nil {
-		return err
-	}
-
 	npmBuildCmd := exec.Command("npm", "--prefix", path, "run", buildCmd) //nolint:gosec
 	npmBuildCmd.Env = os.Environ()
 	npmBuildCmd.Env = append(npmBuildCmd.Env, buildEnvVariables...)
@@ -272,13 +272,14 @@ func getInstallCommand(path string) *exec.Cmd {
 	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
 }
 
-func installDependencies(path string) error {
+func installDependencies(path string, additionalParams ...string) error {
 	installCmd := getInstallCommand(path)
+	installCmd.Args = append(installCmd.Args, additionalParams...)
 	installCmd.Dir = path
 	installCmd.Stdout = os.Stdout
 	installCmd.Stderr = os.Stderr
 	installCmd.Env = os.Environ()
-	installCmd.Env = append(installCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1", "npm_config_engine_strict=false", "npm_config_fund=false", "npm_config_audit=false", "npm_config_update_notifier=false")
+	installCmd.Env = append(installCmd.Env, "PUPPETEER_SKIP_DOWNLOAD=1", "NPM_CONFIG_ENGINE_STRICT=false", "NPM_CONFIG_FUND=false", "NPM_CONFIG_AUDIT=false", "NPM_CONFIG_UPDATE_NOTIFIER=false")
 
 	if err := installCmd.Run(); err != nil {
 		return err
