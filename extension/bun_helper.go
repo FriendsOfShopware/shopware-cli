@@ -11,7 +11,7 @@ type npmPackage struct {
 	DevDependencies map[string]string `json:"devDependencies"`
 }
 
-// When a package is defined in both dependencies and devDependencies, bun will crash
+// When a package is defined in both dependencies and devDependencies, bun will crash.
 func canRunBunOnPackage(packagePath string) bool {
 	packageJson, err := os.ReadFile(path.Join(packagePath, "package.json"))
 
@@ -25,7 +25,7 @@ func canRunBunOnPackage(packagePath string) bool {
 		return false
 	}
 
-	for name, _ := range npmPackage.Dependencies {
+	for name := range npmPackage.Dependencies {
 		if _, ok := npmPackage.DevDependencies[name]; ok {
 			return false
 		}
