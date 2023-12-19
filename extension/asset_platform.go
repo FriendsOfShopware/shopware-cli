@@ -263,7 +263,7 @@ func getInstallCommand(path string) *exec.Cmd {
 	}
 
 	// Bun can migrate on the fly the package-lock.json to a bun.lockdb and is much faster than NPM
-	if _, err := exec.LookPath("bun"); err == nil {
+	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(path) {
 		return exec.Command("bun", "install", "--no-save")
 	}
 
