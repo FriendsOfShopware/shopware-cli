@@ -19,7 +19,7 @@ require (
 	github.com/sashabaranov/go-openai v1.17.9
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	github.com/tetratelabs/wazero v1.5.0
+	github.com/tetratelabs/wazero v1.6.0
 	github.com/vulcand/oxy/v2 v2.0.0
 	github.com/yuin/goldmark v1.6.0
 	go.uber.org/zap v1.26.0
