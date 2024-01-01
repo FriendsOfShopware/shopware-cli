@@ -27,8 +27,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf h1:uHy2r98dl7mtcffi3Ie+Vt+j7Qhw67FtUpZj8slBzo0=
 github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf/go.mod h1:yfWKFJm6NisKuie2cdH5zUttu4gZYHa/CY7CHpA3tMU=
-github.com/evanw/esbuild v0.19.10 h1:5x990xPJSRtP0xwIz0Wzf4+ObaEWARNA77+PUrPAnwI=
-github.com/evanw/esbuild v0.19.10/go.mod h1:D2vIQZqV/vIf/VRHtViaUtViZmG7o+kKmlBfVQuRi48=
+github.com/evanw/esbuild v0.19.11 h1:mbPO1VJ/df//jjUd+p/nRLYCpizXxXb2w/zZMShxa2k=
+github.com/evanw/esbuild v0.19.11/go.mod h1:D2vIQZqV/vIf/VRHtViaUtViZmG7o+kKmlBfVQuRi48=
 github.com/frankban/quicktest v1.14.2 h1:SPb1KFFmM+ybpEjPUhCCkZOM5xlovT5UbrMvWnXyBns=
 github.com/frankban/quicktest v1.14.2/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231210091330-92f38f1ae77c h1:nqb0JGvyGIZNLPzkwxKBWKlfYVB7f16Ie1OuDKBf1vg=
