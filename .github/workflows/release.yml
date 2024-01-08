@@ -34,7 +34,7 @@ jobs:
         uses: sigstore/cosign-installer@v3
 
       - name: Install Syft
-        uses: anchore/sbom-action/download-syft@v0.15.1
+        uses: anchore/sbom-action/download-syft@v0.15.3
 
       - name: Login into Github Docker Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
