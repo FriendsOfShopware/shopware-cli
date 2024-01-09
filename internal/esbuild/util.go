@@ -12,5 +12,10 @@ func ToKebabCase(str string) string {
 	converted := matchLetter.ReplaceAllStringFunc(str, func(match string) string {
 		return "-" + strings.ToLower(match)
 	})
-	return converted[1:]
+
+	if strings.HasPrefix(converted, "-") {
+		converted = converted[1:]
+	}
+
+	return converted
 }
