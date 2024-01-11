@@ -5,4 +5,5 @@ type Source struct {
 	Path                        string
 	AdminEsbuildCompatible      bool
 	StorefrontEsbuildCompatible bool
+	DisableSass                 bool
 }

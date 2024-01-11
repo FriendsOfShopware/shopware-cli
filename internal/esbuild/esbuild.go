@@ -20,6 +20,7 @@ type AssetCompileResult struct {
 
 type AssetCompileOptions struct {
 	ProductionMode bool
+	DisableSass    bool
 	EntrypointDir  string
 	OutputDir      string
 	Name           string
@@ -43,6 +44,8 @@ func NewAssetCompileOptionsStorefront(name, path string) AssetCompileOptions {
 		EntrypointDir:  "Resources/app/storefront/src",
 		OutputDir:      "Resources/app/storefront/dist/storefront",
 		ProductionMode: true,
+		// We never emit CSS for the storefront, they always are lying in a separate SCSS file entrypoint
+		DisableSass: true,
 	}
 }
 
@@ -59,6 +62,22 @@ func getEsbuildOptions(ctx context.Context, options AssetCompileOptions) (*api.B
 		entryPoint = entryPointTS
 	}
 
+	plugins := []api.Plugin{}
+	loader := map[string]api.Loader{
+		".html": api.LoaderText,
+		".twig": api.LoaderText,
+		".css":  api.LoaderCSS,
+		".png":  api.LoaderFile,
+		".jpg":  api.LoaderFile,
+		".jpeg": api.LoaderFile,
+		".ts":   api.LoaderTS,
+	}
+
+	if !options.DisableSass {
+		plugins = append(plugins, newScssPlugin(ctx))
+		loader[".scss"] = api.LoaderCSS
+	}
+
 	bundlerOptions := api.BuildOptions{
 		MinifySyntax:      options.ProductionMode,
 		MinifyWhitespace:  options.ProductionMode,
@@ -68,17 +87,8 @@ func getEsbuildOptions(ctx context.Context, options AssetCompileOptions) (*api.B
 		Bundle:            true,
 		Write:             false,
 		LogLevel:          api.LogLevelWarning,
-		Plugins:           []api.Plugin{newScssPlugin(ctx)},
-		Loader: map[string]api.Loader{
-			".html": api.LoaderText,
-			".twig": api.LoaderText,
-			".scss": api.LoaderCSS,
-			".css":  api.LoaderCSS,
-			".png":  api.LoaderFile,
-			".jpg":  api.LoaderFile,
-			".jpeg": api.LoaderFile,
-			".ts":   api.LoaderTS,
-		},
+		Plugins:           plugins,
+		Loader:            loader,
 	}
 
 	return &bundlerOptions, nil

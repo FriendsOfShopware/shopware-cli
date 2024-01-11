@@ -24,6 +24,7 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 			Path:                        ext.GetRootDir(),
 			AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
 			StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
+			DisableSass:                 ext.GetExtensionConfig().Build.Zip.Assets.DisableSass,
 		})
 
 		extConfig := ext.GetExtensionConfig()
@@ -41,6 +42,7 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 					Path:                        path.Join(ext.GetRootDir(), bundle.Path),
 					AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
 					StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
+					DisableSass:                 ext.GetExtensionConfig().Build.Zip.Assets.DisableSass,
 				})
 			}
 		}

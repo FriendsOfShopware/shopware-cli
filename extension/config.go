@@ -25,6 +25,7 @@ type ConfigBuild struct {
 			AfterHooks                 []string `yaml:"after_hooks,omitempty"`
 			EnableESBuildForAdmin      bool     `yaml:"enable_es_build_for_admin"`
 			EnableESBuildForStorefront bool     `yaml:"enable_es_build_for_storefront"`
+			DisableSass                bool     `yaml:"es_build_disable_sass"`
 		} `yaml:"assets"`
 		Pack struct {
 			Excludes struct {

@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,6 +11,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/evanw/esbuild/pkg/api"
@@ -78,9 +79,9 @@ var extensionAdminWatchCmd = &cobra.Command{
 		for name, entry := range cfgs {
 			options := esbuild.NewAssetCompileOptionsAdmin(name, entry.BasePath)
 			options.ProductionMode = false
+			options.DisableSass = entry.DisableSass
 
 			esbuildContext, err := esbuild.Context(cmd.Context(), options)
-
 			if err != nil {
 				return err
 			}

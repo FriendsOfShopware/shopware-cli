@@ -135,6 +135,10 @@
 								"enable_es_build_for_storefront": {
 									"type": "boolean",
 									"default": false
+								},
+								"es_build_disable_sass": {
+									"type": "boolean",
+									"default": false
 								}
 							}
 						},

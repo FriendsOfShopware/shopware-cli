@@ -73,6 +73,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		// Build all extensions compatible with esbuild first
 		for name, entry := range cfgs.FilterByAdminAndEsBuild(true) {
 			options := esbuild.NewAssetCompileOptionsAdmin(name, entry.BasePath)
+			options.DisableSass = entry.DisableSass
 
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 				return err
@@ -334,6 +335,7 @@ func BuildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 		sourceConfig := createConfigFromPath(source.Name, source.Path)
 		sourceConfig.EnableESBuildForAdmin = source.AdminEsbuildCompatible
 		sourceConfig.EnableESBuildForStorefront = source.StorefrontEsbuildCompatible
+		sourceConfig.DisableSass = source.DisableSass
 
 		if assetCfg.SkipExtensionsWithBuildFiles {
 			expectedAdminCompiledFile := path.Join(source.Path, "Resources", "public", "administration", "js", esbuild.ToKebabCase(source.Name)+".js")
@@ -531,6 +533,7 @@ type ExtensionAssetConfigEntry struct {
 	Storefront                 ExtensionAssetConfigStorefront `json:"storefront"`
 	EnableESBuildForAdmin      bool
 	EnableESBuildForStorefront bool
+	DisableSass                bool
 }
 
 type ExtensionAssetConfigAdmin struct {
