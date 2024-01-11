@@ -34,6 +34,7 @@ func TestESBuildAdmin(t *testing.T) {
 	_ = os.WriteFile(path.Join(adminDir, "main.js"), []byte("console.log('bla')"), os.ModePerm)
 
 	options := NewAssetCompileOptionsAdmin("Bla", dir)
+	options.DisableSass = true
 	_, err := CompileExtensionAsset(getTestContext(), options)
 
 	assert.NoError(t, err)
@@ -44,6 +45,10 @@ func TestESBuildAdmin(t *testing.T) {
 }
 
 func TestESBuildAdminWithSCSS(t *testing.T) {
+	if os.Getenv("NIX_CC") != "" {
+		t.Skip("Downloading does not work in Nix build")
+	}
+
 	dir := t.TempDir()
 
 	adminDir := path.Join(dir, "Resources", "app", "administration", "src")
@@ -80,6 +85,7 @@ func TestESBuildAdminTypeScript(t *testing.T) {
 	_ = os.WriteFile(path.Join(adminDir, "main.ts"), []byte("console.log('bla')"), os.ModePerm)
 
 	options := NewAssetCompileOptionsAdmin("Bla", dir)
+	options.DisableSass = true
 	result, err := CompileExtensionAsset(getTestContext(), options)
 
 	assert.NoError(t, err)

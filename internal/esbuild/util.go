@@ -13,9 +13,5 @@ func ToKebabCase(str string) string {
 		return "-" + strings.ToLower(match)
 	})
 
-	if strings.HasPrefix(converted, "-") {
-		converted = converted[1:]
-	}
-
-	return converted
+	return strings.TrimPrefix(converted, "-")
 }
