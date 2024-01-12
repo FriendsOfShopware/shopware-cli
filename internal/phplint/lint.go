@@ -32,7 +32,10 @@ func LintFolder(ctx context.Context, phpVersion, folder string) (LintErrors, err
 
 	defer wasmRuntime.Close(ctx)
 
-	wasmCompiled, _ := wasmRuntime.CompileModule(ctx, wasmFile)
+	wasmCompiled, err := wasmRuntime.CompileModule(ctx, wasmFile)
+	if err != nil {
+		return nil, err
+	}
 
 	dirFs := os.DirFS(folder)
 
