@@ -3,16 +3,17 @@ package esbuild
 import (
 	"context"
 	_ "embed"
-	"github.com/FriendsOfShopware/shopware-cli/internal/system"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"github.com/FriendsOfShopware/shopware-cli/internal/system"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
-const dartSassVersion = "1.69.5"
+const dartSassVersion = "1.69.7"
 
 //go:embed static/variables.scss
 var scssVariables []byte
