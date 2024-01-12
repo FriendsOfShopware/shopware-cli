@@ -10,9 +10,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"google.golang.org/appengine/log"
 )
 
 func downloadDartSass(ctx context.Context, cacheDir string) error {
@@ -32,7 +35,7 @@ func downloadDartSass(ctx context.Context, cacheDir string) error {
 		osType = "macos"
 	}
 
-	request, _ := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("https://github.com/sass/dart-sass/releases/download/%s/dart-sass-%s-%s-%s.tar.gz", dartSassVersion, dartSassVersion, osType, arch), nil)
+	request, _ := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("https://github.com/sass/dart-sass/releases/download/%s/dart-sass-%s-%s%s-%s.tar.gz", dartSassVersion, dartSassVersion, osType, detectDownloadPrefix(ctx), arch), nil)
 
 	tarFile, err := http.DefaultClient.Do(request)
 	if err != nil {
@@ -93,4 +96,27 @@ func downloadDartSass(ctx context.Context, cacheDir string) error {
 	}
 
 	return nil
+}
+
+// determines that we need to download musl dart-sas or not
+func detectDownloadPrefix(ctx context.Context) string {
+	// if we are on darwin, we don't need to download musl dart-sass
+	if runtime.GOOS == "darwin" {
+		return ""
+	}
+
+	resp, err := exec.CommandContext(ctx, "ldd", "--version").CombinedOutput()
+	if err != nil {
+		log.Infof(ctx, "cannot run ldd to determine which dart-sass build is requierd: %s, using gnu libc", err)
+
+		return ""
+	}
+
+	outputString := string(resp)
+
+	if strings.Contains(outputString, "libc.musl-") || strings.Contains(outputString, "ld-musl-") {
+		return "-musl"
+	}
+
+	return ""
 }
