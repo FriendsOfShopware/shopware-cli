@@ -15,7 +15,7 @@ import (
 	"runtime"
 	"strings"
 
-	"google.golang.org/appengine/log"
+	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 func downloadDartSass(ctx context.Context, cacheDir string) error {
@@ -98,7 +98,7 @@ func downloadDartSass(ctx context.Context, cacheDir string) error {
 	return nil
 }
 
-// determines that we need to download musl dart-sas or not
+// determines that we need to download musl dart-sas or not.
 func detectDownloadPrefix(ctx context.Context) string {
 	// if we are on darwin, we don't need to download musl dart-sass
 	if runtime.GOOS == "darwin" {
@@ -106,8 +106,9 @@ func detectDownloadPrefix(ctx context.Context) string {
 	}
 
 	resp, err := exec.CommandContext(ctx, "ldd", "--version").CombinedOutput()
-	if err != nil {
-		log.Infof(ctx, "cannot run ldd to determine which dart-sass build is requierd: %s, using gnu libc", err)
+
+	if resp == nil {
+		logging.FromContext(ctx).Infof("cannot run ldd to determine which dart-sass build is requierd: %s, using gnu libc", err)
 
 		return ""
 	}
