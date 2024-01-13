@@ -48,6 +48,8 @@ func RunValidation(ctx context.Context, ext Extension) *ValidationContext {
 
 	runDefaultValidate(context)
 	ext.Validate(ctx, context)
+	validateAdministrationSnippets(context)
+	validateStorefrontSnippets(context)
 
 	return context
 }
