@@ -130,7 +130,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		}
 
 		var projectCfg *shop.Config
-		if projectCfg, err = shop.ReadConfig(projectConfigPath, false); err != nil {
+		if projectCfg, err = shop.ReadConfig(projectConfigPath, true); err != nil {
 			if !strings.Contains(err.Error(), "cannot find .shopware-project.yml") {
 				return err
 			}
