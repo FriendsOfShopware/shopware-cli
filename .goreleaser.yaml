@@ -33,7 +33,6 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    rlcp: true
     files:
       - LICENSE
       - completions/*
@@ -268,7 +267,7 @@ nix:
   - name: shopware-cli
     repository:
       owner: FriendsOfShopware
-      name: nur
+      name: nur-packages
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
