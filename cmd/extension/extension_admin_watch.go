@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"io"
 	"net/http"
 	"net/url"
@@ -57,7 +58,12 @@ var extensionAdminWatchCmd = &cobra.Command{
 		for _, extensionPath := range args[:len(args)-1] {
 			ext, err := extension.GetExtensionByFolder(extensionPath)
 			if err != nil {
-				sources = append(sources, extension.FindAssetSourcesOfProject(cmd.Context(), extensionPath)...)
+				shopCfg, err := shop.ReadConfig(path.Join(extensionPath, ".shopware-project.yml"), true)
+				if err != nil {
+					return err
+				}
+
+				sources = append(sources, extension.FindAssetSourcesOfProject(cmd.Context(), extensionPath, shopCfg)...)
 				continue
 			}
 

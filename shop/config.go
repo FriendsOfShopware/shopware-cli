@@ -27,6 +27,7 @@ type ConfigBuild struct {
 	KeepExtensionSource   bool     `yaml:"keep_extension_source,omitempty"`
 	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
 	Browserslist          string   `yaml:"browserslist,omitempty"`
+	ExcludeExtensions     []string `yaml:"exclude_extensions,omitempty"`
 }
 
 type ConfigAdminApi struct {

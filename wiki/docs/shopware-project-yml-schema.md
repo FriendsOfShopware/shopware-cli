@@ -34,6 +34,9 @@ build:
     - path
   # change the browserslist of the storefront build, see https://browsersl.ist for the syntax as string (example: defaults, not dead)
   browserslist: ''
+  # exclude extensions to be built by shopware-cli, only their PHP code will be shipped without any css/js
+  exclude_extensions:
+    - name
 
 # used for mysql dump creation
 dump:

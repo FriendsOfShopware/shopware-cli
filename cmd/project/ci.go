@@ -67,7 +67,7 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0])
+		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0], shopCfg)
 
 		assetCfg := extension.AssetBuildConfig{
 			CleanupNodeModules:           true,

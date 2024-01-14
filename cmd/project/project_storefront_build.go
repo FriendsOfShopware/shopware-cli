@@ -1,6 +1,7 @@
 package project
 
 import (
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os/exec"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
@@ -21,9 +22,14 @@ var projectStorefrontBuildCmd = &cobra.Command{
 			return err
 		}
 
+		shopCfg, err := shop.ReadConfig(projectConfigPath, true)
+		if err != nil {
+			return err
+		}
+
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot)
+		sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
 
 		assetCfg := extension.AssetBuildConfig{
 			DisableAdminBuild: true,

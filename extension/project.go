@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os"
 	"path"
 	"path/filepath"
@@ -40,7 +41,7 @@ func GetShopwareProjectConstraint(project string) (*version.Constraints, error) 
 	return &c, nil
 }
 
-func FindAssetSourcesOfProject(ctx context.Context, project string) []asset.Source {
+func FindAssetSourcesOfProject(ctx context.Context, project string, shopCfg *shop.Config) []asset.Source {
 	extensions := FindExtensionsFromProject(ctx, project)
 	sources := ConvertExtensionsToSources(ctx, extensions)
 
@@ -79,6 +80,17 @@ func FindAssetSourcesOfProject(ctx context.Context, project string) []asset.Sour
 			AdminEsbuildCompatible:      bundleConfig.Build.Zip.Assets.EnableESBuildForAdmin,
 			StorefrontEsbuildCompatible: bundleConfig.Build.Zip.Assets.EnableESBuildForStorefront,
 		})
+	}
+
+	if len(shopCfg.Build.ExcludeExtensions) > 0 {
+		logging.FromContext(ctx).Infof("Excluded extensions in project: %s", shopCfg.Build.ExcludeExtensions)
+		for _, excludedExtension := range shopCfg.Build.ExcludeExtensions {
+			for i, source := range sources {
+				if source.Name == excludedExtension {
+					sources = append(sources[:i], sources[i+1:]...)
+				}
+			}
+		}
 	}
 
 	return sources

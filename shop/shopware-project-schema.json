@@ -50,6 +50,11 @@
                 "browserslist": {
                     "type": "string",
                     "description": "Browserslist configuration for the Storefront build"
+                },
+                "exclude_extensions": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Extensions to exclude from the build"
                 }
             }
         },
