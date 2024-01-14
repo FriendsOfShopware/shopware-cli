@@ -35,10 +35,10 @@ var extensionAssetBundleCmd = &cobra.Command{
 			validatedExtensions = append(validatedExtensions, ext)
 		}
 
-		if os.Getenv("SHOPWARE_PROJECT_ROOT") == "" {
-			constraint, err := extension.GetShopwareProjectConstraint(os.Getenv("SHOPWARE_PROJECT_ROOT"))
+		if assetCfg.ShopwareRoot != "" {
+			constraint, err := extension.GetShopwareProjectConstraint(assetCfg.ShopwareRoot)
 			if err != nil {
-				return fmt.Errorf("cannot get shopware version constraint from project %s: %w", os.Getenv("SHOPWARE_PROJECT_ROOT"), err)
+				return fmt.Errorf("cannot get shopware version constraint from project %s: %w", assetCfg.ShopwareRoot, err)
 			}
 			assetCfg.ShopwareVersion = constraint
 		} else {
