@@ -57,14 +57,38 @@ Download the .deb, .rpm or .apk packages from the [releases](https://github.com/
 ### Nix
 
 ```shell
-nix-env -iA nixpkgs.shopware-cli
+nix profile install nixpkgs#shopware-cli
+```
+
+or directly from the FriendsOfShopware repository (more up to date)
+
+```shell
+nix profile install github:FriendsOfShopware/nur-packages#shopware-cli
 ```
 
 ### Devenv
 
+Update `devenv.yaml` with a new input:
+
+```yaml
+inputs:
+  nixpkgs:
+    url: github:NixOS/nixpkgs/nixpkgs-unstable
+  froshpkgs:
+    url: github:FriendsOfShopware/nur-packages
+    inputs:
+      nixpkgs:
+        follows: "nixpkgs"
+```
+
+and then you can use the new input in the `devenv.nix` file. Don't forget to add the `inputs` argument, to the first line.
+
+
 ```nix
-{ pkgs, ... }: {
-  packages = [ pkgs.shopware-cli ];
+{ pkgs, inputs, ... }: {
+  packages = [
+    inputs.froshpkgs.packages.${pkgs.system}.shopware-cli
+  ];
 }
 ```
 
