@@ -111,6 +111,8 @@ func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 
 	config.Sync.MailTemplate = make([]shop.MailTemplate, 0)
 
+	duplicateTypes := getDuplicateMailTemplateTypes(mailTemplates.Data)
+
 	for _, row := range mailTemplates.Data {
 		if row.MailTemplateType == nil {
 			logging.FromContext(ctx.Context).Infof("mail_template entity with id %s does not have a type. Skipping", row.Id)
@@ -131,6 +133,12 @@ func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 
 			htmLFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-html.twig", row.MailTemplateType.TechnicalName, configKey)
 			plainFilePath := fmt.Sprintf(".shopware-cli/mail-template/%s/%s-plain.twig", row.MailTemplateType.TechnicalName, configKey)
+
+			if ok := duplicateTypes[row.MailTemplateType.TechnicalName]; ok {
+				htmLFilePath = fmt.Sprintf(".shopware-cli/mail-template/%s/%s-%s-html.twig", row.MailTemplateType.TechnicalName, configKey, row.Id)
+				plainFilePath = fmt.Sprintf(".shopware-cli/mail-template/%s/%s-%s-plain.twig", row.MailTemplateType.TechnicalName, configKey, row.Id)
+			}
+
 			dir := filepath.Dir(htmLFilePath)
 
 			if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -163,6 +171,29 @@ func (MailTemplateSync) Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, c
 	}
 
 	return nil
+}
+
+func getDuplicateMailTemplateTypes(data []adminSdk.MailTemplate) map[string]bool {
+	check := make(map[string]bool)
+	duplicates := make(map[string]bool)
+
+	for _, row := range data {
+		if row.MailTemplateType == nil {
+			continue
+		}
+
+		if row.MailTemplateType.TechnicalName == "" {
+			continue
+		}
+
+		if _, ok := check[row.MailTemplateType.TechnicalName]; ok {
+			duplicates[row.MailTemplateType.TechnicalName] = true
+		} else {
+			check[row.MailTemplateType.TechnicalName] = true
+		}
+	}
+
+	return duplicates
 }
 
 func fetchAllMailTemplates(ctx adminSdk.ApiContext, client *adminSdk.Client) (*adminSdk.MailTemplateCollection, error) {
