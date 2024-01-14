@@ -68,15 +68,10 @@ var projectCI = &cobra.Command{
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
 		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0])
-		constraint, err := extension.GetShopwareProjectConstraint(args[0])
-		if err != nil {
-			return err
-		}
 
 		assetCfg := extension.AssetBuildConfig{
 			CleanupNodeModules:           true,
 			ShopwareRoot:                 args[0],
-			ShopwareVersion:              constraint,
 			Browserslist:                 shopCfg.Build.Browserslist,
 			SkipExtensionsWithBuildFiles: true,
 		}
