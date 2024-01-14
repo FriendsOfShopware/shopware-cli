@@ -109,7 +109,7 @@ func TestESBuildStorefront(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	compiledFilePath := path.Join(dir, "Resources", "app", "storefront", "dist", "storefront", "js", "bla.js")
+	compiledFilePath := path.Join(dir, "Resources", "app", "storefront", "dist", "storefront", "js", "bla", "bla.js")
 	_, err = os.Stat(compiledFilePath)
 	assert.NoError(t, err)
 }

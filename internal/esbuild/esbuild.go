@@ -25,26 +25,36 @@ type AssetCompileOptions struct {
 	OutputDir      string
 	Name           string
 	Path           string
+	OutputJSFile   string
+	OutputCSSFile  string
 }
 
 func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
+	kebabCased := ToKebabCase(name)
+
 	return AssetCompileOptions{
 		Name:           name,
 		Path:           path,
 		EntrypointDir:  "Resources/app/administration/src",
 		OutputDir:      "Resources/public/administration",
 		ProductionMode: true,
+		OutputJSFile:   filepath.Join("js", kebabCased+".js"),
+		OutputCSSFile:  filepath.Join("css", kebabCased+".css"),
 	}
 }
 
 func NewAssetCompileOptionsStorefront(name, path string) AssetCompileOptions {
+	kebabCased := ToKebabCase(name)
+
 	return AssetCompileOptions{
 		Name:           name,
 		Path:           path,
 		EntrypointDir:  "Resources/app/storefront/src",
 		OutputDir:      "Resources/app/storefront/dist/storefront",
 		ProductionMode: true,
-		// We never emit CSS for the storefront, they always are lying in a separate SCSS file entrypoint
+		OutputJSFile:   filepath.Join("js", kebabCased, kebabCased+".js"),
+		OutputCSSFile:  filepath.Join("css", kebabCased+".css"),
+		// We never emit CSS for the storefront, they are always lying in a separate SCSS file entrypoint
 		DisableSass: true,
 	}
 }
@@ -104,9 +114,8 @@ func Context(ctx context.Context, options AssetCompileOptions) (api.BuildContext
 }
 
 func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*AssetCompileResult, error) {
-	technicalName := ToKebabCase(options.Name)
-	jsFile := filepath.Join(options.Path, options.OutputDir, "js", technicalName+".js")
-	cssFile := filepath.Join(options.Path, options.OutputDir, "css", technicalName+".css")
+	jsFile := filepath.Join(options.Path, options.OutputDir, options.OutputJSFile)
+	cssFile := filepath.Join(options.Path, options.OutputDir, options.OutputCSSFile)
 
 	bundlerOptions, err := getEsbuildOptions(ctx, options)
 	if err != nil {
@@ -117,6 +126,10 @@ func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*A
 
 	if len(result.Errors) > 0 {
 		return nil, fmt.Errorf("initial compile failed")
+	}
+
+	if err := cleanupOutputFolder(options); err != nil {
+		return nil, err
 	}
 
 	if err := writeBundlerResultToDisk(result, jsFile, cssFile); err != nil {
@@ -131,6 +144,21 @@ func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*A
 	}
 
 	return &compileResult, nil
+}
+
+func cleanupOutputFolder(options AssetCompileOptions) error {
+	folders := []string{"css", "js"}
+
+	for _, folder := range folders {
+		folderPath := filepath.Join(options.Path, options.OutputDir, folder)
+		if _, err := os.Stat(folderPath); err == nil {
+			if err := os.RemoveAll(folderPath); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func writeBundlerResultToDisk(result api.BuildResult, jsFile, cssFile string) error {
