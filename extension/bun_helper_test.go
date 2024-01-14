@@ -20,7 +20,11 @@ func TestValidPackageJsonBun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.True(t, canRunBunOnPackage(tmpDir))
+	npm, err := getNpmPackage(tmpDir)
+
+	assert.NoError(t, err)
+
+	assert.True(t, canRunBunOnPackage(npm))
 }
 
 func TestValidPackageJsonWithDevBun(t *testing.T) {
@@ -39,7 +43,11 @@ func TestValidPackageJsonWithDevBun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.True(t, canRunBunOnPackage(tmpDir))
+	npm, err := getNpmPackage(tmpDir)
+
+	assert.NoError(t, err)
+
+	assert.True(t, canRunBunOnPackage(npm))
 }
 
 func TestInvalidPackageJsonBun(t *testing.T) {
@@ -58,5 +66,9 @@ func TestInvalidPackageJsonBun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.False(t, canRunBunOnPackage(tmpDir))
+	npm, err := getNpmPackage(tmpDir)
+
+	assert.NoError(t, err)
+
+	assert.False(t, canRunBunOnPackage(npm))
 }
