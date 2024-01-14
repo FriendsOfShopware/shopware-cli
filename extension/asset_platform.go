@@ -89,7 +89,13 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
 
-			if err := installDependencies(administrationRoot); err != nil {
+			var additionalNpmParameters []string
+
+			if doesPackageJsonContainsPackageInDev(path.Join(administrationRoot, "package.json"), "puppeteer") {
+				additionalNpmParameters = []string{"--production"}
+			}
+
+			if err := installDependencies(administrationRoot, additionalNpmParameters...); err != nil {
 				return err
 			}
 
@@ -167,7 +173,13 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				envList = append(envList, fmt.Sprintf("BROWSERSLIST=%s", assetConfig.Browserslist))
 			}
 
-			if err := installDependencies(storefrontRoot, "caniuse-lite"); err != nil {
+			additionalNpmParameters := []string{"caniuse-lite"}
+
+			if doesPackageJsonContainsPackageInDev(path.Join(storefrontRoot, "package.json"), "puppeteer") {
+				additionalNpmParameters = append(additionalNpmParameters, "--production")
+			}
+
+			if err := installDependencies(storefrontRoot, additionalNpmParameters...); err != nil {
 				return err
 			}
 
@@ -252,7 +264,7 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 	return nil
 }
 
-func getInstallCommand(path string) *exec.Cmd {
+func getInstallCommand(path string, isProductionMode bool) *exec.Cmd {
 	if _, err := os.Stat(filepath.Join(path, "pnpm-lock.yaml")); err == nil {
 		return exec.Command("pnpm", "install")
 	}
@@ -261,12 +273,13 @@ func getInstallCommand(path string) *exec.Cmd {
 		return exec.Command("yarn", "install")
 	}
 
-	if _, err := os.Stat(filepath.Join(path, "bun.lockdb")); err == nil {
+	// @see https://github.com/oven-sh/bun/issues/7755
+	if _, err := os.Stat(filepath.Join(path, "bun.lockdb")); err == nil && !isProductionMode {
 		return exec.Command("bun", "install")
 	}
 
 	// Bun can migrate on the fly the package-lock.json to a bun.lockdb and is much faster than NPM
-	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(path) {
+	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(path) && !isProductionMode {
 		return exec.Command("bun", "install", "--no-save")
 	}
 
@@ -274,7 +287,15 @@ func getInstallCommand(path string) *exec.Cmd {
 }
 
 func installDependencies(path string, additionalParams ...string) error {
-	installCmd := getInstallCommand(path)
+	isProductionMode := false
+
+	for _, param := range additionalParams {
+		if param == "--production" {
+			isProductionMode = true
+		}
+	}
+
+	installCmd := getInstallCommand(path, isProductionMode)
 	installCmd.Args = append(installCmd.Args, additionalParams...)
 	installCmd.Dir = path
 	installCmd.Stdout = os.Stdout
@@ -547,4 +568,22 @@ type ExtensionAssetConfigStorefront struct {
 	EntryFilePath *string  `json:"entryFilePath"`
 	Webpack       *string  `json:"webpack"`
 	StyleFiles    []string `json:"styleFiles"`
+}
+
+func doesPackageJsonContainsPackageInDev(packageJson, packageName string) bool {
+	packageJsonFile, err := os.ReadFile(packageJson)
+	if err != nil {
+		return false
+	}
+
+	var packageJsonData npmPackage
+	if err := json.Unmarshal(packageJsonFile, &packageJsonData); err != nil {
+		return false
+	}
+
+	if _, ok := packageJsonData.DevDependencies[packageName]; ok {
+		return true
+	}
+
+	return false
 }
