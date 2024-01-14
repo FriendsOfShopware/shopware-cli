@@ -47,6 +47,9 @@ build:
 
             # use bundled esbuild instead of default compile
             enable_es_build_for_storefront: false
+            
+            # all package.json of this extension will be installed with `npm install --production`, therefore, devDependencies will be ignored
+            npm_strict: false
 
         pack:
             # run commands before packing the zip

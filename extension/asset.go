@@ -25,6 +25,7 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 			AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
 			StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
 			DisableSass:                 ext.GetExtensionConfig().Build.Zip.Assets.DisableSass,
+			NpmStrict:                   ext.GetExtensionConfig().Build.Zip.Assets.NpmStrict,
 		})
 
 		extConfig := ext.GetExtensionConfig()
@@ -43,6 +44,7 @@ func ConvertExtensionsToSources(ctx context.Context, extensions []Extension) []a
 					AdminEsbuildCompatible:      ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForAdmin,
 					StorefrontEsbuildCompatible: ext.GetExtensionConfig().Build.Zip.Assets.EnableESBuildForStorefront,
 					DisableSass:                 ext.GetExtensionConfig().Build.Zip.Assets.DisableSass,
+					NpmStrict:                   ext.GetExtensionConfig().Build.Zip.Assets.NpmStrict,
 				})
 			}
 		}

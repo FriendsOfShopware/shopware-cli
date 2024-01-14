@@ -9,8 +9,7 @@ dist/
 /test-app
 /go-shopware-admin-api-sdk
 /*.zip
-/FroshTools
-/FroshPlatformTemplateMail
+/Frosh*
 /result
 /project
 dump.sql*

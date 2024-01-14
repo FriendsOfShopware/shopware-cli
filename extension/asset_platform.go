@@ -62,7 +62,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		defer deletePaths(ctx, shopwareRoot)
 	}
 
-	paths, err := InstallNodeModulesOfConfigs(cfgs, true)
+	paths, err := InstallNodeModulesOfConfigs(ctx, cfgs, true)
 	if err != nil {
 		return err
 	}
@@ -91,15 +91,21 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 			var additionalNpmParameters []string
 
-			if doesPackageJsonContainsPackageInDev(path.Join(administrationRoot, "package.json"), "puppeteer") {
-				additionalNpmParameters = []string{"--production"}
-			}
+			npmPackage, err := getNpmPackage(administrationRoot)
 
-			if err := installDependencies(administrationRoot, additionalNpmParameters...); err != nil {
+			if err != nil {
 				return err
 			}
 
-			err := npmRunBuild(
+			if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
+				additionalNpmParameters = []string{"--production"}
+			}
+
+			if err := installDependencies(administrationRoot, npmPackage, additionalNpmParameters...); err != nil {
+				return err
+			}
+
+			err = npmRunBuild(
 				administrationRoot,
 				"build",
 				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", "SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION=1"},
@@ -175,15 +181,21 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 			additionalNpmParameters := []string{"caniuse-lite"}
 
-			if doesPackageJsonContainsPackageInDev(path.Join(storefrontRoot, "package.json"), "puppeteer") {
-				additionalNpmParameters = append(additionalNpmParameters, "--production")
-			}
+			npmPackage, err := getNpmPackage(storefrontRoot)
 
-			if err := installDependencies(storefrontRoot, additionalNpmParameters...); err != nil {
+			if err != nil {
 				return err
 			}
 
-			err := npmRunBuild(
+			if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
+				additionalNpmParameters = append(additionalNpmParameters, "--production")
+			}
+
+			if err := installDependencies(storefrontRoot, npmPackage, additionalNpmParameters...); err != nil {
+				return err
+			}
+
+			err = npmRunBuild(
 				storefrontRoot,
 				"production",
 				envList,
@@ -202,7 +214,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	return nil
 }
 
-func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig, force bool) ([]string, error) {
+func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig, force bool) ([]string, error) {
 	paths := make([]string, 0)
 
 	// Install shared node_modules between admin and storefront
@@ -221,15 +233,31 @@ func InstallNodeModulesOfConfigs(cfgs ExtensionAssetConfig, force bool) ([]strin
 			possibleNodePaths = append(possibleNodePaths, filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"), filepath.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"))
 		}
 
+		additionalNpmParameters := []string{}
+
+		if entry.NpmStrict {
+			additionalNpmParameters = []string{"--production"}
+		}
+
 		for _, possibleNodePath := range possibleNodePaths {
 			if _, err := os.Stat(possibleNodePath); err == nil {
 				npmPath := filepath.Dir(possibleNodePath)
+
+				if !entry.NpmStrict {
+					logging.FromContext(ctx).Infof("Please consider enabling npm_strict for %s to speed up the build process in the .shopware-extension.yml of the extension. See https://sw-cli.fos.gg/shopware-extension-yml-schema/", entry.TechnicalName)
+				}
 
 				if _, err := os.Stat(filepath.Join(npmPath, "node_modules")); err == nil && !force {
 					continue
 				}
 
-				if err := installDependencies(npmPath); err != nil {
+				npmPackage, err := getNpmPackage(npmPath)
+
+				if err != nil {
+					return nil, err
+				}
+
+				if err := installDependencies(npmPath, npmPackage, additionalNpmParameters...); err != nil {
 					return nil, err
 				}
 
@@ -264,7 +292,7 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 	return nil
 }
 
-func getInstallCommand(path string, isProductionMode bool) *exec.Cmd {
+func getInstallCommand(path string, isProductionMode bool, npmPackage npmPackage) *exec.Cmd {
 	if _, err := os.Stat(filepath.Join(path, "pnpm-lock.yaml")); err == nil {
 		return exec.Command("pnpm", "install")
 	}
@@ -279,14 +307,14 @@ func getInstallCommand(path string, isProductionMode bool) *exec.Cmd {
 	}
 
 	// Bun can migrate on the fly the package-lock.json to a bun.lockdb and is much faster than NPM
-	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(path) && !isProductionMode {
+	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(npmPackage) && !isProductionMode {
 		return exec.Command("bun", "install", "--no-save")
 	}
 
 	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
 }
 
-func installDependencies(path string, additionalParams ...string) error {
+func installDependencies(path string, packageJsonData npmPackage, additionalParams ...string) error {
 	isProductionMode := false
 
 	for _, param := range additionalParams {
@@ -295,7 +323,11 @@ func installDependencies(path string, additionalParams ...string) error {
 		}
 	}
 
-	installCmd := getInstallCommand(path, isProductionMode)
+	if isProductionMode && (packageJsonData.Dependencies == nil || len(packageJsonData.Dependencies) == 0) {
+		return nil
+	}
+
+	installCmd := getInstallCommand(path, isProductionMode, packageJsonData)
 	installCmd.Args = append(installCmd.Args, additionalParams...)
 	installCmd.Dir = path
 	installCmd.Stdout = os.Stdout
@@ -308,6 +340,19 @@ func installDependencies(path string, additionalParams ...string) error {
 	}
 
 	return nil
+}
+
+func getNpmPackage(path string) (npmPackage, error) {
+	packageJsonFile, err := os.ReadFile(filepath.Join(path, "package.json"))
+	if err != nil {
+		return npmPackage{}, err
+	}
+
+	var packageJsonData npmPackage
+	if err := json.Unmarshal(packageJsonFile, &packageJsonData); err != nil {
+		return npmPackage{}, err
+	}
+	return packageJsonData, nil
 }
 
 func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAssetConfigEntry) error {
@@ -357,6 +402,7 @@ func BuildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 		sourceConfig.EnableESBuildForAdmin = source.AdminEsbuildCompatible
 		sourceConfig.EnableESBuildForStorefront = source.StorefrontEsbuildCompatible
 		sourceConfig.DisableSass = source.DisableSass
+		sourceConfig.NpmStrict = source.NpmStrict
 
 		if assetCfg.SkipExtensionsWithBuildFiles {
 			expectedAdminCompiledFile := path.Join(source.Path, "Resources", "public", "administration", "js", esbuild.ToKebabCase(source.Name)+".js")
@@ -555,6 +601,7 @@ type ExtensionAssetConfigEntry struct {
 	EnableESBuildForAdmin      bool
 	EnableESBuildForStorefront bool
 	DisableSass                bool
+	NpmStrict                  bool
 }
 
 type ExtensionAssetConfigAdmin struct {
@@ -570,17 +617,7 @@ type ExtensionAssetConfigStorefront struct {
 	StyleFiles    []string `json:"styleFiles"`
 }
 
-func doesPackageJsonContainsPackageInDev(packageJson, packageName string) bool {
-	packageJsonFile, err := os.ReadFile(packageJson)
-	if err != nil {
-		return false
-	}
-
-	var packageJsonData npmPackage
-	if err := json.Unmarshal(packageJsonFile, &packageJsonData); err != nil {
-		return false
-	}
-
+func doesPackageJsonContainsPackageInDev(packageJsonData npmPackage, packageName string) bool {
 	if _, ok := packageJsonData.DevDependencies[packageName]; ok {
 		return true
 	}

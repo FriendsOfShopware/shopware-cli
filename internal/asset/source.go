@@ -6,4 +6,5 @@ type Source struct {
 	AdminEsbuildCompatible      bool
 	StorefrontEsbuildCompatible bool
 	DisableSass                 bool
+	NpmStrict                   bool
 }

@@ -26,6 +26,7 @@ type ConfigBuild struct {
 			EnableESBuildForAdmin      bool     `yaml:"enable_es_build_for_admin"`
 			EnableESBuildForStorefront bool     `yaml:"enable_es_build_for_storefront"`
 			DisableSass                bool     `yaml:"es_build_disable_sass"`
+			NpmStrict                  bool     `yaml:"npm_strict"`
 		} `yaml:"assets"`
 		Pack struct {
 			Excludes struct {
