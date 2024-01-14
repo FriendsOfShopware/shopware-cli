@@ -264,6 +264,25 @@ aurs:
       install -Dm644 "./completions/shopware-cli.zsh" "${pkgdir}/usr/share/zsh/site-functions/_shopware-cli"
       install -Dm644 "./completions/shopware-cli.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/shopware-cli.fish"
 
+nix:
+  - name: shopware-cli
+    repository:
+      owner: FriendsOfShopware
+      name: nur
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: Frosh Automation
+      email: ci@fos.gg
+    post_install: |
+      installShellCompletion --cmd shopware-cli \
+      --bash <($out/bin/shopware-cli completion bash) \
+      --zsh <($out/bin/shopware-cli completion zsh) \
+      --fish <($out/bin/shopware-cli completion fish)
+    homepage: "https://sw-cli.fos.gg"
+    description: "Command line tool for Shopware 6"
+    license: "mit"
+
 nfpms:
   -
     package_name: shopware-cli
@@ -285,7 +304,7 @@ nfpms:
       - rpm
 
 brews:
-  - tap:
+  - repository:
       owner: FriendsOfShopware
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"

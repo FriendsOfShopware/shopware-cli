@@ -8,7 +8,8 @@
     "ghcr.io/shyim/devcontainers-features/php:0.1.0": {
       "version": "8.2"
     },
-    "ghcr.io/shyim/devcontainers-features/bun:0": {}
+    "ghcr.io/shyim/devcontainers-features/bun:0": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "customizations": {
     "vscode": {
