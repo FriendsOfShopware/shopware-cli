@@ -35,15 +35,22 @@ var extensionAssetBundleCmd = &cobra.Command{
 			validatedExtensions = append(validatedExtensions, ext)
 		}
 
-		constraint, err := validatedExtensions[0].GetShopwareVersionConstraint()
-		if err != nil {
-			return fmt.Errorf("cannot get shopware version constraint: %w", err)
+		if os.Getenv("SHOPWARE_PROJECT_ROOT") == "" {
+			constraint, err := extension.GetShopwareProjectConstraint(os.Getenv("SHOPWARE_PROJECT_ROOT"))
+			if err != nil {
+				return fmt.Errorf("cannot get shopware version constraint from project %s: %w", os.Getenv("SHOPWARE_PROJECT_ROOT"), err)
+			}
+			assetCfg.ShopwareVersion = constraint
+		} else {
+			constraint, err := validatedExtensions[0].GetShopwareVersionConstraint()
+			if err != nil {
+				return fmt.Errorf("cannot get shopware version constraint: %w", err)
+			}
+
+			assetCfg.ShopwareVersion = constraint
 		}
 
-		assetCfg.ShopwareVersion = constraint
-
-		err = extension.BuildAssetsForExtensions(cmd.Context(), extension.ConvertExtensionsToSources(cmd.Context(), validatedExtensions), assetCfg)
-		if err != nil {
+		if err := extension.BuildAssetsForExtensions(cmd.Context(), extension.ConvertExtensionsToSources(cmd.Context(), validatedExtensions), assetCfg); err != nil {
 			return fmt.Errorf("cannot build assets: %w", err)
 		}
 
