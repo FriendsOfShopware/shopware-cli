@@ -225,7 +225,7 @@ func compareSnippets(mainFile []byte, file string, context *ValidationContext, e
 		}
 
 		if diff.Type == jsondiff.OperationRemove {
-			context.AddError(fmt.Sprintf("Snippet file: %s, key: %s, is not defined in the main language", normalizedPath, diff.Path))
+			context.AddError(fmt.Sprintf("Snippet file: %s, key %s is missing, but defined in the main language file", normalizedPath, diff.Path))
 			continue
 		}
 	}
