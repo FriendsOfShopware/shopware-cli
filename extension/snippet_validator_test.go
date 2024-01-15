@@ -37,7 +37,7 @@ func TestSnippetValidateStorefrontByPathOneFileIsIgnored(t *testing.T) {
 	_ = os.MkdirAll(path.Join(tmpDir, "Resources", "snippet"), os.ModePerm)
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.en-GB.json"), []byte(`{}`), os.ModePerm)
 
-	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, context))
+	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
 	assert.Len(t, context.errors, 0)
 	assert.Len(t, context.warnings, 0)
 }
@@ -54,7 +54,7 @@ func TestSnippetValidateStorefrontByPathSameFile(t *testing.T) {
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.en-GB.json"), []byte(`{"test": "1"}`), os.ModePerm)
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.de-DE.json"), []byte(`{"test": "2"}`), os.ModePerm)
 
-	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, context))
+	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
 	assert.Len(t, context.errors, 0)
 	assert.Len(t, context.warnings, 0)
 }
@@ -71,7 +71,7 @@ func TestSnippetValidateStorefrontByPathTestDifferent(t *testing.T) {
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.en-GB.json"), []byte(`{"a": "1"}`), os.ModePerm)
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.de-DE.json"), []byte(`{"b": "2"}`), os.ModePerm)
 
-	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, context))
+	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
 	assert.Len(t, context.errors, 2)
 	assert.Len(t, context.warnings, 0)
 	assert.Equal(t, "Snippet file: Resources/snippet/storefront.de-DE.json, key: /a, is not defined in the main language", context.errors[0])
