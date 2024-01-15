@@ -74,6 +74,6 @@ func TestSnippetValidateStorefrontByPathTestDifferent(t *testing.T) {
 	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
 	assert.Len(t, context.errors, 2)
 	assert.Len(t, context.warnings, 0)
-	assert.Contains(t, "key /a is missing, but defined in the main language file", context.errors[0])
-	assert.Contains(t, "missing key \"/b\" in this snippet file, but defined in the main language", context.errors[1])
+	assert.Contains(t, context.errors[0], "key /a is missing, but defined in the main language file")
+	assert.Contains(t, context.errors[1], "missing key \"/b\" in this snippet file, but defined in the main language")
 }
