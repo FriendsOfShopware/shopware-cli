@@ -19,6 +19,7 @@ Builds the Administration with all installed extensions
 Parameters:
 
 * `--skip-assets-install` - Skips the assets installation
+* `--force-install-dependencies` - Forces the installation of NPM dependencies
 
 ## shopware-cli project storefront-build
 
@@ -27,6 +28,7 @@ Builds the Storefront with all installed extensions
 Parameters:
 
 * `--skip-theme-compile` - Skips the theme compilation
+* `--force-install-dependencies` - Forces the installation of NPM dependencies
 
 ## shopware-cli project worker
 

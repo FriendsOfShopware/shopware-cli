@@ -31,9 +31,12 @@ var projectAdminBuildCmd = &cobra.Command{
 
 		sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
 
+		forceInstall, _ := cmd.PersistentFlags().GetBool("force-install-dependencies")
+
 		assetCfg := extension.AssetBuildConfig{
 			DisableStorefrontBuild: true,
 			ShopwareRoot:           projectRoot,
+			NPMForceInstall:        forceInstall,
 		}
 
 		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {
@@ -52,4 +55,5 @@ var projectAdminBuildCmd = &cobra.Command{
 func init() {
 	projectRootCmd.AddCommand(projectAdminBuildCmd)
 	projectAdminBuildCmd.PersistentFlags().Bool("skip-assets-install", false, "Skips the assets installation")
+	projectAdminBuildCmd.PersistentFlags().Bool("force-install-dependencies", false, "Force install NPM dependencies")
 }

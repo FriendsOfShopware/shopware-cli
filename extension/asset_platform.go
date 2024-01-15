@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
@@ -34,6 +33,7 @@ type AssetBuildConfig struct {
 	ShopwareVersion              *version.Constraints
 	Browserslist                 string
 	SkipExtensionsWithBuildFiles bool
+	NPMForceInstall              bool
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
@@ -62,7 +62,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		defer deletePaths(ctx, shopwareRoot)
 	}
 
-	paths, err := InstallNodeModulesOfConfigs(ctx, cfgs, true)
+	paths, err := InstallNodeModulesOfConfigs(ctx, cfgs, assetConfig.NPMForceInstall)
 	if err != nil {
 		return err
 	}
@@ -89,20 +89,22 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 			administrationRoot := PlatformPath(shopwareRoot, "Administration", "Resources/app/administration")
 
-			var additionalNpmParameters []string
+			if assetConfig.NPMForceInstall || !nodeModulesExists(administrationRoot) {
+				var additionalNpmParameters []string
 
-			npmPackage, err := getNpmPackage(administrationRoot)
+				npmPackage, err := getNpmPackage(administrationRoot)
 
-			if err != nil {
-				return err
-			}
+				if err != nil {
+					return err
+				}
 
-			if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
-				additionalNpmParameters = []string{"--production"}
-			}
+				if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
+					additionalNpmParameters = []string{"--production"}
+				}
 
-			if err := installDependencies(administrationRoot, npmPackage, additionalNpmParameters...); err != nil {
-				return err
+				if err := installDependencies(administrationRoot, npmPackage, additionalNpmParameters...); err != nil {
+					return err
+				}
 			}
 
 			err = npmRunBuild(
@@ -166,33 +168,35 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 
 			storefrontRoot := PlatformPath(shopwareRoot, "Storefront", "Resources/app/storefront")
 
+			if assetConfig.NPMForceInstall || !nodeModulesExists(storefrontRoot) {
+				if err := patchPackageLockToRemoveCanIUsePackage(path.Join(storefrontRoot, "package-lock.json")); err != nil {
+					return err
+				}
+
+				additionalNpmParameters := []string{"caniuse-lite"}
+
+				npmPackage, err := getNpmPackage(storefrontRoot)
+
+				if err != nil {
+					return err
+				}
+
+				if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
+					additionalNpmParameters = append(additionalNpmParameters, "--production")
+				}
+
+				if err := installDependencies(storefrontRoot, npmPackage, additionalNpmParameters...); err != nil {
+					return err
+				}
+			}
+
 			envList := []string{
 				fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot),
 				fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot),
 			}
 
-			if err := patchPackageLockToRemoveCanIUsePackage(path.Join(storefrontRoot, "package-lock.json")); err != nil {
-				return err
-			}
-
 			if assetConfig.Browserslist != "" {
 				envList = append(envList, fmt.Sprintf("BROWSERSLIST=%s", assetConfig.Browserslist))
-			}
-
-			additionalNpmParameters := []string{"caniuse-lite"}
-
-			npmPackage, err := getNpmPackage(storefrontRoot)
-
-			if err != nil {
-				return err
-			}
-
-			if doesPackageJsonContainsPackageInDev(npmPackage, "puppeteer") {
-				additionalNpmParameters = append(additionalNpmParameters, "--production")
-			}
-
-			if err := installDependencies(storefrontRoot, npmPackage, additionalNpmParameters...); err != nil {
-				return err
 			}
 
 			err = npmRunBuild(
@@ -214,6 +218,14 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	return nil
 }
 
+func nodeModulesExists(root string) bool {
+	if _, err := os.Stat(path.Join(root, "node_modules")); err == nil {
+		return true
+	}
+
+	return false
+}
+
 func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig, force bool) ([]string, error) {
 	paths := make([]string, 0)
 
@@ -221,16 +233,16 @@ func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig,
 	for _, entry := range cfgs {
 		possibleNodePaths := []string{
 			// shared between admin and storefront
-			filepath.Join(entry.BasePath, "Resources", "app", "package.json"),
+			path.Join(entry.BasePath, "Resources", "app", "package.json"),
 		}
 
 		// only try administration and storefront node_modules folder when we have an entry file
 		if entry.Administration.EntryFilePath != nil {
-			possibleNodePaths = append(possibleNodePaths, filepath.Join(entry.BasePath, "Resources", "app", "administration", "package.json"), filepath.Join(entry.BasePath, "Resources", "app", "administration", "src", "package.json"))
+			possibleNodePaths = append(possibleNodePaths, path.Join(entry.BasePath, "Resources", "app", "administration", "package.json"), path.Join(entry.BasePath, "Resources", "app", "administration", "src", "package.json"))
 		}
 
 		if entry.Storefront.EntryFilePath != nil {
-			possibleNodePaths = append(possibleNodePaths, filepath.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"), filepath.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"))
+			possibleNodePaths = append(possibleNodePaths, path.Join(entry.BasePath, "Resources", "app", "storefront", "package.json"), path.Join(entry.BasePath, "Resources", "app", "storefront", "src", "package.json"))
 		}
 
 		additionalNpmParameters := []string{}
@@ -241,13 +253,9 @@ func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig,
 
 		for _, possibleNodePath := range possibleNodePaths {
 			if _, err := os.Stat(possibleNodePath); err == nil {
-				npmPath := filepath.Dir(possibleNodePath)
+				npmPath := path.Dir(possibleNodePath)
 
-				if !entry.NpmStrict {
-					logging.FromContext(ctx).Infof("Please consider enabling npm_strict for %s to speed up the build process in the .shopware-extension.yml of the extension. See https://sw-cli.fos.gg/shopware-extension-yml-schema/", entry.TechnicalName)
-				}
-
-				if _, err := os.Stat(filepath.Join(npmPath, "node_modules")); err == nil && !force {
+				if !force && nodeModulesExists(npmPath) {
 					continue
 				}
 
@@ -256,6 +264,14 @@ func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig,
 				if err != nil {
 					return nil, err
 				}
+
+				additionalText := ""
+
+				if !entry.NpmStrict {
+					additionalText = " (consider enabling npm_strict mode, to install only production relevant dependencies)"
+				}
+
+				logging.FromContext(ctx).Infof("Installing npm dependencies in %s %s\n", npmPath, additionalText)
 
 				if err := installDependencies(npmPath, npmPackage, additionalNpmParameters...); err != nil {
 					return nil, err
@@ -292,17 +308,17 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 	return nil
 }
 
-func getInstallCommand(path string, isProductionMode bool, npmPackage npmPackage) *exec.Cmd {
-	if _, err := os.Stat(filepath.Join(path, "pnpm-lock.yaml")); err == nil {
+func getInstallCommand(root string, isProductionMode bool, npmPackage npmPackage) *exec.Cmd {
+	if _, err := os.Stat(path.Join(root, "pnpm-lock.yaml")); err == nil {
 		return exec.Command("pnpm", "install")
 	}
 
-	if _, err := os.Stat(filepath.Join(path, "yarn.lock")); err == nil {
+	if _, err := os.Stat(path.Join(root, "yarn.lock")); err == nil {
 		return exec.Command("yarn", "install")
 	}
 
 	// @see https://github.com/oven-sh/bun/issues/7755
-	if _, err := os.Stat(filepath.Join(path, "bun.lockdb")); err == nil && !isProductionMode {
+	if _, err := os.Stat(path.Join(root, "bun.lockdb")); err == nil && !isProductionMode {
 		return exec.Command("bun", "install")
 	}
 
@@ -342,8 +358,8 @@ func installDependencies(path string, packageJsonData npmPackage, additionalPara
 	return nil
 }
 
-func getNpmPackage(path string) (npmPackage, error) {
-	packageJsonFile, err := os.ReadFile(filepath.Join(path, "package.json"))
+func getNpmPackage(root string) (npmPackage, error) {
+	packageJsonFile, err := os.ReadFile(path.Join(root, "package.json"))
 	if err != nil {
 		return npmPackage{}, err
 	}
