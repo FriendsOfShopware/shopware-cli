@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     name: ${{ matrix.os }}
+    env:
+      SHOPWARE_CLI_DISABLE_WASM_CACHE: 1
     strategy:
       fail-fast: false
       matrix:

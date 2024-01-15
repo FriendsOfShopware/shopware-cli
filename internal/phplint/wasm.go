@@ -24,7 +24,13 @@ func getWazeroRuntime(ctx context.Context) (wazero.Runtime, error) {
 		return nil, err
 	}
 
-	r := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCompilationCache(cache))
+	runtimeConfig := wazero.NewRuntimeConfig()
+
+	if os.Getenv("SHOPWARE_CLI_DISABLE_WASM_CACHE") != "1" {
+		runtimeConfig = runtimeConfig.WithCompilationCache(cache)
+	}
+
+	r := wazero.NewRuntimeWithConfig(ctx, runtimeConfig)
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
