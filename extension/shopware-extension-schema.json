@@ -139,6 +139,11 @@
 								"es_build_disable_sass": {
 									"type": "boolean",
 									"default": false
+								},
+								"npm_strict": {
+									"type": "boolean",
+									"default": false,
+									"default": "Uses production flag on NPM"
 								}
 							}
 						},
