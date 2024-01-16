@@ -323,8 +323,10 @@ func getInstallCommand(root string, isProductionMode bool, npmPackage npmPackage
 	}
 
 	// Bun can migrate on the fly the package-lock.json to a bun.lockdb and is much faster than NPM
-	if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(npmPackage) && !isProductionMode {
-		return exec.Command("bun", "install", "--no-save")
+	if os.Getenv("SHOPWARE_CLI_FORCE_BUN") == "1" {
+		if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(npmPackage) && !isProductionMode {
+			return exec.Command("bun", "install", "--no-save")
+		}
 	}
 
 	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
