@@ -72,8 +72,8 @@ func TestSnippetValidateStorefrontByPathTestDifferent(t *testing.T) {
 	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.de-DE.json"), []byte(`{"b": "2"}`), os.ModePerm)
 
 	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
-	assert.Len(t, context.errors, 2)
-	assert.Len(t, context.warnings, 0)
-	assert.Contains(t, context.errors[0], "key /a is missing, but defined in the main language file")
-	assert.Contains(t, context.errors[1], "missing key \"/b\" in this snippet file, but defined in the main language")
+	assert.Len(t, context.errors, 0)
+	assert.Len(t, context.warnings, 2)
+	assert.Contains(t, context.warnings[0], "key /a is missing, but defined in the main language file")
+	assert.Contains(t, context.warnings[1], "missing key \"/b\" in this snippet file, but defined in the main language")
 }

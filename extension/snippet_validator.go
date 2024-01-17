@@ -215,17 +215,17 @@ func compareSnippets(mainFile []byte, file string, context *ValidationContext, e
 		normalizedPath := strings.ReplaceAll(file, extensionRoot+"/", "")
 
 		if diff.Type == jsondiff.OperationReplace && reflect.TypeOf(diff.OldValue) != reflect.TypeOf(diff.Value) {
-			context.AddError(fmt.Sprintf("Snippet file: %s, key: %s, has the type %s, but in the main language it is %s", normalizedPath, diff.Path, reflect.TypeOf(diff.OldValue), reflect.TypeOf(diff.Value)))
+			context.AddWarning(fmt.Sprintf("Snippet file: %s, key: %s, has the type %s, but in the main language it is %s", normalizedPath, diff.Path, reflect.TypeOf(diff.OldValue), reflect.TypeOf(diff.Value)))
 			continue
 		}
 
 		if diff.Type == jsondiff.OperationAdd {
-			context.AddError(fmt.Sprintf("Snippet file: %s, missing key \"%s\" in this snippet file, but defined in the main language", normalizedPath, diff.Path))
+			context.AddWarning(fmt.Sprintf("Snippet file: %s, missing key \"%s\" in this snippet file, but defined in the main language", normalizedPath, diff.Path))
 			continue
 		}
 
 		if diff.Type == jsondiff.OperationRemove {
-			context.AddError(fmt.Sprintf("Snippet file: %s, key %s is missing, but defined in the main language file", normalizedPath, diff.Path))
+			context.AddWarning(fmt.Sprintf("Snippet file: %s, key %s is missing, but defined in the main language file", normalizedPath, diff.Path))
 			continue
 		}
 	}
