@@ -25,6 +25,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46t
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/doutorfinancas/go-mad v0.0.0-20230830141029-fab58f6589fa h1:IX2wnCAwVbBTW/wNUPsiFZvfoo0Fv5CSlZvT3E9qsfY=
+github.com/doutorfinancas/go-mad v0.0.0-20230830141029-fab58f6589fa/go.mod h1:yfWKFJm6NisKuie2cdH5zUttu4gZYHa/CY7CHpA3tMU=
 github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf h1:uHy2r98dl7mtcffi3Ie+Vt+j7Qhw67FtUpZj8slBzo0=
 github.com/doutorfinancas/go-mad v0.0.0-20230919144016-ba934a817ecf/go.mod h1:yfWKFJm6NisKuie2cdH5zUttu4gZYHa/CY7CHpA3tMU=
 github.com/evanw/esbuild v0.19.11 h1:mbPO1VJ/df//jjUd+p/nRLYCpizXxXb2w/zZMShxa2k=
@@ -71,6 +73,8 @@ github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZ
 github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/microcosm-cc/bluemonday v1.0.26 h1:xbqSvqzQMeEHCqMi64VAs4d8uy6Mequs3rQ0k/Khz58=
 github.com/microcosm-cc/bluemonday v1.0.26/go.mod h1:JyzOCs9gkyQyjs+6h10UEVSe02CGwkhd72Xdqh78TWs=
+github.com/nussjustin/go-mad v0.0.0-20240117104549-ee674f83c906 h1:1xbDc3Pyo8zsyIcqBlVHAL5VkyV2Br0gY+iRWB5uHE8=
+github.com/nussjustin/go-mad v0.0.0-20240117104549-ee674f83c906/go.mod h1:yfWKFJm6NisKuie2cdH5zUttu4gZYHa/CY7CHpA3tMU=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
 github.com/otiai10/copy v1.14.0 h1:dCI/t1iTdYGtkvCuBG2BgR6KZa83PTclw4U5n2wAllU=
