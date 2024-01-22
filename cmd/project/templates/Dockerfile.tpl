@@ -23,7 +23,7 @@ EOF
 
 {{- end }}
 
-USER 1000
+USER www-data
 
 FROM shopware-cli as build
 
