@@ -48,6 +48,15 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-amd64"
+    build_flag_templates:
+      - "--build-arg=PHP_VERSION=8.3"
+      - "--platform=linux/amd64"
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
       - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
     build_flag_templates:
@@ -62,24 +71,17 @@ dockers:
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.1"
       - "--platform=linux/amd64"
-  - use: buildx
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.4-amd64"
-    build_flag_templates:
-      - "--build-arg=PHP_VERSION=7.4"
-      - "--platform=linux/amd64"
-  - use: buildx
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-amd64"
-    build_flag_templates:
-      - "--build-arg=PHP_VERSION=7.2"
-      - "--platform=linux/amd64"
 
   # ARM64
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-arm64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-arm64"
+    build_flag_templates:
+      - "--build-arg=PHP_VERSION=8.3"
+      - "--platform=linux/arm64"
   - use: buildx
     goos: linux
     goarch: arm64
@@ -98,22 +100,6 @@ dockers:
     build_flag_templates:
       - "--build-arg=PHP_VERSION=8.1"
       - "--platform=linux/arm64"
-  - use: buildx
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.4-arm64"
-    build_flag_templates:
-      - "--build-arg=PHP_VERSION=7.4"
-      - "--platform=linux/arm64"
-  - use: buildx
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-arm64"
-    build_flag_templates:
-      - "--build-arg=PHP_VERSION=7.2"
-      - "--platform=linux/arm64"
 
 docker_manifests:
   # GHCR
@@ -121,6 +107,11 @@ docker_manifests:
     image_templates:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+
+  - name_template: ghcr.io/friendsofshopware/shopware-cli:latest-php-8.3
+    image_templates:
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-amd64"
+      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-arm64"
 
   - name_template: ghcr.io/friendsofshopware/shopware-cli:latest-php-8.2
     image_templates:
@@ -152,21 +143,16 @@ docker_manifests:
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-amd64"
       - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-8.1-arm64"
 
-  - name_template: ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.4
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.4-amd64"
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.4-arm64"
-    
-  - name_template: ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2
-    image_templates:
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-amd64"
-      - "ghcr.io/friendsofshopware/shopware-cli:{{ .Tag }}-php-7.2-arm64"
-
   # Docker Hub
   - name_template: friendsofshopware/shopware-cli:latest
     image_templates:
       - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-amd64"
       - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.2-arm64"
+
+  - name_template: friendsofshopware/shopware-cli:latest-php-8.3
+    image_templates:
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-amd64"
+      - "friendsofshopware/shopware-cli:{{ .Tag }}-php-8.3-arm64"
 
   - name_template: friendsofshopware/shopware-cli:latest-php-8.2
     image_templates:
