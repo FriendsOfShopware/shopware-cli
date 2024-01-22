@@ -1,0 +1,5 @@
+config/folder
+/var
+.git
+node_modules
+.idea

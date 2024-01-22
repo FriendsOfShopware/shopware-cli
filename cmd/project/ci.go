@@ -176,6 +176,7 @@ func commandWithRoot(cmd *exec.Cmd, root string) *exec.Cmd {
 }
 
 func runTransparentCommand(cmd *exec.Cmd) error {
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = append(os.Environ(), "APP_SECRET=test", "LOCK_DSN=flock")

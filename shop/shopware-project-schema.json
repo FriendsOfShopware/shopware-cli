@@ -27,6 +27,33 @@
                 }
             }
         },
+        "Docker": {
+            "type": "object",
+            "title": "Docker configuration",
+            "additionalProperties": false,
+            "properties": {
+                "exclude_paths": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "php": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "version": {
+                            "type": "string"
+                        },
+                        "extensions": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "ini": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
         "Build": {
             "type": "object",
             "title": "Project Build Settings",
