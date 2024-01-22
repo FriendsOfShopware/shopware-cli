@@ -16,7 +16,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.18.1
+	github.com/sashabaranov/go-openai v1.18.3
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tetratelabs/wazero v1.6.0
@@ -59,6 +59,4 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 )
 
-replace (
-	github.com/doutorfinancas/go-mad => github.com/nussjustin/go-mad v0.0.0-20240117104549-ee674f83c906
-)
+replace github.com/doutorfinancas/go-mad => github.com/nussjustin/go-mad v0.0.0-20240117104549-ee674f83c906
