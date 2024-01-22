@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-latest' || 'buildjet-2vcpu-ubuntu-2204-arm' }}
     strategy:
       matrix:
-        php-version: [ "8.2", "8.1"]
+        php-version: [ "8.3", "8.2", "8.1"]
         arch: [ "amd64", "arm64" ]
     steps:
       - name: Checkout
