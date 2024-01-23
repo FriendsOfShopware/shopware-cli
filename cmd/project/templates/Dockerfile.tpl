@@ -30,11 +30,19 @@ FROM shopware-cli as build
 ADD . /src
 WORKDIR /src
 
+{{- if .BuildEnv }}
+ENV {{ .BuildEnv }}
+{{- end }}
+
 RUN --mount=type=secret,id=composer_auth,dst=/src/auth.json \
     --mount=type=cache,target=/root/.composer \
     --mount=type=cache,target=/root/.npm \
     /usr/local/bin/entrypoint.sh shopware-cli project ci /src
 
 FROM base-extended
+
+{{- if .RunEnv }}
+ENV {{ .RunEnv }}
+{{- end }}
 
 COPY --from=build --chown=www-data --link /src /var/www/html

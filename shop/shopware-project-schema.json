@@ -24,6 +24,9 @@
                 },
                 "build": {
                     "$ref": "#/definitions/Build"
+                },
+                "docker": {
+                    "$ref": "#/definitions/Docker"
                 }
             }
         },
@@ -35,6 +38,27 @@
                 "exclude_paths": {
                     "type": "array",
                     "items": {"type": "string"}
+                },
+                "env": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["name", "value"],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            },
+                            "only": {
+                                "type": "string",
+                                "description": "Only set the environment variable for the given stage",
+                                "enum": ["build", "runtime"]
+                            }
+                        }
+                    }
                 },
                 "php": {
                     "type": "object",

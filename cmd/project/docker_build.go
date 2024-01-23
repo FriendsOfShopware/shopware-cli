@@ -3,6 +3,7 @@ package project
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
@@ -48,12 +49,35 @@ var dockerBuildCmd = &cobra.Command{
 			logging.FromContext(cmd.Context()).Infof("No PHP version set, using PHP version %s", phpVersion)
 		}
 
+		buildEnvironments := make([]string, 0)
+		runEnvironments := make([]string, 0)
+
+		for _, value := range shopCfg.Docker.Environment {
+			envLine := fmt.Sprintf("%s=%s", value.Name, value.Value)
+
+			if value.Only == "" {
+				buildEnvironments = append(buildEnvironments, envLine)
+				runEnvironments = append(runEnvironments, envLine)
+			} else if value.Only == "build" {
+				buildEnvironments = append(buildEnvironments, envLine)
+			} else if value.Only == "runtime" {
+				runEnvironments = append(runEnvironments, envLine)
+			}
+		}
+
+		templateVars := map[string]interface{}{
+			"PHP":          shopCfg.Docker.PHP,
+			"ExcludePaths": shopCfg.Docker.ExcludePaths,
+			"BuildEnv":     strings.Join(buildEnvironments, " "),
+			"RunEnv":       strings.Join(runEnvironments, " "),
+		}
+
 		var buf bytes.Buffer
 
 		if err := template.
 			Must(template.New("Dockerfile").
 				Parse(dockerFileTemplate)).
-			Execute(&buf, *shopCfg.Docker); err != nil {
+			Execute(&buf, templateVars); err != nil {
 			return err
 		}
 

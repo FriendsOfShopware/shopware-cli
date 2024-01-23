@@ -38,8 +38,15 @@ type ConfigDockerPHP struct {
 }
 
 type ConfigDocker struct {
-	PHP          ConfigDockerPHP `yaml:"php"`
-	ExcludePaths []string        `yaml:"exclude_paths,omitempty"`
+	Environment  []ConfigDockerEnvironmentVariable `yaml:"env,omitempty"`
+	PHP          ConfigDockerPHP                   `yaml:"php"`
+	ExcludePaths []string                          `yaml:"exclude_paths,omitempty"`
+}
+
+type ConfigDockerEnvironmentVariable struct {
+	Name  string `yaml:"name"`
+	Value string `yaml:"value"`
+	Only  string `yaml:"only"`
 }
 
 type ConfigAdminApi struct {
