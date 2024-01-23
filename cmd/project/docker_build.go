@@ -2,6 +2,7 @@ package project
 
 import (
 	"bytes"
+	"context"
 	_ "embed"
 	"fmt"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
@@ -27,72 +28,106 @@ var dockerBuildCmd = &cobra.Command{
 			return err
 		}
 
-		if shopCfg.Docker.PHP.PhpVersion == "" {
-			projectRoot, err := os.Getwd()
-
-			if err != nil {
-				return err
-			}
-
-			constraint, err := extension.GetShopwareProjectConstraint(projectRoot)
-			if err != nil {
-				return err
-			}
-
-			phpVersion, err := extension.GetPhpVersion(cmd.Context(), constraint)
-
-			if err != nil {
-				return err
-			}
-
-			shopCfg.Docker.PHP.PhpVersion = phpVersion
-			logging.FromContext(cmd.Context()).Infof("No PHP version set, using PHP version %s", phpVersion)
-		}
-
-		buildEnvironments := make([]string, 0)
-		runEnvironments := make([]string, 0)
-
-		for _, value := range shopCfg.Docker.Environment {
-			envLine := fmt.Sprintf("%s=%s", value.Name, value.Value)
-
-			if value.Only == "" {
-				buildEnvironments = append(buildEnvironments, envLine)
-				runEnvironments = append(runEnvironments, envLine)
-			} else if value.Only == "build" {
-				buildEnvironments = append(buildEnvironments, envLine)
-			} else if value.Only == "runtime" {
-				runEnvironments = append(runEnvironments, envLine)
-			}
-		}
-
-		templateVars := map[string]interface{}{
-			"PHP":          shopCfg.Docker.PHP,
-			"ExcludePaths": shopCfg.Docker.ExcludePaths,
-			"BuildEnv":     strings.Join(buildEnvironments, " "),
-			"RunEnv":       strings.Join(runEnvironments, " "),
-		}
-
-		var buf bytes.Buffer
-
-		if err := template.
-			Must(template.New("Dockerfile").
-				Parse(dockerFileTemplate)).
-			Execute(&buf, templateVars); err != nil {
+		if err = dumpDockerfile(cmd.Context(), shopCfg); err != nil {
 			return err
 		}
 
-		if err := os.WriteFile("Dockerfile", buf.Bytes(), os.ModePerm); err != nil {
-			return err
-		}
-
-		shopCfg.Docker.ExcludePaths = append(shopCfg.Docker.ExcludePaths, "/var", ".git", "node_modules", ".idea")
-
-		if err := os.WriteFile(".dockerignore", []byte(strings.Join(shopCfg.Docker.ExcludePaths, "\n")), os.ModePerm); err != nil {
+		if err = dumpDockerIgnore(shopCfg); err != nil {
 			return err
 		}
 
 		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "build", "-t", args[0], "."))
 	},
+}
+
+func dumpDockerIgnore(shopCfg *shop.Config) error {
+	shopCfg.Docker.ExcludePaths = append(shopCfg.Docker.ExcludePaths, "/var", ".git", "node_modules", ".idea")
+
+	if err := os.WriteFile(".dockerignore", []byte(strings.Join(shopCfg.Docker.ExcludePaths, "\n")), os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func dumpDockerfile(ctx context.Context, shopCfg *shop.Config) error {
+	templateVars, err := configureDockerfileTemplate(ctx, shopCfg)
+	if err != nil {
+		return err
+	}
+
+	dockerfile, err := renderDockerfile(templateVars)
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile("Dockerfile", dockerfile, os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func configureDockerfileTemplate(ctx context.Context, shopCfg *shop.Config) (map[string]interface{}, error) {
+	if shopCfg.Docker.PHP.PhpVersion == "" {
+		projectRoot, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+
+		constraint, err := extension.GetShopwareProjectConstraint(projectRoot)
+		if err != nil {
+			return nil, err
+		}
+
+		phpVersion, err := extension.GetPhpVersion(ctx, constraint)
+		if err != nil {
+			return nil, err
+		}
+
+		shopCfg.Docker.PHP.PhpVersion = phpVersion
+		logging.FromContext(ctx).Infof("No PHP version set, using PHP version %s", phpVersion)
+	}
+
+	buildEnvironments := make([]string, 0)
+	runEnvironments := make([]string, 0)
+
+	for _, value := range shopCfg.Docker.Environment {
+		envLine := fmt.Sprintf("%s=%s", value.Name, value.Value)
+
+		switch value.Only {
+		case "build":
+			buildEnvironments = append(buildEnvironments, envLine)
+		case "runtime":
+			runEnvironments = append(runEnvironments, envLine)
+		default:
+			buildEnvironments = append(buildEnvironments, envLine)
+			runEnvironments = append(runEnvironments, envLine)
+		}
+	}
+
+	templateVars := map[string]interface{}{
+		"PHP":          shopCfg.Docker.PHP,
+		"ExcludePaths": shopCfg.Docker.ExcludePaths,
+		"BuildEnv":     strings.Join(buildEnvironments, " "),
+		"RunEnv":       strings.Join(runEnvironments, " "),
+	}
+
+	return templateVars, nil
+}
+
+func renderDockerfile(cfg map[string]interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+
+	err := template.
+		Must(template.New("Dockerfile").Parse(dockerFileTemplate)).
+		Execute(&buf, cfg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
 
 func init() {

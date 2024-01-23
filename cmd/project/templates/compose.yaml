@@ -1,0 +1,109 @@
+---
+
+x-environment-app: &environment-app
+  environment:
+    APP_ENV: prod
+    DATABASE_URL: 'mysql://shopware:shopware@database/shopware'
+    APP_URL: 'http://localhost:8000'
+    APP_SECRET: '{{ .appSecret }}'
+    INSTANCE_ID: '{{ .instanceID }}'
+    BLUE_GREEN_DEPLOYMENT: ''
+    JWT_PRIVATE_KEY: '{{ .jwtPrivateKey }}'
+    JWT_PUBLIC_KEY: '{{ .jwtPublicKey }}'
+
+x-environment-database: &environment-database
+  environment:
+    MYSQL_ROOT_PASSWORD: shopware
+    MYSQL_USER: shopware
+    MYSQL_PASSWORD: shopware
+    MYSQL_DATABASE: shopware
+
+x-volumes-app: &volumes-app
+  volumes:
+    - files:/var/www/html/files
+    - theme:/var/www/html/public/theme
+    - media:/var/www/html/public/media
+    - thumbnail:/var/www/html/public/thumbnail
+    - sitemap:/var/www/html/public/sitemap
+
+services:
+  database:
+    image: mysql:8-oracle
+    <<: *environment-database
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: [ 'CMD', 'mysqladmin' ,'ping', '-h', 'localhost', '-p$MYSQL_ROOT_PASSWORD' ]
+      timeout: 20s
+      retries: 10
+
+  opensearch:
+    image: opensearchproject/opensearch:2
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    environment:
+      discovery.type: single-node
+      plugins.security.disabled: 'true'
+    healthcheck:
+      test: [ 'CMD', 'curl', 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s']
+      timeout: 50s
+
+  init-perm:
+    image: alpine
+    <<: [ *environment-app, *volumes-app ]
+    command: chown 82:82 /var/www/html/files /var/www/html/public/theme /var/www/html/public/media /var/www/html/public/thumbnail /var/www/html/public/sitemap
+
+  init:
+    image: local
+    <<: [ *environment-app, *volumes-app ]
+    build:
+      context: .
+    entrypoint: /setup
+    depends_on:
+      database:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+      init-perm:
+        condition: service_completed_successfully
+
+  web:
+    image: local
+    <<: [ *environment-app, *volumes-app ]
+    build:
+      context: .
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    develop:
+      watch:
+        - action: rebuild
+          path: ./Dockerfile
+        - action: rebuild
+          path: composer.lock
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: [ 'CMD', 'curl', '-sSf', 'http://localhost:8000/api/_info/health-check' ]
+
+  worker:
+    image: local
+    <<: [ *environment-app, *volumes-app ]
+    restart: unless-stopped
+    build:
+      context: .
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    entrypoint: [ "php", "bin/console", "messenger:consume", "async", "--time-limit=300", "--memory-limit=512M" ]
+    deploy:
+      replicas: 3
+
+volumes:
+  mysql-data:
+  opensearch-data:
+  files:
+  theme:
+  media:
+  thumbnail:
+  sitemap:
