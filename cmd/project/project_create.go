@@ -200,8 +200,7 @@ func generateComposerJson(version string, rc bool) (string, error) {
         "shopware/core": "{{ .Version }}",
         "shopware/elasticsearch": "{{ .Version }}",
         "shopware/storefront": "{{ .Version }}",
-        "symfony/flex": "~2",
-        "symfony/runtime": "^5.0|^6.0"
+        "symfony/flex": "~2"
     },
     "repositories": [
         {
