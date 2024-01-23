@@ -60,3 +60,27 @@ Options:
 
 * `--listen` - Listen Address for Server
 * `--external-url` - Use this URL in the browser. Needed for reverse proxy setups
+
+## shopware-cli extension get-changelog
+
+Get the changelog of an extension
+
+Arguments:
+
+* `path` - Path to extension folder/zip
+
+Parameters:
+
+* `--german` - Get the german changelog
+
+## shopware-cli extension get-version
+
+Get the version of an extension
+
+Arguments:
+
+* `path` - Path to extension folder/zip
+
+Parameters:
+
+* `--german` - Get the german changelog
