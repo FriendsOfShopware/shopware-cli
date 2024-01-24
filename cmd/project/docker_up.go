@@ -16,7 +16,6 @@ import (
 //go:embed templates/compose.yaml
 var composeFileTemplate string
 
-// TODO: Add --watch flag that calls docker compose watch instead of up
 var dockerUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Start local setup",
@@ -38,7 +37,7 @@ var dockerUpCmd = &cobra.Command{
 			return err
 		}
 
-		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "up", "-d", "--wait"))
+		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "up", "-d", "--wait", "--remove-orphans"))
 	},
 }
 
