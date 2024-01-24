@@ -37,7 +37,7 @@ var dockerUpCmd = &cobra.Command{
 			return err
 		}
 
-		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "up", "-d", "--wait", "--remove-orphans"))
+		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "watch"))
 	},
 }
 
@@ -91,8 +91,8 @@ func configureComposeTemplate() (map[string]interface{}, error) {
 		"jwtPrivateKey":      base64.StdEncoding.EncodeToString(privateKey),
 		"appSecret":          base64.RawURLEncoding.EncodeToString(appSecret),
 		"instanceID":         base64.RawURLEncoding.EncodeToString(instanceID),
-		"awsAccessKeyID":     strings.ToUpper(base64.RawURLEncoding.EncodeToString(awsAccessKeyID)),
-		"awsSecretAccessKey": base64.RawURLEncoding.EncodeToString(awsSecretAccessKey),
+		"awsAccessKeyID":     strings.ToUpper(base64.RawStdEncoding.EncodeToString(awsAccessKeyID)),
+		"awsSecretAccessKey": base64.RawStdEncoding.EncodeToString(awsSecretAccessKey),
 	}
 
 	return config, nil
