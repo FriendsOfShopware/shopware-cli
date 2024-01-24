@@ -9,12 +9,14 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 )
 
 //go:embed templates/compose.yaml
 var composeFileTemplate string
 
+// TODO: Add --watch flag that calls docker compose watch instead of up
 var dockerUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Start local setup",
@@ -36,7 +38,7 @@ var dockerUpCmd = &cobra.Command{
 			return err
 		}
 
-		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "watch"))
+		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "compose", "up", "-d", "--wait"))
 	},
 }
 
@@ -66,6 +68,8 @@ func configureComposeTemplate() (map[string]interface{}, error) {
 
 	appSecret := make([]byte, 16)
 	instanceID := make([]byte, 16)
+	awsAccessKeyID := make([]byte, 8)
+	awsSecretAccessKey := make([]byte, 32)
 
 	if _, err = rand.Read(appSecret); err != nil {
 		return nil, err
@@ -75,11 +79,21 @@ func configureComposeTemplate() (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	if _, err = rand.Read(awsAccessKeyID); err != nil {
+		return nil, err
+	}
+
+	if _, err = rand.Read(awsSecretAccessKey); err != nil {
+		return nil, err
+	}
+
 	config := map[string]interface{}{
-		"appSecret":     base64.URLEncoding.EncodeToString(appSecret),
-		"instanceID":    base64.URLEncoding.EncodeToString(instanceID),
-		"jwtPrivateKey": base64.StdEncoding.EncodeToString(privateKey),
-		"jwtPublicKey":  base64.StdEncoding.EncodeToString(publicKey),
+		"jwtPublicKey":       base64.StdEncoding.EncodeToString(publicKey),
+		"jwtPrivateKey":      base64.StdEncoding.EncodeToString(privateKey),
+		"appSecret":          base64.RawURLEncoding.EncodeToString(appSecret),
+		"instanceID":         base64.RawURLEncoding.EncodeToString(instanceID),
+		"awsAccessKeyID":     strings.ToUpper(base64.RawURLEncoding.EncodeToString(awsAccessKeyID)),
+		"awsSecretAccessKey": base64.RawURLEncoding.EncodeToString(awsSecretAccessKey),
 	}
 
 	return config, nil

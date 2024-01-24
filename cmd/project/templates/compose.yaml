@@ -10,21 +10,41 @@ x-environment-app: &environment-app
     BLUE_GREEN_DEPLOYMENT: ''
     JWT_PRIVATE_KEY: '{{ .jwtPrivateKey }}'
     JWT_PUBLIC_KEY: '{{ .jwtPublicKey }}'
+    CDN_URL: 'http://cdn:9000'
+    CDN_URL_PUBLIC: 'http://localhost:9000'
+    AWS_REGION: 'eu-central-1'
+    AWS_PUBLIC_FILESYSTEM_BUCKET: 'public'
+    AWS_PRIVATE_FILESYSTEM_BUCKET: 'private'
+    AWS_ACCESS_KEY_ID: '{{ .awsAccessKeyID }}'
+    AWS_SECRET_ACCESS_KEY: '{{ .awsSecretAccessKey }}'
 
 x-environment-database: &environment-database
   environment:
-    MYSQL_ROOT_PASSWORD: shopware
-    MYSQL_USER: shopware
-    MYSQL_PASSWORD: shopware
-    MYSQL_DATABASE: shopware
+    MYSQL_ROOT_PASSWORD: 'shopware'
+    MYSQL_USER: 'shopware'
+    MYSQL_PASSWORD: 'shopware'
+    MYSQL_DATABASE: 'shopware'
 
-x-volumes-app: &volumes-app
+x-environment-cdn: &environment-cdn
+  environment:
+    MINIO_ROOT_USER: 'shopware'
+    MINIO_ROOT_PASSWORD: 'shopware'
+    MC_JSON: '1'
+    AWS_ACCESS_KEY_ID: '{{ .awsAccessKeyID }}'
+    AWS_SECRET_ACCESS_KEY: '{{ .awsSecretAccessKey }}'
+
+x-volumes-app: &volumes-app # TODO: Remove these, they are not needed anymore with a CDN
   volumes:
     - files:/var/www/html/files
     - theme:/var/www/html/public/theme
     - media:/var/www/html/public/media
     - thumbnail:/var/www/html/public/thumbnail
     - sitemap:/var/www/html/public/sitemap
+
+x-volumes-app-cache: &volumes-app-cache
+  tmpfs:
+    - /var/www/html/var/cache
+    - /var/www/html/var/log
 
 services:
   database:
@@ -33,7 +53,7 @@ services:
     tmpfs:
       - /var/lib/mysql
     healthcheck:
-      test: [ 'CMD', 'mysqladmin' ,'ping', '-h', 'localhost', '-p$MYSQL_ROOT_PASSWORD' ]
+      test: [ 'CMD', 'mysqladmin' ,'ping', '-h', 'localhost', '-p$$MYSQL_ROOT_PASSWORD' ]
       timeout: 20s
       retries: 10
 
@@ -47,6 +67,37 @@ services:
     healthcheck:
       test: [ 'CMD', 'curl', 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s']
       timeout: 50s
+
+  cdn:
+    image: minio/minio
+    <<: *environment-cdn
+    volumes:
+      - cdn:/data
+    command: >
+      server /data --console-address :9001
+    ports:
+      - 9000:9000
+      - 9001:9001
+    healthcheck:
+      test: [ 'CMD', 'mc', 'ping', 'local', '-q', '-x', '-c', '1', '-e', '1' ]
+
+  init-cdn:
+    image: minio/minio
+    <<: *environment-cdn
+    volumes:
+      - cdn:/data
+    entrypoint: [ 'sh', '-c' ]
+    command:
+      - |
+        mc alias set cdn http://cdn:9000 shopware shopware &&
+        mc admin user add cdn "$${AWS_ACCESS_KEY_ID}" "$${AWS_SECRET_ACCESS_KEY}" &&
+        mc admin policy attach cdn readwrite --user="$${AWS_ACCESS_KEY_ID}" &&
+        mc mb -p --region="eu-central-1" cdn/private &&
+        mc mb -p --region="eu-central-1" cdn/public &&
+        mc anonymous set download cdn/public
+    depends_on:
+      cdn:
+        condition: service_healthy
 
   init-perm:
     image: alpine
@@ -64,11 +115,16 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_healthy
+      cdn:
+        condition: service_healthy
       init-perm:
+        condition: service_completed_successfully
+      init-cdn:
         condition: service_completed_successfully
 
   web:
     image: local
+    # read_only: true
     <<: [ *environment-app, *volumes-app ]
     build:
       context: .
@@ -77,8 +133,11 @@ services:
         condition: service_completed_successfully
     develop:
       watch:
+        - action: sync
+          path: config/
+          target: /var/www/html/config/
         - action: rebuild
-          path: ./Dockerfile
+          path: Dockerfile
         - action: rebuild
           path: composer.lock
     ports:
@@ -88,6 +147,7 @@ services:
 
   worker:
     image: local
+    # read_only: true
     <<: [ *environment-app, *volumes-app ]
     restart: unless-stopped
     build:
@@ -107,3 +167,4 @@ volumes:
   media:
   thumbnail:
   sitemap:
+  cdn:
