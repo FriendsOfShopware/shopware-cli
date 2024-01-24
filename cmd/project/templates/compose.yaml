@@ -33,18 +33,10 @@ x-environment-cdn: &environment-cdn
     AWS_ACCESS_KEY_ID: '{{ .awsAccessKeyID }}'
     AWS_SECRET_ACCESS_KEY: '{{ .awsSecretAccessKey }}'
 
-x-volumes-app: &volumes-app # TODO: Remove these, they are not needed anymore with a CDN
-  volumes:
-    - files:/var/www/html/files
-    - theme:/var/www/html/public/theme
-    - media:/var/www/html/public/media
-    - thumbnail:/var/www/html/public/thumbnail
-    - sitemap:/var/www/html/public/sitemap
-
 x-volumes-app-cache: &volumes-app-cache
   tmpfs:
-    - /var/www/html/var/cache
-    - /var/www/html/var/log
+    - /var/www/html/var/cache:rw,noexec,nosuid,nodev,mode=1777 # Shopware needs this
+    - /home/www-data:rw,noexec,nosuid,nodev,mode=1777 # Caddy needs this
 
 services:
   database:
@@ -99,14 +91,9 @@ services:
       cdn:
         condition: service_healthy
 
-  init-perm:
-    image: alpine
-    <<: [ *environment-app, *volumes-app ]
-    command: chown 82:82 /var/www/html/files /var/www/html/public/theme /var/www/html/public/media /var/www/html/public/thumbnail /var/www/html/public/sitemap
-
   init:
     image: local
-    <<: [ *environment-app, *volumes-app ]
+    <<: *environment-app
     build:
       context: .
     entrypoint: /setup
@@ -117,15 +104,13 @@ services:
         condition: service_healthy
       cdn:
         condition: service_healthy
-      init-perm:
-        condition: service_completed_successfully
       init-cdn:
         condition: service_completed_successfully
 
   web:
     image: local
-    # read_only: true
-    <<: [ *environment-app, *volumes-app ]
+    read_only: true
+    <<: [ *environment-app, *volumes-app-cache ]
     build:
       context: .
     depends_on:
@@ -147,8 +132,8 @@ services:
 
   worker:
     image: local
-    # read_only: true
-    <<: [ *environment-app, *volumes-app ]
+    read_only: true
+    <<: [ *environment-app, *volumes-app-cache ]
     restart: unless-stopped
     build:
       context: .
@@ -159,12 +144,9 @@ services:
     deploy:
       replicas: 3
 
+# TODO: Add redis
+
 volumes:
   mysql-data:
   opensearch-data:
-  files:
-  theme:
-  media:
-  thumbnail:
-  sitemap:
   cdn:
