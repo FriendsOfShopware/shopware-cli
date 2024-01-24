@@ -45,4 +45,10 @@ FROM base-extended
 ENV {{ .RunEnv }}
 {{- end }}
 
+{{- range $key, $value := .Hooks }}
+COPY --chmod=555 <<EOF /usr/local/shopware/{{ $key }}.d/01-generated.sh
+{{ $value }}
+EOF
+{{- end }}
+
 COPY --from=build --chown=www-data --link /src /var/www/html

@@ -106,11 +106,29 @@ func configureDockerfileTemplate(ctx context.Context, shopCfg *shop.Config) (map
 		}
 	}
 
+	hooks := make(map[string]string)
+	if shopCfg.Docker.Hooks.PreUpdate != "" {
+		hooks["pre_update"] = shopCfg.Docker.Hooks.PreUpdate
+	}
+
+	if shopCfg.Docker.Hooks.PostUpdate != "" {
+		hooks["post_update"] = shopCfg.Docker.Hooks.PostUpdate
+	}
+
+	if shopCfg.Docker.Hooks.PreInstall != "" {
+		hooks["pre_install"] = shopCfg.Docker.Hooks.PreInstall
+	}
+
+	if shopCfg.Docker.Hooks.PostInstall != "" {
+		hooks["post_install"] = shopCfg.Docker.Hooks.PostInstall
+	}
+
 	templateVars := map[string]interface{}{
 		"PHP":          shopCfg.Docker.PHP,
 		"ExcludePaths": shopCfg.Docker.ExcludePaths,
 		"BuildEnv":     strings.Join(buildEnvironments, " "),
 		"RunEnv":       strings.Join(runEnvironments, " "),
+		"Hooks":        hooks,
 	}
 
 	return templateVars, nil
