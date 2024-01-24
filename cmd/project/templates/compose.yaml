@@ -11,12 +11,15 @@ x-environment-app: &environment-app
     JWT_PRIVATE_KEY: '{{ .jwtPrivateKey }}'
     JWT_PUBLIC_KEY: '{{ .jwtPublicKey }}'
     CDN_URL: 'http://cdn:9000'
-    CDN_URL_PUBLIC: 'http://localhost:9000'
+    CDN_URL_PUBLIC: 'http://localhost:9000/public' # Needs to be constructed manually like this.
     AWS_REGION: 'eu-central-1'
     AWS_PUBLIC_FILESYSTEM_BUCKET: 'public'
     AWS_PRIVATE_FILESYSTEM_BUCKET: 'private'
     AWS_ACCESS_KEY_ID: '{{ .awsAccessKeyID }}'
     AWS_SECRET_ACCESS_KEY: '{{ .awsSecretAccessKey }}'
+    AWS_USE_PATH_STYLE_ENDPOINT: 'true'
+    PHP_SESSION_HANDLER: 'redis'
+    PHP_SESSION_SAVE_PATH: 'tcp://redis:6379'
 
 x-environment-database: &environment-database
   environment:
@@ -35,8 +38,21 @@ x-environment-cdn: &environment-cdn
 
 x-volumes-app-cache: &volumes-app-cache
   tmpfs:
-    - /var/www/html/var/cache:rw,noexec,nosuid,nodev,mode=1777 # Shopware needs this
-    - /home/www-data:rw,noexec,nosuid,nodev,mode=1777 # Caddy needs this
+    - /var/www/html/var/cache:rw,noexec,nosuid,nodev,mode=1777 # Shopware needs this directory
+    - /var/www/html/var/log:rw,noexec,nosuid,nodev,mode=1777 # Shopware needs this directory
+    - /home/www-data:rw,noexec,nosuid,nodev,mode=1777 # Caddy needs this directory
+    - /tmp:rw,noexec,nosuid,nodev,mode=1777 # php-fpm needs this directory
+
+x-develop-settings: &develop-settings
+  develop:
+    watch:
+      - action: rebuild
+        path: config/
+        target: /var/www/html/config/
+      - action: rebuild
+        path: Dockerfile
+      - action: rebuild
+        path: composer.lock
 
 services:
   database:
@@ -56,9 +72,15 @@ services:
     environment:
       discovery.type: single-node
       plugins.security.disabled: 'true'
+      logger.org.opensearch.discovery: 'ERROR'
     healthcheck:
       test: [ 'CMD', 'curl', 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s']
       timeout: 50s
+
+  redis:
+    image: redis
+    healthcheck:
+      test: [ 'CMD', 'redis-cli','ping' ]
 
   cdn:
     image: minio/minio
@@ -83,7 +105,7 @@ services:
       - |
         mc alias set cdn http://cdn:9000 shopware shopware &&
         mc admin user add cdn "$${AWS_ACCESS_KEY_ID}" "$${AWS_SECRET_ACCESS_KEY}" &&
-        mc admin policy attach cdn readwrite --user="$${AWS_ACCESS_KEY_ID}" &&
+        mc admin policy attach cdn readwrite --user="$${AWS_ACCESS_KEY_ID}" || true &&
         mc mb -p --region="eu-central-1" cdn/private &&
         mc mb -p --region="eu-central-1" cdn/public &&
         mc anonymous set download cdn/public
@@ -110,21 +132,16 @@ services:
   web:
     image: local
     read_only: true
-    <<: [ *environment-app, *volumes-app-cache ]
+    <<: [ *environment-app, *volumes-app-cache, *develop-settings ]
     build:
       context: .
     depends_on:
       init:
         condition: service_completed_successfully
-    develop:
-      watch:
-        - action: sync
-          path: config/
-          target: /var/www/html/config/
-        - action: rebuild
-          path: Dockerfile
-        - action: rebuild
-          path: composer.lock
+      redis:
+        condition: service_healthy
+      worker:
+        condition: service_started
     ports:
       - 8000:8000
     healthcheck:
@@ -133,18 +150,18 @@ services:
   worker:
     image: local
     read_only: true
-    <<: [ *environment-app, *volumes-app-cache ]
+    <<: [ *environment-app, *volumes-app-cache, *develop-settings ]
     restart: unless-stopped
     build:
       context: .
     depends_on:
       init:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     entrypoint: [ "php", "bin/console", "messenger:consume", "async", "--time-limit=300", "--memory-limit=512M" ]
     deploy:
       replicas: 3
-
-# TODO: Add redis
 
 volumes:
   mysql-data:
