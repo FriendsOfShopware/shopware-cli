@@ -39,8 +39,16 @@ type ConfigDockerPHP struct {
 
 type ConfigDocker struct {
 	Environment  []ConfigDockerEnvironmentVariable `yaml:"env,omitempty"`
-	PHP          ConfigDockerPHP                   `yaml:"php"`
+	PHP          ConfigDockerPHP                   `yaml:"php,omitempty"`
 	ExcludePaths []string                          `yaml:"exclude_paths,omitempty"`
+	Hooks        ConfigDockerHooks                 `yaml:"hooks,omitempty"`
+}
+
+type ConfigDockerHooks struct {
+	PreUpdate   string `yaml:"pre_update,omitempty"`
+	PostUpdate  string `yaml:"post_update,omitempty"`
+	PreInstall  string `yaml:"pre_install,omitempty"`
+	PostInstall string `yaml:"post_install,omitempty"`
 }
 
 type ConfigDockerEnvironmentVariable struct {

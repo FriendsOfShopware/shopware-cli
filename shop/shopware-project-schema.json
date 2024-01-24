@@ -39,6 +39,28 @@
                     "type": "array",
                     "items": {"type": "string"}
                 },
+                "hooks": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "pre_update": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "post_update": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "pre_install": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "post_install": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        }
+                    }
+                },
                 "env": {
                     "type": "array",
                     "items": {
