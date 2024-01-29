@@ -42,6 +42,7 @@ type ConfigDocker struct {
 	PHP          ConfigDockerPHP                   `yaml:"php,omitempty"`
 	ExcludePaths []string                          `yaml:"exclude_paths,omitempty"`
 	Hooks        ConfigDockerHooks                 `yaml:"hooks,omitempty"`
+	Variant      string                            `yaml:"variant,omitempty"`
 }
 
 type ConfigDockerHooks struct {
@@ -169,6 +170,10 @@ func fillEmptyConfig(c *Config) *Config {
 				Settings:   make(map[string]string),
 			},
 		}
+	}
+
+	if c.Docker.Variant == "" {
+		c.Docker.Variant = "caddy"
 	}
 
 	return c

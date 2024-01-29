@@ -125,6 +125,7 @@ func configureDockerfileTemplate(ctx context.Context, shopCfg *shop.Config) (map
 
 	templateVars := map[string]interface{}{
 		"PHP":          shopCfg.Docker.PHP,
+		"Variant":      shopCfg.Docker.Variant,
 		"ExcludePaths": shopCfg.Docker.ExcludePaths,
 		"BuildEnv":     strings.Join(buildEnvironments, " "),
 		"RunEnv":       strings.Join(runEnvironments, " "),

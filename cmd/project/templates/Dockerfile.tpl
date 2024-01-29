@@ -1,7 +1,7 @@
 #syntax=docker/dockerfile:1.4
 
 # pin versions
-FROM shopware/docker-base:{{.PHP.PhpVersion}} as base-image
+FROM shopware/docker-base:{{.PHP.PhpVersion}}-{{ .Variant }} as base-image
 FROM ghcr.io/friendsofshopware/shopware-cli:latest-php-{{.PHP.PhpVersion}} as shopware-cli
 
 FROM base-image as base-extended

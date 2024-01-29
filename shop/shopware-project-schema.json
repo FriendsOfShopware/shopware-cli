@@ -39,6 +39,11 @@
                     "type": "array",
                     "items": {"type": "string"}
                 },
+                "variant": {
+                    "type": "string",
+                    "enum": ["caddy", "fpm"],
+                    "default": "caddy"
+                },
                 "hooks": {
                     "type": "object",
                     "additionalProperties": false,
