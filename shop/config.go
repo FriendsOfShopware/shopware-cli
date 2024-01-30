@@ -19,7 +19,6 @@ type Config struct {
 	AdminApi          *ConfigAdminApi `yaml:"admin_api,omitempty"`
 	ConfigDump        *ConfigDump     `yaml:"dump,omitempty"`
 	Sync              *ConfigSync     `yaml:"sync,omitempty"`
-	Docker            *ConfigDocker   `yaml:"docker,omitempty"`
 }
 
 type ConfigBuild struct {
@@ -29,33 +28,6 @@ type ConfigBuild struct {
 	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
 	Browserslist          string   `yaml:"browserslist,omitempty"`
 	ExcludeExtensions     []string `yaml:"exclude_extensions,omitempty"`
-}
-
-type ConfigDockerPHP struct {
-	PhpVersion string            `yaml:"version,omitempty"`
-	Extensions []string          `yaml:"extensions,omitempty"`
-	Settings   map[string]string `yaml:"ini,omitempty"`
-}
-
-type ConfigDocker struct {
-	Environment  []ConfigDockerEnvironmentVariable `yaml:"env,omitempty"`
-	PHP          ConfigDockerPHP                   `yaml:"php,omitempty"`
-	ExcludePaths []string                          `yaml:"exclude_paths,omitempty"`
-	Hooks        ConfigDockerHooks                 `yaml:"hooks,omitempty"`
-	Variant      string                            `yaml:"variant,omitempty"`
-}
-
-type ConfigDockerHooks struct {
-	PreUpdate   string `yaml:"pre_update,omitempty"`
-	PostUpdate  string `yaml:"post_update,omitempty"`
-	PreInstall  string `yaml:"pre_install,omitempty"`
-	PostInstall string `yaml:"post_install,omitempty"`
-}
-
-type ConfigDockerEnvironmentVariable struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
-	Only  string `yaml:"only"`
 }
 
 type ConfigAdminApi struct {
@@ -161,19 +133,6 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 func fillEmptyConfig(c *Config) *Config {
 	if c.Build == nil {
 		c.Build = &ConfigBuild{}
-	}
-
-	if c.Docker == nil {
-		c.Docker = &ConfigDocker{
-			PHP: ConfigDockerPHP{
-				Extensions: make([]string, 0),
-				Settings:   make(map[string]string),
-			},
-		}
-	}
-
-	if c.Docker.Variant == "" {
-		c.Docker.Variant = "caddy"
 	}
 
 	return c
