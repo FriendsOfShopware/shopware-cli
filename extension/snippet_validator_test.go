@@ -77,3 +77,39 @@ func TestSnippetValidateStorefrontByPathTestDifferent(t *testing.T) {
 	assert.Contains(t, context.warnings[0], "key /a is missing, but defined in the main language file")
 	assert.Contains(t, context.warnings[1], "missing key \"/b\" in this snippet file, but defined in the main language")
 }
+
+func TestSnippetValidateFindsInvalidJsonInMainFile(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	context := newValidationContext(PlatformPlugin{
+		path:   tmpDir,
+		config: &Config{},
+	})
+
+	_ = os.MkdirAll(path.Join(tmpDir, "Resources", "snippet"), os.ModePerm)
+	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.en-GB.json"), []byte(`{"a": "1",}`), os.ModePerm)
+	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.de-DE.json"), []byte(`{"a": "2"}`), os.ModePerm)
+
+	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
+	assert.Len(t, context.errors, 1)
+	assert.Len(t, context.warnings, 0)
+	assert.Contains(t, context.errors[0], "contains invalid JSON")
+}
+
+func TestSnippetValidateFindsInvalidJsonInGermanFile(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	context := newValidationContext(PlatformPlugin{
+		path:   tmpDir,
+		config: &Config{},
+	})
+
+	_ = os.MkdirAll(path.Join(tmpDir, "Resources", "snippet"), os.ModePerm)
+	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.en-GB.json"), []byte(`{"a": "1"}`), os.ModePerm)
+	_ = os.WriteFile(path.Join(tmpDir, "Resources", "snippet", "storefront.de-DE.json"), []byte(`{"a": "2",}`), os.ModePerm)
+
+	assert.NoError(t, validateStorefrontSnippetsByPath(tmpDir, tmpDir, context))
+	assert.Len(t, context.errors, 1)
+	assert.Len(t, context.warnings, 0)
+	assert.Contains(t, context.errors[0], "contains invalid JSON")
+}

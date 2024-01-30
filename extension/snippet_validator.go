@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -89,15 +90,19 @@ func validateStorefrontSnippetsByPath(extensionRoot, rootDir string, context *Va
 			return err
 		}
 
+		if !json.Valid(mainFileContent) {
+			context.AddError(fmt.Sprintf("File '%s' contains invalid JSON", mainFile))
+
+			continue
+		}
+
 		for _, file := range files {
 			// makes no sense to compare to ourself
 			if file == mainFile {
 				continue
 			}
 
-			if err := compareSnippets(mainFileContent, file, context, rootDir); err != nil {
-				return err
-			}
+			compareSnippets(mainFileContent, file, context, rootDir)
 		}
 	}
 
@@ -157,6 +162,7 @@ func validateAdministrationByPath(extensionRoot, rootDir string, context *Valida
 
 		return nil
 	})
+
 	if err != nil {
 		return err
 	}
@@ -185,30 +191,44 @@ func validateAdministrationByPath(extensionRoot, rootDir string, context *Valida
 			return err
 		}
 
+		if !json.Valid(mainFileContent) {
+			context.AddError(fmt.Sprintf("File '%s' contains invalid JSON", mainFile))
+
+			continue
+		}
+
 		for _, file := range files {
 			// makes no sense to compare to ourself
 			if file == mainFile {
 				continue
 			}
 
-			if err := compareSnippets(mainFileContent, file, context, rootDir); err != nil {
-				return err
-			}
+			compareSnippets(mainFileContent, file, context, rootDir)
 		}
 	}
 
 	return nil
 }
 
-func compareSnippets(mainFile []byte, file string, context *ValidationContext, extensionRoot string) error {
+func compareSnippets(mainFile []byte, file string, context *ValidationContext, extensionRoot string) {
 	checkFile, err := os.ReadFile(file)
 	if err != nil {
-		return err
+		context.AddError(fmt.Sprintf("Cannot read file '%s', due '%s'", file, err))
+
+		return
+	}
+
+	if !json.Valid(checkFile) {
+		context.AddError(fmt.Sprintf("File '%s' contains invalid JSON", file))
+
+		return
 	}
 
 	compare, err := jsondiff.CompareJSON(mainFile, checkFile)
 	if err != nil {
-		return err
+		context.AddError(fmt.Sprintf("Cannot compare file '%s', due '%s'", file, err))
+
+		return
 	}
 
 	for _, diff := range compare {
@@ -229,6 +249,4 @@ func compareSnippets(mainFile []byte, file string, context *ValidationContext, e
 			continue
 		}
 	}
-
-	return nil
 }
