@@ -19,7 +19,7 @@ import (
 var dockerFileTemplate string
 
 var dockerBuildCmd = &cobra.Command{
-	Use:   "build [name]",
+	Use:   "build [image-name]",
 	Short: "Build Docker Image",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,6 +34,11 @@ var dockerBuildCmd = &cobra.Command{
 
 		if err = dumpDockerIgnore(shopCfg); err != nil {
 			return err
+		}
+
+		if only, _ := cmd.PersistentFlags().GetBool("generate-only"); only {
+			logging.FromContext(cmd.Context()).Info("Dockerfile and .dockerignore generated")
+			return nil
 		}
 
 		return runTransparentCommand(exec.CommandContext(cmd.Context(), "docker", "build", "-t", args[0], "."))
@@ -151,4 +156,5 @@ func renderDockerfile(cfg map[string]interface{}) ([]byte, error) {
 
 func init() {
 	dockerRootCmd.AddCommand(dockerBuildCmd)
+	dockerBuildCmd.PersistentFlags().Bool("generate-only", false, "Only generate Dockerfile and .dockerignore and don't build the image")
 }
