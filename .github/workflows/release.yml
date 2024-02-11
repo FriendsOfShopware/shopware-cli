@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: nscloud-ubuntu-22.04-amd64-6x8
+    runs-on: nscloud-ubuntu-22.04-amd64-8x8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
