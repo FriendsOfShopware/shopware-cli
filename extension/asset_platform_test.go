@@ -92,3 +92,27 @@ func TestGenerateConfigDoesNotAddExtensionWithoutName(t *testing.T) {
 
 	assert.Len(t, config, 0)
 }
+
+func TestOnlyFilterOnAssetConfig(t *testing.T) {
+	cfg := make(ExtensionAssetConfig)
+
+	cfg["FroshTools"] = ExtensionAssetConfigEntry{}
+	cfg["FroshTest"] = ExtensionAssetConfigEntry{}
+
+	filtered := cfg.Only([]string{"FroshTools"})
+
+	assert.Len(t, filtered, 1)
+	assert.Contains(t, filtered, "FroshTools")
+}
+
+func TestSkipFilterOnAssetConfig(t *testing.T) {
+	cfg := make(ExtensionAssetConfig)
+
+	cfg["FroshTools"] = ExtensionAssetConfigEntry{}
+	cfg["FroshTest"] = ExtensionAssetConfigEntry{}
+
+	filtered := cfg.Not([]string{"FroshTools"})
+
+	assert.Len(t, filtered, 1)
+	assert.Contains(t, filtered, "FroshTest")
+}
