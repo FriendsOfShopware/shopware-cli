@@ -34,6 +34,7 @@ type AssetBuildConfig struct {
 	Browserslist                 string
 	SkipExtensionsWithBuildFiles bool
 	NPMForceInstall              bool
+	ContributeProject            bool
 }
 
 func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, assetConfig AssetBuildConfig) error { // nolint:gocyclo
@@ -107,10 +108,16 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				}
 			}
 
+			envList := []string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot)}
+
+			if !assetConfig.ContributeProject {
+				envList = append(envList, "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", "SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION=1")
+			}
+
 			err = npmRunBuild(
 				administrationRoot,
 				"build",
-				[]string{fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot), "SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1", "SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION=1"},
+				envList,
 			)
 
 			if assetConfig.CleanupNodeModules {

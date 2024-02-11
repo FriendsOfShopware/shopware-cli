@@ -37,6 +37,7 @@ var projectAdminBuildCmd = &cobra.Command{
 			DisableStorefrontBuild: true,
 			ShopwareRoot:           projectRoot,
 			NPMForceInstall:        forceInstall,
+			ContributeProject:      extension.IsContributeProject(projectRoot),
 		}
 
 		if err := extension.BuildAssetsForExtensions(cmd.Context(), sources, assetCfg); err != nil {
