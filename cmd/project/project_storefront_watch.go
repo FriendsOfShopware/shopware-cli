@@ -84,6 +84,6 @@ func themeCompileSupportsActiveOnly(projectRoot string) bool {
 
 func init() {
 	projectRootCmd.AddCommand(projectStorefrontWatchCmd)
-	projectStorefrontWatchCmd.PersistentFlags().String("only-extensions", "", "Only watch the given extensions")
-	projectStorefrontWatchCmd.PersistentFlags().String("skip-extensions", "", "Skips the given extensions")
+	projectStorefrontWatchCmd.PersistentFlags().String("only-extensions", "", "Only watch the given extensions (comma separated)")
+	projectStorefrontWatchCmd.PersistentFlags().String("skip-extensions", "", "Skips the given extensions (comma separated)")
 }
