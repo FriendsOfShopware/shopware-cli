@@ -1,8 +1,13 @@
 package project
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/spf13/cobra"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -43,4 +48,40 @@ func findClosestShopwareProject() (string, error) {
 	}
 
 	return "", fmt.Errorf("cannot find Shopware project in current directory")
+}
+
+func filterAndWritePluginJson(cmd *cobra.Command, projectRoot string, shopCfg *shop.Config) error {
+	sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
+
+	cfgs := extension.BuildAssetConfigFromExtensions(cmd.Context(), sources, extension.AssetBuildConfig{})
+
+	onlyExtensions, _ := cmd.PersistentFlags().GetString("only-extensions")
+	skipExtensions, _ := cmd.PersistentFlags().GetString("skip-extensions")
+
+	if onlyExtensions != "" && skipExtensions != "" {
+		return fmt.Errorf("only-extensions and skip-extensions cannot be used together")
+	}
+
+	if onlyExtensions != "" {
+		cfgs = cfgs.Only(strings.Split(onlyExtensions, ","))
+	}
+
+	if skipExtensions != "" {
+		cfgs = cfgs.Not(strings.Split(skipExtensions, ","))
+	}
+
+	if _, err := extension.InstallNodeModulesOfConfigs(cmd.Context(), cfgs, false); err != nil {
+		return err
+	}
+
+	pluginJson, err := json.MarshalIndent(cfgs, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(path.Join(projectRoot, "var", "plugins.json"), pluginJson, os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
 }

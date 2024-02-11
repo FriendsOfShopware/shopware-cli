@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
@@ -610,6 +611,30 @@ func (c ExtensionAssetConfig) FilterByStorefrontAndEsBuild(esbuildEnabled bool) 
 
 	for name, entry := range c {
 		if entry.Storefront.EntryFilePath != nil && entry.EnableESBuildForStorefront == esbuildEnabled {
+			filtered[name] = entry
+		}
+	}
+
+	return filtered
+}
+
+func (c ExtensionAssetConfig) Only(extensions []string) ExtensionAssetConfig {
+	filtered := make(ExtensionAssetConfig)
+
+	for name, entry := range c {
+		if slices.Contains(extensions, name) {
+			filtered[name] = entry
+		}
+	}
+
+	return filtered
+}
+
+func (c ExtensionAssetConfig) Not(extensions []string) ExtensionAssetConfig {
+	filtered := make(ExtensionAssetConfig)
+
+	for name, entry := range c {
+		if !slices.Contains(extensions, name) {
 			filtered[name] = entry
 		}
 	}
