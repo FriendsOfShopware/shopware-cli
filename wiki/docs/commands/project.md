@@ -21,6 +21,15 @@ Parameters:
 * `--skip-assets-install` - Skips the assets installation
 * `--force-install-dependencies` - Forces the installation of NPM dependencies
 
+## shopware-cli project admin-watch
+
+Starts the Administration watcher
+
+Parameters:
+
+* `--only-extensions` - Only consider given list of extensions for the watcher (comma separated list)
+* `--skip-extensions` - Skip given list of extensions for the watcher (comma separated list)
+
 ## shopware-cli project storefront-build
 
 Builds the Storefront with all installed extensions
@@ -29,6 +38,15 @@ Parameters:
 
 * `--skip-theme-compile` - Skips the theme compilation
 * `--force-install-dependencies` - Forces the installation of NPM dependencies
+
+## shopware-cli project storefront-watch
+
+Starts the Storefront watcher
+
+Parameters:
+
+* `--only-extensions` - Only consider given list of extensions for the watcher (comma separated list)
+* `--skip-extensions` - Skip given list of extensions for the watcher (comma separated list)
 
 ## shopware-cli project worker
 
