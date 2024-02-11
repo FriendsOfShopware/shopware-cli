@@ -61,6 +61,12 @@ var projectStorefrontWatchCmd = &cobra.Command{
 			return err
 		}
 
+		if _, err := os.Stat(extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront/node_modules/webpack-dev-server")); os.IsNotExist(err) {
+			if err := extension.InstallNPMDependencies(extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront"), extension.NpmPackage{Dependencies: map[string]string{"not-empty": "not-empty"}}); err != nil {
+				return err
+			}
+		}
+
 		return runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "npm", "run-script", "hot-proxy"), extension.PlatformPath(projectRoot, "Storefront", "Resources/app/storefront")))
 	},
 }

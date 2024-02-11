@@ -18,7 +18,7 @@ func PlatformPath(projectRoot, component, path string) string {
 	return filepath.Join(projectRoot, "vendor", "shopware", strings.ToLower(component), path)
 }
 
-// IsContributeProject checks if the project is a contribution project aka shopware/shopware
+// IsContributeProject checks if the project is a contribution project aka shopware/shopware.
 func IsContributeProject(projectRoot string) bool {
 	if _, err := os.Stat(filepath.Join(projectRoot, "src", "Core", "composer.json")); err == nil {
 		return true
@@ -27,6 +27,7 @@ func IsContributeProject(projectRoot string) bool {
 	return false
 }
 
+// LoadSymfonyEnvFile loads the Symfony .env file from the project root.
 func LoadSymfonyEnvFile(projectRoot string) error {
 	currentEnv := os.Getenv("APP_ENV")
 	if currentEnv == "" {

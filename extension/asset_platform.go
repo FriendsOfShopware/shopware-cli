@@ -104,7 +104,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 					additionalNpmParameters = []string{"--production"}
 				}
 
-				if err := installDependencies(administrationRoot, npmPackage, additionalNpmParameters...); err != nil {
+				if err := InstallNPMDependencies(administrationRoot, npmPackage, additionalNpmParameters...); err != nil {
 					return err
 				}
 			}
@@ -193,7 +193,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 					additionalNpmParameters = append(additionalNpmParameters, "--production")
 				}
 
-				if err := installDependencies(storefrontRoot, npmPackage, additionalNpmParameters...); err != nil {
+				if err := InstallNPMDependencies(storefrontRoot, npmPackage, additionalNpmParameters...); err != nil {
 					return err
 				}
 			}
@@ -281,7 +281,7 @@ func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig,
 
 				logging.FromContext(ctx).Infof("Installing npm dependencies in %s %s\n", npmPath, additionalText)
 
-				if err := installDependencies(npmPath, npmPackage, additionalNpmParameters...); err != nil {
+				if err := InstallNPMDependencies(npmPath, npmPackage, additionalNpmParameters...); err != nil {
 					return nil, err
 				}
 
@@ -316,7 +316,7 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 	return nil
 }
 
-func getInstallCommand(root string, isProductionMode bool, npmPackage npmPackage) *exec.Cmd {
+func getInstallCommand(root string, isProductionMode bool, npmPackage NpmPackage) *exec.Cmd {
 	if _, err := os.Stat(path.Join(root, "pnpm-lock.yaml")); err == nil {
 		return exec.Command("pnpm", "install")
 	}
@@ -340,7 +340,7 @@ func getInstallCommand(root string, isProductionMode bool, npmPackage npmPackage
 	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
 }
 
-func installDependencies(path string, packageJsonData npmPackage, additionalParams ...string) error {
+func InstallNPMDependencies(path string, packageJsonData NpmPackage, additionalParams ...string) error {
 	isProductionMode := false
 
 	for _, param := range additionalParams {
@@ -368,15 +368,15 @@ func installDependencies(path string, packageJsonData npmPackage, additionalPara
 	return nil
 }
 
-func getNpmPackage(root string) (npmPackage, error) {
+func getNpmPackage(root string) (NpmPackage, error) {
 	packageJsonFile, err := os.ReadFile(path.Join(root, "package.json"))
 	if err != nil {
-		return npmPackage{}, err
+		return NpmPackage{}, err
 	}
 
-	var packageJsonData npmPackage
+	var packageJsonData NpmPackage
 	if err := json.Unmarshal(packageJsonFile, &packageJsonData); err != nil {
-		return npmPackage{}, err
+		return NpmPackage{}, err
 	}
 	return packageJsonData, nil
 }
@@ -667,7 +667,7 @@ type ExtensionAssetConfigStorefront struct {
 	StyleFiles    []string `json:"styleFiles"`
 }
 
-func doesPackageJsonContainsPackageInDev(packageJsonData npmPackage, packageName string) bool {
+func doesPackageJsonContainsPackageInDev(packageJsonData NpmPackage, packageName string) bool {
 	if _, ok := packageJsonData.DevDependencies[packageName]; ok {
 		return true
 	}
