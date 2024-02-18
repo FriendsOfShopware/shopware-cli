@@ -1,8 +1,8 @@
 package project
 
 import (
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"os/exec"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
@@ -49,7 +49,7 @@ var projectAdminBuildCmd = &cobra.Command{
 			return nil
 		}
 
-		return runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "assets:install"), projectRoot))
+		return runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "assets:install"), projectRoot))
 	},
 }
 

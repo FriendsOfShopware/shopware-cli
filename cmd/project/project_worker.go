@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/spf13/cobra"
@@ -54,7 +54,7 @@ var projectWorkerCmd = &cobra.Command{
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancelCtx, cancel)
 
-		consumeArgs := []string{"bin/console", "messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit), fmt.Sprintf("--time-limit=%s", timeLimit)}
+		consumeArgs := []string{"messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit), fmt.Sprintf("--time-limit=%s", timeLimit)}
 
 		if queuesToConsume == "" {
 			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
@@ -73,7 +73,7 @@ var projectWorkerCmd = &cobra.Command{
 			wg.Add(1)
 			go func(ctx context.Context) {
 				for {
-					cmd := exec.CommandContext(cancelCtx, "php", consumeArgs...)
+					cmd := phpexec.ConsoleCommand(cancelCtx, consumeArgs...)
 					cmd.Dir = projectRoot
 					cmd.Stdout = os.Stdout
 					cmd.Stderr = os.Stderr
