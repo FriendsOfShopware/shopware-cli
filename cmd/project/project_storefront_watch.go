@@ -1,12 +1,14 @@
 package project
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/spf13/cobra"
 )
 
 var projectStorefrontWatchCmd = &cobra.Command{
@@ -35,7 +37,7 @@ var projectStorefrontWatchCmd = &cobra.Command{
 			return err
 		}
 
-		if err := runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "feature:dump"), projectRoot)); err != nil {
+		if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "feature:dump"), projectRoot)); err != nil {
 			return err
 		}
 
@@ -45,11 +47,11 @@ var projectStorefrontWatchCmd = &cobra.Command{
 			activeOnly = "-v"
 		}
 
-		if err := runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "theme:compile", activeOnly), projectRoot)); err != nil {
+		if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "theme:compile", activeOnly), projectRoot)); err != nil {
 			return err
 		}
 
-		if err := runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "theme:dump"), projectRoot)); err != nil {
+		if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "theme:dump"), projectRoot)); err != nil {
 			return err
 		}
 

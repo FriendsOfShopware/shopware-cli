@@ -12,6 +12,7 @@ import (
 
 	"dario.cat/mergo"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/spf13/cobra"
@@ -55,7 +56,7 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Installing dependencies using Composer")
 
-		composer := exec.CommandContext(cmd.Context(), "composer", "install", "--no-dev", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative")
+		composer := phpexec.ComposerCommand(cmd.Context(), "install", "--no-dev", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative")
 		composer.Dir = args[0]
 		composer.Stdin = os.Stdin
 		composer.Stdout = os.Stdout
@@ -107,7 +108,7 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Warmup container cache")
 
-		if err := runTransparentCommand(exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "--version")); err != nil { //nolint: gosec
+		if err := runTransparentCommand(phpexec.PHPCommand(cmd.Context(), path.Join(args[0], "bin", "ci"), "--version")); err != nil { //nolint: gosec
 			return fmt.Errorf("failed to warmup container cache (php bin/ci --version): %w", err)
 		}
 
@@ -122,7 +123,7 @@ var projectCI = &cobra.Command{
 				}
 			}
 
-			if err := runTransparentCommand(exec.CommandContext(cmd.Context(), "php", path.Join(args[0], "bin", "ci"), "asset:install")); err != nil { //nolint: gosec
+			if err := runTransparentCommand(phpexec.PHPCommand(cmd.Context(), path.Join(args[0], "bin", "ci"), "asset:install")); err != nil { //nolint: gosec
 				return fmt.Errorf("failed to install assets (php bin/ci asset:install): %w", err)
 			}
 		}

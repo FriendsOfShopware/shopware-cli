@@ -1,12 +1,14 @@
 package project
 
 import (
-	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"path"
+
+	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
+	"github.com/FriendsOfShopware/shopware-cli/shop"
+	"github.com/spf13/cobra"
 )
 
 var projectAdminWatchCmd = &cobra.Command{
@@ -35,7 +37,7 @@ var projectAdminWatchCmd = &cobra.Command{
 			return err
 		}
 
-		if err := runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "feature:dump"), projectRoot)); err != nil {
+		if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "feature:dump"), projectRoot)); err != nil {
 			return err
 		}
 
@@ -59,7 +61,7 @@ var projectAdminWatchCmd = &cobra.Command{
 				}
 			}
 
-			if err := runTransparentCommand(commandWithRoot(exec.CommandContext(cmd.Context(), "php", "bin/console", "-eprod", "framework:schema", "-s", "entity-schema", path.Join(mockDirectory, "entity-schema.json")), projectRoot)); err != nil {
+			if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "-eprod", "framework:schema", "-s", "entity-schema", path.Join(mockDirectory, "entity-schema.json")), projectRoot)); err != nil {
 				return err
 			}
 
