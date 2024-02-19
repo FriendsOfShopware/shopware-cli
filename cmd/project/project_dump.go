@@ -159,17 +159,21 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return dErr
 		}
 
-		if gzipEnabled {
-			output += ".gz"
-		}
-
-		if zstdEnabled {
-			output += ".zst"
-		}
-
 		var w io.Writer
-		if w, err = os.Create(output); err != nil {
-			return err
+		if output == "-" {
+			w = os.Stdout
+		} else {
+			if gzipEnabled {
+				output += ".gz"
+			}
+
+			if zstdEnabled {
+				output += ".zst"
+			}
+
+			if w, err = os.Create(output); err != nil {
+				return err
+			}
 		}
 
 		if gzipEnabled {
@@ -206,7 +210,7 @@ func init() {
 	projectDatabaseDumpCmd.Flags().String("username", "root", "mysql user")
 	projectDatabaseDumpCmd.Flags().String("password", "root", "mysql password")
 	projectDatabaseDumpCmd.Flags().String("port", "3306", "mysql port")
-	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file")
+	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file or - (for stdout)")
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")
 	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
 	projectDatabaseDumpCmd.Flags().Bool("anonymize", false, "Anonymize customer data")
