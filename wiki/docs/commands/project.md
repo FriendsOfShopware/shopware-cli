@@ -219,6 +219,10 @@ Arguments:
 
 - project path
 
+Flags:
+
+- `--with-dev-dependencies` - Install dev dependencies
+
 What that command does:
 
 - Installs all composer dependencies

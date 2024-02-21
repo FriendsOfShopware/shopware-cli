@@ -56,7 +56,13 @@ var projectCI = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Installing dependencies using Composer")
 
-		composer := phpexec.ComposerCommand(cmd.Context(), "install", "--no-dev", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative")
+		composerFlags := []string{"install", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative"}
+
+		if withDev, _ := cmd.Flags().GetBool("with-dev-dependencies"); !withDev {
+			composerFlags = append(composerFlags, "--no-dev")
+		}
+
+		composer := phpexec.ComposerCommand(cmd.Context(), composerFlags...)
 		composer.Dir = args[0]
 		composer.Stdin = os.Stdin
 		composer.Stdout = os.Stdout
@@ -168,6 +174,7 @@ var projectCI = &cobra.Command{
 
 func init() {
 	projectRootCmd.AddCommand(projectCI)
+	projectCI.PersistentFlags().Bool("with-dev-dependencies", false, "Install dev dependencies")
 }
 
 func commandWithRoot(cmd *exec.Cmd, root string) *exec.Cmd {
