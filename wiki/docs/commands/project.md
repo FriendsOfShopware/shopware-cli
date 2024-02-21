@@ -223,6 +223,9 @@ Flags:
 
 - `--with-dev-dependencies` - Install dev dependencies
 
+You can set `SHOPWARE_PACKAGES_TOKEN` as environment variable with the Shopware Composer Registry token,
+to pass it to the composer command.
+
 What that command does:
 
 - Installs all composer dependencies

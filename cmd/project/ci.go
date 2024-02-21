@@ -62,11 +62,20 @@ var projectCI = &cobra.Command{
 			composerFlags = append(composerFlags, "--no-dev")
 		}
 
+		token, err := prepareComposerAuth(cmd.Context())
+
+		if err != nil {
+			return err
+		}
+
 		composer := phpexec.ComposerCommand(cmd.Context(), composerFlags...)
 		composer.Dir = args[0]
 		composer.Stdin = os.Stdin
 		composer.Stdout = os.Stdout
 		composer.Stderr = os.Stderr
+		composer.Env = append(os.Environ(),
+			"COMPOSER_AUTH="+token,
+		)
 
 		if err := composer.Run(); err != nil {
 			return err
@@ -170,6 +179,50 @@ var projectCI = &cobra.Command{
 
 		return nil
 	},
+}
+
+type ComposerAuth struct {
+	HTTPBasicAuth  *interface{}      `json:"http-basic,omitempty"`
+	BearerAuth     map[string]string `json:"bearer,omitempty"`
+	GitlabAuth     *interface{}      `json:"gitlab-token,omitempty"`
+	GithubOAuth    *interface{}      `json:"github-oauth,omitempty"`
+	BitbucketOauth *interface{}      `json:"bitbucket-oauth,omitempty"`
+}
+
+func prepareComposerAuth(ctx context.Context) (string, error) {
+	composerToken := os.Getenv("SHOPWARE_PACKAGES_TOKEN")
+
+	if composerToken == "" {
+		return "", nil
+	}
+
+	logging.FromContext(ctx).Infof("Setting up composer auth for packages.shopware.com")
+
+	composerAuth := os.Getenv("COMPOSER_AUTH")
+
+	var auth ComposerAuth
+
+	if composerAuth == "" {
+		auth = ComposerAuth{}
+	} else {
+		if err := json.Unmarshal([]byte(composerAuth), &auth); err != nil {
+			return "", err
+		}
+	}
+
+	if auth.BearerAuth == nil {
+		auth.BearerAuth = make(map[string]string)
+	}
+
+	auth.BearerAuth["packages.shopware.com"] = composerToken
+
+	data, err := json.Marshal(auth)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }
 
 func init() {
