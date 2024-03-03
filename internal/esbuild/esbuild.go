@@ -52,7 +52,7 @@ func NewAssetCompileOptionsStorefront(name, path string) AssetCompileOptions {
 		EntrypointDir:  "Resources/app/storefront/src",
 		OutputDir:      "Resources/app/storefront/dist/storefront",
 		ProductionMode: true,
-		OutputJSFile:   filepath.Join("js", kebabCased, kebabCased+".js"),
+		OutputJSFile:   filepath.Join("js", kebabCased+".js"),
 		OutputCSSFile:  filepath.Join("css", kebabCased+".css"),
 		// We never emit CSS for the storefront, they are always lying in a separate SCSS file entrypoint
 		DisableSass: true,
