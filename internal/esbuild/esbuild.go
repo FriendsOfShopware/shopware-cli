@@ -29,6 +29,8 @@ type AssetCompileOptions struct {
 	OutputCSSFile  string
 }
 
+const DotJs = ".js"
+
 func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
 	kebabCased := ToKebabCase(name)
 
@@ -38,7 +40,7 @@ func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
 		EntrypointDir:  "Resources/app/administration/src",
 		OutputDir:      "Resources/public/administration",
 		ProductionMode: true,
-		OutputJSFile:   filepath.Join("js", kebabCased+".js"),
+		OutputJSFile:   filepath.Join("js", kebabCased+DotJs),
 		OutputCSSFile:  filepath.Join("css", kebabCased+".css"),
 	}
 }
@@ -46,10 +48,10 @@ func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
 func NewAssetCompileOptionsStorefront(name, path string, newLayout bool) AssetCompileOptions {
 	kebabCased := ToKebabCase(name)
 
-	jsFile := filepath.Join("js", kebabCased+".js")
+	jsFile := filepath.Join("js", kebabCased+DotJs)
 
 	if newLayout {
-		jsFile = filepath.Join("js", kebabCased, kebabCased+".js")
+		jsFile = filepath.Join("js", kebabCased, kebabCased+DotJs)
 	}
 
 	return AssetCompileOptions{
