@@ -104,12 +104,30 @@ func TestESBuildStorefront(t *testing.T) {
 
 	_ = os.WriteFile(path.Join(storefrontDir, "main.js"), []byte("console.log('bla')"), os.ModePerm)
 
-	options := NewAssetCompileOptionsStorefront("Bla", dir)
+	options := NewAssetCompileOptionsStorefront("Bla", dir, false)
 	_, err := CompileExtensionAsset(getTestContext(), options)
 
 	assert.NoError(t, err)
 
 	compiledFilePath := path.Join(dir, "Resources", "app", "storefront", "dist", "storefront", "js", "bla.js")
+	_, err = os.Stat(compiledFilePath)
+	assert.NoError(t, err)
+}
+
+func TestESBuildStorefrontNewLayout(t *testing.T) {
+	dir := t.TempDir()
+
+	storefrontDir := path.Join(dir, "Resources", "app", "storefront", "src")
+	_ = os.MkdirAll(storefrontDir, os.ModePerm)
+
+	_ = os.WriteFile(path.Join(storefrontDir, "main.js"), []byte("console.log('bla')"), os.ModePerm)
+
+	options := NewAssetCompileOptionsStorefront("Bla", dir, true)
+	_, err := CompileExtensionAsset(getTestContext(), options)
+
+	assert.NoError(t, err)
+
+	compiledFilePath := path.Join(dir, "Resources", "app", "storefront", "dist", "storefront", "js", "bla", "bla.js")
 	_, err = os.Stat(compiledFilePath)
 	assert.NoError(t, err)
 }
