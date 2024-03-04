@@ -17,12 +17,12 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.20.1
+	github.com/sashabaranov/go-openai v1.20.2
 	github.com/spf13/cobra v1.8.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/tetratelabs/wazero v1.6.0
 	github.com/vulcand/oxy/v2 v2.0.0
-	github.com/wI2L/jsondiff v0.5.0
+	github.com/wI2L/jsondiff v0.5.1
 	github.com/yuin/goldmark v1.7.0
 	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v3 v3.0.1
