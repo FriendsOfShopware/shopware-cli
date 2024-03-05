@@ -52,5 +52,11 @@ jobs:
           ./shopware-cli extension build plugin
           mv plugin/.shopware-extension-disable.yml plugin/.shopware-extension.yml
 
+      - name: Install a Storefront Plugin
+        working-directory: shopware
+        run: |
+          composer require 'frosh/platform-filter-search:*' --no-interaction --no-scripts
+          rm -rf vendor
+
       - name: Setup the project
         run: ./shopware-cli project ci shopware
