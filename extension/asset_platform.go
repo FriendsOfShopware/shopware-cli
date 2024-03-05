@@ -80,6 +80,8 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 				return err
 			}
+
+			logging.FromContext(ctx).Infof("Building administration assets for %s using ESBuild", name)
 		}
 
 		nonCompatibleExtensions := cfgs.FilterByAdminAndEsBuild(false)
@@ -139,6 +141,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 				return err
 			}
+			logging.FromContext(ctx).Infof("Building storefront assets for %s using ESBuild", name)
 		}
 
 		nonCompatibleExtensions := cfgs.FilterByStorefrontAndEsBuild(false)

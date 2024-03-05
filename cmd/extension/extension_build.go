@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
-	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
 var extensionAssetBundleCmd = &cobra.Command{
@@ -53,8 +52,6 @@ var extensionAssetBundleCmd = &cobra.Command{
 		if err := extension.BuildAssetsForExtensions(cmd.Context(), extension.ConvertExtensionsToSources(cmd.Context(), validatedExtensions), assetCfg); err != nil {
 			return fmt.Errorf("cannot build assets: %w", err)
 		}
-
-		logging.FromContext(cmd.Context()).Infof("Assets has been built")
 
 		return nil
 	},
