@@ -50,12 +50,16 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 		return nil
 	}
 
+	minVersion, err := lookupForMinMatchingVersion(ctx, assetConfig.ShopwareVersion)
+	if err != nil {
+		return err
+	}
+
 	requiresShopwareSources := cfgs.RequiresShopwareRepository()
 
 	shopwareRoot := assetConfig.ShopwareRoot
-	var err error
 	if shopwareRoot == "" && requiresShopwareSources {
-		shopwareRoot, err = setupShopwareInTemp(ctx, assetConfig.ShopwareVersion)
+		shopwareRoot, err = setupShopwareInTemp(ctx, minVersion)
 
 		if err != nil {
 			return err
@@ -136,7 +140,13 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	if !assetConfig.DisableStorefrontBuild && cfgs.RequiresStorefrontBuild() {
 		// Build all extensions compatible with esbuild first
 		for name, entry := range cfgs.FilterByStorefrontAndEsBuild(true) {
-			options := esbuild.NewAssetCompileOptionsStorefront(name, entry.BasePath, false)
+			isNewLayout := false
+
+			if minVersion == DevVersionNumber || version.Must(version.NewVersion(minVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("6.6.0.0"))) {
+				isNewLayout = true
+			}
+
+			options := esbuild.NewAssetCompileOptionsStorefront(name, entry.BasePath, isNewLayout)
 
 			if _, err := esbuild.CompileExtensionAsset(ctx, options); err != nil {
 				return err
@@ -512,12 +522,7 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 	return cfg
 }
 
-func setupShopwareInTemp(ctx context.Context, shopwareVersionConstraint *version.Constraints) (string, error) {
-	minVersion, err := lookupForMinMatchingVersion(ctx, shopwareVersionConstraint)
-	if err != nil {
-		return "", err
-	}
-
+func setupShopwareInTemp(ctx context.Context, minVersion string) (string, error) {
 	dir, err := os.MkdirTemp("", "extension")
 	if err != nil {
 		return "", err
