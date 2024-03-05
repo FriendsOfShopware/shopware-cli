@@ -101,7 +101,7 @@ var accountCompanyProducerExtensionInfoPushCmd = &cobra.Command{
 				for _, configImage := range *extCfg.Store.Images {
 					apiImage, err := p.AddExtensionImage(cmd.Context(), storeExt.Id, fmt.Sprintf("%s/%s", zipExt.GetPath(), configImage.File))
 					if err != nil {
-						return fmt.Errorf("cannot upload image to extension: %w", err)
+						return fmt.Errorf("cannot upload image %s to extension: %w", configImage.File, err)
 					}
 
 					apiImage.Priority = configImage.Priority
