@@ -33,9 +33,16 @@ var projectStorefrontBuildCmd = &cobra.Command{
 
 		forceInstall, _ := cmd.PersistentFlags().GetBool("force-install-dependencies")
 
+		shopwareConstraint, err := extension.GetShopwareProjectConstraint(args[0])
+
+		if err != nil {
+			return err
+		}
+
 		assetCfg := extension.AssetBuildConfig{
 			DisableAdminBuild: true,
 			ShopwareRoot:      projectRoot,
+			ShopwareVersion:   shopwareConstraint,
 			NPMForceInstall:   forceInstall,
 			ContributeProject: extension.IsContributeProject(projectRoot),
 		}

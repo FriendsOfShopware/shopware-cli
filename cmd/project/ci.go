@@ -85,9 +85,16 @@ var projectCI = &cobra.Command{
 
 		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0], shopCfg)
 
+		shopwareConstraint, err := extension.GetShopwareProjectConstraint(args[0])
+
+		if err != nil {
+			return err
+		}
+
 		assetCfg := extension.AssetBuildConfig{
 			CleanupNodeModules:           true,
 			ShopwareRoot:                 args[0],
+			ShopwareVersion:              shopwareConstraint,
 			Browserslist:                 shopCfg.Build.Browserslist,
 			SkipExtensionsWithBuildFiles: true,
 		}
