@@ -8,6 +8,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
@@ -17,28 +19,85 @@ import (
 func GetShopwareProjectConstraint(project string) (*version.Constraints, error) {
 	composerJson, err := os.ReadFile(path.Join(project, "composer.json"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not read composer.json: %w", err)
 	}
 
 	var composer rootComposerJson
 
 	err = json.Unmarshal(composerJson, &composer)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not parse composer.json: %w", err)
 	}
 
 	constraint, ok := composer.Require["shopware/core"]
 
 	if !ok {
-		return nil, fmt.Errorf("cannot find shopware/core in composer.json")
+		if v, err := getProjectConstraintFromKernel(project); err == nil {
+			return v, nil
+		}
+
+		return nil, fmt.Errorf("missing shopware/core requirement in composer.json")
 	}
 
 	c, err := version.NewConstraint(constraint)
 	if err != nil {
+		if strings.Contains(err.Error(), "malformed constraint") {
+			var lock composerLock
+
+			lockFile, readErr := os.ReadFile(path.Join(project, "composer.lock"))
+
+			if readErr != nil {
+				// popup real error
+				return nil, err
+			}
+
+			if err := json.Unmarshal(lockFile, &lock); err != nil {
+				return nil, fmt.Errorf("could not parse composer.lock: %w", err)
+			}
+
+			for _, pkg := range lock.Packages {
+				if pkg.Name == "shopware/core" {
+					v, err := version.NewConstraint(pkg.Version)
+
+					if err != nil {
+						return getProjectConstraintFromKernel(project)
+					}
+
+					return &v, nil
+				}
+			}
+		}
+
 		return nil, err
 	}
 
 	return &c, nil
+}
+
+var kernelFallbackRegExp = regexp.MustCompile(`(?m)SHOPWARE_FALLBACK_VERSION\s*=\s*'?"?(\d+\.\d+)`)
+
+func getProjectConstraintFromKernel(project string) (*version.Constraints, error) {
+	kernelPath := PlatformPath(project, "Core", "Kernel.php")
+
+	kernel, err := os.ReadFile(kernelPath)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not determine shopware version")
+	}
+
+	matches := kernelFallbackRegExp.FindSubmatch(kernel)
+
+	if len(matches) < 2 {
+		return nil, fmt.Errorf("could not determine shopware version")
+	}
+
+	v, err := version.NewConstraint(fmt.Sprintf("~%s.0", string(matches[1])))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &v, nil
 }
 
 func FindAssetSourcesOfProject(ctx context.Context, project string, shopCfg *shop.Config) []asset.Source {
