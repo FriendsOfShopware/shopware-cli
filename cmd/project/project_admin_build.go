@@ -33,8 +33,7 @@ var projectAdminBuildCmd = &cobra.Command{
 
 		forceInstall, _ := cmd.PersistentFlags().GetBool("force-install-dependencies")
 
-		shopwareConstraint, err := extension.GetShopwareProjectConstraint(args[0])
-
+		shopwareConstraint, err := extension.GetShopwareProjectConstraint(projectRoot)
 		if err != nil {
 			return err
 		}
