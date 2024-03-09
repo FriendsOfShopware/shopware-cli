@@ -17,13 +17,15 @@ import (
 )
 
 const (
-	StorefrontWebpackConfig     = "Resources/app/storefront/build/webpack.config.js"
-	StorefrontEntrypointJS      = "Resources/app/storefront/src/main.js"
-	StorefrontEntrypointTS      = "Resources/app/storefront/src/main.ts"
-	StorefrontBaseCSS           = "Resources/app/storefront/src/scss/base.scss"
-	AdministrationWebpackConfig = "Resources/app/administration/build/webpack.config.js"
-	AdministrationEntrypointJS  = "Resources/app/administration/src/main.js"
-	AdministrationEntrypointTS  = "Resources/app/administration/src/main.ts"
+	StorefrontWebpackConfig        = "Resources/app/storefront/build/webpack.config.js"
+	StorefrontWebpackCJSConfig     = "Resources/app/storefront/build/webpack.config.cjs"
+	StorefrontEntrypointJS         = "Resources/app/storefront/src/main.js"
+	StorefrontEntrypointTS         = "Resources/app/storefront/src/main.ts"
+	StorefrontBaseCSS              = "Resources/app/storefront/src/scss/base.scss"
+	AdministrationWebpackConfig    = "Resources/app/administration/build/webpack.config.js"
+	AdministrationWebpackCJSConfig = "Resources/app/administration/build/webpack.config.cjs"
+	AdministrationEntrypointJS     = "Resources/app/administration/src/main.js"
+	AdministrationEntrypointTS     = "Resources/app/administration/src/main.ts"
 )
 
 type AssetBuildConfig struct {
@@ -60,7 +62,6 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 	shopwareRoot := assetConfig.ShopwareRoot
 	if shopwareRoot == "" && requiresShopwareSources {
 		shopwareRoot, err = setupShopwareInTemp(ctx, minVersion)
-
 		if err != nil {
 			return err
 		}
@@ -101,7 +102,6 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				var additionalNpmParameters []string
 
 				npmPackage, err := getNpmPackage(administrationRoot)
-
 				if err != nil {
 					return err
 				}
@@ -197,7 +197,6 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				additionalNpmParameters := []string{"caniuse-lite"}
 
 				npmPackage, err := getNpmPackage(storefrontRoot)
-
 				if err != nil {
 					return err
 				}
@@ -281,7 +280,6 @@ func InstallNodeModulesOfConfigs(ctx context.Context, cfgs ExtensionAssetConfig,
 				}
 
 				npmPackage, err := getNpmPackage(npmPath)
-
 				if err != nil {
 					return nil, err
 				}
@@ -409,13 +407,11 @@ func prepareShopwareForAsset(shopwareRoot string, cfgs map[string]ExtensionAsset
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/plugins.json", shopwareRoot), pluginJson, os.ModePerm)
-
 	if err != nil {
 		return fmt.Errorf("prepareShopwareForAsset: %w", err)
 	}
 
 	err = os.WriteFile(fmt.Sprintf("%s/var/features.json", shopwareRoot), []byte("{}"), os.ModePerm)
-
 	if err != nil {
 		return fmt.Errorf("prepareShopwareForAsset: %w", err)
 	}
@@ -480,6 +476,11 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 		webpackFileAdmin = &val
 	}
 
+	if _, err := os.Stat(path.Join(extensionRoot, AdministrationWebpackCJSConfig)); err == nil {
+		val := AdministrationWebpackCJSConfig
+		webpackFileAdmin = &val
+	}
+
 	if _, err := os.Stat(path.Join(extensionRoot, StorefrontEntrypointJS)); err == nil {
 		val := StorefrontEntrypointJS
 		entryFilePathStorefront = &val
@@ -492,6 +493,11 @@ func createConfigFromPath(entryPointName string, extensionRoot string) Extension
 
 	if _, err := os.Stat(path.Join(extensionRoot, StorefrontWebpackConfig)); err == nil {
 		val := StorefrontWebpackConfig
+		webpackFileStorefront = &val
+	}
+
+	if _, err := os.Stat(path.Join(extensionRoot, StorefrontWebpackCJSConfig)); err == nil {
+		val := StorefrontWebpackCJSConfig
 		webpackFileStorefront = &val
 	}
 
@@ -540,7 +546,6 @@ func setupShopwareInTemp(ctx context.Context, minVersion string) (string, error)
 	gitCheckoutCmd.Stdout = os.Stdout
 	gitCheckoutCmd.Stderr = os.Stderr
 	err = gitCheckoutCmd.Run()
-
 	if err != nil {
 		return "", err
 	}
