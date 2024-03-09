@@ -1,10 +1,11 @@
 package shop
 
 import (
-	"dario.cat/mergo"
 	"fmt"
 	"os"
 	"strings"
+
+	"dario.cat/mergo"
 
 	"github.com/doutorfinancas/go-mad/core"
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
@@ -25,6 +26,7 @@ type ConfigBuild struct {
 	DisableAssetCopy      bool     `yaml:"disable_asset_copy,omitempty"`
 	RemoveExtensionAssets bool     `yaml:"remove_extension_assets,omitempty"`
 	KeepExtensionSource   bool     `yaml:"keep_extension_source,omitempty"`
+	KeepSourceMaps        bool     `yaml:"keep_source_maps,omitempty"`
 	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
 	Browserslist          string   `yaml:"browserslist,omitempty"`
 	ExcludeExtensions     []string `yaml:"exclude_extensions,omitempty"`

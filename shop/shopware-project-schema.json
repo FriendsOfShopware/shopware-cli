@@ -37,6 +37,11 @@
                     "description": "When enabled, the assets will not be copied to the public folder",
                     "default": false
                 },
+                "keep_source_maps": {
+                    "type": "boolean",
+                    "description": "When enabled, the source maps will not be removed from the final build",
+                    "default": false
+                },
                 "remove_extension_assets": {
                     "type": "boolean",
                     "description": "When enabled, the assets of extensions will be removed from the extension public folder. (Requires Shopware 6.5.2.0)",

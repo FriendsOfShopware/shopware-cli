@@ -63,7 +63,6 @@ var projectCI = &cobra.Command{
 		}
 
 		token, err := prepareComposerAuth(cmd.Context())
-
 		if err != nil {
 			return err
 		}
@@ -86,7 +85,6 @@ var projectCI = &cobra.Command{
 		sources := extension.FindAssetSourcesOfProject(cmd.Context(), args[0], shopCfg)
 
 		shopwareConstraint, err := extension.GetShopwareProjectConstraint(args[0])
-
 		if err != nil {
 			return err
 		}
@@ -111,6 +109,18 @@ var projectCI = &cobra.Command{
 		if !shopCfg.Build.KeepExtensionSource {
 			for _, source := range sources {
 				if err := cleanupAdministrationFiles(cmd.Context(), source.Path); err != nil {
+					return err
+				}
+			}
+		}
+
+		if !shopCfg.Build.KeepSourceMaps {
+			if err := cleanupJavaScriptSourceMaps(path.Join(args[0], "vendor", "shopware", "administration", "Resources", "public")); err != nil {
+				return err
+			}
+
+			for _, source := range sources {
+				if err := cleanupJavaScriptSourceMaps(path.Join(source.Path, "Resources", "public")); err != nil {
 					return err
 				}
 			}
@@ -224,7 +234,6 @@ func prepareComposerAuth(ctx context.Context) (string, error) {
 	auth.BearerAuth["packages.shopware.com"] = composerToken
 
 	data, err := json.Marshal(auth)
-
 	if err != nil {
 		return "", err
 	}
@@ -317,7 +326,6 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 
 			return nil
 		})
-
 		if err != nil {
 			return err
 		}
@@ -351,10 +359,6 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 				}
 
 				if err := mergo.Merge(&merged, snippetFile, mergo.WithOverride); err != nil {
-					return err
-				}
-
-				if err != nil {
 					return err
 				}
 			}
@@ -393,4 +397,49 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 	}
 
 	return nil
+}
+
+func cleanupJavaScriptSourceMaps(folder string) error {
+	if _, err := os.Stat(folder); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		return err
+	}
+
+	return filepath.WalkDir(folder, func(path string, d os.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(path, ".js.map") {
+			return nil
+		}
+
+		if err := os.Remove(path); err != nil {
+			return err
+		}
+
+		expectedJsFile := path[0 : len(path)-4]
+
+		if _, err := os.Stat(expectedJsFile); err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
+
+			return err
+		}
+
+		content, readErr := os.ReadFile(expectedJsFile)
+		if readErr != nil {
+			return fmt.Errorf("could not open file %s: %w", expectedJsFile, readErr)
+		}
+
+		expectedSourceMapComment := fmt.Sprintf("//# sourceMappingURL=%s", filepath.Base(path))
+
+		overwrittenContent := strings.ReplaceAll(string(content), expectedSourceMapComment, "")
+
+		return os.WriteFile(expectedJsFile, []byte(overwrittenContent), os.ModePerm)
+	})
 }
