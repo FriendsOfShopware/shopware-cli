@@ -1,6 +1,8 @@
 package project
 
 import (
+	"path/filepath"
+
 	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 
@@ -17,7 +19,11 @@ var projectStorefrontBuildCmd = &cobra.Command{
 		var err error
 
 		if len(args) == 1 {
-			projectRoot = args[0]
+			// We need an absolute path for webpack
+			projectRoot, err = filepath.Abs(args[0])
+			if err != nil {
+				return err
+			}
 		} else if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
 		}
