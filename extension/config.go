@@ -57,7 +57,8 @@ type ConfigStore struct {
 	Highlights                          ConfigTranslated[[]string]         `yaml:"highlights"`
 	Features                            ConfigTranslated[[]string]         `yaml:"features"`
 	Faq                                 ConfigTranslated[[]ConfigStoreFaq] `yaml:"faq"`
-	Images                              *[]ConfigStoreImage                `yaml:"images"`
+	Images                              *[]ConfigStoreImage                `yaml:"images,omitempty"`
+	ImageDirectory                      *string                            `yaml:"image_directory,omitempty"`
 }
 
 type Translatable interface {

@@ -6,12 +6,14 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
+	account_api "github.com/FriendsOfShopware/shopware-cli/account-api"
 	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
@@ -21,12 +23,12 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 	Short: "Generates local store configuration from account data",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path, err := filepath.Abs(args[0])
+		absolutePath, err := filepath.Abs(args[0])
 		if err != nil {
 			return fmt.Errorf("cannot open file: %w", err)
 		}
 
-		zipExt, err := extension.GetExtensionByFolder(path)
+		zipExt, err := extension.GetExtensionByFolder(absolutePath)
 		if err != nil {
 			return fmt.Errorf("cannot open extension: %w", err)
 		}
@@ -46,7 +48,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return fmt.Errorf("cannot get store extension: %w", err)
 		}
 
-		resourcesFolder := fmt.Sprintf("%s/src/Resources/store/", zipExt.GetPath())
+		resourcesFolder := path.Join(zipExt.GetPath(), "src/Resources/store/")
 		categoryList := make([]string, 0)
 		availabilities := make([]string, 0)
 		localizations := make([]string, 0)
@@ -60,7 +62,6 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		featuresEN := make([]string, 0)
 		faqDE := make([]extension.ConfigStoreFaq, 0)
 		faqEN := make([]extension.ConfigStoreFaq, 0)
-		images := make([]extension.ConfigStoreImage, 0)
 
 		if _, err := os.Stat(resourcesFolder); os.IsNotExist(err) {
 			err = os.MkdirAll(resourcesFolder, os.ModePerm)
@@ -75,7 +76,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		if len(storeExt.IconURL) > 0 {
 			icon := "src/Resources/store/icon.png"
 			iconConfigPath = &icon
-			err := downloadFileTo(cmd.Context(), storeExt.IconURL, fmt.Sprintf("%s/icon.png", resourcesFolder))
+			err := downloadFileTo(cmd.Context(), storeExt.IconURL, path.Join(resourcesFolder, "icon.png"))
 			if err != nil {
 				return fmt.Errorf("cannot download file: %w", err)
 			}
@@ -103,19 +104,16 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return fmt.Errorf("cannot get extension images: %w", err)
 		}
 
-		for i, image := range storeImages {
-			imagePath := fmt.Sprintf("src/Resources/store/img-%d.png", i)
-			err := downloadFileTo(cmd.Context(), image.RemoteLink, fmt.Sprintf("%s/%s", zipExt.GetPath(), imagePath))
-			if err != nil {
-				return fmt.Errorf("cannot download file: %w", err)
+		if len(storeImages) > 0 {
+			imagesDir := path.Join(zipExt.GetPath(), "src/Resources/store/images/")
+
+			if err := writeImages(cmd.Context(), imagesDir, 0, storeImages); err != nil {
+				return fmt.Errorf("cannot write images: %w", err)
 			}
 
-			images = append(images, extension.ConfigStoreImage{
-				File:     imagePath,
-				Preview:  extension.ConfigStoreImagePreview{German: image.Details[0].Preview, English: image.Details[1].Preview},
-				Activate: extension.ConfigStoreImageActivate{German: image.Details[0].Activated, English: image.Details[1].Activated},
-				Priority: image.Priority,
-			})
+			if err := writeImages(cmd.Context(), imagesDir, 1, storeImages); err != nil {
+				return fmt.Errorf("cannot write images: %w", err)
+			}
 		}
 
 		germanDescription := ""
@@ -127,8 +125,16 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			language := info.Locale.Name[0:2]
 
 			if language == "de" {
-				germanDescription = info.Description
-				germanInstallationManual = info.InstallationManual
+				germanDescription = "file:src/Resources/store/description.de.html"
+				germanInstallationManual = "file:src/Resources/store/installation_manual.de.html"
+
+				if err := os.WriteFile(path.Join(zipExt.GetPath(), germanDescription[5:]), []byte(info.Description), os.ModePerm); err != nil {
+					return fmt.Errorf("cannot write file: %w", err)
+				}
+
+				if err := os.WriteFile(path.Join(zipExt.GetPath(), germanInstallationManual[5:]), []byte(info.InstallationManual), os.ModePerm); err != nil {
+					return fmt.Errorf("cannot write file: %w", err)
+				}
 
 				for _, element := range info.Tags {
 					tagsDE = append(tagsDE, element.Name)
@@ -149,8 +155,16 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 					faqDE = append(faqDE, extension.ConfigStoreFaq{Question: element.Question, Answer: element.Answer})
 				}
 			} else {
-				englishDescription = info.Description
-				englishInstallationManual = info.InstallationManual
+				englishDescription = "file:src/Resources/store/description.en.html"
+				englishInstallationManual = "file:src/Resources/store/installation_manual.en.html"
+
+				if err := os.WriteFile(path.Join(zipExt.GetPath(), englishDescription[5:]), []byte(info.Description), os.ModePerm); err != nil {
+					return fmt.Errorf("cannot write file: %w", err)
+				}
+
+				if err := os.WriteFile(path.Join(zipExt.GetPath(), englishInstallationManual[5:]), []byte(info.InstallationManual), os.ModePerm); err != nil {
+					return fmt.Errorf("cannot write file: %w", err)
+				}
 
 				for _, element := range info.Tags {
 					tagsEN = append(tagsEN, element.Name)
@@ -196,7 +210,12 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 		newCfg.Store.Highlights = extension.ConfigTranslated[[]string]{German: &highlightsDE, English: &highlightsEN}
 		newCfg.Store.Features = extension.ConfigTranslated[[]string]{German: &featuresDE, English: &featuresEN}
 		newCfg.Store.Faq = extension.ConfigTranslated[[]extension.ConfigStoreFaq]{German: &faqDE, English: &faqEN}
-		newCfg.Store.Images = &images
+		newCfg.Store.Images = nil
+
+		if len(storeImages) > 0 {
+			imageDir := "src/Resources/store/images"
+			newCfg.Store.ImageDirectory = &imageDir
+		}
 
 		content, err := yaml.Marshal(newCfg)
 		if err != nil {
@@ -245,6 +264,48 @@ func downloadFileTo(ctx context.Context, url string, target string) error {
 	err = os.WriteFile(target, content, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("write to file: %w", err)
+	}
+
+	return nil
+}
+
+func writeImages(ctx context.Context, imagePath string, index int, storeImages []*account_api.ExtensionImage) error {
+	imageMap := make(map[int]string)
+
+	for _, image := range storeImages {
+		if image.Details[index].Activated {
+			priority := image.Priority
+
+			if _, ok := imageMap[priority]; !ok {
+				imageMap[priority] = image.RemoteLink
+			} else {
+				for {
+					priority++
+					if _, ok := imageMap[priority]; !ok {
+						imageMap[priority] = image.RemoteLink
+						break
+					}
+				}
+			}
+		}
+	}
+
+	if index == 0 {
+		imagePath = path.Join(imagePath, "de")
+	} else {
+		imagePath = path.Join(imagePath, "en")
+	}
+
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		if err := os.MkdirAll(imagePath, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	for priority, link := range imageMap {
+		if err := downloadFileTo(ctx, link, path.Join(imagePath, fmt.Sprintf("%d.png", priority))); err != nil {
+			return err
+		}
 	}
 
 	return nil
