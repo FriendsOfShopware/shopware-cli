@@ -348,7 +348,7 @@ func getInstallCommand(root string, isProductionMode bool, npmPackage NpmPackage
 		}
 	}
 
-	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline")
+	return exec.Command("npm", "install", "--no-audit", "--no-fund", "--prefer-offline", "--loglevel=error")
 }
 
 func InstallNPMDependencies(path string, packageJsonData NpmPackage, additionalParams ...string) error {
