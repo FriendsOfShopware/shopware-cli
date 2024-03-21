@@ -445,6 +445,10 @@
 						}
 					}
 				},
+				"image_directory": {
+					"type": "string",
+					"description": "Specifies the directory where the images are located."
+				},
 				"images": {
 					"type": "array",
 					"description": "Specifies images for the extension in the store.",
