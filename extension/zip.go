@@ -39,6 +39,7 @@ var (
 		"ISSUE_TEMPLATE.md",
 		"Makefile",
 		"Resources/store",
+		"auth.json",
 		"bitbucket-pipelines.yml",
 		"build.sh",
 		"src/Resources/app/administration/node_modules",
@@ -47,6 +48,8 @@ var (
 		"src/Resources/store",
 		"tests",
 		"var",
+		"grumphp.yml",
+		"psalm.xml",
 	}
 
 	defaultNotAllowedFiles = []string{
