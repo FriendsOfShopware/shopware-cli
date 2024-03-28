@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
@@ -115,7 +116,6 @@ func createApiFromTokenCache(ctx context.Context) (*Client, error) {
 
 	var client *Client
 	err = json.Unmarshal(content, &client)
-
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +141,15 @@ func saveApiTokenToTokenCache(client *Client) error {
 		return err
 	}
 
-	err = os.WriteFile(tokenFilePath, content, os.ModePerm)
+	tokenFileDirectory := filepath.Base(tokenFilePath)
+	if _, err := os.Stat(tokenFileDirectory); os.IsNotExist(err) {
+		err := os.MkdirAll(tokenFileDirectory, 0o750)
+		if err != nil {
+			return err
+		}
+	}
 
+	err = os.WriteFile(tokenFilePath, content, os.ModePerm)
 	if err != nil {
 		return err
 	}
