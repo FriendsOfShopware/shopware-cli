@@ -141,7 +141,7 @@ func saveApiTokenToTokenCache(client *Client) error {
 		return err
 	}
 
-	tokenFileDirectory := filepath.Base(tokenFilePath)
+	tokenFileDirectory := filepath.Dir(tokenFilePath)
 	if _, err := os.Stat(tokenFileDirectory); os.IsNotExist(err) {
 		err := os.MkdirAll(tokenFileDirectory, 0o750)
 		if err != nil {
