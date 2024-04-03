@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -336,6 +337,7 @@ func uploadImagesByDirectory(ctx context.Context, extensionId int, directory str
 	}
 
 	imagesLen := len(images) - 1
+	re := regexp.MustCompile(`^(\d+)([_-][a-zA-Z0-9-_]+)?$`)
 
 	for i, image := range images {
 		if image.IsDir() {
@@ -351,10 +353,17 @@ func uploadImagesByDirectory(ctx context.Context, extensionId int, directory str
 			return fmt.Errorf("cannot upload image %s to extension: %w", image.Name(), err)
 		}
 
-		priority, err := strconv.Atoi(fileName)
+		matches := re.FindStringSubmatch(fileName)
+
+		if matches == nil {
+			logging.FromContext(ctx).Warnf("Invalid image name %s, skipping", image.Name())
+			continue
+		}
+
+		priority, err := strconv.Atoi(matches[1])
 
 		if err != nil {
-			logging.FromContext(ctx).Warnf("Invalid image name %s, skipping", image.Name())
+			logging.FromContext(ctx).Warnf("Unexpected error: \"%s\", skipping", err)
 			continue
 		}
 
