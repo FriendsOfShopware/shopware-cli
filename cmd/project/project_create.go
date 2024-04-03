@@ -196,10 +196,10 @@ func generateComposerJson(version string, rc bool) (string, error) {
     "type": "project",
     "require": {
         "composer-runtime-api": "^2.0",
-        "shopware/administration": "{{ .Version }}",
+        "shopware/administration": "*",
         "shopware/core": "{{ .Version }}",
-        "shopware/elasticsearch": "{{ .Version }}",
-        "shopware/storefront": "{{ .Version }}",
+        "shopware/elasticsearch": "*",
+        "shopware/storefront": "*",
         "symfony/flex": "~2"
     },
     "repositories": [
