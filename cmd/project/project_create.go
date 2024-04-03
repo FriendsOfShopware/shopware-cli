@@ -159,7 +159,7 @@ func init() {
 }
 
 func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
-	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://raw.githubusercontent.com/FriendsOfShopware/shopware-static-data/main/data/php-version.json", http.NoBody)
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://releases.shopware.com/changelog/index.json", http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -180,19 +180,13 @@ func fetchAvailableShopwareVersions(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	var shopwareToPHP map[string]string
+	var releases []string
 
-	if err := json.Unmarshal(content, &shopwareToPHP); err != nil {
+	if err := json.Unmarshal(content, &releases); err != nil {
 		return nil, err
 	}
 
-	versions := make([]string, 0, len(shopwareToPHP))
-
-	for version := range shopwareToPHP {
-		versions = append(versions, version)
-	}
-
-	return versions, nil
+	return releases, nil
 }
 
 func generateComposerJson(version string, rc bool) (string, error) {
@@ -202,10 +196,10 @@ func generateComposerJson(version string, rc bool) (string, error) {
     "type": "project",
     "require": {
         "composer-runtime-api": "^2.0",
-        "shopware/administration": "*",
+        "shopware/administration": "{{ .Version }}",
         "shopware/core": "{{ .Version }}",
-        "shopware/elasticsearch": "*",
-        "shopware/storefront": "*",
+        "shopware/elasticsearch": "{{ .Version }}",
+        "shopware/storefront": "{{ .Version }}",
         "symfony/flex": "~2"
     },
     "repositories": [
@@ -276,6 +270,7 @@ func generateComposerJson(version string, rc bool) (string, error) {
 		Version: version,
 		RC:      rc,
 	})
+
 	if err != nil {
 		return "", err
 	}
