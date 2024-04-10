@@ -14,4 +14,5 @@ func TestKebabCase(t *testing.T) {
 	assert.Equal(t, "a-i-search", ToKebabCase("AISearch"))
 	assert.Equal(t, "mediameets-fb-pixel", ToKebabCase("mediameetsFbPixel"))
 	assert.Equal(t, "wwbla-bar-foo", ToKebabCase("wwblaBarFoo"))
+	assert.Equal(t, "with-underscore", ToKebabCase("with_underscore"))
 }
