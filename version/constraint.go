@@ -65,7 +65,8 @@ func init() {
 // constraint string. The string must be a comma or pipe separated
 // list of constraints.
 func NewConstraint(cs string) (Constraints, error) {
-	ors := strings.Split(cs, "||")
+	cs = strings.ReplaceAll(cs, "||", "|")
+	ors := strings.Split(cs, "|")
 	or := make([][]*Constraint, len(ors))
 	for k, v := range ors {
 		// Normalize spaces between constraints to comma to parse easier and condions

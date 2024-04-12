@@ -32,6 +32,14 @@ func TestConstraintParsingWhitespaceAndOr(t *testing.T) {
 	assert.False(t, c.Check(Must(NewVersion("6.4.0.0"))))
 }
 
+func TestConstraintWithoutWhitespace(t *testing.T) {
+	c, err := NewConstraint("<6.6.1.0||>=6.3.5.0")
+	assert.NoError(t, err)
+
+	assert.Equal(t, "<6.6.1.0||>=6.3.5.0", c.String())
+	assert.True(t, c.Check(Must(NewVersion("6.4.0.0"))))
+}
+
 func TestConstraintVersionNumber(t *testing.T) {
 	c, err := NewConstraint("1.0.0")
 	assert.NoError(t, err)
