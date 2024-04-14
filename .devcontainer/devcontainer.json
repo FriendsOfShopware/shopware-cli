@@ -1,16 +1,7 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/go:latest",
-  "features": {
-    "ghcr.io/guiyomh/features/golangci-lint:0": {},
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    },
-    "ghcr.io/shyim/devcontainers-features/php:0.1.0": {
-      "version": "8.2"
-    },
-    "ghcr.io/shyim/devcontainers-features/bun:0": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
+  "image": "ghcr.io/friendsofshopware/shopware-cli-codespace:latest",
+  "containerUser": "gitpod",
+  "remoteUser": "gitpod",
   "customizations": {
     "vscode": {
       "extensions": [
