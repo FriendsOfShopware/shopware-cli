@@ -81,7 +81,7 @@ func themeCompileSupportsActiveOnly(projectRoot string) bool {
 		return false
 	}
 
-	return !strings.Contains(string(bytes), "active-only")
+	return strings.Contains(string(bytes), "active-only")
 }
 
 func init() {
