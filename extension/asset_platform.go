@@ -211,6 +211,7 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 			}
 
 			envList := []string{
+				"NODE_ENV=production",
 				fmt.Sprintf("PROJECT_ROOT=%s", shopwareRoot),
 				fmt.Sprintf("STOREFRONT_ROOT=%s", storefrontRoot),
 			}
@@ -219,11 +220,16 @@ func BuildAssetsForExtensions(ctx context.Context, sources []asset.Source, asset
 				envList = append(envList, fmt.Sprintf("BROWSERSLIST=%s", assetConfig.Browserslist))
 			}
 
-			err = npmRunBuild(
-				storefrontRoot,
-				"production",
-				envList,
-			)
+			nodeWebpackCmd := exec.Command("node", "node_modules/.bin/webpack", "--config", "webpack.config.js")
+			nodeWebpackCmd.Dir = storefrontRoot
+			nodeWebpackCmd.Env = os.Environ()
+			nodeWebpackCmd.Env = append(nodeWebpackCmd.Env, envList...)
+			nodeWebpackCmd.Stdout = os.Stdout
+			nodeWebpackCmd.Stderr = os.Stderr
+
+			if err := nodeWebpackCmd.Run(); err != nil {
+				return err
+			}
 
 			if assetConfig.CleanupNodeModules {
 				defer deletePaths(ctx, path.Join(storefrontRoot, "node_modules"))
