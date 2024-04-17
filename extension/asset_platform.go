@@ -441,6 +441,7 @@ func BuildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 
 		if assetCfg.SkipExtensionsWithBuildFiles {
 			expectedAdminCompiledFile := path.Join(source.Path, "Resources", "public", "administration", "js", esbuild.ToKebabCase(source.Name)+".js")
+			expectedStorefrontCompiledFile := path.Join(source.Path, "Resources", "app", "storefront", "dist", "storefront", "js", esbuild.ToKebabCase(source.Name), esbuild.ToKebabCase(source.Name)+".js")
 
 			if _, err := os.Stat(expectedAdminCompiledFile); err == nil {
 				// clear out the entrypoint, so the admin does not build it
@@ -448,6 +449,14 @@ func BuildAssetConfigFromExtensions(ctx context.Context, sources []asset.Source,
 				sourceConfig.Administration.Webpack = nil
 
 				logging.FromContext(ctx).Infof("Skipping building administration assets for \"%s\" as compiled files are present", source.Name)
+			}
+
+			if _, err := os.Stat(expectedStorefrontCompiledFile); err == nil {
+				// clear out the entrypoint, so the storefront does not build it
+				sourceConfig.Storefront.EntryFilePath = nil
+				sourceConfig.Storefront.Webpack = nil
+
+				logging.FromContext(ctx).Infof("Skipping building storefront assets for \"%s\" as compiled files are present", source.Name)
 			}
 		}
 
