@@ -18,6 +18,9 @@ apk add --no-cache \
     git-lfs \
     composer \
     php-8.2 \
+    php-8.2-curl \
+    php-8.2-sodium \
+    php-8.2-phar \
     php-8.2-fileinfo \
     php-8.2-openssl \
     php-8.2-ftp \
