@@ -47,6 +47,13 @@ var projectCI = &cobra.Command{
 			}
 		}
 
+		// speed up composer install, when no version is set
+		if os.Getenv("COMPOSER_ROOT_VERSION") == "" {
+			if err := os.Setenv("COMPOSER_ROOT_VERSION", "1.0.0"); err != nil {
+				return err
+			}
+		}
+
 		shopCfg, err := shop.ReadConfig(projectConfigPath, true)
 		if err != nil {
 			return err
