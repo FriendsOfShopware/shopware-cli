@@ -6,11 +6,13 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"time"
 
 	cp "github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 
 	"github.com/FriendsOfShopware/shopware-cli/extension"
+	"github.com/FriendsOfShopware/shopware-cli/internal/telemetry"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 )
 
@@ -24,6 +26,8 @@ var extensionZipCmd = &cobra.Command{
 	Short: "Zip a Extension",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		duration := time.Now()
+
 		extPath, err := filepath.Abs(args[0])
 		if err != nil {
 			return err
@@ -187,7 +191,15 @@ var extensionZipCmd = &cobra.Command{
 			return fmt.Errorf("create zip file: %w", err)
 		}
 
-		logging.FromContext(cmd.Context()).Infof("Created file %s", fileName)
+		seconds := time.Since(duration).Seconds()
+
+		telemetry.Track("extension_zip", map[string]interface{}{
+			"duration":            seconds,
+			"changelog-generated": extCfg.Changelog.Enabled,
+			"ai-changelog":        extCfg.Changelog.AiEnabled,
+		})
+
+		logging.FromContext(cmd.Context()).Infof("Created file %s in %f seconds", fileName, seconds)
 
 		return nil
 	},

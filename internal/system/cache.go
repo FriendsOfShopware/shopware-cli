@@ -10,3 +10,9 @@ func GetShopwareCliCacheDir() string {
 
 	return path.Join(cacheDir, "shopware-cli")
 }
+
+func GetShopwareCliConfigDir() string {
+	configDir, _ := os.UserConfigDir()
+
+	return path.Join(configDir, "shopware-cli")
+}
