@@ -334,19 +334,6 @@ func npmRunBuild(path string, buildCmd string, buildEnvVariables []string) error
 }
 
 func getInstallCommand(root string, isProductionMode bool, npmPackage NpmPackage) *exec.Cmd {
-	if _, err := os.Stat(path.Join(root, "pnpm-lock.yaml")); err == nil {
-		return exec.Command("pnpm", "install")
-	}
-
-	if _, err := os.Stat(path.Join(root, "yarn.lock")); err == nil {
-		return exec.Command("yarn", "install")
-	}
-
-	// @see https://github.com/oven-sh/bun/issues/7755
-	if _, err := os.Stat(path.Join(root, "bun.lockdb")); err == nil && !isProductionMode {
-		return exec.Command("bun", "install")
-	}
-
 	// Bun can migrate on the fly the package-lock.json to a bun.lockdb and is much faster than NPM
 	if os.Getenv("SHOPWARE_CLI_FORCE_BUN") == "1" {
 		if _, err := exec.LookPath("bun"); err == nil && canRunBunOnPackage(npmPackage) && !isProductionMode {
