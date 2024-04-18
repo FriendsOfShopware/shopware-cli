@@ -68,21 +68,24 @@ var projectWorkerCmd = &cobra.Command{
 			consumeArgs = append(consumeArgs, "-vvv")
 		}
 
+		baseName := fmt.Sprintf("shopware-cli-%d", os.Getpid())
+
 		var wg sync.WaitGroup
 		for a := 0; a < workerAmount; a++ {
 			wg.Add(1)
-			go func(ctx context.Context) {
+			go func(ctx context.Context, index int) {
 				for {
 					cmd := phpexec.ConsoleCommand(cancelCtx, consumeArgs...)
 					cmd.Dir = projectRoot
 					cmd.Stdout = os.Stdout
 					cmd.Stderr = os.Stderr
+					cmd.Env = append(os.Environ(), fmt.Sprintf("MESSENGER_CONSUMER_NAME=%s-%d", baseName, index))
 
 					if err := cmd.Run(); err != nil {
 						logging.FromContext(ctx).Fatal(err)
 					}
 				}
-			}(cancelCtx)
+			}(cancelCtx, a)
 		}
 
 		wg.Wait()
