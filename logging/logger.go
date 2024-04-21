@@ -52,3 +52,7 @@ func FromContext(ctx context.Context) *zap.SugaredLogger {
 
 	return fallbackLogger
 }
+
+func DisableLogger(ctx context.Context) context.Context {
+	return WithLogger(ctx, zap.NewNop().Sugar())
+}

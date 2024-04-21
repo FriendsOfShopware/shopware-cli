@@ -82,6 +82,7 @@ type extensionTranslated struct {
 }
 
 type extensionMetadata struct {
+	Name        string
 	Label       extensionTranslated
 	Description extensionTranslated
 }

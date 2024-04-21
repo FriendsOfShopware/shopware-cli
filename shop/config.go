@@ -20,6 +20,7 @@ type Config struct {
 	AdminApi          *ConfigAdminApi `yaml:"admin_api,omitempty"`
 	ConfigDump        *ConfigDump     `yaml:"dump,omitempty"`
 	Sync              *ConfigSync     `yaml:"sync,omitempty"`
+	foundConfig       bool
 }
 
 type ConfigBuild struct {
@@ -85,7 +86,7 @@ type MailTemplateTranslation struct {
 }
 
 func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
-	config := &Config{}
+	config := &Config{foundConfig: false}
 
 	_, err := os.Stat(fileName)
 
@@ -105,6 +106,8 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ReadConfig: %v", err)
 	}
+
+	config.foundConfig = true
 
 	substitutedConfig := os.ExpandEnv(string(fileHandle))
 	err = yaml.Unmarshal([]byte(substitutedConfig), &config)
@@ -138,6 +141,10 @@ func fillEmptyConfig(c *Config) *Config {
 	}
 
 	return c
+}
+
+func (c Config) IsFallback() bool {
+	return !c.foundConfig
 }
 
 func NewUuid() string {

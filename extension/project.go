@@ -185,7 +185,7 @@ func FindExtensionsFromProject(ctx context.Context, project string) []Extension 
 		version, _ := ext.GetVersion()
 
 		logging.FromContext(ctx).Infof("Found extension in custom/plugins: %s (%s)", name, version)
-		logging.FromContext(ctx).Errorf("Extension %s should be installed using Composer. Please remove the extension from custom/plugins.", name)
+		logging.FromContext(ctx).Warnf("Extension %s should be installed using Composer. Please run composer require %s.", name, ext.GetMetaData().Name)
 
 		extensions[name] = ext
 	}

@@ -156,6 +156,7 @@ func (p PlatformPlugin) GetPath() string {
 
 func (p PlatformPlugin) GetMetaData() *extensionMetadata {
 	return &extensionMetadata{
+		Name: p.composer.Name,
 		Label: extensionTranslated{
 			German:  p.composer.Extra.Label["de-DE"],
 			English: p.composer.Extra.Label["en-GB"],
