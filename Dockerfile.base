@@ -1,31 +1,53 @@
-ARG PHP_VERSION
-
-FROM php:${PHP_VERSION}-cli
-
-ENV NODE_VERSION=20
+FROM ghcr.io/shyim/wolfi-php/base:latest
+ARG PHP_VERSION=8.2
 
 LABEL org.opencontainers.image.source https://github.com/FriendsOfShopware/shopware-cli
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer
 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y git unzip gettext-base \
-    && IPE_GD_WITHOUTAVIF=1 install-php-extensions bcmath gd intl mysqli pdo_mysql sockets bz2 soap zip gmp pcntl redis xsl calendar amqp \
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && echo 'memory_limit=512M' > /usr/local/etc/php/conf.d/docker.ini
+RUN <<EOF
+    set -euxo pipefail
 
-RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash - \
-    && . /root/.bashrc \
-    && nvm install 20 \
-    && nvm alias default 20 \
-    && nvm use default \
-    && nvm cache clear \
-    && export SHELL=bash \
-    && curl -fsSL https://bun.sh/install | bash
+    apk add --no-cache \
+        git \
+        nodejs-20 \
+        npm \
+        bun-bin \
+        gettext \
+        php-${PHP_VERSION} \
+        php-${PHP_VERSION}-fileinfo \
+        php-${PHP_VERSION}-openssl \
+        php-${PHP_VERSION}-ctype \
+        php-${PHP_VERSION}-curl \
+        php-${PHP_VERSION}-xml \
+        php-${PHP_VERSION}-dom \
+        php-${PHP_VERSION}-phar \
+        php-${PHP_VERSION}-simplexml \
+        php-${PHP_VERSION}-xmlreader \
+        php-${PHP_VERSION}-xmlwriter \
+        php-${PHP_VERSION}-bcmath \
+        php-${PHP_VERSION}-iconv \
+        php-${PHP_VERSION}-gd \
+        php-${PHP_VERSION}-intl \
+        php-${PHP_VERSION}-pdo \
+        php-${PHP_VERSION}-pdo_mysql \
+        php-${PHP_VERSION}-mysqlnd \
+        php-${PHP_VERSION}-pcntl \
+        php-${PHP_VERSION}-sockets \
+        php-${PHP_VERSION}-bz2 \
+        php-${PHP_VERSION}-gmp \
+        php-${PHP_VERSION}-soap \
+        php-${PHP_VERSION}-zip \
+        php-${PHP_VERSION}-sodium \
+        php-${PHP_VERSION}-opcache \
+        php-${PHP_VERSION}-redis \
+        php-${PHP_VERSION}-amqp
 
-COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+    apk add --no-cache gettext
+    cp /usr/bin/envsubst /envsubst
+    apk del gettext
+    mv /envsubst /usr/bin/envsubst
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["bash"]
+    echo 'memory_limit=512M' > /etc/php/conf.d/docker.ini
+EOF
+
+CMD ["sh"]
