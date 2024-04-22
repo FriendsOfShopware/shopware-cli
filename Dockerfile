@@ -4,5 +4,5 @@ FROM ghcr.io/friendsofshopware/shopware-cli-base:${PHP_VERSION}
 
 COPY shopware-cli /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh", "shopware-cli"]
+ENTRYPOINT ["/usr/local/bin/shopware-cli"]
 CMD ["--help"]
