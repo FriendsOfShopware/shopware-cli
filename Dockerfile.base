@@ -50,4 +50,6 @@ RUN <<EOF
     echo 'memory_limit=512M' > /etc/php/conf.d/docker.ini
 EOF
 
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+
 CMD ["sh"]
