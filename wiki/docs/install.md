@@ -114,6 +114,18 @@ using Shopware CLI Action
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Gitlab CI
+
+```yaml
+build:
+  stage: build
+  image:
+    name: ghcr.io/friendsofshopware/shopware-cli:latest
+    entrypoint: [ "/bin/sh", "-c" ]
+  script:
+    - shopware-cli --version
+```
+
 ### go install
 
 ```bash
