@@ -18,11 +18,10 @@ import (
 type SoftwareVersionList []SoftwareVersion
 
 type ExtensionBinary struct {
-	Id         int    `json:"id"`
-	Name       string `json:"name"`
-	RemoteLink string `json:"remoteLink"`
-	Version    string `json:"version"`
-	Status     struct {
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Status  struct {
 		Id          int    `json:"id"`
 		Name        string `json:"name"`
 		Description string `json:"description"`
@@ -36,24 +35,36 @@ type ExtensionBinary struct {
 		} `json:"locale"`
 		Text string `json:"text"`
 	} `json:"changelogs"`
-	CreationDate   string `json:"creationDate"`
-	LastChangeDate string `json:"lastChangeDate"`
-	Archives       []struct {
-		Id                   int         `json:"id"`
-		RemoteLink           string      `json:"remoteLink"`
-		ShopwareMajorVersion interface{} `json:"shopwareMajorVersion"`
-		IoncubeEncrypted     bool        `json:"ioncubeEncrypted"`
-		ManifestRemoteLink   interface{} `json:"manifestRemoteLink"`
-	} `json:"archives"`
-	IonCubeEncrypted            bool `json:"ionCubeEncrypted"`
-	LicenseCheckRequired        bool `json:"licenseCheckRequired"`
-	HasActiveCodeReviewWarnings bool `json:"hasActiveCodeReviewWarnings"`
+	CreationDate                string `json:"creationDate"`
+	LastChangeDate              string `json:"lastChangeDate"`
+	IonCubeEncrypted            bool   `json:"ionCubeEncrypted"`
+	LicenseCheckRequired        bool   `json:"licenseCheckRequired"`
+	HasActiveCodeReviewWarnings bool   `json:"hasActiveCodeReviewWarnings"`
+}
+
+type ExtensionUpdate struct {
+	Id                   int
+	SoftwareVersions     []string                   `json:"softwareVersions"`
+	IonCubeEncrypted     bool                       `json:"ionCubeEncrypted"`
+	LicenseCheckRequired bool                       `json:"licenseCheckRequired"`
+	Changelogs           []ExtensionUpdateChangelog `json:"changelogs"`
+}
+
+type ExtensionUpdateChangelog struct {
+	Locale string `json:"locale"`
+	Text   string `json:"text"`
+}
+
+type ExtensionCreate struct {
+	SoftwareVersions []string                   `json:"softwareVersions"`
+	Changelogs       []ExtensionUpdateChangelog `json:"changelogs"`
+	Version          string                     `json:"version"`
 }
 
 func (e ProducerEndpoint) GetExtensionBinaries(ctx context.Context, extensionId int) ([]*ExtensionBinary, error) {
 	errorFormat := "GetExtensionBinaries: %v"
 
-	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/plugins/%d/binaries", ApiUrl, extensionId), nil)
+	r, err := e.c.NewAuthenticatedRequest(ctx, "GET", fmt.Sprintf("%s/producers/%d/plugins/%d/binaries", ApiUrl, e.producerId, extensionId), nil)
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
@@ -71,15 +82,15 @@ func (e ProducerEndpoint) GetExtensionBinaries(ctx context.Context, extensionId 
 	return binaries, nil
 }
 
-func (e ProducerEndpoint) UpdateExtensionBinaryInfo(ctx context.Context, extensionId int, binary ExtensionBinary) error {
+func (e ProducerEndpoint) UpdateExtensionBinaryInfo(ctx context.Context, extensionId int, update ExtensionUpdate) error {
 	errorFormat := "UpdateExtensionBinaryInfo: %v"
 
-	content, err := json.Marshal(binary)
+	content, err := json.Marshal(update)
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest(ctx, "PUT", fmt.Sprintf("%s/plugins/%d/binaries/%d", ApiUrl, extensionId, binary.Id), bytes.NewReader(content))
+	r, err := e.c.NewAuthenticatedRequest(ctx, "PUT", fmt.Sprintf("%s/producers/%d/plugins/%d/binaries/%d", ApiUrl, e.producerId, extensionId, update.Id), bytes.NewReader(content))
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
@@ -89,51 +100,30 @@ func (e ProducerEndpoint) UpdateExtensionBinaryInfo(ctx context.Context, extensi
 	return err
 }
 
-func (e ProducerEndpoint) CreateExtensionBinaryFile(ctx context.Context, extensionId int, zipPath string) (*ExtensionBinary, error) {
-	errorFormat := "CreateExtensionBinaryFile: %v"
+func (e ProducerEndpoint) CreateExtensionBinary(ctx context.Context, extensionId int, create ExtensionCreate) (*ExtensionBinary, error) {
+	errorFormat := "CreateExtensionBinary: %v"
 
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-
-	fileWritter, err := w.CreateFormFile("file", filepath.Base(zipPath))
+	createPayload, err := json.Marshal(create)
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	zipFile, err := os.Open(zipPath)
+	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/producers/%d/plugins/%d/binaries", ApiUrl, e.producerId, extensionId), bytes.NewReader(createPayload))
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
-
-	_, err = io.Copy(fileWritter, zipFile)
-	if err != nil {
-		return nil, fmt.Errorf(errorFormat, err)
-	}
-
-	err = w.Close()
-	if err != nil {
-		return nil, fmt.Errorf(errorFormat, err)
-	}
-
-	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/plugins/%d/binaries", ApiUrl, extensionId), &b)
-	if err != nil {
-		return nil, fmt.Errorf(errorFormat, err)
-	}
-
-	r.Header.Set("content-type", w.FormDataContentType())
 
 	content, err := e.c.doRequest(r)
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	// For some reasons this API responses a array of binaries
-	var binary []*ExtensionBinary
+	var binary *ExtensionBinary
 	if err := json.Unmarshal(content, &binary); err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
 
-	return binary[0], nil
+	return binary, nil
 }
 
 func (e ProducerEndpoint) UpdateExtensionBinaryFile(ctx context.Context, extensionId, binaryId int, zipPath string) error {
@@ -161,7 +151,7 @@ func (e ProducerEndpoint) UpdateExtensionBinaryFile(ctx context.Context, extensi
 		return fmt.Errorf(errorFormat, err)
 	}
 
-	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/plugins/%d/binaries/%d/file", ApiUrl, extensionId, binaryId), &b)
+	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/producers/%d/plugins/%d/binaries/%d/file", ApiUrl, e.producerId, extensionId, binaryId), &b)
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
@@ -423,6 +413,27 @@ func (list SoftwareVersionList) FilterOnVersion(constriant *version.Constraints)
 
 		if constriant.Check(v) {
 			newList = append(newList, swVersion)
+		}
+	}
+
+	return newList
+}
+
+func (list SoftwareVersionList) FilterOnVersionStringList(constriant *version.Constraints) []string {
+	newList := make([]string, 0)
+
+	for _, swVersion := range list {
+		if !swVersion.Selectable {
+			continue
+		}
+
+		v, err := version.NewVersion(swVersion.Name)
+		if err != nil {
+			continue
+		}
+
+		if constriant.Check(v) {
+			newList = append(newList, swVersion.Name)
 		}
 	}
 
