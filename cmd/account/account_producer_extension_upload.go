@@ -61,15 +61,6 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			}
 		}
 
-		if foundBinary == nil {
-			foundBinary, err = p.CreateExtensionBinaryFile(cmd.Context(), ext.Id, path)
-			if err != nil {
-				return fmt.Errorf("create extension binary: %w", err)
-			}
-		} else {
-			logging.FromContext(cmd.Context()).Infof("Found a zip with version %s already. Updating it", zipVersion)
-		}
-
 		changelog, err := zipExt.GetChangelog()
 		if err != nil {
 			return err
@@ -85,12 +76,36 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 			return err
 		}
 
-		foundBinary.Version = zipVersion.String()
-		foundBinary.Changelogs[0].Text = changelog.German
-		foundBinary.Changelogs[1].Text = changelog.English
-		foundBinary.CompatibleSoftwareVersions = avaiableVersions.FilterOnVersion(constraint)
+		if foundBinary == nil {
+			create := account_api.ExtensionCreate{
+				Version:          zipVersion.String(),
+				SoftwareVersions: avaiableVersions.FilterOnVersionStringList(constraint),
+				Changelogs: []account_api.ExtensionUpdateChangelog{
+					{Locale: "de_DE", Text: changelog.German},
+					{Locale: "en_GB", Text: changelog.English},
+				},
+			}
 
-		err = p.UpdateExtensionBinaryInfo(cmd.Context(), ext.Id, *foundBinary)
+			foundBinary, err = p.CreateExtensionBinary(cmd.Context(), ext.Id, create)
+			if err != nil {
+				return fmt.Errorf("create extension binary: %w", err)
+			}
+
+			logging.FromContext(cmd.Context()).Infof("Created new binary with version %s", zipVersion)
+		} else {
+			logging.FromContext(cmd.Context()).Infof("Found a zip with version %s already. Updating it", zipVersion)
+		}
+
+		update := account_api.ExtensionUpdate{
+			Id:               foundBinary.Id,
+			SoftwareVersions: avaiableVersions.FilterOnVersionStringList(constraint),
+			Changelogs: []account_api.ExtensionUpdateChangelog{
+				{Locale: "de_DE", Text: changelog.German},
+				{Locale: "en_GB", Text: changelog.English},
+			},
+		}
+
+		err = p.UpdateExtensionBinaryInfo(cmd.Context(), ext.Id, update)
 		if err != nil {
 			return err
 		}
