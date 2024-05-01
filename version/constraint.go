@@ -274,14 +274,6 @@ func constraintTilde(v, c *Version) bool {
 		return false
 	}
 
-	if v.segments[1] != c.segments[1] && c.si > 1 {
-		return false
-	}
-
-	if reflect.DeepEqual(v.segments, c.segments) && !prereleaseCheck(v, c) {
-		return false
-	}
-
 	return true
 }
 

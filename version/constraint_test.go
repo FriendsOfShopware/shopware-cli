@@ -48,3 +48,24 @@ func TestConstraintVersionNumber(t *testing.T) {
 	assert.True(t, c.Check(Must(NewVersion("1.0.0"))))
 	assert.False(t, c.Check(Must(NewVersion("1.0.1"))))
 }
+
+func TestTildeConstraintPositive(t *testing.T) {
+	assert.True(t, MustConstraints(NewConstraint("~2.4")).Check(Must(NewVersion("2.9.0"))))
+	assert.True(t, MustConstraints(NewConstraint("~2.4")).Check(Must(NewVersion("2.4.5"))))
+
+	assert.True(t, MustConstraints(NewConstraint("~1")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.0")).Check(Must(NewVersion("1.4.7"))))
+
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 >=1.2.3")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 =1.2.3")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 1.2.3")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 >=1.2.3 1.2.3")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 1.2.3 >=1.2.3")).Check(Must(NewVersion("1.2.3"))))
+	assert.True(t, MustConstraints(NewConstraint("~1.2.1 1.2.3")).Check(Must(NewVersion("1.2.3"))))
+}
+
+func TestTildeConstraintNegative(t *testing.T) {
+	assert.False(t, MustConstraints(NewConstraint("~2.4")).Check(Must(NewVersion("3.0.0"))))
+	assert.False(t, MustConstraints(NewConstraint("~2.4")).Check(Must(NewVersion("2.3.9"))))
+	assert.False(t, MustConstraints(NewConstraint("~1")).Check(Must(NewVersion("0.2.3"))))
+}
