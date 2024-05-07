@@ -28,6 +28,7 @@ func NewLogger(verbose bool) *zap.SugaredLogger {
 
 	if !verbose {
 		loggerCfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+		loggerCfg.EncoderConfig.TimeKey = ""
 	}
 
 	logger, err := loggerCfg.Build()

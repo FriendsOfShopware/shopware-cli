@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 func Execute(ctx context.Context) {
 	verbose := false
 
-	if err := rootCmd.ParseFlags(os.Args); err != nil {
+	if err := rootCmd.ParseFlags(os.Args); err == nil {
 		verbose, _ = rootCmd.PersistentFlags().GetBool("verbose")
 	}
 
