@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"dario.cat/mergo"
@@ -62,7 +61,29 @@ var projectCI = &cobra.Command{
 
 		cleanupPaths = append(cleanupPaths, shopCfg.Build.CleanupPaths...)
 
-		if err := installComposerDependencies(cmd.Context(), args[0], cmd.Flag("with-dev-dependencies").Changed); err != nil {
+		logging.FromContext(cmd.Context()).Infof("Installing dependencies using Composer")
+
+		composerFlags := []string{"install", "--no-interaction", "--no-progress", "--optimize-autoloader", "--classmap-authoritative"}
+
+		if withDev, _ := cmd.Flags().GetBool("with-dev-dependencies"); !withDev {
+			composerFlags = append(composerFlags, "--no-dev")
+		}
+
+		token, err := prepareComposerAuth(cmd.Context())
+		if err != nil {
+			return err
+		}
+
+		composer := phpexec.ComposerCommand(cmd.Context(), composerFlags...)
+		composer.Dir = args[0]
+		composer.Stdin = os.Stdin
+		composer.Stdout = os.Stdout
+		composer.Stderr = os.Stderr
+		composer.Env = append(os.Environ(),
+			"COMPOSER_AUTH="+token,
+		)
+
+		if err := composer.Run(); err != nil {
 			return err
 		}
 
@@ -182,150 +203,6 @@ var projectCI = &cobra.Command{
 
 		return nil
 	},
-}
-
-func installComposerDependencies(ctx context.Context, root string, withDev bool) error {
-	logging.FromContext(ctx).Infof("Installing dependencies using Composer")
-
-	if err := patchComposerJsonToDisableOptimizedAutoloader(root); err != nil {
-		return err
-	}
-
-	composerFlags := []string{"install", "--no-interaction", "--no-progress"}
-
-	if withDev {
-		composerFlags = append(composerFlags, "--dev")
-	}
-
-	token, err := prepareComposerAuth(ctx)
-	if err != nil {
-		return err
-	}
-
-	composer := phpexec.ComposerCommand(ctx, composerFlags...)
-	composer.Dir = root
-	composer.Stdin = os.Stdin
-	composer.Stdout = os.Stdout
-	composer.Stderr = os.Stderr
-	composer.Env = append(os.Environ(),
-		"COMPOSER_AUTH="+token,
-	)
-
-	if err := composer.Run(); err != nil {
-		return err
-	}
-
-	if err := patchSymfonyIntlPackages(root); err != nil {
-		return err
-	}
-
-	dumpAutoload := phpexec.ComposerCommand(ctx, "dump-autoload", "--no-interaction", "--optimize", "--classmap-authoritative")
-	dumpAutoload.Dir = root
-	dumpAutoload.Stdin = os.Stdin
-	dumpAutoload.Stdout = os.Stdout
-	dumpAutoload.Stderr = os.Stderr
-
-	return dumpAutoload.Run()
-}
-
-func patchSymfonyIntlPackages(root string) error {
-	composerInstalledPath := path.Join(root, "vendor", "composer", "installed.json")
-
-	if _, err := os.Stat(composerInstalledPath); err != nil {
-		return err
-	}
-
-	data, err := os.ReadFile(composerInstalledPath)
-	if err != nil {
-		return err
-	}
-
-	if strings.Contains(string(data), "Resources/data") {
-		return nil
-	}
-
-	var composerInstalled map[string]interface{}
-
-	if err := json.Unmarshal(data, &composerInstalled); err != nil {
-		return err
-	}
-
-	if _, ok := composerInstalled["packages"]; !ok {
-		return nil
-	}
-
-	packages := composerInstalled["packages"].([]interface{})
-
-	for _, pkg := range packages {
-		pkgMap := pkg.(map[string]interface{})
-
-		if pkgMap["name"] != "symfony/intl" {
-			continue
-		}
-
-		if _, ok := pkgMap["autoload"]; !ok {
-			pkgMap["autoload"] = map[string]interface{}{}
-		}
-
-		autoload := pkgMap["autoload"].(map[string]interface{})
-
-		if _, ok := autoload["exclude-from-classmap"]; !ok {
-			autoload["exclude-from-classmap"] = []string{}
-		}
-
-		excludeFromClassmap := autoload["exclude-from-classmap"].([]interface{})
-
-		if !slices.Contains(excludeFromClassmap, "/Resources/data/") {
-			excludeFromClassmap = append(excludeFromClassmap, "/Resources/data/")
-		}
-
-		autoload["exclude-from-classmap"] = excludeFromClassmap
-	}
-
-	data, err = json.MarshalIndent(composerInstalled, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(composerInstalledPath, data, os.ModePerm)
-}
-
-func patchComposerJsonToDisableOptimizedAutoloader(root string) error {
-	composerJsonPath := path.Join(root, "composer.json")
-
-	if _, err := os.Stat(composerJsonPath); err != nil {
-		return err
-	}
-
-	data, err := os.ReadFile(composerJsonPath)
-	if err != nil {
-		return err
-	}
-
-	var composerJson map[string]interface{}
-
-	if err := json.Unmarshal(data, &composerJson); err != nil {
-		return err
-	}
-
-	if _, ok := composerJson["config"]; !ok {
-		composerJson["config"] = map[string]interface{}{}
-	}
-
-	config := composerJson["config"].(map[string]interface{})
-
-	if _, ok := config["optimize-autoloader"]; !ok {
-		return nil
-	}
-
-	config["optimize-autoloader"] = false
-
-	data, err = json.MarshalIndent(composerJson, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(composerJsonPath, data, os.ModePerm)
 }
 
 type ComposerAuth struct {
