@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -15,7 +16,7 @@ const loggerKey = contextKey("logging")
 
 var fallbackLogger *zap.SugaredLogger
 
-func NewLogger() *zap.SugaredLogger {
+func NewLogger(verbose bool) *zap.SugaredLogger {
 	loggerCfg := zap.NewDevelopmentConfig()
 	loggerCfg.EncoderConfig.MessageKey = "message"
 	loggerCfg.EncoderConfig.TimeKey = "timestamp"
@@ -25,6 +26,10 @@ func NewLogger() *zap.SugaredLogger {
 	loggerCfg.DisableStacktrace = true
 	loggerCfg.DisableCaller = true
 	loggerCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	if !verbose {
+		loggerCfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	}
 
 	logger, err := loggerCfg.Build()
 	if err != nil {

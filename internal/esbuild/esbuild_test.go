@@ -11,7 +11,7 @@ import (
 )
 
 func getTestContext() context.Context {
-	logger := logging.NewLogger()
+	logger := logging.NewLogger(false)
 
 	return logging.WithLogger(context.TODO(), logger)
 }
