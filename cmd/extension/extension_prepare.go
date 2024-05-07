@@ -11,7 +11,7 @@ import (
 
 var extensionPrepareCmd = &cobra.Command{
 	Use:   "prepare [path]",
-	Short: "Prepare a extension for zipping",
+	Short: "Install Composer dependencies of an extension and delete unnecessary files for zipping",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
