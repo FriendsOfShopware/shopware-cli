@@ -27,8 +27,11 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(ctx context.Context) {
-	rootCmd.ParseFlags(os.Args)
-	verbose, _ := rootCmd.PersistentFlags().GetBool("verbose")
+	verbose := false
+
+	if err := rootCmd.ParseFlags(os.Args); err != nil {
+		verbose, _ = rootCmd.PersistentFlags().GetBool("verbose")
+	}
 
 	ctx = logging.WithLogger(ctx, logging.NewLogger(verbose))
 	accountApi.SetUserAgent("shopware-cli/" + version)
