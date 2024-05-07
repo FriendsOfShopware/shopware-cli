@@ -26,6 +26,8 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(ctx context.Context) {
+	accountApi.SetUserAgent("shopware-cli/" + version)
+
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		logging.FromContext(ctx).Fatalln(err)
 	}
