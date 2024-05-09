@@ -63,3 +63,35 @@ Here is an example content of an changelog file
 
 The changelog has to be written in both languages. 
 
+
+## Generating the changelog
+
+It's also possible to let shopware-cli generate the changelog for you. For this you need to create a `.shopware-extension.yml` with following content:
+
+```yaml
+changelog:
+    enabled: true
+```
+
+After that, when you create a new zip using `shopware-cli extension zip <path> --release`, the changelog will be generated based on the git tags. It's important to set the flag `--release`, otherwise the changelog will not be generated.
+
+### Configuration of the changelog generation
+
+The changelog generation is very flexible, here is an full example of a Shopware plugin:
+
+```yaml
+changelog:
+  enabled: true
+  # only the commits matching to this regex will be used
+  pattern: '^NEXT-\d+'
+  # variables allows to extract metadata out of the commit message
+  variables:
+    ticket: '^(NEXT-\d+)\s'
+  # go template for the changelog, it loops over all commits
+  template: |
+    {{range .Commits}}- [{{ .Message }}](https://issues.shopware.com/issues/{{ .Variables.ticket }})
+    {{end}}
+```
+
+This example checks that all commits in the changelog needs to start with `NEXT-` in the beginning. The `variables` section allows to extract metadata out of the commit message. The `template` is a go template which loops over all commits and generates the changelog.
+With the combination of `pattern`, `variables` and `template` we link the commit message to the Shopware ticket system.
