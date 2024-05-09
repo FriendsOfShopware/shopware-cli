@@ -1,10 +1,11 @@
 ---
-title: Extension Store Quick Start
+title: Releasing a Extension to Shopware Store
 weight: 10
 ---
 
+
 In this Guide we will learn how Shopware CLI can make the extension deployment easier with the Shopware Store. 
-First you need to [install](install.md) the CLI.
+First you need to [install](../install.md) the CLI.
 
 ## Login into your Shopware Account
 
@@ -17,7 +18,7 @@ With `shopware-cli account company use <id>` can you switch the current company 
 
 ## Optional: Create the extension in the Account
 
-To upload the zip later in the Store, you need to create the extension in the Account. If you haven't done this you can do this with
+To upload the zip later in the Store, you need to create the extension in the Shopware Store. If you haven't done this you can do this with
 
 ```
 shopware-cli account producer extension create <Name> platform
@@ -33,16 +34,24 @@ possible values for the last parameter are:
 
 To edit the Store page locally, we need first to generate the local files based on the current store page. 
 For this we can use the command `shopware-cli account producer extension info pull <extension-folder>`.
-This command creates a `.shopware-extension.yml` config in the root folder with the current store page. The schema of the file can be found [here](shopware-extension-yml-schema.md). Editors supporting SchemaStore, should have autocomplete out of the box like Jetbrains products, VSCode.
+This command creates a `.shopware-extension.yml` config in the extension root folder with the current store page. The schema of the file can be found [here](../shopware-extension-yml-schema.md). Editors supporting SchemaStore, should have autocomplete out of the box like Jetbrains products, VSCode.
 
 ## Uploading local Store Information to the Store
 
 After making changes on the `.shopware-extension.yml`, you have to run the `shopware-cli account producer extension info push <extension-folder>` to apply the changes on the store page. 
 
+## Creating the zip for the Store
+
+To create the zip, we can use `shopware-cli extension zip <path> --release`, this command creates a zip file from the latest Git tagged version. You can specify a specific Git commit / tag with `--git-commit 1.0.0`, or disable this behavior with `--disable-git` to take the directory as it is.
+
+## Validating the zip
+
+To save time, you can validate the zip with `shopware-cli extension validate <zip-path>` before uploading it to the Store. This command checks the most things of the extension store upload process.
+
 ## Uploading the extension zip to the Store
 
-To upload the extension zip, you have to use the command `shopware-cli account producer extension upload <extension-zip>`.
-If the version already exists, it updates the zip. The Shopware version compatibility list is built from the `shopware/core` requirement in the composer.json. Changelogs are built from the `CHANGELOG_de-DE.md` and `CHANGELOG_en-GB.md` file. 
+To upload the extension zip, you have to use the command `shopware-cli account producer extension upload <zip-path>`.
+If the version already exists, it updates the zip. The Shopware version compatibility list is built from the `shopware/core` requirement in the composer.json. Changelogs are built from the `CHANGELOG_de-DE.md` and `CHANGELOG_en-GB.md` file or only `CHANGELOG.md` then for both languages: 
 
 Here is an example content of an changelog file
 
@@ -53,3 +62,4 @@ Here is an example content of an changelog file
 ```
 
 The changelog has to be written in both languages. 
+
