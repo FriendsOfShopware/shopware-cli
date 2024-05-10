@@ -14,7 +14,7 @@ import (
 
 var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 	Use:   "upload [zip]",
-	Short: "Uploads a new extension upload",
+	Short: "Uploads a new extension version",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := filepath.Abs(args[0])
