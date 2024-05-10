@@ -10,6 +10,7 @@ dist/
 /go-shopware-admin-api-sdk
 /*.zip
 /Frosh*
+/Swag*
 /result
 /project
 dump.sql*
