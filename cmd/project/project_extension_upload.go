@@ -23,8 +23,9 @@ import (
 )
 
 var projectExtensionUploadCmd = &cobra.Command{
-	Use:   "upload",
+	Use:   "upload [path]",
 	Short: "Upload local extension to external shop",
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *shop.Config
 		var err error
