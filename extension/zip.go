@@ -109,6 +109,11 @@ func Unzip(r *zip.Reader, dest string) error {
 		if err != nil {
 			return fmt.Errorf(errorFormat, err)
 		}
+
+		// Restore the modified time
+		if err := os.Chtimes(fpath, f.Modified, f.Modified); err != nil {
+			return fmt.Errorf(errorFormat, err)
+		}
 	}
 
 	return nil
