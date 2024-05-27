@@ -213,7 +213,6 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 
 	var composer map[string]interface{}
 	err = json.Unmarshal(content, &composer)
-
 	if err != nil {
 		return fmt.Errorf(errorFormat, err)
 	}
@@ -286,17 +285,29 @@ func PrepareFolderForZipping(ctx context.Context, path string, ext Extension, ex
 func addFileToZip(zipWriter *zip.Writer, sourcePath string, zipPath string) error {
 	zipErrorFormat := "could not zip file, sourcePath: %q, zipPath: %q, %w"
 
-	dat, err := os.ReadFile(sourcePath)
+	file, err := os.Open(sourcePath)
 	if err != nil {
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
 	}
 
-	f, err := zipWriter.Create(zipPath)
+	fileInfo, err := file.Stat()
 	if err != nil {
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
 	}
 
-	if _, err := f.Write(dat); err != nil {
+	header, err := zip.FileInfoHeader(fileInfo)
+	if err != nil {
+		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
+	}
+	header.Name = zipPath
+	header.Method = zip.Deflate
+
+	f, err := zipWriter.CreateHeader(header)
+	if err != nil {
+		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
+	}
+
+	if _, err := io.Copy(f, file); err != nil {
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
 	}
 
