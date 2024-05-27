@@ -290,6 +290,10 @@ func addFileToZip(zipWriter *zip.Writer, sourcePath string, zipPath string) erro
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
 	}
 
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
+
 	fileInfo, err := file.Stat()
 	if err != nil {
 		return fmt.Errorf(zipErrorFormat, sourcePath, zipPath, err)
