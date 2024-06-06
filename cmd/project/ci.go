@@ -113,6 +113,10 @@ var projectCI = &cobra.Command{
 			return err
 		}
 
+		if err := createEmptySnippetFolder(path.Join(args[0], "vendor", "shopware", "administration")); err != nil {
+			return err
+		}
+
 		if !shopCfg.Build.KeepExtensionSource {
 			for _, source := range sources {
 				if err := cleanupAdministrationFiles(cmd.Context(), source.Path); err != nil {
@@ -203,6 +207,14 @@ var projectCI = &cobra.Command{
 
 		return nil
 	},
+}
+
+func createEmptySnippetFolder(root string) error {
+	if _, err := os.Stat(path.Join(root, "Resources/app/administration/src/module")); os.IsNotExist(err) {
+		return os.MkdirAll(path.Join(root, "Resources/app/administration/src/module"), os.ModePerm)
+	}
+
+	return nil
 }
 
 type ComposerAuth struct {
