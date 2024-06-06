@@ -210,8 +210,8 @@ var projectCI = &cobra.Command{
 }
 
 func createEmptySnippetFolder(root string) error {
-	if _, err := os.Stat(path.Join(root, "Resources/app/administration/src/module")); os.IsNotExist(err) {
-		return os.MkdirAll(path.Join(root, "Resources/app/administration/src/module"), os.ModePerm)
+	if _, err := os.Stat(path.Join(root, "Resources/app/administration/src/module/dummy/snippet")); os.IsNotExist(err) {
+		return os.MkdirAll(path.Join(root, "Resources/app/administration/src/module/dummy/snippet"), os.ModePerm)
 	}
 
 	return nil
