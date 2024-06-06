@@ -222,8 +222,8 @@ func createEmptySnippetFolder(root string) error {
 		}
 	}
 
-	if _, err := os.Stat(path.Join(root, "Resources/app/administration/src/component/dummy/snippet")); os.IsNotExist(err) {
-		if err := os.MkdirAll(path.Join(root, "Resources/app/administration/src/component/dummy/snippet"), os.ModePerm); err != nil {
+	if _, err := os.Stat(path.Join(root, "Resources/app/administration/src/app/component/dummy/dummy/snippet")); os.IsNotExist(err) {
+		if err := os.MkdirAll(path.Join(root, "Resources/app/administration/src/app/component/dummy/dummy/snippet"), os.ModePerm); err != nil {
 			return err
 		}
 	}
