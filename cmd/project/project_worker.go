@@ -57,7 +57,9 @@ var projectWorkerCmd = &cobra.Command{
 		consumeArgs := []string{"messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit), fmt.Sprintf("--time-limit=%s", timeLimit)}
 
 		if queuesToConsume == "" {
-			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
+			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5.7"); is {
+				consumeArgs = append(consumeArgs, "async", "failed", "low_priority")
+			} else if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5"); is {
 				consumeArgs = append(consumeArgs, "async", "failed")
 			}
 		} else {
