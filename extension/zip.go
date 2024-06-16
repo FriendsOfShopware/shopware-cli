@@ -42,14 +42,14 @@ var (
 		"auth.json",
 		"bitbucket-pipelines.yml",
 		"build.sh",
+		"grumphp.yml",
+		"psalm.xml",
 		"src/Resources/app/administration/node_modules",
 		"src/Resources/app/node_modules",
 		"src/Resources/app/storefront/node_modules",
 		"src/Resources/store",
 		"tests",
 		"var",
-		"grumphp.yml",
-		"psalm.xml",
 	}
 
 	defaultNotAllowedFiles = []string{
