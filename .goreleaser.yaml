@@ -1,3 +1,4 @@
+version: 2
 before:
   hooks:
     - go mod tidy
@@ -291,7 +292,6 @@ brews:
     commit_author:
       name: Frosh Automation
       email: ci@fos.gg
-    folder: Formula
     goarm: "7"
     homepage: https://friendsofshopware.com
     description: Shopware CLI helps Shopware developers manage extensions
