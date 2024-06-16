@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/FriendsOfShopware/shopware-cli/shop"
 
 	"github.com/FriendsOfShopware/shopware-cli/internal/asset"
 	"github.com/FriendsOfShopware/shopware-cli/logging"
@@ -58,7 +59,6 @@ func GetShopwareProjectConstraint(project string) (*version.Constraints, error) 
 			for _, pkg := range lock.Packages {
 				if pkg.Name == "shopware/core" {
 					v, err := version.NewConstraint(pkg.Version)
-
 					if err != nil {
 						return getProjectConstraintFromKernel(project)
 					}
@@ -80,7 +80,6 @@ func getProjectConstraintFromKernel(project string) (*version.Constraints, error
 	kernelPath := PlatformPath(project, "Core", "Kernel.php")
 
 	kernel, err := os.ReadFile(kernelPath)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not determine shopware version")
 	}
@@ -92,7 +91,6 @@ func getProjectConstraintFromKernel(project string) (*version.Constraints, error
 	}
 
 	v, err := version.NewConstraint(fmt.Sprintf("~%s.0", string(matches[1])))
-
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +125,6 @@ func FindAssetSourcesOfProject(ctx context.Context, project string, shopCfg *sho
 		logging.FromContext(ctx).Infof("Found bundle in project: %s (path: %s)", name, bundlePath)
 
 		bundleConfig, err := readExtensionConfig(bundlePath)
-
 		if err != nil {
 			logging.FromContext(ctx).Errorf("Cannot read bundle config: %s", err.Error())
 			continue
@@ -257,9 +254,27 @@ func addExtensionsByWildcard(extensionDir string) []Extension {
 	}
 
 	for _, file := range extensions {
-		if file.IsDir() {
-			ext, err := GetExtensionByFolder(path.Join(extensionDir, file.Name()))
+		extensionPath := path.Join(extensionDir, file.Name())
+		evaluatedPath, err := filepath.EvalSymlinks(extensionPath)
+		if err != nil {
+			continue
+		}
+
+		isDir := file.IsDir()
+
+		if evaluatedPath != extensionPath {
+			evaluatedStat, err := os.Stat(evaluatedPath)
 			if err != nil {
+				continue
+			}
+
+			isDir = evaluatedStat.IsDir()
+		}
+
+		if isDir {
+			ext, err := GetExtensionByFolder(evaluatedPath)
+			if err != nil {
+				fmt.Println(err)
 				continue
 			}
 
