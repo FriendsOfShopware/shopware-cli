@@ -274,7 +274,6 @@ func addExtensionsByWildcard(extensionDir string) []Extension {
 		if isDir {
 			ext, err := GetExtensionByFolder(evaluatedPath)
 			if err != nil {
-				fmt.Println(err)
 				continue
 			}
 
