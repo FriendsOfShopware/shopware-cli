@@ -11,7 +11,7 @@ require (
 	github.com/evanw/esbuild v0.21.5
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231210091330-92f38f1ae77c
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/schema v1.4.0
+	github.com/gorilla/schema v1.4.1
 	github.com/joho/godotenv v1.5.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/microcosm-cc/bluemonday v1.0.26
