@@ -8,13 +8,13 @@ require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20240205120830-463c1e9760f0
-	github.com/evanw/esbuild v0.22.0
+	github.com/evanw/esbuild v0.23.0
 	github.com/friendsofshopware/go-shopware-admin-api-sdk v0.0.0-20231210091330-92f38f1ae77c
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.4.1
 	github.com/joho/godotenv v1.5.1
 	github.com/manifoldco/promptui v0.9.0
-	github.com/microcosm-cc/bluemonday v1.0.26
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
 	github.com/sashabaranov/go-openai v1.26.2
@@ -53,9 +53,9 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.26.0
+	golang.org/x/net v0.27.0
 	golang.org/x/oauth2 v0.15.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
