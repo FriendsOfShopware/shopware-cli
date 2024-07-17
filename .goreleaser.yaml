@@ -251,7 +251,7 @@ nix:
       owner: FriendsOfShopware
       name: nur-packages
       branch: main
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.NUR_GITHUB_TOKEN }}"
     commit_author:
       name: Frosh Automation
       email: ci@fos.gg

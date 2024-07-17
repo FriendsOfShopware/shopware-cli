@@ -44,6 +44,12 @@ jobs:
           scope: FriendsOfShopware/homebrew-tap
           identity: release
 
+      - uses: octo-sts/action@v1.0.0
+        id: sts-nur
+        with:
+          scope: FriendsOfShopware/nur-packages
+          identity: release
+
       - name: Login into Github Docker Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -58,6 +64,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.sts-homebrew.outputs.token }}
+          NUR_GITHUB_TOKEN: ${{ steps.sts-nur.outputs.token }}
           AUR_KEY: ${{ secrets.AUR_KEY }}
       
       - name: Install Cloudsmith CLI
