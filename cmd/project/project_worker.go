@@ -33,6 +33,7 @@ var projectWorkerCmd = &cobra.Command{
 		memoryLimit, _ := cobraCmd.Flags().GetString("memory-limit")
 		timeLimit, _ := cobraCmd.Flags().GetString("time-limit")
 		gracefulStopLimit, _ := cobraCmd.Flags().GetUint("graceful-stop-limit")
+		messagesLimit, _ := cobraCmd.Flags().GetUint("limit")
 
 		if projectRoot, err = findClosestShopwareProject(); err != nil {
 			return err
@@ -56,7 +57,16 @@ var projectWorkerCmd = &cobra.Command{
 		cancelCtx, cancel := context.WithCancel(cobraCmd.Context())
 		cancelOnTermination(cancelCtx, cancel)
 
-		consumeArgs := []string{"messenger:consume", fmt.Sprintf("--memory-limit=%s", memoryLimit), fmt.Sprintf("--time-limit=%s", timeLimit)}
+		consumeArgs := []string{
+			"messenger:consume",
+			fmt.Sprintf("--memory-limit=%s", memoryLimit),
+			fmt.Sprintf("--time-limit=%s", timeLimit),
+			"--failure-limit=5",
+		}
+
+		if messagesLimit > 0 {
+			consumeArgs = append(consumeArgs, fmt.Sprintf("--limit=%d", messagesLimit))
+		}
 
 		if queuesToConsume == "" {
 			if is, _ := shop.IsShopwareVersion(projectRoot, ">=6.5.7"); is {
@@ -128,6 +138,7 @@ func init() {
 	projectWorkerCmd.PersistentFlags().String("memory-limit", "", "Memory Limit")
 	projectWorkerCmd.PersistentFlags().String("time-limit", "", "Time Limit")
 	projectWorkerCmd.PersistentFlags().Uint("graceful-stop-limit", 0, "Graceful Stop Limit")
+	projectWorkerCmd.PersistentFlags().Uint("limit", 0, "Messages Limit")
 }
 
 func cancelOnTermination(ctx context.Context, cancel context.CancelFunc) {
