@@ -56,6 +56,10 @@ Parameters:
 
 * zipPath - Path to your zip file
 
+Options:
+
+* `--skip-for-review-result` - Skips waiting for Code review result
+
 ### shopware-cli account producer extension info pull
 
 Downloads the store page information to the given extension
