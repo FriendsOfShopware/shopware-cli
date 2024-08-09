@@ -296,6 +296,7 @@ brews:
     homepage: https://friendsofshopware.com
     description: Shopware CLI helps Shopware developers manage extensions
     license: MIT
+    directory: Formula
     test: |
       system "#{bin}/shopware-cli --version"
     dependencies:
