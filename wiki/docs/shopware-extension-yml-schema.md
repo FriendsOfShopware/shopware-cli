@@ -4,6 +4,7 @@
 
 Any configuration field is optional. When you create a `.shopware-extension.yml`, you get also IDE autocompletion for all fields.
 
+Put the `.shopware-extension.yml` inside the root directory of your extension: `/var/www/myshop/custom/plugins/<YourExtension>/.shopware-extension.yml`
 
 ```yaml
 # .shopware-extension.yml
