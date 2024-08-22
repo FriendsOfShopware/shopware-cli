@@ -61,7 +61,7 @@ var projectAdminWatchCmd = &cobra.Command{
 				}
 			}
 
-			if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "-eprod", "framework:schema", "-s", "entity-schema", path.Join(mockDirectory, "entity-schema.json")), projectRoot)); err != nil {
+			if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "framework:schema", "-s", "entity-schema", path.Join(mockDirectory, "entity-schema.json")), projectRoot)); err != nil {
 				return err
 			}
 
