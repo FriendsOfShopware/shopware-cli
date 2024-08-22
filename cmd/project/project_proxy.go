@@ -1,7 +1,7 @@
 package project
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"os/exec"
 	"runtime"
@@ -35,7 +35,7 @@ var projectProxyCmd = &cobra.Command{
 				message += "See cloudflare for more information: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation"
 			}
 
-			return fmt.Errorf(message)
+			return errors.New(message)
 		}
 
 		logging.FromContext(cobraCmd.Context()).Infof("Make sure you have set TRUSTED_PROXIES=127.0.0.1,::1 inside your .env file")

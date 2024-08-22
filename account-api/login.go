@@ -116,7 +116,7 @@ func fetchMemberships(ctx context.Context, token token) ([]Membership, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf(string(data))
+		return nil, fmt.Errorf(string(data)+" but got status code %d", resp.StatusCode)
 	}
 
 	var companies []Membership

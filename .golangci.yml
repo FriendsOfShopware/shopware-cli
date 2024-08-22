@@ -4,12 +4,11 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - exportloopref
     - exhaustive
     - goconst
     - gofmt
     - goprintffuncname
-#    - gosec
+    #    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -60,11 +59,9 @@ linters-settings:
       - "Prefix(github.com/FriendsOfShopware/shopware-cli)"
 
 issues:
+  exclude-dirs:
+    - version
   exclude-rules:
     - path: cmd\/*
       linters:
         - forbidigo
-
-run:
-  skip-dirs:
-    - version
