@@ -353,7 +353,7 @@ func InstallNPMDependencies(path string, packageJsonData NpmPackage, additionalP
 		}
 	}
 
-	if isProductionMode && (packageJsonData.Dependencies == nil || len(packageJsonData.Dependencies) == 0) {
+	if isProductionMode && len(packageJsonData.Dependencies) == 0 {
 		return nil
 	}
 

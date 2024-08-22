@@ -58,7 +58,7 @@ func (*Client) doRequest(request *http.Request) ([]byte, error) {
 	}
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf(string(data))
+		return nil, fmt.Errorf(string(data)+", got status code %d", resp.StatusCode)
 	}
 
 	return data, nil
