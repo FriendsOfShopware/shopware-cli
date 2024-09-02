@@ -25,6 +25,7 @@ require (
 	github.com/wI2L/jsondiff v0.6.0
 	github.com/yuin/goldmark v1.7.4
 	go.uber.org/zap v1.27.0
+	golang.org/x/text v0.17.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -35,7 +36,7 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	golang.org/x/sync v0.5.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
 )
 
 require (

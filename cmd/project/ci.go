@@ -16,6 +16,7 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 	"github.com/spf13/cobra"
+	"golang.org/x/text/language"
 )
 
 // cleanupPaths are paths that are not nesscarry for the production build.
@@ -339,23 +340,23 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 				return nil
 			}
 
-			if filepath.Ext(path) != ".json" {
+			fileExt := filepath.Ext(path)
+
+			if fileExt != ".json" {
 				return nil
 			}
 
-			if filepath.Base(filepath.Dir(path)) != "snippet" {
+			languageName := strings.TrimSuffix(filepath.Base(path), fileExt)
+
+			if language.Make(languageName).IsRoot() {
 				return nil
 			}
 
-			name := filepath.Base(path)
-			extension := filepath.Ext(name)
-			language := name[0 : len(name)-len(extension)]
-
-			if _, ok := snippetFiles[language]; !ok {
-				snippetFiles[language] = []string{}
+			if _, ok := snippetFiles[languageName]; !ok {
+				snippetFiles[languageName] = []string{}
 			}
 
-			snippetFiles[language] = append(snippetFiles[language], path)
+			snippetFiles[languageName] = append(snippetFiles[languageName], path)
 
 			return nil
 		})
