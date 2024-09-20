@@ -2,7 +2,6 @@ package extension
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/xml"
@@ -505,63 +504,29 @@ func PrepareExtensionForRelease(ctx context.Context, sourceRoot, extensionRoot s
 
 	manifestPath := filepath.Join(extensionRoot, "manifest.xml")
 
-	file, err := os.Open(manifestPath)
+	bytes, err := os.ReadFile(manifestPath)
+
 	if err != nil {
-		return fmt.Errorf("cannot read manifest file: %w", err)
-	}
-
-	defer func() {
-		_ = file.Close()
-	}()
-
-	var buf bytes.Buffer
-	decoder := xml.NewDecoder(file)
-	encoder := xml.NewEncoder(&buf)
-
-	skip := false
-
-	for {
-		token, err := decoder.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		if v, ok := token.(xml.StartElement); ok {
-			if v.Name.Local == "secret" {
-				skip = true
-				continue
-			}
-		}
-
-		if v, ok := token.(xml.EndElement); ok {
-			if v.Name.Local == "secret" {
-				skip = false
-				continue
-			}
-		}
-
-		if skip {
-			continue
-		}
-
-		if err := encoder.EncodeToken(token); err != nil {
-			return err
-		}
-	}
-
-	// must call flush, otherwise some elements will be missing
-	if err := encoder.Flush(); err != nil {
 		return err
 	}
 
-	newManifest := buf.String()
-	newManifest = strings.ReplaceAll(newManifest, "xmlns:_xmlns=\"xmlns\" _xmlns:xsi=", "xmlns:xsi=")
-	newManifest = strings.ReplaceAll(newManifest, "xmlns:_XMLSchema-instance=\"http://www.w3.org/2001/XMLSchema-instance\" _XMLSchema-instance:noNamespaceSchemaLocation=", "xsi:noNamespaceSchemaLocation=")
+	var manifest Manifest
 
-	if err := os.WriteFile(manifestPath, []byte(newManifest), os.ModePerm); err != nil {
+	if err := xml.Unmarshal(bytes, &manifest); err != nil {
+		return fmt.Errorf("unmarshal manifest failed: %w", err)
+	}
+
+	if manifest.Setup != nil {
+		manifest.Setup.Secret = ""
+	}
+
+	newManifest, err := xml.MarshalIndent(manifest, "", "  ")
+
+	if err != nil {
+		return fmt.Errorf("cannot marshal manifest failed: %w", err)
+	}
+
+	if err := os.WriteFile(manifestPath, newManifest, os.ModePerm); err != nil {
 		return err
 	}
 

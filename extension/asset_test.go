@@ -31,8 +31,8 @@ func TestConvertApp(t *testing.T) {
 	app := App{
 		path:   t.TempDir(),
 		config: &Config{},
-		manifest: appManifest{
-			Meta: appManifestMeta{
+		manifest: Manifest{
+			Meta: Meta{
 				Name: "TestApp",
 			},
 		},
@@ -50,8 +50,8 @@ func TestConvertApp(t *testing.T) {
 func TestConvertExtraBundlesOfConfig(t *testing.T) {
 	app := App{
 		path: t.TempDir(),
-		manifest: appManifest{
-			Meta: appManifestMeta{
+		manifest: Manifest{
+			Meta: Meta{
 				Name: "TestApp",
 			},
 		},
@@ -83,8 +83,8 @@ func TestConvertExtraBundlesOfConfig(t *testing.T) {
 func TestConvertExtraBundlesOfConfigWithOverride(t *testing.T) {
 	app := App{
 		path: t.TempDir(),
-		manifest: appManifest{
-			Meta: appManifestMeta{
+		manifest: Manifest{
+			Meta: Meta{
 				Name: "TestApp",
 			},
 		},

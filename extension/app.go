@@ -11,184 +11,9 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
-type translatedXmlNode []struct {
-	Text string `xml:",chardata"`
-	Lang string `xml:"lang,attr"`
-}
-
-type appManifest struct {
-	XMLName                   xml.Name        `xml:"manifest"`
-	Text                      string          `xml:",chardata"`
-	Xsi                       string          `xml:"xsi,attr"`
-	NoNamespaceSchemaLocation string          `xml:"noNamespaceSchemaLocation,attr"`
-	Meta                      appManifestMeta `xml:"meta"`
-	Setup                     struct {
-		Text            string `xml:",chardata"`
-		RegistrationUrl string `xml:"registrationUrl"`
-		Secret          string `xml:"secret"`
-	} `xml:"setup"`
-	Permissions struct {
-		Text   string `xml:",chardata"`
-		Read   string `xml:"read"`
-		Create string `xml:"create"`
-		Update string `xml:"update"`
-		Delete string `xml:"delete"`
-	} `xml:"permissions"`
-	Webhooks struct {
-		Text    string `xml:",chardata"`
-		Webhook struct {
-			Text  string `xml:",chardata"`
-			Name  string `xml:"name,attr"`
-			URL   string `xml:"url,attr"`
-			Event string `xml:"event,attr"`
-		} `xml:"webhook"`
-	} `xml:"webhooks"`
-	Admin struct {
-		Text   string `xml:",chardata"`
-		Module []struct {
-			Text     string `xml:",chardata"`
-			Name     string `xml:"name,attr"`
-			Parent   string `xml:"parent,attr"`
-			Position string `xml:"position,attr"`
-			Source   string `xml:"source,attr"`
-			Label    []struct {
-				Text string `xml:",chardata"`
-				Lang string `xml:"lang,attr"`
-			} `xml:"label"`
-		} `xml:"module"`
-		MainModule struct {
-			Text   string `xml:",chardata"`
-			Source string `xml:"source,attr"`
-		} `xml:"main-module"`
-		ActionButton []struct {
-			Text   string `xml:",chardata"`
-			Action string `xml:"action,attr"`
-			Entity string `xml:"entity,attr"`
-			View   string `xml:"view,attr"`
-			URL    string `xml:"url,attr"`
-			Label  string `xml:"label"`
-		} `xml:"action-button"`
-	} `xml:"admin"`
-	CustomFields struct {
-		Text           string `xml:",chardata"`
-		CustomFieldSet struct {
-			Text  string `xml:",chardata"`
-			Name  string `xml:"name"`
-			Label []struct {
-				Text string `xml:",chardata"`
-				Lang string `xml:"lang,attr"`
-			} `xml:"label"`
-			RelatedEntities struct {
-				Text  string `xml:",chardata"`
-				Order string `xml:"order"`
-			} `xml:"related-entities"`
-			Fields struct {
-				Chardata string `xml:",chardata"`
-				Text     struct {
-					Text     string `xml:",chardata"`
-					Name     string `xml:"name,attr"`
-					Label    string `xml:"label"`
-					Position string `xml:"position"`
-					Required string `xml:"required"`
-					HelpText string `xml:"help-text"`
-				} `xml:"text"`
-				Float struct {
-					Text  string `xml:",chardata"`
-					Name  string `xml:"name,attr"`
-					Label []struct {
-						Text string `xml:",chardata"`
-						Lang string `xml:"lang,attr"`
-					} `xml:"label"`
-					HelpText    string `xml:"help-text"`
-					Position    string `xml:"position"`
-					Placeholder string `xml:"placeholder"`
-					Min         string `xml:"min"`
-					Max         string `xml:"max"`
-					Steps       string `xml:"steps"`
-				} `xml:"float"`
-			} `xml:"fields"`
-		} `xml:"custom-field-set"`
-	} `xml:"custom-fields"`
-	Cookies struct {
-		Text   string `xml:",chardata"`
-		Cookie struct {
-			Text               string `xml:",chardata"`
-			Cookie             string `xml:"cookie"`
-			SnippetName        string `xml:"snippet-name"`
-			SnippetDescription string `xml:"snippet-description"`
-			Value              string `xml:"value"`
-			Expiration         string `xml:"expiration"`
-		} `xml:"cookie"`
-		Group struct {
-			Text               string `xml:",chardata"`
-			SnippetName        string `xml:"snippet-name"`
-			SnippetDescription string `xml:"snippet-description"`
-			Entries            struct {
-				Text   string `xml:",chardata"`
-				Cookie struct {
-					Text               string `xml:",chardata"`
-					Cookie             string `xml:"cookie"`
-					SnippetName        string `xml:"snippet-name"`
-					SnippetDescription string `xml:"snippet-description"`
-					Value              string `xml:"value"`
-					Expiration         string `xml:"expiration"`
-				} `xml:"cookie"`
-			} `xml:"entries"`
-		} `xml:"group"`
-	} `xml:"cookies"`
-	Payments struct {
-		Text          string `xml:",chardata"`
-		PaymentMethod struct {
-			Text       string `xml:",chardata"`
-			Identifier string `xml:"identifier"`
-			Name       []struct {
-				Text string `xml:",chardata"`
-				Lang string `xml:"lang,attr"`
-			} `xml:"name"`
-			Description []struct {
-				Text string `xml:",chardata"`
-				Lang string `xml:"lang,attr"`
-			} `xml:"description"`
-			PayURL      string `xml:"pay-url"`
-			FinalizeURL string `xml:"finalize-url"`
-			Icon        string `xml:"icon"`
-		} `xml:"payment-method"`
-	} `xml:"payments"`
-}
-
-type appManifestMeta struct {
-	Text                    string            `xml:",chardata"`
-	Name                    string            `xml:"name"`
-	Label                   translatedXmlNode `xml:"label"`
-	Description             translatedXmlNode `xml:"description"`
-	Author                  string            `xml:"author"`
-	Copyright               string            `xml:"copyright"`
-	Version                 string            `xml:"version"`
-	License                 string            `xml:"license"`
-	Icon                    string            `xml:"icon"`
-	Privacy                 string            `xml:"privacy"`
-	Compatibility           string            `xml:"compatibility"`
-	PrivacyPolicyExtensions []struct {
-		Text string `xml:",chardata"`
-		Lang string `xml:"lang,attr"`
-	} `xml:"privacyPolicyExtensions"`
-}
-
-func getTranslatedTextFromXmlNode(node translatedXmlNode, keys []string) string {
-	for _, n := range node {
-		for _, key := range keys {
-			if n.Lang == key {
-				return n.Text
-			}
-		}
-	}
-
-	return ""
-}
-
 type App struct {
 	path     string
-	manifest appManifest
+	manifest Manifest
 	config   *Config
 }
 
@@ -212,7 +37,7 @@ func newApp(path string) (*App, error) {
 		return nil, fmt.Errorf("newApp: %v", err)
 	}
 
-	var manifest appManifest
+	var manifest Manifest
 	err = xml.Unmarshal(appFile, &manifest)
 
 	if err != nil {
@@ -294,12 +119,12 @@ func (a App) GetMetaData() *extensionMetadata {
 
 	return &extensionMetadata{
 		Label: extensionTranslated{
-			German:  getTranslatedTextFromXmlNode(a.manifest.Meta.Label, german),
-			English: getTranslatedTextFromXmlNode(a.manifest.Meta.Label, english),
+			German:  a.manifest.Meta.Label.GetValueByLanguage(german),
+			English: a.manifest.Meta.Label.GetValueByLanguage(english),
 		},
 		Description: extensionTranslated{
-			German:  getTranslatedTextFromXmlNode(a.manifest.Meta.Description, german),
-			English: getTranslatedTextFromXmlNode(a.manifest.Meta.Description, english),
+			German:  a.manifest.Meta.Description.GetValueByLanguage(german),
+			English: a.manifest.Meta.Description.GetValueByLanguage(english),
 		},
 	}
 }

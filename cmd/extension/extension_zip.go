@@ -162,6 +162,14 @@ var extensionZipCmd = &cobra.Command{
 			}
 		}
 
+		if err := extension.BuildModifier(ext, extDir, extension.BuildModifierConfig{
+			AppBackendUrl:    getStringOnStringError(cmd.Flags().GetString("overwrite-app-backend-url")),
+			AppBackendSecret: getStringOnStringError(cmd.Flags().GetString("overwrite-app-backend-secret")),
+			Version:          getStringOnStringError(cmd.Flags().GetString("overwrite-version")),
+		}); err != nil {
+			return fmt.Errorf("build modifier: %w", err)
+		}
+
 		fileName := fmt.Sprintf("%s-%s.zip", name, tag)
 		if len(tag) == 0 {
 			fileName = fmt.Sprintf("%s.zip", name)
@@ -197,8 +205,15 @@ func init() {
 	extensionRootCmd.AddCommand(extensionZipCmd)
 	extensionZipCmd.Flags().BoolVar(&disableGit, "disable-git", false, "Use the source folder as it is")
 	extensionZipCmd.Flags().BoolVar(&extensionReleaseMode, "release", false, "Release mode (remove app secrets)")
+	extensionZipCmd.Flags().String("overwrite-app-backend-url", "", "Change all URLs in manifest.xml to this URL")
+	extensionZipCmd.Flags().String("overwrite-app-backend-secret", "", "Change the secret to this value")
+	extensionZipCmd.Flags().String("overwrite-version", "", "Change the extension version to this value")
 	extensionZipCmd.Flags().String("output-directory", "", "Output directory for the zip file")
 	extensionZipCmd.Flags().String("git-commit", "", "Commit Hash / Tag to use")
+}
+
+func getStringOnStringError(val string, _ error) string {
+	return val
 }
 
 func executeHooks(ext extension.Extension, hooks []string, extDir string) error {

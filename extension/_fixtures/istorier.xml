@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>InstoImmersiveElements</name>
+        <label>Immersive Elements</label>
+        <description>Transform your online store into an unforgettable brand experience. As an incredibly cost-effective alternative to external resources, the app is engineered to boost conversions.</description>
+        <author>Instorier AS</author>
+        <copyright>(c) by Instorier AS</copyright>
+        <version>1.1.0</version>
+        <icon>Resources/config/plugin.png</icon>
+        <license>Proprietary</license>
+    </meta>
+
+    <setup>
+        <registrationUrl>https://instorier.apps.shopware.io/app/lifecycle/register</registrationUrl>
+    </setup>
+
+    <admin>
+        <base-app-url>https://instorier.apps.shopware.io/iframe</base-app-url>
+    </admin>
+    <permissions>
+        <read>cms_slot</read>
+        <read>cms_slot_translation</read>
+        <read>language</read>
+        <read>sales_channel</read>
+        <read>sales_channel_domain</read>
+        <read>customer</read>
+        <read>newsletter_recipient</read>
+        <read>order</read>
+        <read>category_translation</read>
+        <read>country_state_translation</read>
+        <read>country_translation</read>
+        <read>currency_translation</read>
+        <read>customer_group_translation</read>
+        <read>locale_translation</read>
+        <read>media</read>
+        <read>media_default_folder</read>
+        <read>media_translation</read>
+        <read>payment_method_translation</read>
+        <read>product_manufacturer_translation</read>
+        <read>product_translation</read>
+        <read>shipping_method_translation</read>
+        <read>unit_translation</read>
+        <read>property_group_translation</read>
+        <read>property_group_option_translation</read>
+        <read>sales_channel_translation</read>
+        <read>sales_channel_type_translation</read>
+        <read>salutation_translation</read>
+        <read>plugin_translation</read>
+        <read>product_stream_translation</read>
+        <read>state_machine_translation</read>
+        <read>state_machine_state_translation</read>
+        <read>cms_page_translation</read>
+        <read>mail_template_translation</read>
+        <read>mail_header_footer_translation</read>
+        <read>document_type_translation</read>
+        <read>number_range_type_translation</read>
+        <read>delivery_time_translation</read>
+        <read>product_search_keyword</read>
+        <read>product_keyword_dictionary</read>
+        <read>mail_template_type_translation</read>
+        <read>promotion_translation</read>
+        <read>number_range_translation</read>
+        <read>product_review</read>
+        <read>seo_url</read>
+        <read>tax_rule_type_translation</read>
+        <read>product_cross_selling_translation</read>
+        <read>import_export_profile_translation</read>
+        <read>product_sorting_translation</read>
+        <read>product_feature_set_translation</read>
+        <read>app_translation</read>
+        <read>app_action_button_translation</read>
+        <read>landing_page_translation</read>
+        <read>app_cms_block_translation</read>
+        <read>app_script_condition_translation</read>
+        <read>app_flow_action_translation</read>
+        <read>tax_provider_translation</read>
+        <read>theme_translation</read>
+
+        <create>cms_slot</create>
+        <create>cms_slot_translation</create>
+        <create>media</create>
+        <create>media_translation</create>
+
+        <update>cms_slot</update>
+        <update>cms_slot_translation</update>
+
+        <delete>cms_slot</delete>
+        <delete>cms_slot_translation</delete>
+    </permissions>
+</manifest>
