@@ -1,307 +1,387 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "shopware-cli",
-    "description": "shopware cli project configuration definition file",
-    "$ref": "#/definitions/Config",
-    "definitions": {
-        "Config": {
-            "type": "object",
-            "title": ".shopware-project.yml",
-            "additionalProperties": false,
-            "properties": {
-                "url": {
-                    "type": "string",
-                    "description": "URL to Shopware instance"
-                },
-                "admin_api": {
-                    "$ref": "#/definitions/AdminApi"
-                },
-                "dump": {
-                    "$ref": "#/definitions/Dump"
-                },
-                "sync": {
-                    "$ref": "#/definitions/Sync"
-                },
-                "build": {
-                    "$ref": "#/definitions/Build"
-                }
-            }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FriendsOfShopware/shopware-cli/shop/config",
+  "$ref": "#/$defs/Config",
+  "$defs": {
+    "Config": {
+      "properties": {
+        "include": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
-        "Build": {
-            "type": "object",
-            "title": "Project Build Settings",
-            "additionalProperties": false,
-            "properties": {
-                "disable_asset_copy": {
-                    "type": "boolean",
-                    "description": "When enabled, the assets will not be copied to the public folder",
-                    "default": false
-                },
-                "keep_source_maps": {
-                    "type": "boolean",
-                    "description": "When enabled, the source maps will not be removed from the final build",
-                    "default": false
-                },
-                "remove_extension_assets": {
-                    "type": "boolean",
-                    "description": "When enabled, the assets of extensions will be removed from the extension public folder. (Requires Shopware 6.5.2.0)",
-                    "default": false
-                },
-                "cleanup_paths": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Paths to delete for the final build"
-                },
-                "browserslist": {
-                    "type": "string",
-                    "description": "Browserslist configuration for the Storefront build"
-                },
-                "exclude_extensions": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Extensions to exclude from the build"
-                }
-            }
+        "url": {
+          "type": "string",
+          "description": "The URL of the Shopware instance"
         },
-        "AdminApi": {
-            "type": "object",
-            "title": "Admin API credentials",
-            "additionalProperties": false,
-            "properties": {
-                "client_id": {
-                    "type": "string",
-                    "description": "Client ID of integration"
-                },
-                "client_secret": {
-                    "type": "string",
-                    "description": "Client Secret of integration"
-                },
-                "username": {
-                    "type": "string",
-                    "description": "Username of admin user"
-                },
-                "password": {
-                    "type": "string",
-                    "description": "Password of admin user"
-                },
-                "disable_ssl_check": {
-                    "type": "boolean",
-                    "description": "Disable SSL check for API requests",
-                    "default": false
-                }
-            }
+        "build": {
+          "$ref": "#/$defs/ConfigBuild"
         },
-        "Dump": {
-            "type": "object",
-            "title": "MySQL dump configuration",
-            "additionalProperties": false,
-            "properties": {
-                "rewrite": {
-                    "type": "object"
-                },
-                "nodata": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                },
-                "ignore": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                },
-                "where": {
-                    "type": "object"
-                }
-            }
+        "admin_api": {
+          "$ref": "#/$defs/ConfigAdminApi"
         },
-        "Sync": {
-            "type": "object",
-            "title": "Sync Settings",
-            "additionalProperties": false,
-            "properties": {
-                "config": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/SyncConfigItem"}
-                },
-                "theme": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/ThemeConfigItem"}
-                },
-                "mail_template": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/MailTemplateItem"}
-                },
-                "entity": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/EntitySyncItem"}
-                }
-            }
+        "dump": {
+          "$ref": "#/$defs/ConfigDump"
         },
-        "SyncConfigItem": {
-            "type": "object",
-            "title": "System Config Sync",
-            "additionalProperties": false,
-            "properties": {
-                "sales_channel": {
-                    "title": "Sales Channel to apply",
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "object"
-                }
-            },
-            "required": ["settings"]
+        "sync": {
+          "$ref": "#/$defs/ConfigSync"
         },
-        "ThemeConfigItem": {
-            "type": "object",
-            "title": "Theme Config Sync",
-            "additionalProperties": false,
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "object"
-                }
-            }
-        },
-        "MailTemplateItem": {
-            "type": "object",
-            "title": "Mail Template Sync",
-            "additionalProperties": false,
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "translations": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/MailTemplateItemTranslation"}
-                }
-            }
-        },
-        "MailTemplateItemTranslation": {
-            "type": "object",
-            "title": "Mail Template Single Translation",
-            "additionalProperties": false,
-            "properties": {
-                "language": {
-                    "type": "string"
-                },
-                "sender_name": {
-                    "type": "string"
-                },
-                "subject": {
-                    "type": "string"
-                },
-                "html": {
-                    "type": "string"
-                },
-                "plain": {
-                    "type": "string"
-                },
-                "custom_fields": {
-                    "type": ["object", "null"]
-                }
-            }
-        },
-        "EntitySyncItem": {
-            "type": "object",
-            "title": "Entity Sync",
-            "additionalProperties": false,
-            "properties": {
-                "entity": {
-                    "type": "string"
-                },
-                "exists": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/EntitySyncFilter"}
-                },
-                "payload": {
-                    "type": "object",
-                    "description": "API payload"
-                }
-            },
-            "required": ["entity", "payload"]
-        },
-        "EntitySyncFilter": {
-            "type": "object",
-            "title": "Entity Sync Filter",
-            "additionalProperties": false,
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": ["equals", "multi", "contains", "prefix", "suffix", "not", "range", "until", "equalsAll" ,"equalsAny"],
-                    "description": "filter type"
-                },
-                "field": {
-                    "type": "string",
-                    "description": "field"
-                },
-                "value": {
-                    "type": ["string", "integer", "array", "boolean", "null"],
-                    "description": "value"
-                },
-                "operator": {
-                    "type": "string",
-                    "enum": ["AND", "OR", "XOR"]
-                },
-                "queries": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/EntitySyncFilterInner"}
-                }
-            },
-            "required": ["type", "field"],
-            "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "type": {
-                                "const": "multi"
-                            }
-                        }
-                    },
-                    "then": {
-                        "required": ["type", "queries"]
-                    }
-                }
-            ]
-        },
-        "EntitySyncFilterInner": {
-            "type": "object",
-            "title": "Entity Sync Filter",
-            "additionalProperties": false,
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": ["equals", "multi", "contains", "prefix", "suffix", "not", "range", "until", "equalsAll" ,"equalsAny"],
-                    "description": "filter type"
-                },
-                "field": {
-                    "type": "string",
-                    "description": "field"
-                },
-                "value": {
-                    "type": ["string", "integer", "array", "boolean", "null"],
-                    "description": "value"
-                },
-                "operator": {
-                    "type": "string",
-                    "enum": ["AND", "OR", "XOR"]
-                }
-            },
-            "required": ["type", "field"],
-            "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "type": {
-                                "const": "multi"
-                            }
-                        }
-                    },
-                    "then": {
-                        "required": ["type", "queries"]
-                    }
-                }
-            ]
+        "deployment": {
+          "$ref": "#/$defs/ConfigDeployment"
         }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigAdminApi": {
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "description": "Client ID of integration"
+        },
+        "client_secret": {
+          "type": "string",
+          "description": "Client Secret of integration"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of admin user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password of admin user"
+        },
+        "disable_ssl_check": {
+          "type": "boolean",
+          "description": "Disable SSL certificate check"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigBuild": {
+      "properties": {
+        "disable_asset_copy": {
+          "type": "boolean",
+          "description": "When enabled, the assets will not be copied to the public folder"
+        },
+        "remove_extension_assets": {
+          "type": "boolean",
+          "description": "When enabled, the assets of extensions will be removed from the extension public folder. (Requires Shopware 6.5.2.0)"
+        },
+        "keep_extension_source": {
+          "type": "boolean",
+          "description": "When enabled, the extensions source code will be keep in the final build"
+        },
+        "keep_source_maps": {
+          "type": "boolean",
+          "description": "When enabled, the source maps will not be removed from the final build"
+        },
+        "cleanup_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Paths to delete for the final build"
+        },
+        "browserslist": {
+          "type": "string",
+          "description": "Browserslist configuration for the Storefront build"
+        },
+        "exclude_extensions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Extensions to exclude from the build"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigDeployment": {
+      "properties": {
+        "hooks": {
+          "properties": {
+            "pre": {
+              "type": "string"
+            },
+            "post": {
+              "type": "string"
+            },
+            "pre-install": {
+              "type": "string"
+            },
+            "post-install": {
+              "type": "string"
+            },
+            "pre-update": {
+              "type": "string"
+            },
+            "post-update": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "extension-management": {
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "Exclude": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "The extension management of the deployment"
+        },
+        "one-time-tasks": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "script": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "id",
+              "script"
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigDump": {
+      "properties": {
+        "rewrite": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Rewrite"
+          },
+          "type": "object",
+          "description": "Allows to rewrite single columns, perfect for GDPR compliance"
+        },
+        "nodata": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Only export the schema of these tables"
+        },
+        "ignore": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Ignore these tables from export"
+        },
+        "where": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Add an where condition to that table, schema is table name as key, and where statement as value"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigSync": {
+      "properties": {
+        "config": {
+          "items": {
+            "$ref": "#/$defs/ConfigSyncConfig"
+          },
+          "type": "array"
+        },
+        "theme": {
+          "items": {
+            "$ref": "#/$defs/ThemeConfig"
+          },
+          "type": "array"
+        },
+        "mail_template": {
+          "items": {
+            "$ref": "#/$defs/MailTemplate"
+          },
+          "type": "array"
+        },
+        "entity": {
+          "items": {
+            "$ref": "#/$defs/EntitySync"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ConfigSyncConfig": {
+      "properties": {
+        "sales_channel": {
+          "type": "string",
+          "description": "Sales Channel ID to apply"
+        },
+        "settings": {
+          "type": "object",
+          "description": "Configurations of that Sales Channel"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "EntitySync": {
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "exists": {
+          "items": {
+            "$ref": "#/$defs/EntitySyncFilter"
+          },
+          "type": "array"
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "EntitySyncFilter": {
+      "allOf": [
+        {
+          "if": {
+            "then": {
+              "required": [
+                "type",
+                "queries"
+              ]
+            },
+            "properties": {
+              "type": {
+                "const": "multi"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "multi",
+            "contains",
+            "prefix",
+            "suffix",
+            "not",
+            "range",
+            "until",
+            "equalsAll",
+            "equalsAny"
+          ]
+        },
+        "field": {
+          "type": "string",
+          "description": "The field to filter on"
+        },
+        "value": {
+          "description": "The actual filter value"
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "AND",
+            "OR",
+            "XOR"
+          ]
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "field"
+      ],
+      "title": "Entity Sync Filter"
+    },
+    "MailTemplate": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "translations": {
+          "items": {
+            "$ref": "#/$defs/MailTemplateTranslation"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "MailTemplateTranslation": {
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "sender_name": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "plain": {
+          "type": "string"
+        },
+        "custom_fields": true
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Rewrite": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "ThemeConfig": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "settings": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ThemeConfigValue"
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ThemeConfigValue": {
+      "properties": {
+        "value": true
+      },
+      "additionalProperties": false,
+      "type": "object"
     }
+  }
 }

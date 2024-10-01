@@ -2,6 +2,8 @@ package shop
 
 import (
 	"fmt"
+	"github.com/invopop/jsonschema"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"os"
 	"strings"
 
@@ -14,38 +16,56 @@ import (
 )
 
 type Config struct {
-	AdditionalConfigs []string        `yaml:"include,omitempty"`
-	URL               string          `yaml:"url"`
-	Build             *ConfigBuild    `yaml:"build,omitempty"`
-	AdminApi          *ConfigAdminApi `yaml:"admin_api,omitempty"`
-	ConfigDump        *ConfigDump     `yaml:"dump,omitempty"`
-	Sync              *ConfigSync     `yaml:"sync,omitempty"`
-	foundConfig       bool
+	AdditionalConfigs []string `yaml:"include,omitempty"`
+	// The URL of the Shopware instance
+	URL              string            `yaml:"url"`
+	Build            *ConfigBuild      `yaml:"build,omitempty"`
+	AdminApi         *ConfigAdminApi   `yaml:"admin_api,omitempty"`
+	ConfigDump       *ConfigDump       `yaml:"dump,omitempty"`
+	Sync             *ConfigSync       `yaml:"sync,omitempty"`
+	ConfigDeployment *ConfigDeployment `yaml:"deployment,omitempty"`
+	foundConfig      bool
 }
 
 type ConfigBuild struct {
-	DisableAssetCopy      bool     `yaml:"disable_asset_copy,omitempty"`
-	RemoveExtensionAssets bool     `yaml:"remove_extension_assets,omitempty"`
-	KeepExtensionSource   bool     `yaml:"keep_extension_source,omitempty"`
-	KeepSourceMaps        bool     `yaml:"keep_source_maps,omitempty"`
-	CleanupPaths          []string `yaml:"cleanup_paths,omitempty"`
-	Browserslist          string   `yaml:"browserslist,omitempty"`
-	ExcludeExtensions     []string `yaml:"exclude_extensions,omitempty"`
+	// When enabled, the assets will not be copied to the public folder
+	DisableAssetCopy bool `yaml:"disable_asset_copy,omitempty"`
+	// When enabled, the assets of extensions will be removed from the extension public folder. (Requires Shopware 6.5.2.0)
+	RemoveExtensionAssets bool `yaml:"remove_extension_assets,omitempty"`
+	// When enabled, the extensions source code will be keep in the final build
+	KeepExtensionSource bool `yaml:"keep_extension_source,omitempty"`
+	// When enabled, the source maps will not be removed from the final build
+	KeepSourceMaps bool `yaml:"keep_source_maps,omitempty"`
+	// Paths to delete for the final build
+	CleanupPaths []string `yaml:"cleanup_paths,omitempty"`
+	// Browserslist configuration for the Storefront build
+	Browserslist string `yaml:"browserslist,omitempty"`
+	// Extensions to exclude from the build
+	ExcludeExtensions []string `yaml:"exclude_extensions,omitempty"`
 }
 
 type ConfigAdminApi struct {
-	ClientId        string `yaml:"client_id,omitempty"`
-	ClientSecret    string `yaml:"client_secret,omitempty"`
-	Username        string `yaml:"username,omitempty"`
-	Password        string `yaml:"password,omitempty"`
-	DisableSSLCheck bool   `yaml:"disable_ssl_check,omitempty"`
+	// Client ID of integration
+	ClientId string `yaml:"client_id,omitempty"`
+	// Client Secret of integration
+	ClientSecret string `yaml:"client_secret,omitempty"`
+	// Username of admin user
+	Username string `yaml:"username,omitempty"`
+	// Password of admin user
+	Password string `yaml:"password,omitempty"`
+	// Disable SSL certificate check
+	DisableSSLCheck bool `yaml:"disable_ssl_check,omitempty"`
 }
 
 type ConfigDump struct {
+	// Allows to rewrite single columns, perfect for GDPR compliance
 	Rewrite map[string]core.Rewrite `yaml:"rewrite,omitempty"`
-	NoData  []string                `yaml:"nodata,omitempty"`
-	Ignore  []string                `yaml:"ignore,omitempty"`
-	Where   map[string]string       `yaml:"where,omitempty"`
+	// Only export the schema of these tables
+	NoData []string `yaml:"nodata,omitempty"`
+	// Ignore these tables from export
+	Ignore []string `yaml:"ignore,omitempty"`
+	// Add an where condition to that table, schema is table name as key, and where statement as value
+	Where map[string]string `yaml:"where,omitempty"`
 }
 
 type ConfigSync struct {
@@ -55,9 +75,41 @@ type ConfigSync struct {
 	Entity       []EntitySync       `yaml:"entity"`
 }
 
+type ConfigDeployment struct {
+	Hooks struct {
+		// The pre hook will be executed before the deployment
+		Pre string `yaml:"pre"`
+		// The post hook will be executed after the deployment
+		Post string `yaml:"post"`
+		// The pre-install hook will be executed before the installation
+		PreInstall string `yaml:"pre-install"`
+		// The post-install hook will be executed after the installation
+		PostInstall string `yaml:"post-install"`
+		// The pre-update hook will be executed before the update
+		PreUpdate string `yaml:"pre-update"`
+		// The post-update hook will be executed after the update
+		PostUpdate string `yaml:"post-update"`
+	} `yaml:"hooks"`
+
+	// The extension management of the deployment
+	ExtensionManagement struct {
+		// When enabled, the extensions will be installed, updated, and removed
+		Enabled bool `yaml:"enabled"`
+		// Which extensions should not be managed
+		Exclude []string
+	} `yaml:"extension-management"`
+
+	OneTimeTasks []struct {
+		Id     string `yaml:"id" jsonschema:"required"`
+		Script string `yaml:"script" jsonschema:"required"`
+	} `yaml:"one-time-tasks"`
+}
+
 type ConfigSyncConfig struct {
-	SalesChannel *string                `yaml:"sales_channel,omitempty"`
-	Settings     map[string]interface{} `yaml:"settings"`
+	// Sales Channel ID to apply
+	SalesChannel *string `yaml:"sales_channel,omitempty"`
+	// Configurations of that Sales Channel
+	Settings map[string]interface{} `yaml:"settings"`
 }
 
 type ThemeConfig struct {
@@ -72,8 +124,66 @@ type MailTemplate struct {
 
 type EntitySync struct {
 	Entity  string                 `yaml:"entity"`
-	Exists  *[]interface{}         `yaml:"exists"`
+	Exists  *[]EntitySyncFilter    `yaml:"exists,omitempty"`
 	Payload map[string]interface{} `yaml:"payload"`
+}
+
+type EntitySyncFilter struct {
+	// The type of filter
+	Type string `yaml:"type" jsonschema:"required,enum=equals,enum=multi,enum=contains,enum=prefix,enum=suffix,enum=not,enum=range,enum=until,enum=equalsAll,enum=equalsAny"`
+	// The field to filter on
+	Field string `yaml:"field" jsonschema:"required"`
+	// The actual filter value
+	Value interface{} `yaml:"value"`
+	// The operator to use for multiple filters
+	Operator *string `yaml:"operator,omitempty" jsonschema:"enum=AND,enum=OR,enum=XOR"`
+	// The filters to apply, when type set to multi
+	Queries *[]EntitySyncFilter `yaml:"queries,omitempty"`
+}
+
+func (s EntitySyncFilter) JSONSchema() *jsonschema.Schema {
+	properties := orderedmap.New[string, *jsonschema.Schema]()
+
+	properties.Set("type", &jsonschema.Schema{
+		Type: "string",
+		Enum: []interface{}{"equals", "multi", "contains", "prefix", "suffix", "not", "range", "until", "equalsAll", "equalsAny"},
+	})
+
+	properties.Set("field", &jsonschema.Schema{
+		Type:        "string",
+		Description: "The field to filter on",
+	})
+
+	properties.Set("value", &jsonschema.Schema{
+		Description: "The actual filter value",
+	})
+
+	properties.Set("operator", &jsonschema.Schema{
+		Type: "string",
+		Enum: []interface{}{"AND", "OR", "XOR"},
+	})
+
+	ifProperties := orderedmap.New[string, *jsonschema.Schema]()
+	ifProperties.Set("type", &jsonschema.Schema{
+		Const: "multi",
+	})
+
+	return &jsonschema.Schema{
+		Type:       "object",
+		Title:      "Entity Sync Filter",
+		Properties: properties,
+		Required:   []string{"type", "field"},
+		AllOf: []*jsonschema.Schema{
+			{
+				If: &jsonschema.Schema{
+					Properties: ifProperties,
+					Then: &jsonschema.Schema{
+						Required: []string{"type", "queries"},
+					},
+				},
+			},
+		},
+	}
 }
 
 type MailTemplateTranslation struct {
