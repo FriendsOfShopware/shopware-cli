@@ -3,6 +3,7 @@ package account
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -114,7 +115,10 @@ var accountCompanyProducerExtensionUploadCmd = &cobra.Command{
 
 		err = p.UpdateExtensionBinaryFile(cmd.Context(), ext.Id, foundBinary.Id, path)
 		if err != nil {
-			return err
+			if strings.Contains(err.Error(), "BinariesException-40") {
+				logging.FromContext(cmd.Context()).Infof("Binary version is already published. Skipping upload")
+				return nil
+			}
 		}
 
 		logging.FromContext(cmd.Context()).Infof("Submitting code review request")
