@@ -18,14 +18,14 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.31.0
+	github.com/sashabaranov/go-openai v1.32.1
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/tetratelabs/wazero v1.8.1
 	github.com/vulcand/oxy/v2 v2.0.0
 	github.com/wI2L/jsondiff v0.6.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.7.4
+	github.com/yuin/goldmark v1.7.6
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -54,7 +54,7 @@ require (
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jaswdr/faker v1.19.1 // indirect
-	github.com/klauspost/compress v1.17.10
+	github.com/klauspost/compress v1.17.11
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
