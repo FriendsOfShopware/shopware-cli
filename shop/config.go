@@ -92,7 +92,7 @@ type ConfigDeployment struct {
 	} `yaml:"hooks"`
 
 	Store struct {
-		LicenseDomain string `yaml:"licenseDomain"`
+		LicenseDomain string `yaml:"license-domain"`
 	} `yaml:"store"`
 
 	// The extension management of the deployment

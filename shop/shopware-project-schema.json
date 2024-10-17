@@ -128,7 +128,7 @@
         },
         "store": {
           "properties": {
-            "licenseDomain": {
+            "license-domain": {
               "type": "string"
             }
           },
