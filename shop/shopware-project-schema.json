@@ -126,6 +126,15 @@
           "additionalProperties": false,
           "type": "object"
         },
+        "store": {
+          "properties": {
+            "licenseDomain": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
         "extension-management": {
           "properties": {
             "enabled": {

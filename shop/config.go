@@ -91,6 +91,10 @@ type ConfigDeployment struct {
 		PostUpdate string `yaml:"post-update"`
 	} `yaml:"hooks"`
 
+	Store struct {
+		LicenseDomain string `yaml:"licenseDomain"`
+	} `yaml:"store"`
+
 	// The extension management of the deployment
 	ExtensionManagement struct {
 		// When enabled, the extensions will be installed, updated, and removed
