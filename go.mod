@@ -18,14 +18,14 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.32.1
+	github.com/sashabaranov/go-openai v1.32.2
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/tetratelabs/wazero v1.8.1
 	github.com/vulcand/oxy/v2 v2.0.0
 	github.com/wI2L/jsondiff v0.6.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.7.6
+	github.com/yuin/goldmark v1.7.8
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
