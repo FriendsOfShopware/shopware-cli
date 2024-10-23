@@ -136,10 +136,18 @@ go install github.com/FriendsOfShopware/shopware-cli@latest
 
 Add a file `.ddev/web-build/Dockerfile.shopware-cli`
 
-```bash
+```Dockerfile
 # .ddev/web-build/Dockerfile.shopware-cli
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh' | sudo -E bash \
-  && apt install shopware-cli
+COPY --from=ghcr.io/friendsofshopware/shopware-cli /usr/local/bin/shopware-cli /usr/local/bin/shopware-cli
+```
+
+### Docker Image
+
+Add the following line to your docker image to copy the binary into your image. 
+
+```Dockerfile
+# Dockerfile
+COPY --from=ghcr.io/friendsofshopware/shopware-cli /usr/local/bin/shopware-cli /usr/local/bin/shopware-cli
 ```
 
 ## manually
