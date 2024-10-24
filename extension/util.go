@@ -42,7 +42,7 @@ func LoadSymfonyEnvFile(projectRoot string) error {
 		path.Join(projectRoot, ".env."+currentEnv+".local"),
 	}
 
-	foundEnvFiles := []string{}
+	var foundEnvFiles []string
 
 	for _, envFile := range possibleEnvFiles {
 		if _, err := os.Stat(envFile); err == nil {
@@ -54,5 +54,19 @@ func LoadSymfonyEnvFile(projectRoot string) error {
 		return nil
 	}
 
-	return godotenv.Overload(foundEnvFiles...)
+	currentMap, err := godotenv.Read(foundEnvFiles...)
+
+	if err != nil {
+		return err
+	}
+
+	for key, value := range currentMap {
+		if os.Getenv(key) == "" {
+			if err := os.Setenv(key, value); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
