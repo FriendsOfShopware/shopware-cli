@@ -135,6 +135,15 @@
           "additionalProperties": false,
           "type": "object"
         },
+        "cache": {
+          "properties": {
+            "always_clear": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
         "extension-management": {
           "properties": {
             "enabled": {

@@ -95,6 +95,10 @@ type ConfigDeployment struct {
 		LicenseDomain string `yaml:"license-domain"`
 	} `yaml:"store"`
 
+	Cache struct {
+		AlwaysClear bool `yaml:"always_clear"`
+	} `yaml:"cache"`
+
 	// The extension management of the deployment
 	ExtensionManagement struct {
 		// When enabled, the extensions will be installed, updated, and removed
