@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -19,14 +20,16 @@ type AssetCompileResult struct {
 }
 
 type AssetCompileOptions struct {
-	ProductionMode bool
-	DisableSass    bool
-	EntrypointDir  string
-	OutputDir      string
-	Name           string
-	Path           string
-	OutputJSFile   string
-	OutputCSSFile  string
+	ProductionMode  bool
+	DisableSass     bool
+	EntrypointDir   string
+	OutputDir       string
+	Name            string
+	Path            string
+	OutputJSFile    string
+	OutputCSSFile   string
+	StaticSourceDir string
+	StaticTargetDir string
 }
 
 const DotJs = ".js"
@@ -35,13 +38,15 @@ func NewAssetCompileOptionsAdmin(name, path string) AssetCompileOptions {
 	kebabCased := ToKebabCase(name)
 
 	return AssetCompileOptions{
-		Name:           name,
-		Path:           path,
-		EntrypointDir:  "Resources/app/administration/src",
-		OutputDir:      "Resources/public/administration",
-		ProductionMode: true,
-		OutputJSFile:   filepath.Join("js", kebabCased+DotJs),
-		OutputCSSFile:  filepath.Join("css", kebabCased+".css"),
+		Name:            name,
+		Path:            path,
+		EntrypointDir:   "Resources/app/administration/src",
+		StaticSourceDir: "Resources/app/administration/static",
+		StaticTargetDir: "Resources/public/static",
+		OutputDir:       "Resources/public/administration",
+		ProductionMode:  true,
+		OutputJSFile:    filepath.Join("js", kebabCased+DotJs),
+		OutputCSSFile:   filepath.Join("css", kebabCased+".css"),
 	}
 }
 
@@ -142,6 +147,12 @@ func CompileExtensionAsset(ctx context.Context, options AssetCompileOptions) (*A
 
 	if err := writeBundlerResultToDisk(result, jsFile, cssFile); err != nil {
 		return nil, err
+	}
+
+	if options.StaticSourceDir != "" && options.StaticTargetDir != "" {
+		if err := copyStaticFiles(path.Join(options.Path, options.StaticSourceDir), path.Join(options.Path, options.StaticTargetDir)); err != nil {
+			return nil, err
+		}
 	}
 
 	compileResult := AssetCompileResult{
