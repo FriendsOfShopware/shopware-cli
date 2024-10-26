@@ -99,7 +99,7 @@ type Config struct {
 }
 
 func readExtensionConfig(dir string) (*Config, error) {
-	errorFormat := "readExtensionConfig: %v"
+	errorFormat := "file: " + dir + "/.shopware-extension.yml: %v"
 	config := &Config{}
 	config.Build.Zip.Assets.Enabled = true
 	config.Build.Zip.Composer.Enabled = true

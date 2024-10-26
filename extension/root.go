@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -38,7 +39,11 @@ func GetExtensionByFolder(path string) (Extension, error) {
 
 	ext, err := newPlatformPlugin(path)
 	if err != nil {
-		ext, err = newShopwareBundle(path)
+		if errors.Is(err, ErrPlatformInvalidType) {
+			ext, err = newShopwareBundle(path)
+		} else {
+			return nil, err
+		}
 	}
 
 	return ext, err

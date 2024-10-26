@@ -16,6 +16,8 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/version"
 )
 
+var ErrPlatformInvalidType = errors.New("invalid composer type")
+
 type PlatformPlugin struct {
 	path     string
 	composer platformComposerJson
@@ -51,7 +53,7 @@ func newPlatformPlugin(path string) (*PlatformPlugin, error) {
 	}
 
 	if composerJson.Type != ComposerTypePlugin {
-		return nil, fmt.Errorf("newPlatformPlugin: composer.json is not type of shopware-platform-plugin")
+		return nil, ErrPlatformInvalidType
 	}
 
 	cfg, err := readExtensionConfig(path)
