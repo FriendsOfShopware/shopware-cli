@@ -132,6 +132,12 @@ store:
         # embedd an html or markdown file
         de: file:src/Resources/store/manual.md
 
+    # Similar to images, but automatically picks all files from that directory
+    # Use image_directory or images, not both
+    # The sorting of Go is used, so 10.png will be before 2.png
+    image_directory: 'src/Resources/store/images'
+
+    # Can be only used, if image_directory is not defined
     images:
         - file: src/Resources/store/images/1.png
           # toggle visibility in that language
