@@ -40,7 +40,7 @@ var projectConfigPushCmd = &cobra.Command{
 		}
 
 		if cfg.Sync != nil {
-			for _, applyer := range NewSyncApplyers() {
+			for _, applyer := range NewSyncApplyers(cfg) {
 				if err := applyer.Push(apiCtx, client, cfg, operation); err != nil {
 					return err
 				}

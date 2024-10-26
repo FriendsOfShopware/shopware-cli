@@ -27,11 +27,7 @@ var projectConfigPullCmd = &cobra.Command{
 			return err
 		}
 
-		if cfg.Sync == nil {
-			cfg.Sync = &shop.ConfigSync{}
-		}
-
-		for _, applyer := range NewSyncApplyers() {
+		for _, applyer := range NewSyncApplyers(cfg) {
 			if err := applyer.Pull(adminSdk.NewApiContext(cmd.Context()), client, cfg); err != nil {
 				return err
 			}

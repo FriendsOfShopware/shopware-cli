@@ -219,6 +219,18 @@
     },
     "ConfigSync": {
       "properties": {
+        "enabled": {
+          "items": {
+            "type": "string",
+            "enum": [
+              "system_config",
+              "mail_template",
+              "theme",
+              "entity"
+            ]
+          },
+          "type": "array"
+        },
         "config": {
           "items": {
             "$ref": "#/$defs/ConfigSyncConfig"

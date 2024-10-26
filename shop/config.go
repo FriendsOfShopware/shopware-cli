@@ -69,10 +69,11 @@ type ConfigDump struct {
 }
 
 type ConfigSync struct {
-	Config       []ConfigSyncConfig `yaml:"config"`
-	Theme        []ThemeConfig      `yaml:"theme"`
-	MailTemplate []MailTemplate     `yaml:"mail_template"`
-	Entity       []EntitySync       `yaml:"entity"`
+	Enabled      *[]string          `yaml:"enabled,omitempty" jsonschema:"enum=system_config,enum=mail_template,enum=theme,enum=entity"`
+	Config       []ConfigSyncConfig `yaml:"config,omitempty"`
+	Theme        []ThemeConfig      `yaml:"theme,omitempty"`
+	MailTemplate []MailTemplate     `yaml:"mail_template,omitempty"`
+	Entity       []EntitySync       `yaml:"entity,omitempty"`
 }
 
 type ConfigDeployment struct {
@@ -253,9 +254,20 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 	return fillEmptyConfig(config), nil
 }
 
+const (
+	SyncOptionEntity       = "entity"
+	SyncOptionMailTemplate = "mail_template"
+	SyncOptionSystemConfig = "system_config"
+	SyncOptionTheme        = "theme"
+)
+
 func fillEmptyConfig(c *Config) *Config {
 	if c.Build == nil {
 		c.Build = &ConfigBuild{}
+	}
+
+	if c.Sync == nil {
+		c.Sync = &ConfigSync{}
 	}
 
 	return c

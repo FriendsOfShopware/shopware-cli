@@ -34,8 +34,33 @@ type ConfigSyncApplyer interface {
 	Pull(ctx adminSdk.ApiContext, client *adminSdk.Client, config *shop.Config) error
 }
 
-func NewSyncApplyers() []ConfigSyncApplyer {
-	return []ConfigSyncApplyer{SystemConfigSync{}, ThemeSync{}, MailTemplateSync{}, EntitySync{}}
+func NewSyncApplyers(cfg *shop.Config) []ConfigSyncApplyer {
+	var syncApplyers []ConfigSyncApplyer
+
+	enabled := cfg.Sync.Enabled
+
+	if enabled == nil {
+		enabled = &[]string{
+			shop.SyncOptionEntity,
+			shop.SyncOptionMailTemplate,
+			shop.SyncOptionSystemConfig,
+			shop.SyncOptionTheme,
+		}
+	}
+
+	for _, sync := range *enabled {
+		if sync == shop.SyncOptionSystemConfig {
+			syncApplyers = append(syncApplyers, &SystemConfigSync{})
+		} else if sync == shop.SyncOptionTheme {
+			syncApplyers = append(syncApplyers, &ThemeSync{})
+		} else if sync == shop.SyncOptionMailTemplate {
+			syncApplyers = append(syncApplyers, &MailTemplateSync{})
+		} else if sync == shop.SyncOptionEntity {
+			syncApplyers = append(syncApplyers, &EntitySync{})
+		}
+	}
+
+	return syncApplyers
 }
 
 type ConfigSyncOperation struct {
