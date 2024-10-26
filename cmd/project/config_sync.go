@@ -49,13 +49,14 @@ func NewSyncApplyers(cfg *shop.Config) []ConfigSyncApplyer {
 	}
 
 	for _, sync := range *enabled {
-		if sync == shop.SyncOptionSystemConfig {
+		switch sync {
+		case shop.SyncOptionSystemConfig:
 			syncApplyers = append(syncApplyers, &SystemConfigSync{})
-		} else if sync == shop.SyncOptionTheme {
+		case shop.SyncOptionTheme:
 			syncApplyers = append(syncApplyers, &ThemeSync{})
-		} else if sync == shop.SyncOptionMailTemplate {
+		case shop.SyncOptionMailTemplate:
 			syncApplyers = append(syncApplyers, &MailTemplateSync{})
-		} else if sync == shop.SyncOptionEntity {
+		case shop.SyncOptionEntity:
 			syncApplyers = append(syncApplyers, &EntitySync{})
 		}
 	}
