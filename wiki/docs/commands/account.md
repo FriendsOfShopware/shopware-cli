@@ -5,7 +5,7 @@ weight: 20
 
 ### shopware-cli account login
 
-This command can be used to log in into your Shopware account. If you are in multiple companies, see `Account Company Use` command
+This command can be used to log in to your Shopware account. If you are in multiple companies, see `Account Company Use` command.
 
 ### shopware-cli account logout
 
@@ -25,7 +25,7 @@ Parameters:
 
 ### shopware-cli account producer info
 
-Lists some basic information about the logged in producer
+Lists some basic information about the logged-in producer.
 
 ### shopware-cli account producer extension list
 
@@ -50,7 +50,7 @@ Parameters:
 
 ### shopware-cli account producer extension upload
 
-Upload a extension release to the Store.
+Upload an extension release to the Store.
 
 Parameters:
 

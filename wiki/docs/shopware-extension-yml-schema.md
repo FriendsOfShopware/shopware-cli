@@ -1,15 +1,15 @@
 ---
- title: 'Schema of .shopware-extension.yml' 
+ title: 'Schema of .shopware-extension.yml'
 ---
 
-Any configuration field is optional. When you create a `.shopware-extension.yml`, you get also IDE autocompletion for all fields.
+Any configuration field is optional. When you create a `.shopware-extension.yml`, you also get IDE autocompletion for all fields.
 
 Put the `.shopware-extension.yml` inside the root directory of your extension: `/var/www/myshop/custom/plugins/<YourExtension>/.shopware-extension.yml`
 
 ```yaml
 # .shopware-extension.yml
 build:
-    # override the auto detection of the shopware constraint
+    # override the auto-detection of the shopware constraint
     shopwareVersionConstraint: `~6.5.0`
 
     # build additional bundles for assets
@@ -48,7 +48,7 @@ build:
 
             # use bundled esbuild instead of default compile
             enable_es_build_for_storefront: false
-            
+
             # all package.json of this extension will be installed with `npm install --production`, therefore, devDependencies will be ignored
             npm_strict: false
 
@@ -114,22 +114,21 @@ store:
             - ...
 
     faq:
-        - question: Can do the extension this ?
-          answer: Yes, we can ....
-
+        - question: Can the extension do this?
+          answer: Yes, it can ....
 
     description:
         # inline
         en: |
             Write inline
-        # embedd an html or markdown file
+        # embed an html or markdown file
         de: file:src/Resources/store/description.md
 
     installation_manual:
         # inline
         en: |
             Write inline
-        # embedd an html or markdown file
+        # embed an html or markdown file
         de: file:src/Resources/store/manual.md
 
     # Similar to images, but automatically picks all files from that directory

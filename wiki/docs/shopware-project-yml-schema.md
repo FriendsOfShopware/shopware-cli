@@ -8,37 +8,37 @@ Any configuration field is optional. When you create a `.shopware-project.yml`, 
 ```yaml
 # .shopware-project.yml
 
-# URL to Shopware instance, required for admin api calls (clear cache, sync stuff)
+# URL to Shopware instance, required for admin API calls (clear cache, sync stuff)
 url: 'http://localhost'
 admin_api:
-    # For integration use this both fields
+    # For integration use these two fields
     client_id:
     client_secret:
-    # For normal user use this both fields
+    # For normal user use these two fields
     username:
     password:
-    # When your server don't have a valid SSL certificate, you can disable the SSL check
+    # When your server doesn't have a valid SSL certificate, you can disable the SSL check
     disable_ssl_check: false
 
-# used only for project ci command
+# used only for project CI command
 build:
-  # deletes all public source folders of all extensions, can be only used when /bundles is served from local and not external CDN
+  # deletes all public source folders of all extensions, can only be used when /bundles is served from local and not external CDN
   remove_extension_assets: false
   # skips the bin/console asset:install part
   disable_asset_copy: false
   # when enabled src/Resources/app/{storefront/administration} folder will be preserved and not deleted.
-  # If your plugin requires, you should move the files out of src/Resources which needs to be accessed by php and js
+  # If your plugin requires, you should move the files out of src/Resources which need to be accessed by PHP and JS
   keep_extension_source: false
   # delete additional paths after build
   cleanup_paths:
     - path
   # change the browserslist of the storefront build, see https://browsersl.ist for the syntax as string (example: defaults, not dead)
   browserslist: ''
-  # exclude extensions to be built by shopware-cli, only their PHP code will be shipped without any css/js
+  # exclude extensions to be built by shopware-cli, only their PHP code will be shipped without any CSS/JS
   exclude_extensions:
     - name
 
-# used for mysql dump creation
+# used for MySQL dump creation
 dump:
     # rewrite columns
     rewrite:
@@ -57,13 +57,13 @@ dump:
 
 # you can use shopware-cli project config pull, to get your current shop state
 sync:
-    # Sync system config to your remote shop using admin-api
+    # Sync system config to your remote shop using admin API
     config:
         # can be also null for default value
-        - sales_channel: yourSalesChannelid
+        - sales_channel: yourSalesChannelId
           settings:
             my_config: myValue
-    # Sync theme config to your remote shop using admin-api
+    # Sync theme config to your remote shop using admin API
     theme:
         - name: ThemeName
           settings:

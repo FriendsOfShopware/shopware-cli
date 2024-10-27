@@ -5,7 +5,7 @@ weight: 30
 
 ## shopware-cli project create [folder] [version]
 
-Create a new Shopware 6 project from the choosen version
+Create a new Shopware 6 project from the chosen version
 
 Arguments:
 
@@ -27,8 +27,8 @@ Starts the Administration watcher
 
 Parameters:
 
-* `--only-extensions` - Only consider given list of extensions for the watcher (comma separated list)
-* `--skip-extensions` - Skip given list of extensions for the watcher (comma separated list)
+* `--only-extensions` - Only consider given list of extensions for the watcher (comma-separated list)
+* `--skip-extensions` - Skip given list of extensions for the watcher (comma-separated list)
 
 ## shopware-cli project storefront-build
 
@@ -45,12 +45,12 @@ Starts the Storefront watcher
 
 Parameters:
 
-* `--only-extensions` - Only consider given list of extensions for the watcher (comma separated list)
-* `--skip-extensions` - Skip given list of extensions for the watcher (comma separated list)
+* `--only-extensions` - Only consider given list of extensions for the watcher (comma-separated list)
+* `--skip-extensions` - Skip given list of extensions for the watcher (comma-separated list)
 
 ## shopware-cli project worker
 
-Starts the Shopware worker in background and tails the log
+Starts the Shopware worker in the background and tails the log
 
 Parameters:
 
@@ -72,7 +72,7 @@ dump:
   rewrite:
     table:
       column: "'new-value'"
-      colum2: "faker.Internet().Email()" # Uses faker data. See https://github.com/jaswdr/faker
+      column2: "faker.Internet().Email()" # Uses faker data. See https://github.com/jaswdr/faker
   # Ignore table content
   nodata:
     - table
