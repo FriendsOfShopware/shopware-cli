@@ -23,15 +23,15 @@ Parameters:
 
 ## shopware-cli extension zip
 
-Creates a zip file from extension folder
+Creates a zip file from the extension folder.
 
 Parameters:
 
-* path - Path to extension folder. F.e: `shopware-cli extension zip MyPlugin`
+* path - Path to extension folder. For example: `shopware-cli extension zip MyPlugin`.
 
 Environment-Variables:
 
-* SHOPWARE_PROJECT_ROOT (optional) - Path to a installed shopware to speed up building. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension zip MyPlugin`
+* SHOPWARE_PROJECT_ROOT (optional) - Path to an installed Shopware to speed up building. For example: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension zip MyPlugin`.
 
 
 ## shopware-cli extension build
@@ -40,16 +40,16 @@ Builds the JS and CSS assets into the extension folder
 
 Parameters:
 
-* path - Path to extension folder. This can be also multiple directories. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin MySecondPlugin`
+* path - Path to extension folder. This can be also multiple directories. For example: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin MySecondPlugin`.
 
 Environment-Variables:
 
-* SHOPWARE_PROJECT_ROOT (optional) - Path to a installed shopware to speed up building. F.e: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin`
+* SHOPWARE_PROJECT_ROOT (optional) - Path to an installed Shopware to speed up building. For example: `SHOPWARE_PROJECT_ROOT=/var/www/myshop/ shopware-cli extension build MyPlugin`.
 
 
 ## shopware-cli extension admin-watch
 
-Starts a admin-watcher using ESBuild to build the JS and CSS assets into the extension folder
+Starts an admin-watcher using ESBuild to build the JS and CSS assets into the extension folder.
 
 Parameters:
 
@@ -71,7 +71,7 @@ Arguments:
 
 Parameters:
 
-* `--german` - Get the german changelog
+* `--german` - Get the German changelog.
 
 ## shopware-cli extension get-version
 
@@ -83,4 +83,4 @@ Arguments:
 
 Parameters:
 
-* `--german` - Get the german changelog
+* `--german` - Get the German changelog.
