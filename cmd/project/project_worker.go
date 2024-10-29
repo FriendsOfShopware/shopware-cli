@@ -22,7 +22,7 @@ import (
 
 var projectWorkerCmd = &cobra.Command{
 	Use:   "worker [amount]",
-	Short: "Runs the Symfony Worker in Background",
+	Short: "Run multiple Symfony worker in background.",
 	RunE: func(cobraCmd *cobra.Command, args []string) error {
 		var projectRoot string
 		var err error

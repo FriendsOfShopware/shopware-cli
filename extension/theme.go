@@ -25,7 +25,7 @@ func validateTheme(ctx *ValidationContext) {
 		}
 
 		if len(theme.PreviewMedia) == 0 {
-			ctx.AddError("Required field \"previewMedia\" in theme.json is not in")
+			ctx.AddError("Required field \"previewMedia\" missing in theme.json")
 			return
 		}
 

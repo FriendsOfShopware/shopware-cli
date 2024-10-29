@@ -67,7 +67,25 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		pConf := core.Rules{Ignore: []string{}, NoData: []string{}, Where: map[string]string{}, Rewrite: map[string]core.Rewrite{}}
 
 		if clean {
-			pConf.NoData = append(pConf.NoData, "cart", "customer_recovery", "dead_message", "enqueue", "increment", "elasticsearch_index_task", "log_entry", "message_queue_stats", "notification", "payment_token", "refresh_token", "version", "version_commit", "version_commit_data", "webhook_event_log")
+			pConf.NoData = append(pConf.NoData,
+				"cart",
+				"customer_recovery",
+				"dead_message",
+				"enqueue",
+				"messenger_messages",
+				"import_export_log",
+				"increment",
+				"elasticsearch_index_task",
+				"log_entry",
+				"message_queue_stats",
+				"notification",
+				"payment_token",
+				"refresh_token",
+				"version",
+				"version_commit",
+				"version_commit_data",
+				"webhook_event_log",
+			)
 		}
 
 		if anonymize {
