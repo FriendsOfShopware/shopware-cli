@@ -3,6 +3,7 @@ package extension
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/FriendsOfShopware/shopware-cli/internal/changelog"
 
@@ -31,7 +32,7 @@ type ConfigBuild struct {
 		Pack struct {
 			Excludes struct {
 				Paths []string `yaml:"paths,omitempty"`
-			} `yaml:"excludes"`
+			} `yaml:"excludes,omitempty"`
 			BeforeHooks []string `yaml:"before_hooks,omitempty"`
 		} `yaml:"pack"`
 	} `yaml:"zip"`
@@ -93,29 +94,31 @@ type ConfigStoreImagePreview struct {
 }
 
 type Config struct {
+	FileName  string
 	Store     ConfigStore      `yaml:"store"`
 	Build     ConfigBuild      `yaml:"build"`
 	Changelog changelog.Config `yaml:"changelog"`
 }
 
 func readExtensionConfig(dir string) (*Config, error) {
-	errorFormat := "file: " + dir + "/.shopware-extension.yml: %v"
 	config := &Config{}
 	config.Build.Zip.Assets.Enabled = true
 	config.Build.Zip.Composer.Enabled = true
+	config.FileName = ".shopware-extension.yml"
 
-	fileName := fmt.Sprintf("%s/.shopware-extension.yml", dir)
-	_, err := os.Stat(fileName)
+	configLocation := ""
 
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(dir, ".shopware-extension.yml")); err == nil {
+		configLocation = filepath.Join(dir, ".shopware-extension.yml")
+	} else if _, err := os.Stat(filepath.Join(dir, ".shopware-extension.yaml")); err == nil {
+		configLocation = filepath.Join(dir, ".shopware-extension.yaml")
+	} else {
 		return config, nil
 	}
 
-	if err != nil {
-		return nil, err
-	}
+	errorFormat := "file: " + configLocation + ": %v"
 
-	fileHandle, err := os.ReadFile(fileName)
+	fileHandle, err := os.ReadFile(configLocation)
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
@@ -125,6 +128,8 @@ func readExtensionConfig(dir string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf(errorFormat, err)
 	}
+
+	config.FileName = filepath.Base(configLocation)
 
 	err = validateExtensionConfig(config)
 	if err != nil {

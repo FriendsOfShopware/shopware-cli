@@ -6,6 +6,7 @@ dist/
 /local
 /.shopware-cli
 /.shopware-project.yml
+/.shopware-project.yaml
 /test-app
 /go-shopware-admin-api-sdk
 /*.zip

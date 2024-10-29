@@ -5,6 +5,7 @@ import (
 	"github.com/invopop/jsonschema"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"os"
+	"path"
 	"strings"
 
 	"dario.cat/mergo"
@@ -223,7 +224,7 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 
 	fileHandle, err := os.ReadFile(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("ReadConfig: %v", err)
+		return nil, fmt.Errorf("ReadConfig (%s): %v", fileName, err)
 	}
 
 	config.foundConfig = true
@@ -248,7 +249,7 @@ func ReadConfig(fileName string, allowFallback bool) (*Config, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("ReadConfig: %v", err)
+		return nil, fmt.Errorf("ReadConfig(%s): %v", fileName, err)
 	}
 
 	return fillEmptyConfig(config), nil
@@ -279,4 +280,18 @@ func (c Config) IsFallback() bool {
 
 func NewUuid() string {
 	return strings.ReplaceAll(uuid.New().String(), "-", "")
+}
+
+func DefaultConfigFileName() string {
+	currentDir, err := os.Getwd()
+
+	if err != nil {
+		return ".shopware-project.yml"
+	}
+
+	if _, err := os.Stat(path.Join(currentDir, ".shopware-project.yaml")); err == nil {
+		return ".shopware-project.yaml"
+	}
+
+	return ".shopware-project.yml"
 }

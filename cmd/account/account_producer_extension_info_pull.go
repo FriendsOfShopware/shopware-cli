@@ -222,7 +222,7 @@ var accountCompanyProducerExtensionInfoPullCmd = &cobra.Command{
 			return fmt.Errorf("cannot encode yaml: %w", err)
 		}
 
-		extCfgFile := fmt.Sprintf("%s/%s", zipExt.GetPath(), ".shopware-extension.yml")
+		extCfgFile := fmt.Sprintf("%s/%s", zipExt.GetPath(), newCfg.FileName)
 		err = os.WriteFile(extCfgFile, content, os.ModePerm)
 
 		if err != nil {

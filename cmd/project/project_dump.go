@@ -4,16 +4,15 @@ import (
 	"compress/gzip"
 	"database/sql"
 	"fmt"
-	"io"
-	"os"
-	"strings"
-
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
 	"github.com/klauspost/compress/zstd"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
@@ -149,9 +148,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 
 		var projectCfg *shop.Config
 		if projectCfg, err = shop.ReadConfig(projectConfigPath, true); err != nil {
-			if !strings.Contains(err.Error(), "cannot find .shopware-project.yml") {
-				return err
-			}
+			return err
 		}
 
 		if projectCfg != nil && projectCfg.ConfigDump != nil {
@@ -207,6 +204,10 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		}
 
 		if err = dumper.Dump(w); err != nil {
+			if strings.Contains(err.Error(), "the RELOAD or FLUSH_TABLES privilege") {
+				return fmt.Errorf("%s, you maybe want to disable locking with --skip-lock-tables", err.Error())
+			}
+
 			return err
 		}
 
@@ -225,8 +226,8 @@ var projectDatabaseDumpCmd = &cobra.Command{
 func init() {
 	projectRootCmd.AddCommand(projectDatabaseDumpCmd)
 	projectDatabaseDumpCmd.Flags().String("host", "127.0.0.1", "hostname")
-	projectDatabaseDumpCmd.Flags().String("username", "root", "mysql user")
-	projectDatabaseDumpCmd.Flags().String("password", "root", "mysql password")
+	projectDatabaseDumpCmd.Flags().StringP("username", "u", "root", "mysql user")
+	projectDatabaseDumpCmd.Flags().StringP("password", "p", "root", "mysql password")
 	projectDatabaseDumpCmd.Flags().String("port", "3306", "mysql port")
 	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file or - (for stdout)")
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")

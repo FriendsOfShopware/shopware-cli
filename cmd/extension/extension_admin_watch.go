@@ -58,7 +58,7 @@ var extensionAdminWatchCmd = &cobra.Command{
 		for _, extensionPath := range args[:len(args)-1] {
 			ext, err := extension.GetExtensionByFolder(extensionPath)
 			if err != nil {
-				shopCfg, err := shop.ReadConfig(path.Join(extensionPath, ".shopware-project.yml"), true)
+				shopCfg, err := shop.ReadConfig(path.Join(extensionPath, shop.DefaultConfigFileName()), true)
 				if err != nil {
 					return err
 				}
