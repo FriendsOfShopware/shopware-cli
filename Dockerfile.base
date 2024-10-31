@@ -17,6 +17,7 @@ RUN <<EOF
         openssh-keyscan \
         openssh-keygen \
         openssh-keysign \
+        rsync \
         php-${PHP_VERSION} \
         php-${PHP_VERSION}-fileinfo \
         php-${PHP_VERSION}-openssl \
