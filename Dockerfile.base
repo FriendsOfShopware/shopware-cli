@@ -13,6 +13,10 @@ RUN <<EOF
         npm \
         bun-bin \
         gettext \
+        openssh-client \
+        openssh-keyscan \
+        openssh-keygen \
+        openssh-keysign \
         php-${PHP_VERSION} \
         php-${PHP_VERSION}-fileinfo \
         php-${PHP_VERSION}-openssl \
