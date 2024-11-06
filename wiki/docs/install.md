@@ -34,16 +34,6 @@ curl -1sLf \
 sudo dnf install shopware-cli
 ```
 
-### Alpine — APK based Linux
-
-```bash
-sudo apk add --no-cache bash
-curl -1sLf \
-  'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.alpine.sh' \
-  | sudo -E bash
-sudo apk add --no-cache shopware-cli
-```
-
 ### Archlinux User Repository (AUR)
 
 ```bash
@@ -109,9 +99,7 @@ using Shopware CLI Action
 
 ```yaml
 - name: Install shopware-cli
-  uses: FriendsOfShopware/shopware-cli-action@v1
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  uses: shopware/shopware-cli-action@v1
 ```
 
 ### Gitlab CI
@@ -120,7 +108,7 @@ using Shopware CLI Action
 build:
   stage: build
   image:
-    name: ghcr.io/friendsofshopware/shopware-cli:latest
+    name: friendsofshopware/shopware-cli:latest
     entrypoint: [ "/bin/sh", "-c" ]
   script:
     - shopware-cli --version
