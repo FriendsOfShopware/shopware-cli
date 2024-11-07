@@ -1,0 +1,4 @@
+FROM scratch
+COPY shopware-cli /
+ENTRYPOINT ["/shopware-cli"]
+CMD ["--help"]

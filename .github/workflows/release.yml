@@ -54,7 +54,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Login into Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        run: echo "${{ secrets.DOCKER_HUB_SHOPWARE_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_HUB_SHOPWARE_USERNAME }} --password-stdin
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
