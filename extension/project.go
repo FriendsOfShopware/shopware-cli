@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/internal/phpexec"
 	"os"
 	"path"
 	"path/filepath"
@@ -98,6 +99,7 @@ func getProjectConstraintFromKernel(project string) (*version.Constraints, error
 	return &v, nil
 }
 
+// FindAssetSourcesOfProject This finds all assets without invoking any PHP function and thinks all plugins / apps are active. Optional for CI usage.
 func FindAssetSourcesOfProject(ctx context.Context, project string, shopCfg *shop.Config) []asset.Source {
 	extensions := FindExtensionsFromProject(ctx, project)
 	sources := ConvertExtensionsToSources(ctx, extensions)
@@ -150,6 +152,51 @@ func FindAssetSourcesOfProject(ctx context.Context, project string, shopCfg *sho
 	}
 
 	return sources
+}
+
+func DumpAndLoadAssetSourcesOfProject(ctx context.Context, project string, shopCfg *shop.Config) ([]asset.Source, error) {
+	dumpExec := phpexec.ConsoleCommand(ctx, "bundle:dump")
+	dumpExec.Dir = project
+	dumpExec.Stdin = os.Stdin
+	dumpExec.Stdout = os.Stdout
+	dumpExec.Stderr = os.Stderr
+
+	if err := dumpExec.Run(); err != nil {
+		return nil, fmt.Errorf("could not bundle features: %w", err)
+	}
+
+	var pluginsJson map[string]ExtensionAssetConfigEntry
+
+	pluginJsonBytes, err := os.ReadFile(path.Join(project, "var", "plugins.json"))
+
+	if err != nil {
+		return nil, fmt.Errorf("could not read plugins.json: %w", err)
+	}
+
+	if err := json.Unmarshal(pluginJsonBytes, &pluginsJson); err != nil {
+		return nil, fmt.Errorf("could not parse plugins.json: %w", err)
+	}
+
+	var sources []asset.Source
+
+	for name, entry := range pluginsJson {
+		if entry.Administration.EntryFilePath != nil || entry.Storefront.EntryFilePath != nil {
+			source := asset.Source{
+				Name: name,
+				Path: entry.BasePath,
+			}
+
+			if extensionCfg, err := readExtensionConfig(path.Join(project, entry.BasePath)); err == nil {
+				source.AdminEsbuildCompatible = extensionCfg.Build.Zip.Assets.EnableESBuildForAdmin
+				source.StorefrontEsbuildCompatible = extensionCfg.Build.Zip.Assets.EnableESBuildForStorefront
+				source.NpmStrict = extensionCfg.Build.Zip.Assets.NpmStrict
+			}
+
+			sources = append(sources, source)
+		}
+	}
+
+	return sources, nil
 }
 
 func FindExtensionsFromProject(ctx context.Context, project string) []Extension {

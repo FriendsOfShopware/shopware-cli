@@ -51,7 +51,11 @@ func findClosestShopwareProject() (string, error) {
 }
 
 func filterAndWritePluginJson(cmd *cobra.Command, projectRoot string, shopCfg *shop.Config) error {
-	sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
+	sources, err := extension.DumpAndLoadAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
+
+	if err != nil {
+		return err
+	}
 
 	cfgs := extension.BuildAssetConfigFromExtensions(cmd.Context(), sources, extension.AssetBuildConfig{})
 

@@ -35,7 +35,15 @@ var projectAdminBuildCmd = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Looking for extensions to build assets in project")
 
-		sources := extension.FindAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
+		if err := runTransparentCommand(commandWithRoot(phpexec.ConsoleCommand(cmd.Context(), "feature:dump"), projectRoot)); err != nil {
+			return err
+		}
+
+		sources, err := extension.DumpAndLoadAssetSourcesOfProject(cmd.Context(), projectRoot, shopCfg)
+
+		if err != nil {
+			return err
+		}
 
 		forceInstall, _ := cmd.PersistentFlags().GetBool("force-install-dependencies")
 
