@@ -16,7 +16,10 @@ func TestGenerateWithoutConfig(t *testing.T) {
 		},
 	}
 
-	changelog, err := renderChangelog(commits, Config{VCSURL: "https://github.com/FriendsOfShopware/FroshTools/commit"})
+	changelog, err := renderChangelog(commits, Config{
+		VCSURL:   "https://github.com/FriendsOfShopware/FroshTools/commit",
+		Template: defaultChangelogTpl,
+	})
 
 	assert.NoError(t, err)
 
@@ -57,13 +60,14 @@ func TestIncludeFilters(t *testing.T) {
 	}
 
 	cfg := Config{
-		Pattern: "^(NEXT-[0-9]+)",
+		Pattern:  "^(NEXT-[0-9]+)",
+		Template: defaultChangelogTpl,
 	}
 
 	changelog, err := renderChangelog(commits, cfg)
 
 	assert.NoError(t, err)
-	assert.Equal(t, changelog, "- [NEXT-1234 - Fooo](/1234567890)")
+	assert.Equal(t, "- [NEXT-1234 - Fooo](/1234567890)", changelog)
 }
 
 func TestLetAiGenerateText(t *testing.T) {
@@ -88,6 +92,7 @@ func TestLetAiGenerateText(t *testing.T) {
 
 	cfg := Config{
 		AiEnabled: true,
+		Template:  defaultChangelogTpl,
 	}
 
 	changelog, err := renderChangelog(commits, cfg)

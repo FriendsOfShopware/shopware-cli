@@ -37,6 +37,10 @@ type Commit struct {
 func GenerateChangelog(ctx context.Context, repository string, cfg Config) (string, error) {
 	var err error
 
+	if cfg.Template == "" {
+		cfg.Template = defaultChangelogTpl
+	}
+
 	if strings.Contains(cfg.Template, "Config.VCSURL") {
 		cfg.VCSURL, err = git.GetPublicVCSURL(ctx, repository)
 	}
@@ -54,10 +58,6 @@ func GenerateChangelog(ctx context.Context, repository string, cfg Config) (stri
 }
 
 func renderChangelog(commits []git.GitCommit, cfg Config) (string, error) {
-	if cfg.Template == "" {
-		cfg.Template = defaultChangelogTpl
-	}
-
 	var matcher *regexp.Regexp
 	if cfg.Pattern != "" {
 		matcher = regexp.MustCompile(cfg.Pattern)
