@@ -5,7 +5,7 @@ go 1.23
 require (
 	dario.cat/mergo v1.0.1
 	github.com/NYTimes/gziphandler v1.1.1
-	github.com/bep/godartsass/v2 v2.2.0
+	github.com/bep/godartsass/v2 v2.3.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20240205120830-463c1e9760f0
 	github.com/evanw/esbuild v0.24.0
@@ -22,8 +22,8 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/tetratelabs/wazero v1.8.1
-	github.com/vulcand/oxy/v2 v2.0.1
-	github.com/wI2L/jsondiff v0.6.0
+	github.com/vulcand/oxy/v2 v2.0.2
+	github.com/wI2L/jsondiff v0.6.1
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.7.8
 	go.uber.org/zap v1.27.0
@@ -37,7 +37,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/tidwall/gjson v1.17.1 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
