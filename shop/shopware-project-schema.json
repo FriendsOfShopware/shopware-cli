@@ -149,11 +149,14 @@
             "enabled": {
               "type": "boolean"
             },
-            "Exclude": {
+            "exclude": {
               "items": {
                 "type": "string"
               },
               "type": "array"
+            },
+            "overrides": {
+              "$ref": "#/$defs/ConfigDeploymentOverrides"
             }
           },
           "additionalProperties": false,
@@ -182,6 +185,29 @@
       },
       "additionalProperties": false,
       "type": "object"
+    },
+    "ConfigDeploymentOverrides": {
+      "additionalProperties": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "inactive",
+              "remove",
+              "ignore"
+            ]
+          },
+          "keepUserData": {
+            "type": "boolean"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state"
+        ]
+      },
+      "type": "object",
+      "title": "Extension overrides"
     },
     "ConfigDump": {
       "properties": {

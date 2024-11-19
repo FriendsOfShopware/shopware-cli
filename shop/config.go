@@ -106,13 +106,42 @@ type ConfigDeployment struct {
 		// When enabled, the extensions will be installed, updated, and removed
 		Enabled bool `yaml:"enabled"`
 		// Which extensions should not be managed
-		Exclude []string
+		Exclude []string `yaml:"exclude"`
+
+		Overrides ConfigDeploymentOverrides `yaml:"overrides"`
 	} `yaml:"extension-management"`
 
 	OneTimeTasks []struct {
 		Id     string `yaml:"id" jsonschema:"required"`
 		Script string `yaml:"script" jsonschema:"required"`
 	} `yaml:"one-time-tasks"`
+}
+
+type ConfigDeploymentOverrides map[string]struct {
+	State string `yaml:"state"`
+}
+
+func (c ConfigDeploymentOverrides) JSONSchema() *jsonschema.Schema {
+	properties := orderedmap.New[string, *jsonschema.Schema]()
+
+	properties.Set("state", &jsonschema.Schema{
+		Type: "string",
+		Enum: []interface{}{"inactive", "remove", "ignore"},
+	})
+
+	properties.Set("keepUserData", &jsonschema.Schema{
+		Type: "boolean",
+	})
+
+	return &jsonschema.Schema{
+		Type:  "object",
+		Title: "Extension overrides",
+		AdditionalProperties: &jsonschema.Schema{
+			Type:       "object",
+			Properties: properties,
+			Required:   []string{"state"},
+		},
+	}
 }
 
 type ConfigSyncConfig struct {
