@@ -108,16 +108,10 @@ using Shopware CLI Action
 build:
   stage: build
   image:
-    name: friendsofshopware/shopware-cli:latest
+    name: shopware/shopware-cli:latest
     entrypoint: [ "/bin/sh", "-c" ]
   script:
     - shopware-cli --version
-```
-
-### go install
-
-```bash
-go install github.com/FriendsOfShopware/shopware-cli@latest
 ```
 
 ### ddev
@@ -126,7 +120,7 @@ Add a file `.ddev/web-build/Dockerfile.shopware-cli`
 
 ```Dockerfile
 # .ddev/web-build/Dockerfile.shopware-cli
-COPY --from=ghcr.io/friendsofshopware/shopware-cli /usr/local/bin/shopware-cli /usr/local/bin/shopware-cli
+COPY --from=shopware/shopware-cli:bin /shopware-cli /usr/local/bin/shopware-cli
 ```
 
 ### Docker Image
@@ -135,7 +129,7 @@ Add the following line to your docker image to copy the binary into your image.
 
 ```Dockerfile
 # Dockerfile
-COPY --from=ghcr.io/friendsofshopware/shopware-cli /usr/local/bin/shopware-cli /usr/local/bin/shopware-cli
+COPY --from=shopware/shopware-cli:bin /shopware-cli /usr/local/bin/shopware-cli
 ```
 
 ## manually
