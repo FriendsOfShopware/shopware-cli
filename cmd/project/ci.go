@@ -348,6 +348,13 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 
 			languageName := strings.TrimSuffix(filepath.Base(path), fileExt)
 
+			if _, err := language.Parse(languageName); err != nil {
+				logging.FromContext(ctx).Infof("Ignoring invalid locale filename %s", path)
+				// we can safely ignore the error from language.Parse as we use language.Parse to check and stop processing this file
+				// thus checking for the error is the point of this condition
+				return nil //nolint:nilerr
+			}
+
 			if language.Make(languageName).IsRoot() {
 				return nil
 			}
@@ -389,7 +396,7 @@ func cleanupAdministrationFiles(ctx context.Context, folder string) error {
 				}
 
 				if err := json.Unmarshal(data, &snippetFile); err != nil {
-					return err
+					return fmt.Errorf("unable to parse %s: %w", file, err)
 				}
 
 				if err := mergo.Merge(&merged, snippetFile, mergo.WithOverride); err != nil {
