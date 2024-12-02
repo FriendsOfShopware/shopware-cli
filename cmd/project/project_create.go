@@ -122,7 +122,21 @@ var projectCreateCmd = &cobra.Command{
 
 		logging.FromContext(cmd.Context()).Infof("Installing dependencies")
 
-		cmdInstall := exec.Command("composer", "install")
+		composerBinary, err := exec.LookPath("composer")
+
+		if err != nil {
+			return err
+		}
+
+		var cmdInstall *exec.Cmd
+		phpBinary := os.Getenv("PHP_BINARY")
+
+		if phpBinary != "" {
+			cmdInstall = exec.Command(phpBinary, composerBinary, "install")
+		} else {
+			cmdInstall = exec.Command("composer", "install")
+		}
+
 		cmdInstall.Dir = projectFolder
 		cmdInstall.Stdin = os.Stdin
 		cmdInstall.Stdout = os.Stdout
