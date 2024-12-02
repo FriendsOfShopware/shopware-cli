@@ -5,7 +5,7 @@ go 1.23
 require (
 	dario.cat/mergo v1.0.1
 	github.com/NYTimes/gziphandler v1.1.1
-	github.com/bep/godartsass/v2 v2.3.0
+	github.com/bep/godartsass/v2 v2.3.1
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/doutorfinancas/go-mad v0.0.0-20240205120830-463c1e9760f0
 	github.com/evanw/esbuild v0.24.0
@@ -18,10 +18,10 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.14.0
-	github.com/sashabaranov/go-openai v1.35.7
+	github.com/sashabaranov/go-openai v1.36.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.10.0
-	github.com/tetratelabs/wazero v1.8.1
+	github.com/tetratelabs/wazero v1.8.2
 	github.com/vulcand/oxy/v2 v2.0.2
 	github.com/wI2L/jsondiff v0.6.1
 	github.com/wk8/go-ordered-map/v2 v2.1.8
