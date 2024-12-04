@@ -61,6 +61,10 @@ jobs:
           composer require 'frosh/platform-filter-search:*' --no-interaction --no-scripts
           rm -rf vendor
 
+      - name: Install composer deps
+        working-directory: shopware
+        run: composer install --no-interaction --no-scripts
+
       - name: Build Storefront
         working-directory: shopware
         run: shopware-cli project storefront-build
