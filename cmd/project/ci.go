@@ -242,14 +242,13 @@ type ComposerAuth struct {
 
 func prepareComposerAuth(ctx context.Context) (string, error) {
 	composerToken := os.Getenv("SHOPWARE_PACKAGES_TOKEN")
+	composerAuth := os.Getenv("COMPOSER_AUTH")
 
 	if composerToken == "" {
-		return "", nil
+		return composerAuth, nil
 	}
 
 	logging.FromContext(ctx).Infof("Setting up composer auth for packages.shopware.com")
-
-	composerAuth := os.Getenv("COMPOSER_AUTH")
 
 	var auth ComposerAuth
 
