@@ -22,9 +22,6 @@ jobs:
       - name: Compile shopware-cli
         run: go build
 
-      - name: Move to bin
-        run: sudo mv shopware-cli /usr/local/bin/shopware-cli
-
       - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
@@ -33,26 +30,26 @@ jobs:
           path: 'plugin'
 
       - name: Create Shopware
-        run: shopware-cli project create shopware 6.5.7.3
+        run: ./shopware-cli project create shopware 6.5.7.3
 
       - name: Build asset of Plugin
-        run: shopware-cli extension zip plugin
+        run: ./shopware-cli extension zip plugin
 
       - name: Build asset of Plugin without Git
-        run: shopware-cli extension zip plugin --disable-git --release
+        run: ./shopware-cli extension zip plugin --disable-git --release
 
       - name: Validate Plugin
-        run: shopware-cli extension validate FroshTools.zip
+        run: ./shopware-cli extension validate FroshTools.zip
 
       - name: Get Changelog
-        run: shopware-cli extension get-changelog FroshTools.zip
+        run: ./shopware-cli extension get-changelog FroshTools.zip
 
       - name: Build asset against custom PROJECT_ROOT
         env:
           SHOPWARE_PROJECT_ROOT: ${{ github.workspace }}/shopware
         run: |
           mv plugin/.shopware-extension.yml plugin/.shopware-extension-disable.yml
-          shopware-cli extension build plugin
+          ./shopware-cli extension build plugin
           mv plugin/.shopware-extension-disable.yml plugin/.shopware-extension.yml
 
       - name: Install a Storefront Plugin
@@ -60,18 +57,6 @@ jobs:
         run: |
           composer require 'frosh/platform-filter-search:*' --no-interaction --no-scripts
           rm -rf vendor
-
-      - name: Install composer deps
-        working-directory: shopware
-        run: composer install --no-interaction --no-scripts
-
-      - name: Build Storefront
-        working-directory: shopware
-        run: shopware-cli project storefront-build
-
-      - name: Build Administration
-        working-directory: shopware
-        run: shopware-cli project admin-build
 
       - name: Setup the project
         run: ./shopware-cli project ci shopware
