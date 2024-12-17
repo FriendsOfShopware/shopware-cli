@@ -98,7 +98,7 @@ var projectCI = &cobra.Command{
 		}
 
 		assetCfg := extension.AssetBuildConfig{
-			CleanupNodeModules:           true,
+			CleanupNodeModules:           !shopCfg.Build.SkipCleanupExtensionNodeModules,
 			ShopwareRoot:                 args[0],
 			ShopwareVersion:              shopwareConstraint,
 			Browserslist:                 shopCfg.Build.Browserslist,

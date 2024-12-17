@@ -43,6 +43,8 @@ type ConfigBuild struct {
 	Browserslist string `yaml:"browserslist,omitempty"`
 	// Extensions to exclude from the build
 	ExcludeExtensions []string `yaml:"exclude_extensions,omitempty"`
+	// When enabled, the node_modules of extensions will not be removed from the final build
+	SkipCleanupExtensionNodeModules bool `yaml:"skip_cleanup_extension_node_modules,omitempty"`
 }
 
 type ConfigAdminApi struct {
