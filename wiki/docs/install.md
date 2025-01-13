@@ -13,7 +13,7 @@ Below you can find the steps for each of them.
 ### Homebrew
 
 ```bash
-brew install FriendsOfShopware/tap/shopware-cli
+brew install shopware/tap/shopware-cli
 ```
 
 ### Debian/Ubuntu — APT based Linux
