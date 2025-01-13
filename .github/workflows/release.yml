@@ -45,6 +45,12 @@ jobs:
           identity: release
 
       - uses: octo-sts/action@v1.0.0
+        id: sts-shopware
+        with:
+          scope: shopware/homebrew-tap
+          identity: release
+
+      - uses: octo-sts/action@v1.0.0
         id: sts-nur
         with:
           scope: FriendsOfShopware/nur-packages
@@ -64,6 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.sts-homebrew.outputs.token }}
+          HOMEBREW_TAP_GITHUB_TOKEN_SHOPWARE: ${{ steps.sts-shopware.outputs.token }}
           NUR_GITHUB_TOKEN: ${{ steps.sts-nur.outputs.token }}
           AUR_KEY: ${{ secrets.AUR_KEY }}
 
