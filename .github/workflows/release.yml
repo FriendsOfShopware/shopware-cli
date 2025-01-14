@@ -48,7 +48,7 @@ jobs:
         id: sts-shopware
         with:
           scope: shopware/homebrew-tap
-          identity: release
+          identity: swcli
 
       - uses: octo-sts/action@v1.0.0
         id: sts-nur
