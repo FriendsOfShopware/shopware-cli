@@ -331,47 +331,6 @@ type CreateExtensionRequest struct {
 	ProducerID int `json:"producerId"`
 }
 
-const (
-	GenerationClassic  = "classic"
-	GenerationThemes   = "themes"
-	GenerationApps     = "apps"
-	GenerationPlatform = "platform"
-)
-
-func (e ProducerEndpoint) CreateExtension(ctx context.Context, newExtension CreateExtensionRequest) (*Extension, error) {
-	requestBody, err := json.Marshal(newExtension)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create it
-	r, err := e.c.NewAuthenticatedRequest(ctx, "POST", fmt.Sprintf("%s/plugins", ApiUrl), bytes.NewBuffer(requestBody))
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := e.c.doRequest(r)
-	if err != nil {
-		return nil, err
-	}
-
-	var extension Extension
-	if err := json.Unmarshal(body, &extension); err != nil {
-		return nil, fmt.Errorf("create_extension: %v", err)
-	}
-
-	extension.Name = newExtension.Name
-
-	// Patch the name
-	err = e.UpdateExtension(ctx, &extension)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &extension, nil
-}
-
 func (e ProducerEndpoint) UpdateExtension(ctx context.Context, extension *Extension) error {
 	requestBody, err := json.Marshal(extension)
 	if err != nil {
@@ -380,17 +339,6 @@ func (e ProducerEndpoint) UpdateExtension(ctx context.Context, extension *Extens
 
 	// Patch the name
 	r, err := e.c.NewAuthenticatedRequest(ctx, "PUT", fmt.Sprintf("%s/plugins/%d", ApiUrl, extension.Id), bytes.NewBuffer(requestBody))
-	if err != nil {
-		return err
-	}
-
-	_, err = e.c.doRequest(r)
-
-	return err
-}
-
-func (e ProducerEndpoint) DeleteExtension(ctx context.Context, id int) error {
-	r, err := e.c.NewAuthenticatedRequest(ctx, "DELETE", fmt.Sprintf("%s/plugins/%d", ApiUrl, id), nil)
 	if err != nil {
 		return err
 	}
