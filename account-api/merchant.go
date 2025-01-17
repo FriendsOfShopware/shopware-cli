@@ -49,7 +49,7 @@ type MerchantShop struct {
 	DocumentComment     string      `json:"documentComment"`
 	Activated           bool        `json:"activated"`
 	AccountId           string      `json:"accountId"`
-	ShopNumber          int         `json:"shopNumber"`
+	ShopNumber          string      `json:"shopNumber"`
 	CreationDate        string      `json:"creationDate"`
 	Branch              interface{} `json:"branch"`
 	SubscriptionModules []struct {

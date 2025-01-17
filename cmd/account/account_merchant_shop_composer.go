@@ -79,14 +79,42 @@ var accountCompanyMerchantShopComposerCmd = &cobra.Command{
 				composer["repositories"] = make(map[string]interface{})
 			}
 
-			repositories, _ := composer["repositories"].(map[string]interface{})
+			repositories, ok := composer["repositories"].(map[string]interface{})
 
-			repositories["shopware-packages"] = struct {
-				Type string `json:"type"`
-				Url  string `json:"url"`
-			}{
-				Type: "composer",
-				Url:  "https://packages.shopware.com",
+			if ok {
+				repositories["shopware-packages"] = struct {
+					Type string `json:"type"`
+					Url  string `json:"url"`
+				}{
+					Type: "composer",
+					Url:  "https://packages.shopware.com",
+				}
+			} else {
+				repositories := composer["repositories"].([]interface{})
+
+				repoExists := false
+
+				for _, repo := range repositories {
+					mappedRepo, ok := repo.(map[string]interface{})
+
+					if !ok {
+						continue
+					}
+
+					if mappedRepo["url"] == "https://packages.shopware.com" {
+						repoExists = true
+						break
+					}
+				}
+
+				if !repoExists {
+					repositories = append(repositories, map[string]interface{}{
+						"type": "composer",
+						"url":  "https://packages.shopware.com",
+					})
+
+					composer["repositories"] = repositories
+				}
 			}
 
 			if content, err = json.MarshalIndent(composer, "", "    "); err != nil {
