@@ -86,6 +86,12 @@ type extensionTranslated struct {
 	English string `json:"english"`
 }
 
+type ExtensionChangelog struct {
+	German     string `json:"german"`
+	English    string `json:"english"`
+	Changelogs map[string]string
+}
+
 type extensionMetadata struct {
 	Name        string
 	Label       extensionTranslated
@@ -103,7 +109,7 @@ type Extension interface {
 	GetShopwareVersionConstraint() (*version.Constraints, error)
 	GetType() string
 	GetPath() string
-	GetChangelog() (*extensionTranslated, error)
+	GetChangelog() (*ExtensionChangelog, error)
 	GetMetaData() *extensionMetadata
 	GetExtensionConfig() *Config
 	Validate(context.Context, *ValidationContext)

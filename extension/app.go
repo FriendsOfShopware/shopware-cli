@@ -109,7 +109,7 @@ func (a App) GetPath() string {
 	return a.path
 }
 
-func (a App) GetChangelog() (*extensionTranslated, error) {
+func (a App) GetChangelog() (*ExtensionChangelog, error) {
 	return parseExtensionMarkdownChangelog(a)
 }
 

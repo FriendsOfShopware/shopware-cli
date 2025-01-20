@@ -119,7 +119,7 @@ func (p ShopwareBundle) GetVersion() (*version.Version, error) {
 	return version.NewVersion(p.composer.Version)
 }
 
-func (p ShopwareBundle) GetChangelog() (*extensionTranslated, error) {
+func (p ShopwareBundle) GetChangelog() (*ExtensionChangelog, error) {
 	return parseExtensionMarkdownChangelog(p)
 }
 

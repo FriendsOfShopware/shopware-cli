@@ -144,7 +144,7 @@ func (p PlatformPlugin) GetVersion() (*version.Version, error) {
 	return version.NewVersion(p.composer.Version)
 }
 
-func (p PlatformPlugin) GetChangelog() (*extensionTranslated, error) {
+func (p PlatformPlugin) GetChangelog() (*ExtensionChangelog, error) {
 	return parseExtensionMarkdownChangelog(p)
 }
 

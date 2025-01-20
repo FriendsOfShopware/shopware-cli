@@ -77,7 +77,7 @@ func parseMarkdownChangelog(content string) (map[string]string, error) {
 	return versions, nil
 }
 
-func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error) {
+func parseExtensionMarkdownChangelog(ext Extension) (*ExtensionChangelog, error) {
 	v, err := ext.GetVersion()
 	if err != nil {
 		return nil, err
@@ -108,7 +108,18 @@ func parseExtensionMarkdownChangelog(ext Extension) (*extensionTranslated, error
 		return nil, fmt.Errorf("german changelog in version %s is missing", v.String())
 	}
 
-	return &extensionTranslated{German: changelogDeVersion, English: changelogEnVersion}, nil
+	allChangelogsInVersion := make(map[string]string)
+
+	for key, changelog := range changelogs {
+		changelogVersion, ok := changelog[v.String()]
+		if !ok {
+			continue
+		}
+
+		allChangelogsInVersion[key] = changelogVersion
+	}
+
+	return &ExtensionChangelog{German: changelogDeVersion, English: changelogEnVersion, Changelogs: allChangelogsInVersion}, nil
 }
 
 func GetConfiguredGoldMark() goldmark.Markdown {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -42,19 +43,29 @@ var extensionChangelogCmd = &cobra.Command{
 			return fmt.Errorf("cannot generate changelog: %w", err)
 		}
 
-		isGermanChangelog, _ := cmd.PersistentFlags().GetBool("german")
+		requestedLanguage, _ := cmd.Flags().GetString("language")
 
-		if isGermanChangelog {
-			fmt.Println(changelog.German)
-		} else {
+		if requestedLanguage == "" {
 			fmt.Println(changelog.English)
+			return nil
 		}
 
-		return nil
+		langKeys := strings.Split(requestedLanguage, ",")
+
+		for _, langKey := range langKeys {
+			lang, ok := changelog.Changelogs[langKey]
+
+			if ok {
+				fmt.Println(lang)
+				return nil
+			}
+		}
+
+		return fmt.Errorf("changelog for language %s not found", requestedLanguage)
 	},
 }
 
 func init() {
 	extensionRootCmd.AddCommand(extensionChangelogCmd)
-	extensionChangelogCmd.PersistentFlags().Bool("german", false, "Get the german changelog")
+	extensionChangelogCmd.PersistentFlags().String("language", "", "Language of the changelog, can be multiple specified as fallback (comma separated)")
 }
