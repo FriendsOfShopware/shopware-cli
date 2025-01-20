@@ -23,6 +23,9 @@ import (
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
+const CompressionGzip = "gzip"
+const CompressionZstd = "zstd"
+
 var projectDatabaseDumpCmd = &cobra.Command{
 	Use:   "dump",
 	Short: "Dumps the Shopware database",
@@ -177,11 +180,11 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		if output == "-" {
 			w = os.Stdout
 		} else {
-			if compression == "gzip" {
+			if compression == CompressionGzip {
 				output += ".gz"
 			}
 
-			if compression == "zstd" {
+			if compression == CompressionZstd {
 				output += ".zst"
 			}
 
@@ -190,11 +193,11 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			}
 		}
 
-		if compression == "gzip" {
+		if compression == CompressionGzip {
 			w = gzip.NewWriter(w)
 		}
 
-		if compression == "zstd" {
+		if compression == CompressionZstd {
 			w, err = zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 
 			if err != nil {
@@ -210,7 +213,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return err
 		}
 
-		if compression == "gzip" {
+		if compression == CompressionGzip {
 			if err = w.(*gzip.Writer).Close(); err != nil {
 				return err
 			}
