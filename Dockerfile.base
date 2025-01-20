@@ -39,6 +39,7 @@ RUN <<EOF
         php-${PHP_VERSION}-pdo \
         php-${PHP_VERSION}-pdo_mysql \
         php-${PHP_VERSION}-mysqlnd \
+        php-${PHP_VERSION}-mbstring \
         php-${PHP_VERSION}-pcntl \
         php-${PHP_VERSION}-sockets \
         php-${PHP_VERSION}-bz2 \
