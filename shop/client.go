@@ -5,12 +5,25 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
 
 	adminSdk "github.com/friendsofshopware/go-shopware-admin-api-sdk"
 )
 
 func newShopCredentials(config *Config) adminSdk.OAuthCredentials {
 	var cred adminSdk.OAuthCredentials
+
+	clientId, clientSecret := os.Getenv("SHOPWARE_CLI_API_CLIENT_ID"), os.Getenv("SHOPWARE_CLI_API_CLIENT_SECRET")
+
+	if clientId != "" && clientSecret != "" {
+		return adminSdk.NewIntegrationCredentials(clientId, clientSecret, []string{"write"})
+	}
+
+	username, password := os.Getenv("SHOPWARE_CLI_API_USERNAME"), os.Getenv("SHOPWARE_CLI_API_PASSWORD")
+
+	if username != "" && password != "" {
+		return adminSdk.NewPasswordCredentials(username, password, []string{"write"})
+	}
 
 	if config.AdminApi.Username != "" {
 		cred = adminSdk.NewPasswordCredentials(config.AdminApi.Username, config.AdminApi.Password, []string{"write"})
@@ -34,5 +47,11 @@ func NewShopClient(ctx context.Context, config *Config) (*adminSdk.Client, error
 	}
 	client := &http.Client{Transport: tr}
 
-	return adminSdk.NewApiClient(ctx, config.URL, newShopCredentials(config), client)
+	shopUrl := os.Getenv("SHOPWARE_CLI_API_URL")
+
+	if shopUrl == "" {
+		shopUrl = config.URL
+	}
+
+	return adminSdk.NewApiClient(ctx, shopUrl, newShopCredentials(config), client)
 }
