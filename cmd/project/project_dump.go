@@ -2,45 +2,44 @@ package project
 
 import (
 	"compress/gzip"
+	"context"
 	"database/sql"
 	"fmt"
+	"github.com/FriendsOfShopware/shopware-cli/extension"
 	"github.com/doutorfinancas/go-mad/core"
 	"github.com/doutorfinancas/go-mad/database"
 	"github.com/doutorfinancas/go-mad/generator"
+	"github.com/go-sql-driver/mysql"
 	"github.com/klauspost/compress/zstd"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"io"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/FriendsOfShopware/shopware-cli/logging"
 	"github.com/FriendsOfShopware/shopware-cli/shop"
 )
 
 var projectDatabaseDumpCmd = &cobra.Command{
-	Use:   "dump [database]",
+	Use:   "dump",
 	Short: "Dumps the Shopware database",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		host, _ := cmd.Flags().GetString("host")
-		port, _ := cmd.Flags().GetString("port")
-		username, _ := cmd.Flags().GetString("username")
-		password, _ := cmd.Flags().GetString("password")
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		mysqlConfig, err := assembleConnectionURI(cmd)
+
+		if err != nil {
+			return err
+		}
+
 		output, _ := cmd.Flags().GetString("output")
 		clean, _ := cmd.Flags().GetBool("clean")
 		skipLockTables, _ := cmd.Flags().GetBool("skip-lock-tables")
 		anonymize, _ := cmd.Flags().GetBool("anonymize")
-		gzipEnabled, _ := cmd.Flags().GetBool("gzip")
-		zstdEnabled, _ := cmd.Flags().GetBool("zstd")
+		compression, _ := cmd.Flags().GetString("compression")
 
-		if gzipEnabled && zstdEnabled {
-			return fmt.Errorf("only one compression method can be used at same time")
-		}
-
-		cfg := database.NewConfig(username, password, host, port, args[0])
-
-		db, err := sql.Open("mysql", cfg.ConnectionString())
+		db, err := sql.Open("mysql", mysqlConfig.FormatDSN())
 		if err != nil {
 			return err
 		}
@@ -178,11 +177,11 @@ var projectDatabaseDumpCmd = &cobra.Command{
 		if output == "-" {
 			w = os.Stdout
 		} else {
-			if gzipEnabled {
+			if compression == "gzip" {
 				output += ".gz"
 			}
 
-			if zstdEnabled {
+			if compression == "zstd" {
 				output += ".zst"
 			}
 
@@ -191,11 +190,11 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			}
 		}
 
-		if gzipEnabled {
+		if compression == "gzip" {
 			w = gzip.NewWriter(w)
 		}
 
-		if zstdEnabled {
+		if compression == "zstd" {
 			w, err = zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 
 			if err != nil {
@@ -211,7 +210,7 @@ var projectDatabaseDumpCmd = &cobra.Command{
 			return err
 		}
 
-		if gzipEnabled {
+		if compression == "gzip" {
 			if err = w.(*gzip.Writer).Close(); err != nil {
 				return err
 			}
@@ -223,16 +222,112 @@ var projectDatabaseDumpCmd = &cobra.Command{
 	},
 }
 
+func assembleConnectionURI(cmd *cobra.Command) (*mysql.Config, error) {
+	cfg := &mysql.Config{
+		Loc:                  time.UTC,
+		Net:                  "tcp",
+		ParseTime:            false,
+		AllowNativePasswords: true,
+		CheckConnLiveness:    true,
+		User:                 "root",
+		Passwd:               "root",
+		Addr:                 "127.0.0.1:3306",
+		DBName:               "shopware",
+	}
+
+	if projectRoot, err := findClosestShopwareProject(); err == nil {
+		if err := loadDatabaseURLIntoConnection(cmd.Context(), projectRoot, cfg); err != nil {
+			return nil, err
+		}
+	}
+
+	host, _ := cmd.Flags().GetString("host")
+	port, _ := cmd.Flags().GetString("port")
+	username, _ := cmd.Flags().GetString("username")
+	password, _ := cmd.Flags().GetString("password")
+	db, _ := cmd.Flags().GetString("database")
+
+	if host != "" {
+		if port != "" {
+			cfg.Addr = host
+		} else {
+			cfg.Addr = fmt.Sprintf("%s:%s", host, port)
+		}
+	}
+
+	if db != "" {
+		cfg.DBName = db
+	}
+
+	if username != "" {
+		cfg.User = username
+		cfg.Passwd = ""
+	}
+
+	if password != "" {
+		cfg.Passwd = password
+	}
+
+	return cfg, nil
+}
+
+func loadDatabaseURLIntoConnection(ctx context.Context, projectRoot string, cfg *mysql.Config) error {
+	if err := extension.LoadSymfonyEnvFile(projectRoot); err != nil {
+		return err
+	}
+
+	databaseUrl := os.Getenv("DATABASE_URL")
+
+	if databaseUrl == "" {
+		return nil
+	}
+
+	logging.FromContext(ctx).Info("Using DATABASE_URL env as default connection string. options can override specific parts (--username=foo)")
+
+	parsedUri, err := url.Parse(databaseUrl)
+
+	if err != nil {
+		return fmt.Errorf("could not parse DATABASE_URL: %w", err)
+	}
+
+	if parsedUri.User != nil {
+		cfg.User = parsedUri.User.Username()
+
+		if password, ok := parsedUri.User.Password(); ok {
+			cfg.Passwd = password
+		} else {
+			// Reset password if it is not set
+			cfg.Passwd = ""
+		}
+	}
+
+	if parsedUri.Host != "" {
+		cfg.Addr = parsedUri.Host
+
+		if parsedUri.Port() != "" {
+			cfg.Addr = fmt.Sprintf("%s:%s", parsedUri.Host, parsedUri.Port())
+		}
+	}
+
+	if parsedUri.Path != "" {
+		cfg.DBName = strings.Trim(parsedUri.Path, "/")
+	}
+
+	return nil
+}
+
 func init() {
 	projectRootCmd.AddCommand(projectDatabaseDumpCmd)
-	projectDatabaseDumpCmd.Flags().String("host", "127.0.0.1", "hostname")
-	projectDatabaseDumpCmd.Flags().StringP("username", "u", "root", "mysql user")
-	projectDatabaseDumpCmd.Flags().StringP("password", "p", "root", "mysql password")
-	projectDatabaseDumpCmd.Flags().String("port", "3306", "mysql port")
+	projectDatabaseDumpCmd.Flags().String("host", "", "hostname")
+	projectDatabaseDumpCmd.Flags().String("database", "", "database name")
+	projectDatabaseDumpCmd.Flags().StringP("username", "u", "", "mysql user")
+	projectDatabaseDumpCmd.Flags().StringP("password", "p", "", "mysql password")
+	projectDatabaseDumpCmd.Flags().String("port", "", "mysql port")
+
 	projectDatabaseDumpCmd.Flags().String("output", "dump.sql", "file or - (for stdout)")
 	projectDatabaseDumpCmd.Flags().Bool("clean", false, "Ignores cart, enqueue, message_queue_stats")
 	projectDatabaseDumpCmd.Flags().Bool("skip-lock-tables", false, "Skips locking the tables")
 	projectDatabaseDumpCmd.Flags().Bool("anonymize", false, "Anonymize customer data")
-	projectDatabaseDumpCmd.Flags().Bool("gzip", false, "Gzip the whole dump")
+	projectDatabaseDumpCmd.Flags().String("compression", "", "Compress the dump (gzip, zstd)")
 	projectDatabaseDumpCmd.Flags().Bool("zstd", false, "Zstd the whole dump")
 }
